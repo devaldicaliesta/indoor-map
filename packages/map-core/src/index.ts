@@ -8,6 +8,14 @@ export {
 } from './defaults';
 export { createPolygonDrawer, type PolygonDrawer } from './draw';
 export {
+  createFeatureEditor,
+  type EditableFeature,
+  type EditorTool,
+  type FeatureEditor,
+  type FeatureEditorCallbacks,
+  setHiddenFeature,
+} from './editor';
+export {
   type CornerIndex,
   type Corners,
   calibratePlacement,
@@ -26,6 +34,7 @@ export {
   type Georeferencer,
   type GeoreferencerOptions,
 } from './georef-layer';
+export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
 export {
   REFERENCE_LAYER_IDS,
   REFERENCE_OPACITY,

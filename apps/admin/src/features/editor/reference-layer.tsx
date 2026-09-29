@@ -61,16 +61,21 @@ export function ReferenceFloorPicker({
   currentFloorId,
   value,
   onChange,
+  compact = false,
 }: {
   floors: Floor[];
   currentFloorId: FloorId;
   value: FloorId | null;
   onChange: (floorId: FloorId | null) => void;
+  /** Untuk bilah atas editor: label hanya untuk pembaca layar, tanpa keterangan. */
+  compact?: boolean;
 }) {
   const others = floors.filter((f) => f.id !== currentFloorId);
   return (
     <div className="grid gap-1">
-      <Label htmlFor="reference-floor">Tampilkan lantai lain</Label>
+      <Label htmlFor="reference-floor" className={compact ? 'sr-only' : undefined}>
+        Tampilkan lantai lain
+      </Label>
       <Select
         value={value ?? NONE}
         onValueChange={(next) =>
@@ -82,15 +87,15 @@ export function ReferenceFloorPicker({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={NONE}>Tidak ada</SelectItem>
+          <SelectItem value={NONE}>{compact ? 'Tanpa lantai acuan' : 'Tidak ada'}</SelectItem>
           {others.map((floor) => (
             <SelectItem key={floor.id} value={floor.id}>
-              Lantai {floor.name}
+              {compact ? 'Acuan: ' : ''}Lantai {floor.name}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      <p className="text-ink-muted text-sm">
+      <p className={compact ? 'sr-only' : 'text-ink-muted text-sm'}>
         Samar dan tidak bisa disunting. Lift, eskalator, dan tangga ditonjolkan untuk menyelaraskan
         posisi.
       </p>

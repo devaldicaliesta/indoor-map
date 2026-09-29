@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-108
+**Task berikutnya:** T-109
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -36,8 +36,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-105 | Unggah denah PNG/JPG/PDF | T-103 | review | |
 | T-106 | Georeferensi dan opasitas | T-105 | review | |
 | T-107 | Lapisan acuan lantai lain | T-106 | review | |
-| T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | siap | model besar |
-| T-109 | Jenis fitur dan atribut unit | T-108 | menunggu | |
+| T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | review | model besar |
+| T-109 | Jenis fitur dan atribut unit | T-108 | siap | |
 | T-110 | Edit geometri, multi-select, snapping | T-109 | menunggu | |
 | T-111 | Undo/redo | T-110 | menunggu | |
 | T-112 | Fasilitas dan jenis fasilitas | T-109 | menunggu | |
@@ -167,6 +167,9 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-106 — Posisi denah dimodelkan sebagai persegi panjang berputar (`Placement`: pusat, lebar/tinggi meter, rotasi searah jarum jam dari utara) di `map-core/src/georef.ts`; `corners` yang disimpan selalu diturunkan darinya, sehingga tidak ada warping. Tarik sudut = sudut seberang tetap (dengan "Kunci proporsi": skala seragam); kalibrasi alat ukur menskalakan terhadap titik ukur pertama. Hitungan jarak memakai proyeksi ekuirektangular lokal (galat < 0,01% pada skala gedung). Uji browser: setelah kalibrasi 48 m, jarak lain yang diketahui (32 m) terukur 31,98 m (0,06%).
 - [2026-09-29] T-106 — Halaman "Tempatkan denah" di route `/venues/floors/:floorId/plan` (dibuka dari dialog Denah), file kebab-case `georeference.tsx` sesuai konvensi repo. Posisi awal denah yang belum pernah ditempatkan: selebar footprint gedung di tengahnya. Role tanpa `venue.edit` melihat denah tanpa pegangan (sama dengan RLS `can_manage` untuk update).
 - [2026-09-29] T-107 — Lapisan acuan (`map-core/src/layers/reference.ts`) memakai source dan layer sendiri (`ref-floor-*`) tanpa event, sehingga tidak bisa diseleksi atau disunting, dan tidak pernah disimpan. Fitur samar (isi/garis ≤ 25–50%, garis putus-putus); lift, eskalator, dan tangga berisi --signal 55%. Pilihan lantai acuan dibatasi lantai lain di gedung yang sama. Karena Editor (T-108) belum ada, komponen `features/editor/reference-layer.tsx` dipasang dulu di mode "Tempatkan denah", yang kini juga menampilkan fitur lantainya sendiri. `features.listByFloor` (baca saja) ditambahkan lebih awal di `packages/data/src/repositories/features.ts`; T-108 menambah penulisan.
+- [2026-09-29] T-108 — Store editor (Zustand) memegang semua fitur lantai; fitur dirender lewat layer style map-core (cepat untuk 1.000 fitur), sedangkan terra-draw hanya memegang fitur yang sedang digambar atau disunting (`createFeatureEditor`); fitur yang disunting disembunyikan dari layer style lewat filter. Id fitur dibuat klien (UUID) dan disimpan dengan upsert, sehingga "buat" dan "ubah" satu jalur dan antrean tidak perlu tahu status di server. `SaveQueue` (debounce 800 ms per fitur, tanpa penyimpanan paralel per fitur, yang terakhir menang, "Gagal, coba lagi" mengirim ulang) dengan test.
+- [2026-09-29] T-108 — Jenis awal fitur baru: poligon = unit (Area Luar: `outdoor_area`), garis = dinding, titik = pintu; unit mendapat kode otomatis `{kode gedung}-{lantai}-{nnn}` karena kolom `unit_code` wajib untuk unit. Pemilih jenis dan pengubahan kode di T-109. Luas memakai rumus bola (seperti turf) dengan jari-jari rata-rata; selisih ±0,5% dari PostGIS geography (elipsoid). Gedung/lantai terpilih disimpan di URL (`?building=&floor=`) agar reload kembali ke lantai yang sama. Tombol "Hapus fitur" di panel properti sudah ada (hapus multi-select dan pintasan di T-110).
+- [2026-09-29] T-108 — Kelancaran: dengan WebGL perangkat lunak (SwiftShader) menggeser lantai 1.000 fitur 36 fps vs 43 fps untuk lantai hampir kosong, jadi batasnya perender CPU, bukan jumlah fitur; buka lantai 1.000 fitur 290 ms, pilih fitur 139 ms. Perlu diukur ulang di perangkat dengan GPU.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

@@ -23,10 +23,11 @@ async function listWithUrls(floorId: FloorId): Promise<FloorPlanVersion[]> {
   }));
 }
 
-export function useFloorPlans(floorId: FloorId) {
+export function useFloorPlans(floorId: FloorId | null) {
   return useQuery({
-    queryKey: key(floorId),
-    queryFn: () => listWithUrls(floorId),
+    queryKey: key(floorId as FloorId),
+    queryFn: () => listWithUrls(floorId as FloorId),
+    enabled: floorId !== null,
     // URL bertanda berlaku satu jam; ambil ulang sebelum kedaluwarsa.
     staleTime: 30 * 60 * 1000,
   });
