@@ -1,0 +1,25 @@
+{
+  "name": "indoor-nav",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "check": "turbo run typecheck lint test",
+    "test": "turbo run test",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "db:types": "supabase gen types typescript --local > packages/data/src/database.types.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "@types/node": "^22.20.4",
+    "turbo": "2.11.5",
+    "typescript": "7.0.2",
+    "vitest": "5.0.2"
+  }
+}

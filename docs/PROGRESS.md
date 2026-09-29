@@ -5,16 +5,16 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-001
+**Task berikutnya:** T-002, T-003, T-004
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-001 | Monorepo dan tooling | – | siap | |
-| T-002 | Scaffold aplikasi Admin dan Visitor | T-001 | menunggu | |
-| T-003 | Kerangka paket bersama | T-001 | menunggu | |
-| T-004 | Supabase lokal dan skema inti | T-001 | menunggu | |
+| T-001 | Monorepo dan tooling | – | review | pnpm + Turborepo + Biome + Vitest + TS 7; CI & template PR. Kriteria "CI hijau di PR" menunggu PR pertama |
+| T-002 | Scaffold aplikasi Admin dan Visitor | T-001 | siap | |
+| T-003 | Kerangka paket bersama | T-001 | siap | |
+| T-004 | Supabase lokal dan skema inti | T-001 | siap | |
 | T-005 | Lapisan data | T-003, T-004 | menunggu | |
 | T-006 | Sistem desain | T-003 | menunggu | |
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | menunggu | |
@@ -116,7 +116,11 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 Format: `- [tanggal] T-xxx — keputusan — alasan`
 
-- (belum ada)
+- [2026-09-29] T-001 — Task dikerjakan berurutan di branch `claude/vibrant-davinci-uyrrka`, bukan `task/T-xxx-*` dari `main` — repo belum punya branch `main`, dan pemilik meminta task dikerjakan beruntun dalam satu sesi. Dependensi dianggap terpenuhi bila task sebelumnya sudah ter-commit dengan status `review`.
+- [2026-09-29] T-001 — TypeScript 7 (kompiler native) — versi stabil terbaru; semua opsi di `tsconfig.base.json` didukung. Jika ada alat yang butuh API JS TypeScript lama, turunkan ke 6.x.
+- [2026-09-29] T-001 — `pnpm lint` di root menjalankan `biome check .` untuk seluruh repo (tugas root `//#lint`, tanpa cache) — file konfigurasi root ikut diperiksa; lint per paket tetap ditambahkan di T-002/T-003 untuk cache per paket.
+- [2026-09-29] T-001 — `.gitignore` mengecualikan `.env*` kecuali `.env.example` — T-004 mewajibkan `.env.example` di-commit.
+- [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
 

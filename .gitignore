@@ -1,0 +1,17 @@
+# Dependensi dan hasil build
+node_modules
+dist
+.turbo
+coverage
+*.tsbuildinfo
+
+# Lingkungan (contoh variabel tetap di-commit)
+.env*
+!.env.example
+
+# Supabase lokal
+supabase/.temp
+
+# Log dan sistem
+*.log
+.DS_Store
