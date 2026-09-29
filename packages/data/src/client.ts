@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { type AuthRepository, createAuthRepository } from './auth';
 import type { Database } from './database.types';
 import { type AuditRepository, createAuditRepository } from './repositories/audit';
+import { type BuildingsRepository, createBuildingsRepository } from './repositories/buildings';
 import { createProfilesRepository, type ProfilesRepository } from './repositories/profiles';
 import {
   createSystemSettingsRepository,
@@ -21,6 +22,7 @@ export interface DataClientConfig {
 export interface DataClient {
   audit: AuditRepository;
   auth: AuthRepository;
+  buildings: BuildingsRepository;
   profiles: ProfilesRepository;
   systemSettings: SystemSettingsRepository;
   users: UsersRepository;
@@ -32,6 +34,7 @@ export function createRepositories(db: Db): DataClient {
   return {
     audit: createAuditRepository(db),
     auth: createAuthRepository(db, profiles),
+    buildings: createBuildingsRepository(db),
     profiles,
     systemSettings: createSystemSettingsRepository(db),
     users: createUsersRepository(db),

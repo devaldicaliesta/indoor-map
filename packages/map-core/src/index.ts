@@ -1,5 +1,6 @@
 export type { Map as MapInstance } from 'maplibre-gl';
 export { DEFAULT_FILL, DEFAULT_HEIGHTS, MAP_BACKGROUND, PITCH_3D } from './defaults';
+export { createPolygonDrawer, type PolygonDrawer } from './draw';
 export {
   type CreateMapOptions,
   createMap,
@@ -7,6 +8,7 @@ export {
   featureBounds,
   getViewMode,
   setFloorData,
+  setReferenceShapes,
   setViewMode,
   type ViewMode,
 } from './map';
