@@ -24,6 +24,7 @@ import {
 } from '@indoor/ui';
 import { useState } from 'react';
 import { Can } from '../../../app/auth/can';
+import { FloorPlanDialog } from '../../floor-plans/floor-plan-dialog';
 import { FloorForm } from './floor-form';
 import { useFloors, useRemoveFloor, useSaveFloor, useSetDefaultFloor } from './queries';
 
@@ -80,6 +81,7 @@ export function FloorsSheet({ building, onClose }: { building: Building; onClose
   const setDefault = useSetDefaultFloor(building.id);
   const [editing, setEditing] = useState<Floor | null>(null);
   const [deleting, setDeleting] = useState<Floor | null>(null);
+  const [planFor, setPlanFor] = useState<Floor | null>(null);
   const list = floors.data ?? [];
   const nextLevel = list.length ? Math.max(...list.map((f) => f.level)) + 1 : 0;
 
@@ -133,8 +135,11 @@ export function FloorsSheet({ building, onClose }: { building: Building; onClose
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Can action="venue.edit">
-                      <div className="flex justify-end gap-1">
+                    <div className="flex justify-end gap-1">
+                      <Button size="sm" onClick={() => setPlanFor(floor)}>
+                        Denah
+                      </Button>
+                      <Can action="venue.edit">
                         <Button size="sm" onClick={() => setEditing(floor)}>
                           Ubah
                         </Button>
@@ -146,8 +151,8 @@ export function FloorsSheet({ building, onClose }: { building: Building; onClose
                         >
                           Hapus
                         </Button>
-                      </div>
-                    </Can>
+                      </Can>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -175,6 +180,7 @@ export function FloorsSheet({ building, onClose }: { building: Building; onClose
             {...(editing ? { onCancel: () => setEditing(null) } : {})}
           />
         </Can>
+        {planFor ? <FloorPlanDialog floor={planFor} onClose={() => setPlanFor(null)} /> : null}
         {deleting ? (
           <DeleteFloorDialog
             building={building}

@@ -3,6 +3,7 @@ import { type AuthRepository, createAuthRepository } from './auth';
 import type { Database } from './database.types';
 import { type AuditRepository, createAuditRepository } from './repositories/audit';
 import { type BuildingsRepository, createBuildingsRepository } from './repositories/buildings';
+import { createFloorPlansRepository, type FloorPlansRepository } from './repositories/floor-plans';
 import { createFloorsRepository, type FloorsRepository } from './repositories/floors';
 import { createProfilesRepository, type ProfilesRepository } from './repositories/profiles';
 import {
@@ -24,6 +25,7 @@ export interface DataClient {
   audit: AuditRepository;
   auth: AuthRepository;
   buildings: BuildingsRepository;
+  floorPlans: FloorPlansRepository;
   floors: FloorsRepository;
   profiles: ProfilesRepository;
   systemSettings: SystemSettingsRepository;
@@ -37,6 +39,7 @@ export function createRepositories(db: Db): DataClient {
     audit: createAuditRepository(db),
     auth: createAuthRepository(db, profiles),
     buildings: createBuildingsRepository(db),
+    floorPlans: createFloorPlansRepository(db),
     floors: createFloorsRepository(db),
     profiles,
     systemSettings: createSystemSettingsRepository(db),
