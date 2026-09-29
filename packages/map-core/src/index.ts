@@ -62,6 +62,19 @@ export {
 } from './selection';
 export { closestOnSegment, type Px, SNAP_TOLERANCE_PX, type SnapKind, snapPoint } from './snap';
 export { type BBox, buildSnapIndex, type SnapCandidates, type SnapIndex } from './snap-index';
+export {
+  FACILITY_ICON_COLORS,
+  FACILITY_ICON_FALLBACK,
+  FACILITY_ICON_PREFIX,
+  FACILITY_ICON_SIZE,
+  type FacilityIconSpec,
+  facilityIconId,
+  fitContain,
+  type IconSource,
+  isOpaque,
+  renderFacilityIcon,
+  setFacilityIcons,
+} from './sprites';
 export { buildStyle, buildStyleLayers, FLOOR_SOURCE_ID, LAYER_IDS, type MapDisplay } from './style';
 export {
   boundsCenter,

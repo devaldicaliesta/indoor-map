@@ -10,6 +10,7 @@ import {
   POINT_STYLE,
   VACANT_UNIT,
 } from './defaults';
+import { FACILITY_ICON_PREFIX } from './sprites';
 
 export const FLOOR_SOURCE_ID = 'floor';
 
@@ -29,6 +30,7 @@ export const LAYER_IDS = {
   walls: 'floor-walls',
   extrusion: 'floor-extrusion',
   points: 'floor-points',
+  facilities: 'floor-facilities',
 } as const;
 
 /** Layer yang hanya tampil di mode 2D / 3D. */
@@ -37,7 +39,7 @@ export const LAYERS_3D_ONLY = [LAYER_IDS.extrusion];
 
 const FLAT_KINDS: FeatureKind[] = ['outdoor_area', 'corridor', 'non_walkable'];
 const ROOM_KINDS: FeatureKind[] = ['unit', 'elevator', 'escalator', 'stairs'];
-const POINT_KINDS: FeatureKind[] = ['door', 'exit', 'facility', 'landmark'];
+const POINT_KINDS: FeatureKind[] = ['door', 'exit', 'landmark'];
 
 const kind: ExpressionSpecification = ['get', 'kind'];
 const isVacant: ExpressionSpecification = ['==', ['get', 'unitStatus'], 'vacant'];
@@ -167,6 +169,25 @@ export function buildStyleLayers(display: MapDisplay = {}): LayerSpecification[]
         ),
         'circle-stroke-color': '#ffffff',
         'circle-stroke-width': 1,
+      },
+    },
+    {
+      // FR-MAP-07: ikon per jenis fasilitas dari sprite yang dibangun saat memuat (sprites.ts).
+      id: LAYER_IDS.facilities,
+      type: 'symbol',
+      source,
+      filter: ['all', ['==', ['geometry-type'], 'Point'], ['==', kind, 'facility']],
+      layout: {
+        'icon-image': [
+          'concat',
+          FACILITY_ICON_PREFIX,
+          ['coalesce', ['get', 'facilityTypeId'], 'unknown'],
+        ],
+        'icon-size': ['interpolate', ['linear'], ['zoom'], 15, 0.5, 18, 1],
+        // Di editor setiap fasilitas harus terlihat dan bisa diklik; penyembunyian label
+        // yang bertumpuk untuk pengunjung diatur saat Visitor dibuat (FR-VST-03).
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
       },
     },
   ];
