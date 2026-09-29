@@ -18,7 +18,8 @@
     "resetNorth": "Reset to north",
     "viewMode": "View mode",
     "mode2d": "2D",
-    "mode3d": "3D"
+    "mode3d": "3D",
+    "floors": "Floors"
   },
   "sheet": {
     "handle": "Resize panel",

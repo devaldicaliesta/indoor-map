@@ -14,6 +14,7 @@ export function MapPreviewPage() {
         mode3d: t('map.mode3d'),
         floor: 'floor switch',
         synthetic: '1000',
+        floorSwitcher: t('map.floors'),
       }}
     />
   );

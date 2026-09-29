@@ -22,6 +22,7 @@ import {
 import { useState } from 'react';
 import { Can } from '../../../app/auth/can';
 import { FormNotice } from '../../auth/auth-layout';
+import { FloorsSheet } from '../floors/floors-sheet';
 import { BuildingDialog } from './building-dialog';
 import { useBuildings, useOutdoorLayer, useRemoveBuilding, useSetDefaultBuilding } from './queries';
 
@@ -72,6 +73,7 @@ function DeleteBuildingDialog({
 type Open =
   | { kind: 'form'; building: Building | null }
   | { kind: 'delete'; building: Building }
+  | { kind: 'floors'; building: Building }
   | null;
 
 export function BuildingsPanel({ venue }: { venue: Venue }) {
@@ -144,6 +146,9 @@ export function BuildingsPanel({ venue }: { venue: Venue }) {
                 <TableCell className="text-right">
                   <Can action="venue.edit">
                     <div className="flex justify-end gap-2">
+                      <Button size="sm" onClick={() => setOpen({ kind: 'floors', building })}>
+                        Lantai
+                      </Button>
                       <Button size="sm" onClick={() => setOpen({ kind: 'form', building })}>
                         Ubah
                       </Button>
@@ -185,6 +190,12 @@ export function BuildingsPanel({ venue }: { venue: Venue }) {
           venue={venue}
           building={open.building}
           others={list}
+          onClose={() => setOpen(null)}
+        />
+      ) : null}
+      {open?.kind === 'floors' ? (
+        <FloorsSheet
+          building={list.find((b) => b.id === open.building.id) ?? open.building}
           onClose={() => setOpen(null)}
         />
       ) : null}

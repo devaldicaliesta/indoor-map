@@ -12,6 +12,7 @@ export function MapPreviewPage() {
         mode3d: '3D',
         floor: 'Ganti lantai',
         synthetic: '1.000 fitur',
+        floorSwitcher: 'Lantai',
       }}
     />
   );
