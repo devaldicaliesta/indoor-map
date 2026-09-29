@@ -1,5 +1,6 @@
 export * from './audit';
 export * from './auth';
+export * from './feature';
 export * from './geometry';
 export * from './ids';
 export * from './language';

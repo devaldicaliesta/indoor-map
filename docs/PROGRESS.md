@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-104 (rilis R0 selesai dikerjakan; menunggu review)
+**Task berikutnya:** T-101 (R0 dan T-104 menunggu review)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -29,8 +29,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-104 | Fondasi peta (map-core) | T-003, T-006 | siap | boleh paralel dengan akhir R0 |
-| T-101 | Venue dan multi-venue | R0 | menunggu | |
+| T-104 | Fondasi peta (map-core) | T-003, T-006 | review | Style tanpa basemap, layer 2D/3D, ganti lantai lewat satu source, MapControls; `/_map` (dev) di Admin & Visitor. Ganti lantai 1.000 fitur 102–204 ms di WebGL perangkat lunak — perlu diukur ulang di perangkat dengan GPU |
+| T-101 | Venue dan multi-venue | R0 | siap | |
 | T-102 | Gedung dan Area Luar | T-101, T-104 | menunggu | |
 | T-103 | Lantai dan default tampilan | T-102 | menunggu | |
 | T-105 | Unggah denah PNG/JPG/PDF | T-103 | menunggu | |
@@ -154,6 +154,9 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-012 — Pencatatan dilakukan di server (hook login, trigger `profiles` dan `system_settings`, RPC password SMTP), bukan dari klien; `audit_events` tidak bisa ditulis klien. `publish`, `rollback`, `license_changed` dicatat saat fiturnya dibuat (T-310, T-402). Komponen di `features/settings/audit-log.tsx` (nama file kebab-case seperti file lain, bukan `AuditLog.tsx` di task).
 - [2026-09-29] T-011 — Bahasa Visitor ditentukan `resolveLanguage` di domain (pilihan tersimpan → bahasa perangkat → default), tanpa `i18next-browser-languagedetector` karena detector itu bisa menulis cookie. localStorage hanya berisi `indoor-visitor.language`.
 - [2026-09-29] T-011 — PWA: precache aset (cache-first) kecuali font IBM Plex Sans milik Admin; snapshot `…/public/snapshots/…` stale-while-revalidate. Ikon PNG dirender dari SVG (penanda "Anda di sini" kuning di atas tinta). Installability diperiksa lewat Chrome DevTools Protocol (`Page.getInstallabilityErrors` kosong); Lighthouse tidak tersedia di lingkungan ini.
+- [2026-09-29] T-104 — Fixture venue contoh di `packages/domain/test/fixtures/venue-sample.json` (2 gedung, 5 lantai termasuk Area Luar, 56 unit, lift GF–L1 saja, eskalator naik/turun, tangga), diekspor sebagai `@indoor/domain/fixtures/*`. Peta dengan fixture hanya ada di route pengembangan `/_map` agar tidak ada data contoh di build produksi.
+- [2026-09-29] T-104 — MapLibre 6 memuat worker dari file terpisah: kedua app memakai `optimizeDeps.exclude: ['maplibre-gl']` di Vite. App memakai tipe `MapInstance` dari `@indoor/map-core`, tidak mengimpor `maplibre-gl` langsung.
+- [2026-09-29] T-104 — Di 3D unit bersebelahan tampak menyatu (tinggi dan warna sama, dinding berupa garis tidak diekstrusi). Untuk T-115: ekstrusi dinding dari garis dinding dan pemisah visual antar-unit.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
