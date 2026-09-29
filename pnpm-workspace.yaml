@@ -1,3 +1,18 @@
 packages:
   - apps/*
   - packages/*
+
+# Versi bersama untuk semua paket; pakai `"nama": "catalog:"` di package.json.
+catalog:
+  '@biomejs/biome': 2.5.14
+  '@types/node': ^22.20.4
+  '@types/react': ^19.2.18
+  '@types/react-dom': ^19.2.7
+  '@vitejs/plugin-react': ^6.1.1
+  react: ^19.2.8
+  react-dom: ^19.2.8
+  react-router: ^8.4.0
+  turbo: 2.11.5
+  typescript: 7.0.2
+  vite: ^8.3.0
+  vitest: 5.0.2
