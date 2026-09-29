@@ -4,6 +4,10 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(9);
 
+-- Uji tidak bergantung pada isi database lokal (semua dibatalkan di akhir).
+delete from public.audit_events;
+delete from vault.secrets where name = 'smtp_password';
+
 insert into auth.users (id, email) values
   ('b2000000-0000-4000-8000-000000000001', 'sa@settings.test'),
   ('b2000000-0000-4000-8000-000000000002', 'ad@settings.test');
