@@ -10,6 +10,10 @@ export { DataError, type DataErrorKind } from './errors';
 export type { AuditRepository } from './repositories/audit';
 export type { BuildingsRepository, OutdoorLayer } from './repositories/buildings';
 export type {
+  FacilityTypesRepository,
+  FacilityTypeWithUsage,
+} from './repositories/facility-types';
+export type {
   FeaturesRepository,
   FloorFeature,
   FloorFeatures,

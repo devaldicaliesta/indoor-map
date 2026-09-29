@@ -79,11 +79,13 @@ export function createVenuesRepository(db: Db): VenuesRepository {
     return data !== null;
   }
 
+  /** Logo venue dan ikon jenis fasilitasnya (T-112). */
   async function removeFiles(id: VenueId) {
-    const folder = `venues/${id}`;
-    const { data } = await db.storage.from(ASSETS_BUCKET).list(folder);
-    if (data?.length)
-      await db.storage.from(ASSETS_BUCKET).remove(data.map((f) => `${folder}/${f.name}`));
+    for (const folder of [`venues/${id}`, `facility-types/${id}`]) {
+      const { data } = await db.storage.from(ASSETS_BUCKET).list(folder);
+      if (data?.length)
+        await db.storage.from(ASSETS_BUCKET).remove(data.map((f) => `${folder}/${f.name}`));
+    }
   }
 
   return {
