@@ -54,8 +54,11 @@ Dibuat di T-004. Agen menyalin blok ini apa adanya, lalu menjalankan `supabase d
 -- Indoor Map & Navigation — skema inti MVP
 -- =====================================================================
 
-create extension if not exists postgis;
-create extension if not exists pgcrypto;
+-- Ekstensi di skema `extensions`, bukan public: tabel spatial_ref_sys milik PostGIS
+-- tidak bisa diberi RLS, jadi tidak boleh terbuka lewat REST API di skema public.
+create schema if not exists extensions;
+create extension if not exists postgis with schema extensions;
+create extension if not exists pgcrypto with schema extensions;
 
 create schema if not exists app;
 

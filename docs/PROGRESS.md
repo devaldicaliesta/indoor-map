@@ -14,8 +14,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-001 | Monorepo dan tooling | – | review | pnpm + Turborepo + Biome + Vitest + TS 7; CI & template PR. Kriteria "CI hijau di PR" menunggu PR pertama |
 | T-002 | Scaffold aplikasi Admin dan Visitor | T-001 | review | Vite 8 + React 19 + React Router 8; Admin 5173, Visitor 5174 |
 | T-003 | Kerangka paket bersama | T-001 | review | 5 paket `@indoor/*` (exports ke src); batas impor di Biome |
-| T-004 | Supabase lokal dan skema inti | T-001 | siap | |
-| T-005 | Lapisan data | T-003, T-004 | menunggu | |
+| T-004 | Supabase lokal dan skema inti | T-001 | review | Migrasi 0001, seed, 14 uji pgTAP lulus; diverifikasi dengan Docker di lingkungan cloud |
+| T-005 | Lapisan data | T-003, T-004 | siap | |
 | T-006 | Sistem desain | T-003 | siap | |
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | menunggu | |
 | T-008 | Login, logout, reset password | T-007 | menunggu | |
@@ -125,6 +125,10 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-003 — ID bermerek dibuat dari skema zod (`z.uuid().brand<'VenueId'>()`) — satu sumber untuk tipe dan validasi saat parsing baris/URL.
 - [2026-09-29] T-003 — Selain larangan React/MapLibre/Supabase di `domain` dan `routing`, Biome juga menegakkan aturan dependensi `03-arsitektur.md`: `domain` tidak mengimpor `@indoor/*`, `routing` hanya `@indoor/domain`, `map-core` tidak mengimpor `@indoor/data`/`@supabase/*`.
 - [2026-09-29] T-003 — Test paket murni di folder `test/` (sejalan dengan `test/fixtures/` di `06-alur-kerja.md`); `domain` dan `routing` hanya memakai lib ES2023 tanpa DOM.
+- [2026-09-29] T-004 — **Perubahan SQL 0001 (keamanan):** PostGIS dan pgcrypto dibuat `with schema extensions`, bukan di `public` — di Supabase tabel `spatial_ref_sys` dimiliki `supabase_admin`, tidak bisa diberi RLS atau dicabut haknya oleh `postgres`, dan di `public` tabel itu bisa diubah/dihapus `anon` lewat REST API (terbukti: DELETE/INSERT anon → 204/201). PostGIS juga tidak bisa dipindah skema lewat migrasi lanjutan, jadi 0001 diubah sebelum pernah di-merge; blok SQL di `docs/04-model-data.md` diubah identik. Diuji di `supabase/tests/rls.test.sql`.
+- [2026-09-29] T-004 — Password Super Admin seed diteruskan lewat `PGOPTIONS` (`-c seed.admin_password=…`) oleh `pnpm db:reset` (`scripts/db-reset.mjs`), karena seed SQL tidak bisa membaca `.env.local`. `supabase db reset` biasa tetap sukses tetapi tanpa Super Admin.
+- [2026-09-29] T-004 — Supabase CLI dipasang sebagai devDependency root (`onlyBuiltDependencies: supabase`) agar `pnpm db:types` jalan tanpa instalasi global. `db:types` memformat hasil generate dengan Biome; file itu dikecualikan dari lint saja.
+- [2026-09-29] T-004 — Karena 0001 berubah, migrasi Storage T-105 tetap bernomor 0002 seperti rencana `04-model-data.md`.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
