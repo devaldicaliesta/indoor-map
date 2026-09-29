@@ -2,7 +2,9 @@ import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RequireAuth } from './app/auth/require-auth';
 import { HomeRedirect } from './app/module-route';
 import { NotFoundPage, RouteError } from './app/route-error';
+import { ForgotPasswordPage } from './features/auth/forgot-password-page';
 import { LoginPage } from './features/auth/login-page';
+import { ResetPasswordPage } from './features/auth/reset-password-page';
 import { ClosuresPage } from './features/closures/closures-page';
 import { LicensePage } from './features/license/license-page';
 import { LocationsPage } from './features/locations/locations-page';
@@ -25,6 +27,8 @@ const devRoutes: RouteObject[] = import.meta.env.DEV
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
   {
     path: '/',
     element: <RequireAuth />,

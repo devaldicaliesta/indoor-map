@@ -1,5 +1,7 @@
+import { DataError } from '@indoor/data';
 import { Skeleton } from '@indoor/ui';
 import { Navigate, useLocation } from 'react-router';
+import { setLoginNotice } from '../../features/auth/navigation-notice';
 import { AppLayout } from '../layout/app-layout';
 import { RouteError } from '../route-error';
 import { useAuthSync, useCurrentProfile } from './current-profile';
@@ -17,6 +19,10 @@ export function RequireAuth() {
         <Skeleton className="h-14" />
       </div>
     );
+  }
+  if (profile.error instanceof DataError && profile.error.code === 'account_inactive') {
+    setLoginNotice(profile.error.message);
+    return <Navigate to="/login" replace />;
   }
   if (profile.error) return <RouteError error={profile.error} />;
   if (!profile.data) {
