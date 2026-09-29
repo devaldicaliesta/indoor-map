@@ -6,10 +6,10 @@ import { ForgotPasswordPage } from './features/auth/forgot-password-page';
 import { LoginPage } from './features/auth/login-page';
 import { ResetPasswordPage } from './features/auth/reset-password-page';
 import { ClosuresPage } from './features/closures/closures-page';
+import { EditorPage } from './features/editor/editor-page';
 import { GeoreferencePage } from './features/floor-plans/georeference';
 import { LicensePage } from './features/license/license-page';
 import { LocationsPage } from './features/locations/locations-page';
-import { MapEditorPage } from './features/map-editor/map-editor-page';
 import { OriginPointsPage } from './features/origin-points/origin-points-page';
 import { PublishPage } from './features/publish/publish-page';
 import { SettingsPage } from './features/settings/settings-page';
@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
       { index: true, element: <HomeRedirect /> },
       { path: 'venues', element: <VenuesPage /> },
       { path: 'venues/floors/:floorId/plan', element: <GeoreferencePage /> },
-      { path: 'map-editor', element: <MapEditorPage /> },
+      { path: 'map-editor', element: <EditorPage /> },
       { path: 'locations', element: <LocationsPage /> },
       { path: 'closures', element: <ClosuresPage /> },
       { path: 'origin-points', element: <OriginPointsPage /> },
