@@ -9,6 +9,7 @@ import type {
 } from 'maplibre-gl';
 import { EDIT_COLORS } from './defaults';
 import type { LngLat } from './georef';
+import { FACILITY_ICON_SIZE } from './sprites';
 import { buildStyleLayers, FLOOR_SOURCE_ID, LAYER_IDS } from './style';
 import { translateGeometry } from './transform';
 
@@ -17,6 +18,7 @@ export const PICKABLE_LAYERS = [
   LAYER_IDS.rooms,
   LAYER_IDS.walls,
   LAYER_IDS.points,
+  LAYER_IDS.facilities,
   LAYER_IDS.extrusion,
 ];
 
@@ -57,15 +59,18 @@ export function setSelectionHighlight(map: MapLibreMap, ids: readonly string[]):
       source: FLOOR_SOURCE_ID,
       paint: { 'line-color': EDIT_COLORS.ink, 'line-width': 2 },
     });
+    // Fasilitas disorot dengan cincin di sekeliling ikonnya agar ikon tetap terbaca.
+    const facility: ExpressionSpecification = ['==', ['get', 'kind'], 'facility'];
     map.addLayer({
       id: HIGHLIGHT.point,
       type: 'circle',
       source: FLOOR_SOURCE_ID,
       paint: {
-        'circle-radius': 6,
+        'circle-radius': ['case', facility, FACILITY_ICON_SIZE / 2 + 3, 6],
         'circle-color': EDIT_COLORS.signal,
+        'circle-opacity': ['case', facility, 0, 1],
         'circle-stroke-color': EDIT_COLORS.ink,
-        'circle-stroke-width': 2,
+        'circle-stroke-width': ['case', facility, 3, 2],
       },
     });
   }

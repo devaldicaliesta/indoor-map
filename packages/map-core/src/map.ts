@@ -2,6 +2,7 @@ import type { MapFeatureProperties } from '@indoor/domain';
 import type { FeatureCollection, Geometry } from 'geojson';
 import { type GeoJSONSource, type LngLatLike, Map as MapLibreMap } from 'maplibre-gl';
 import { PITCH_3D } from './defaults';
+import { handleMissingFacilityIcons } from './sprites';
 import {
   buildStyle,
   FLOOR_SOURCE_ID,
@@ -42,6 +43,7 @@ export function createMap(container: HTMLElement, options: CreateMapOptions): Ma
     maxPitch: 60,
     attributionControl: false,
   });
+  handleMissingFacilityIcons(map);
   if (mode === '3d') map.once('load', () => applyModeVisibility(map, '3d'));
   return map;
 }

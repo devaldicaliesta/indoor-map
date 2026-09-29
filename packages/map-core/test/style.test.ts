@@ -20,6 +20,7 @@ describe('buildStyleLayers', () => {
       [LAYER_IDS.walls, 'line'],
       [LAYER_IDS.extrusion, 'fill-extrusion'],
       [LAYER_IDS.points, 'circle'],
+      [LAYER_IDS.facilities, 'symbol'],
     ]);
     for (const l of layers) expect('source' in l && l.source).toBe(FLOOR_SOURCE_ID);
   });
@@ -47,6 +48,21 @@ describe('buildStyleLayers', () => {
     expect(JSON.stringify(layer(layers, LAYER_IDS.rooms).paint)).toContain('#f7f7f4');
     const vacant = layer(layers, LAYER_IDS.vacantOutline);
     expect(vacant.type === 'line' && vacant.paint?.['line-dasharray']).toEqual([2, 2]);
+  });
+
+  it('fasilitas tampil sebagai ikon jenisnya, bukan titik; tanpa jenis memakai ikon pengganti', () => {
+    const facilities = layer(layers, LAYER_IDS.facilities);
+    expect(facilities.type).toBe('symbol');
+    expect(JSON.stringify('filter' in facilities && facilities.filter)).toContain('"facility"');
+    const layout = facilities.type === 'symbol' ? facilities.layout : undefined;
+    expect(layout?.['icon-image']).toEqual([
+      'concat',
+      'facility-',
+      ['coalesce', ['get', 'facilityTypeId'], 'unknown'],
+    ]);
+    expect(layout?.['icon-allow-overlap']).toBe(true);
+    const points = layer(layers, LAYER_IDS.points);
+    expect(JSON.stringify('filter' in points && points.filter)).not.toContain('facility');
   });
 
   it('dinding garis 2 px', () => {
