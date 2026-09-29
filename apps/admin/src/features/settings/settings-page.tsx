@@ -1,11 +1,40 @@
-import { PlaceholderPage } from '../../app/placeholder-page';
+import { EmptyState, Tabs, TabsContent, TabsList, TabsTrigger } from '@indoor/ui';
+import { Can } from '../../app/auth/can';
+import { ModulePage, ModuleRoute } from '../../app/module-route';
+import { SystemSettingsForm } from './system-settings-form';
 
 export function SettingsPage() {
   return (
-    <PlaceholderPage
-      module="settings"
-      title="Pengaturan venue"
-      description="Atur tampilan 2D/3D, branding, dan teks instruksi rute."
-    />
+    <ModuleRoute module="settings">
+      {(access) => (
+        <ModulePage module="settings" access={access}>
+          <Can
+            action="settings.system"
+            fallback={
+              <EmptyState
+                title="Tampilan dan instruksi"
+                description="Atur tinggi 3D, warna, branding, dan teks instruksi rute untuk venue ini."
+              />
+            }
+          >
+            <Tabs defaultValue="system">
+              <TabsList>
+                <TabsTrigger value="system">Sistem</TabsTrigger>
+                <TabsTrigger value="display">Tampilan</TabsTrigger>
+              </TabsList>
+              <TabsContent value="system">
+                <SystemSettingsForm />
+              </TabsContent>
+              <TabsContent value="display">
+                <EmptyState
+                  title="Tampilan dan instruksi"
+                  description="Atur tinggi 3D, warna, branding, dan teks instruksi rute untuk venue ini."
+                />
+              </TabsContent>
+            </Tabs>
+          </Can>
+        </ModulePage>
+      )}
+    </ModuleRoute>
   );
 }

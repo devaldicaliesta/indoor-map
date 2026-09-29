@@ -1,6 +1,7 @@
 import { LanguageCodeSchema, type SystemSettings, type SystemSettingsPatch } from '@indoor/domain';
 import type { Tables, TablesUpdate } from '../database.types';
 import { DataError, toDataError } from '../errors';
+import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
 
 const COLUMNS =
@@ -38,6 +39,12 @@ export function toSystemSettingsUpdate(
 export interface SystemSettingsRepository {
   get(): Promise<SystemSettings>;
   update(patch: SystemSettingsPatch): Promise<SystemSettings>;
+  /** Password SMTP ada di Vault; nilainya tidak pernah dikirim ke klien. */
+  smtpPasswordIsSet(): Promise<boolean>;
+  /** String kosong menghapus password. */
+  setSmtpPassword(password: string): Promise<void>;
+  /** Mengirim email uji ke Super Admin yang sedang masuk; mengembalikan alamat tujuan. */
+  sendTestEmail(): Promise<string>;
 }
 
 // Baris pengaturan selalu ada (satu per instalasi), jadi baris yang tidak
@@ -65,6 +72,25 @@ export function createSystemSettingsRepository(db: Db): SystemSettingsRepository
       const row = data[0];
       if (!row) throw new DataError('forbidden');
       return mapSystemSettingsRow(row);
+    },
+
+    async smtpPasswordIsSet() {
+      const { data, error } = await db.rpc('smtp_password_is_set');
+      if (error) throw toDataError(error);
+      return data === true;
+    },
+
+    async setSmtpPassword(password) {
+      const { error } = await db.rpc('set_smtp_password', { p_password: password });
+      if (error) throw toDataError(error);
+    },
+
+    async sendTestEmail() {
+      const { data, error } = await db.functions.invoke<{ sentTo: string }>('system-settings', {
+        body: { action: 'send_test_email' },
+      });
+      if (error) throw await fromFunctionError(error);
+      return data?.sentTo ?? '';
     },
   };
 }

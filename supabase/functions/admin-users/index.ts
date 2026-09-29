@@ -2,25 +2,17 @@
 // Membuat akun Auth butuh service role, jadi tidak bisa dilakukan dari klien.
 // Memakai REST API Auth/PostgREST langsung, tanpa impor dari internet: fungsi tetap
 // bisa dimuat di server on-premise yang aksesnya ke registry dibatasi.
+import {
+  CORS_HEADERS,
+  fail,
+  reply,
+  requireSuperAdmin,
+  serviceHeaders,
+  url,
+} from '../_shared/auth.ts';
+
 const ROLES = ['super_admin', 'admin', 'editor', 'operator', 'viewer'] as const;
 type Role = (typeof ROLES)[number];
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
-
-function reply(status: number, body: Record<string, unknown>): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-  });
-}
-
-function fail(status: number, code: string, message: string): Response {
-  return reply(status, { code, message });
-}
 
 interface InviteInput {
   email: string;
@@ -44,34 +36,6 @@ function parseInput(body: unknown): InviteInput | null {
   };
 }
 
-const url = Deno.env.get('SUPABASE_URL') ?? '';
-const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-const serviceHeaders = {
-  apikey: serviceKey,
-  Authorization: `Bearer ${serviceKey}`,
-  'Content-Type': 'application/json',
-};
-
-async function callerUserId(authorization: string): Promise<string | null> {
-  const response = await fetch(`${url}/auth/v1/user`, {
-    headers: { apikey: anonKey, Authorization: authorization },
-  });
-  if (!response.ok) return null;
-  const user = (await response.json()) as { id?: string };
-  return user.id ?? null;
-}
-
-async function isActiveSuperAdmin(userId: string): Promise<boolean> {
-  const response = await fetch(
-    `${url}/rest/v1/profiles?select=role,is_active&user_id=eq.${encodeURIComponent(userId)}`,
-    { headers: serviceHeaders },
-  );
-  if (!response.ok) return false;
-  const [profile] = (await response.json()) as { role: string; is_active: boolean }[];
-  return profile?.role === 'super_admin' && profile.is_active;
-}
-
 async function profileEmailExists(email: string): Promise<boolean> {
   const response = await fetch(
     `${url}/rest/v1/profiles?select=user_id&email=ilike.${encodeURIComponent(email)}`,
@@ -84,11 +48,8 @@ Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
   if (request.method !== 'POST') return fail(405, 'invalid', 'Metode tidak didukung.');
 
-  const callerId = await callerUserId(request.headers.get('Authorization') ?? '');
-  if (!callerId) return fail(401, 'forbidden', 'Sesi tidak berlaku. Silakan masuk lagi.');
-  if (!(await isActiveSuperAdmin(callerId))) {
-    return fail(403, 'forbidden', 'Hanya Super Admin yang bisa menambah pengguna.');
-  }
+  const caller = await requireSuperAdmin(request, 'menambah pengguna');
+  if (caller instanceof Response) return caller;
 
   const input = parseInput(await request.json().catch(() => null));
   if (!input) return fail(400, 'invalid', 'Nama, email, dan role wajib diisi dengan benar.');
