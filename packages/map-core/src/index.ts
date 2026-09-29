@@ -27,6 +27,14 @@ export {
   type GeoreferencerOptions,
 } from './georef-layer';
 export {
+  REFERENCE_LAYER_IDS,
+  REFERENCE_OPACITY,
+  type ReferenceFloor,
+  referenceFeatureLayers,
+  setReferenceFloor,
+  VERTICAL_CONNECTOR_KINDS,
+} from './layers/reference';
+export {
   type CreateMapOptions,
   createMap,
   type FloorFeatureCollection,

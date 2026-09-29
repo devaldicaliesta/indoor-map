@@ -9,6 +9,7 @@ export { createDataClient, type DataClient, type DataClientConfig } from './clie
 export { DataError, type DataErrorKind } from './errors';
 export type { AuditRepository } from './repositories/audit';
 export type { BuildingsRepository, OutdoorLayer } from './repositories/buildings';
+export type { FeaturesRepository, FloorFeatures } from './repositories/features';
 export {
   type FloorPlansRepository,
   type FloorPlanUpload,
