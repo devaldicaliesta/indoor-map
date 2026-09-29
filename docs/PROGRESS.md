@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-111
+**Task berikutnya:** T-112
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -39,8 +39,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | review | model besar |
 | T-109 | Jenis fitur dan atribut unit | T-108 | review | |
 | T-110 | Edit geometri, multi-select, snapping | T-109 | review | |
-| T-111 | Undo/redo | T-110 | siap | |
-| T-112 | Fasilitas dan jenis fasilitas | T-109 | menunggu | |
+| T-111 | Undo/redo | T-110 | review | |
+| T-112 | Fasilitas dan jenis fasilitas | T-109 | siap | |
 | T-113 | Panel daftar fitur | T-109 | menunggu | |
 | T-114 | Validasi geometri | T-109 | menunggu | |
 | T-115 | Tampilan 2D/3D | T-104, T-109 | menunggu | |
@@ -173,6 +173,8 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-109 — Jenis dipilih per alat gambar (chip mengambang di kanvas); daftar jenis dan bentuknya di domain (`KIND_SHAPE`, `drawKindsFor`), perubahan jenis lewat `changeFeatureKind` (atribut unit hanya pada unit; unit baru berstatus "kosong" dengan kode otomatis). Area Luar: `outdoor_area` dengan `props.subtype` road/garden/parking; parkir memakai `#E3E5E8` (tidak ada di tabel warna). Pintu keluar hijau `#1B7F4B`, lebih besar dari pintu. Lift/eskalator/tangga tetap satu gaya sesuai tabel `05-desain-ui.md`; pembeda berupa ikon menyusul bersama ikon peta.
 - [2026-09-29] T-109 — Kode unit dinormalkan huruf besar (seperti kode gedung) dan dicek sebelum disimpan: bentrok di lantai yang sama dari store, bentrok lintas lantai lewat `features.findUnitCode` sehingga pesan menyebut gedung dan lantai unit yang bentrok; indeks unik `lower(unit_code)` tetap penjaga terakhir. Luas koreksi manual disimpan di `area_m2` dengan penanda `props.areaManual`; "Pakai otomatis" menghapus koreksi. Luas otomatis 1.266,09 m² vs PostGIS (elipsoid) 1.260,63 m² → 0,43%. File task menyebut `packages/domain/src/features.ts`; aturan ditaruh di `feature.ts`/`feature-draft.ts` yang sudah ada.
 - [2026-09-29] T-110 — Snapping memakai `toCustom` terra-draw dengan fungsi murni `snapPoint` (vertex → tepi → sudut siku terhadap ruas terakhir, 8 px layar) dan `buildSnapIndex` dari store, karena fitur lantai sengaja tidak disimpan di terra-draw; berlaku saat menggambar poligon/garis dan menarik vertex. Mode titik terra-draw tidak mendukung snapping, jadi pintu belum menempel ke dinding. Seleksi ganda di store (`selectedIds`): Shift+klik, Shift+tarik (kotak), geser kelompok dengan pratinjau di source kecil lalu satu kali tulis ke store; putar lewat panel properti (±15°/±90° atau sudut bebas) terhadap pusat kotak batas seleksi. Pintasan global (Delete/Backspace, Esc, V/P/L/T) tidak aktif saat fokus di kolom isian atau menu.
+- [2026-09-29] T-111 — Undo/redo memakai command berbasis patch (`store/history.ts`): setiap aksi dicatat sebagai daftar `{id, before, after}` fitur; `do` memasang `after`, `undo` memasang `before`, aksi massal = satu patch. Riwayat 100 langkah di store, dibersihkan saat lantai dimuat (ganti lantai/reload), tidak disimpan ke database; undo/redo masuk antrean simpan yang sama. Test: 50 undo lalu 50 redo acak (buat/ubah/hapus/massal) sama persis dengan snapshot tiap langkah. Store dan antrean dipindah ke `features/editor/store/`.
+- [2026-09-29] T-111 — Perbaikan dari uji: (1) koordinat hasil snap/putar/geser kini dibulatkan 9 desimal (≈0,1 mm) karena terra-draw menolak presisi lebih tinggi, yang sebelumnya membuat fitur tersebut tidak bisa disunting ulang; (2) klik di dalam fitur yang sedang disunting tidak lagi membatalkan seleksi; (3) mengklik peta melepas fokus kolom isian (terra-draw mencegah fokus pindah) sehingga pintasan langsung berlaku.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

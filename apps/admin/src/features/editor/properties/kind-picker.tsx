@@ -1,7 +1,7 @@
 import { drawKindsFor, type FeatureShape } from '@indoor/domain';
 import { cn } from '@indoor/ui';
-import { useEditorStore } from '../editor-store';
 import { drawKindLabel, drawKindValue } from '../labels';
+import { useEditorStore } from '../store/editor-store';
 
 /** Pilihan jenis untuk alat gambar aktif; tampil mengambang di pojok kiri atas kanvas. */
 export function KindPicker({ isOutdoor }: { isOutdoor: boolean }) {

@@ -1,6 +1,6 @@
 import { Button } from '@indoor/ui';
-import { useEditorStore } from '../editor-store';
 import { FEATURE_KIND_LABELS } from '../labels';
+import { useEditorStore } from '../store/editor-store';
 import type { EditorSession } from '../use-editor-session';
 import { RotateControl } from './rotate-control';
 

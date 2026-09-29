@@ -1,7 +1,13 @@
 import type { Geometry } from '@indoor/domain';
 import { describe, expect, it } from 'vitest';
 import { distanceM, type LngLat } from '../src/georef';
-import { boundsCenter, positionsOf, rotateGeometry, translateGeometry } from '../src/transform';
+import {
+  boundsCenter,
+  positionsOf,
+  rotateGeometry,
+  roundGeometry,
+  translateGeometry,
+} from '../src/transform';
 
 const O: LngLat = [106.8272, -6.1754];
 const east: LngLat = [106.8273, -6.1754];
@@ -57,5 +63,26 @@ describe('boundsCenter', () => {
     expect(x).toBeCloseTo(106.82725, 9);
     expect(y).toBeCloseTo(-6.17535, 9);
     expect(boundsCenter([])).toBeNull();
+  });
+});
+
+describe('presisi koordinat', () => {
+  const decimals = (n: number) => (String(n).split('.')[1] ?? '').length;
+
+  it('hasil geser dan putar paling banyak 9 desimal (batas terra-draw)', () => {
+    const moved = translateGeometry(square, O, [106.82731234567891, -6.17541234567891]);
+    const rotated = rotateGeometry(square, 17.3, O);
+    for (const p of [...positionsOf(moved), ...positionsOf(rotated)]) {
+      expect(decimals(p[0])).toBeLessThanOrEqual(9);
+      expect(decimals(p[1])).toBeLessThanOrEqual(9);
+    }
+  });
+
+  it('roundGeometry membulatkan semua titik', () => {
+    const g = roundGeometry({
+      type: 'Point',
+      coordinates: [106.12345678912345, -6.98765432198765],
+    });
+    expect(g).toEqual({ type: 'Point', coordinates: [106.123456789, -6.987654322] });
   });
 });

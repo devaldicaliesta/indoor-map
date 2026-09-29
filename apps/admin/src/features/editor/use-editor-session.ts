@@ -10,62 +10,22 @@ import {
   type MapFeatureProperties,
   nextUnitCode,
   normalizeUnitCode,
-  type UnitCodeProblem,
   type VenueId,
 } from '@indoor/domain';
 import { boundsCenter, type LngLat, rotateGeometry, translateGeometry } from '@indoor/map-core';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo } from 'react';
 import { data } from '../../app/data-client';
-import { featureList, useEditorStore } from './editor-store';
-import { SaveQueue } from './save-queue';
-
-/** Satu antrean untuk seluruh sesi Admin: pindah lantai tidak membatalkan simpanan yang tertunda. */
-let sharedQueue: SaveQueue<{ venueId: VenueId; feature: FloorFeature }> | null = null;
-function saveQueue() {
-  sharedQueue ??= new SaveQueue({
-    run: (id, op) =>
-      op.type === 'save'
-        ? data.features.save(op.value.venueId, op.value.feature)
-        : data.features.remove(id),
-    onStatus: (status, error) =>
-      useEditorStore.getState().setSaveStatus(status, error?.message ?? null),
-  });
-  return sharedQueue;
-}
-
-function unitCodePrefix(floor: Floor, building: Building | undefined) {
-  return building ? `${building.code}-${floor.name}` : floor.name.toUpperCase();
-}
-
-const SHAPE_OF: Record<
-  Geometry['type'],
-  keyof ReturnType<typeof useEditorStore.getState>['drawKinds']
-> = {
-  Point: 'point',
-  LineString: 'linestring',
-  Polygon: 'polygon',
-  MultiPolygon: 'polygon',
-};
-
-/** `undefined` menghapus properti (misalnya kembali ke luas otomatis). */
-export type PropertiesPatch = {
-  [K in Exclude<keyof MapFeatureProperties, 'id' | 'floorId'>]?:
-    | MapFeatureProperties[K]
-    | undefined;
-};
-
-const UNIT_CODE_MESSAGES: Record<UnitCodeProblem, string> = {
-  required: 'Kode unit wajib diisi.',
-  too_long: 'Kode unit maksimal 32 karakter.',
-  format: 'Kode unit hanya boleh huruf, angka, dan . _ / -, diawali huruf atau angka.',
-};
-
-function unitCodesOf(features: ReturnType<typeof useEditorStore.getState>['features']) {
-  return featureList(features).flatMap((f) =>
-    f.properties.unitCode ? [f.properties.unitCode] : [],
-  );
-}
+import {
+  type PropertiesPatch,
+  SHAPE_OF,
+  saveQueue,
+  UNIT_CODE_MESSAGES,
+  unitCodePrefix,
+  unitCodesOf,
+} from './session-helpers';
+import { type FeaturePatch, featureList, useEditorStore } from './store/editor-store';
+import { type Change, type Direction, valueAfter } from './store/history';
 
 /**
  * Menghubungkan store editor dengan database untuk satu lantai: memuat fitur,
@@ -106,10 +66,51 @@ export function useEditorSession(
     return () => window.removeEventListener('beforeunload', warn);
   }, []);
 
-  const enqueue = useCallback(
-    (feature: FloorFeature) =>
-      saveQueue().enqueue(feature.properties.id, { type: 'save', value: { venueId, feature } }),
+  /** Satu aksi editor: diterapkan ke store, dicatat di riwayat, lalu tiap fitur masuk antrean simpan. */
+  const persist = useCallback(
+    (patch: FeaturePatch, direction: Direction) => {
+      for (const change of patch) {
+        const value = valueAfter(change, direction);
+        saveQueue().enqueue(
+          change.id,
+          value ? { type: 'save', value: { venueId, feature: value } } : { type: 'remove' },
+        );
+      }
+    },
     [venueId],
+  );
+
+  const commit = useCallback(
+    (patch: FeaturePatch) => {
+      useEditorStore.getState().commit(patch);
+      persist(patch, 'do');
+    },
+    [persist],
+  );
+
+  /** FR-MAP-05: undo/redo ikut memicu simpan otomatis. */
+  const undo = useCallback(() => {
+    const step = useEditorStore.getState().undo();
+    if (step) persist(step.patch, step.direction);
+  }, [persist]);
+
+  const redo = useCallback(() => {
+    const step = useEditorStore.getState().redo();
+    if (step) persist(step.patch, step.direction);
+  }, [persist]);
+
+  /** Perubahan untuk beberapa fitur yang ada; fitur yang tidak ditemukan dilewati. */
+  const changeEach = useCallback(
+    (ids: readonly string[], fn: (feature: FloorFeature) => FloorFeature | null) => {
+      const features = useEditorStore.getState().features;
+      const patch: Change<FloorFeature>[] = [];
+      for (const id of ids) {
+        const before = features[id];
+        if (before) patch.push({ id, before, after: fn(before) });
+      }
+      commit(patch);
+    },
+    [commit],
   );
 
   const newUnitCode = useCallback(() => {
@@ -123,51 +124,39 @@ export function useEditorSession(
   const draw = useCallback(
     (geometry: Geometry) => {
       if (!floor) return;
-      const store = useEditorStore.getState();
-      const drawKind = store.drawKinds[SHAPE_OF[geometry.type]];
+      const drawKind = useEditorStore.getState().drawKinds[SHAPE_OF[geometry.type]];
       const id = crypto.randomUUID();
       const base: MapFeatureProperties = { id, kind: 'corridor', floorId: floor.id };
       const properties = changeFeatureKind(base, drawKind, newUnitCode);
-      const feature: FloorFeature = { type: 'Feature', id, geometry, properties };
-      store.put(feature);
-      enqueue(feature);
+      commit([{ id, before: null, after: { type: 'Feature', id, geometry, properties } }]);
     },
-    [floor, enqueue, newUnitCode],
+    [floor, commit, newUnitCode],
   );
 
   const update = useCallback(
-    (id: string, patch: PropertiesPatch) => {
-      const store = useEditorStore.getState();
-      const current = store.features[id];
-      if (!current) return;
-      const properties = { ...current.properties } as Record<string, unknown>;
-      for (const [key, value] of Object.entries(patch)) {
-        if (value === undefined) delete properties[key];
-        else properties[key] = value;
-      }
-      const next: FloorFeature = {
-        ...current,
-        properties: properties as unknown as MapFeatureProperties,
-      };
-      store.put(next);
-      enqueue(next);
-    },
-    [enqueue],
+    (id: string, patch: PropertiesPatch) =>
+      changeEach([id], (current) => {
+        const properties = { ...current.properties } as Record<string, unknown>;
+        for (const [key, value] of Object.entries(patch)) {
+          if (value === undefined) delete properties[key];
+          else properties[key] = value;
+        }
+        return { ...current, properties: properties as unknown as MapFeatureProperties };
+      }),
+    [changeEach],
   );
 
   const changeKind = useCallback(
-    (id: string, drawKind: DrawKind) => {
-      const store = useEditorStore.getState();
-      const current = store.features[id];
-      if (!current || KIND_SHAPE[drawKind.kind] !== KIND_SHAPE[current.properties.kind]) return;
-      const next: FloorFeature = {
-        ...current,
-        properties: changeFeatureKind(current.properties, drawKind, newUnitCode),
-      };
-      store.put(next);
-      enqueue(next);
-    },
-    [enqueue, newUnitCode],
+    (id: string, drawKind: DrawKind) =>
+      changeEach([id], (current) =>
+        KIND_SHAPE[drawKind.kind] === KIND_SHAPE[current.properties.kind]
+          ? {
+              ...current,
+              properties: changeFeatureKind(current.properties, drawKind, newUnitCode),
+            }
+          : current,
+      ),
+    [changeEach, newUnitCode],
   );
 
   /** FR-MAP-06: kode unit unik per venue; pesan menyebut unit yang bentrok. */
@@ -195,30 +184,21 @@ export function useEditorSession(
   );
 
   const editGeometry = useCallback(
-    (id: string, geometry: Geometry) => {
-      const next = useEditorStore.getState().setGeometry(id, geometry);
-      if (next) enqueue(next);
-    },
-    [enqueue],
+    (id: string, geometry: Geometry) => changeEach([id], (current) => ({ ...current, geometry })),
+    [changeEach],
   );
 
-  const remove = useCallback((id: string) => {
-    useEditorStore.getState().remove(id);
-    saveQueue().enqueue(id, { type: 'remove' });
-  }, []);
+  const removeMany = useCallback(
+    (ids: readonly string[]) => changeEach(ids, () => null),
+    [changeEach],
+  );
+  const remove = useCallback((id: string) => removeMany([id]), [removeMany]);
 
-  const removeMany = useCallback((ids: readonly string[]) => ids.forEach(remove), [remove]);
-
-  /** Mengubah geometri beberapa fitur sekaligus; masing-masing tetap disimpan sendiri. */
+  /** Aksi massal = satu langkah riwayat; tiap fitur tetap disimpan sendiri. */
   const transformMany = useCallback(
-    (ids: readonly string[], fn: (geometry: Geometry) => Geometry) => {
-      const store = useEditorStore.getState();
-      for (const id of ids) {
-        const current = store.features[id];
-        if (current) editGeometry(id, fn(current.geometry));
-      }
-    },
-    [editGeometry],
+    (ids: readonly string[], fn: (geometry: Geometry) => Geometry) =>
+      changeEach(ids, (current) => ({ ...current, geometry: fn(current.geometry) })),
+    [changeEach],
   );
 
   const moveMany = useCallback(
@@ -253,6 +233,8 @@ export function useEditorSession(
       removeMany,
       moveMany,
       rotateMany,
+      undo,
+      redo,
       retry: () => saveQueue().retry(),
     }),
     [

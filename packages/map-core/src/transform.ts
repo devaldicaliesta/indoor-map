@@ -1,4 +1,5 @@
 import type { Geometry, Position } from '@indoor/domain';
+import { COORDINATE_DECIMALS } from './defaults';
 import { fromLocal, type LngLat, toLocal } from './georef';
 
 function mapPositions(geometry: Geometry, fn: (p: Position) => Position): Geometry {
@@ -17,6 +18,17 @@ function mapPositions(geometry: Geometry, fn: (p: Position) => Position): Geomet
   }
 }
 
+const FACTOR = 10 ** COORDINATE_DECIMALS;
+export const roundCoordinate = (p: Position): [number, number] => [
+  Math.round(p[0] * FACTOR) / FACTOR,
+  Math.round(p[1] * FACTOR) / FACTOR,
+];
+
+/** Membulatkan semua koordinat ke presisi simpan/sunting. */
+export function roundGeometry(geometry: Geometry): Geometry {
+  return mapPositions(geometry, roundCoordinate);
+}
+
 /** Semua posisi geometri (untuk pusat dan kotak batas). */
 export function positionsOf(geometry: Geometry): Position[] {
   const out: Position[] = [];
@@ -30,10 +42,7 @@ export function positionsOf(geometry: Geometry): Position[] {
 /** Menggeser geometri sejauh vektor dari `from` ke `to` (meter lokal, bukan derajat mentah). */
 export function translateGeometry(geometry: Geometry, from: LngLat, to: LngLat): Geometry {
   const offset = toLocal(from, to);
-  return mapPositions(geometry, (p) => {
-    const moved = fromLocal(p as LngLat, offset);
-    return [moved[0], moved[1]];
-  });
+  return mapPositions(geometry, (p) => roundCoordinate(fromLocal(p as LngLat, offset)));
 }
 
 /** Memutar geometri searah jarum jam sebesar `degrees` terhadap `origin`. */
@@ -43,8 +52,7 @@ export function rotateGeometry(geometry: Geometry, degrees: number, origin: LngL
   const sin = Math.sin(t);
   return mapPositions(geometry, (p) => {
     const [x, y] = toLocal(origin, p as LngLat);
-    const rotated = fromLocal(origin, [x * cos + y * sin, -x * sin + y * cos]);
-    return [rotated[0], rotated[1]];
+    return roundCoordinate(fromLocal(origin, [x * cos + y * sin, -x * sin + y * cos]));
   });
 }
 

@@ -9,8 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@indoor/ui';
-import { singleSelected, useEditorStore } from '../editor-store';
 import { drawKindLabel, drawKindValue, FEATURE_KIND_LABELS } from '../labels';
+import { singleSelected, useEditorStore } from '../store/editor-store';
 import type { EditorSession } from '../use-editor-session';
 import { CommitInput } from './commit-input';
 import { MultiSelectionPanel } from './multi-selection-panel';

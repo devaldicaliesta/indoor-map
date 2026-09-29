@@ -55,3 +55,6 @@ export const PITCH_3D = 50;
 
 /** Warna alat sunting di peta: token --signal (sorotan) dan --ink (garis). */
 export const EDIT_COLORS = { signal: '#ffc20e', ink: '#111418', paper: '#ffffff' } as const;
+
+/** Presisi koordinat simpan dan sunting: 9 desimal ≈ 0,1 mm, batas bawaan terra-draw. */
+export const COORDINATE_DECIMALS = 9;

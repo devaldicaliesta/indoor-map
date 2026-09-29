@@ -12,11 +12,12 @@ import {
   ValidateNotSelfIntersecting,
 } from 'terra-draw';
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
-import { EDIT_COLORS } from './defaults';
+import { COORDINATE_DECIMALS, EDIT_COLORS } from './defaults';
 import type { LngLat } from './georef';
 import { PICKABLE_LAYERS } from './selection';
-import { type Px, SNAP_TOLERANCE_PX, snapPoint } from './snap';
+import { closestOnSegment, type Px, SNAP_TOLERANCE_PX, snapPoint } from './snap';
 import type { BBox, SnapCandidates } from './snap-index';
+import { roundCoordinate, roundGeometry } from './transform';
 
 export type EditorTool = 'select' | 'polygon' | 'linestring' | 'point';
 
@@ -100,6 +101,53 @@ const editableFlags = (snapping: Snapping) => ({
   },
 });
 
+/** Ray casting: titik layar di dalam cincin poligon (koordinat layar). */
+function insideRing(p: Px, ring: readonly Px[]): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i] as Px;
+    const [xj, yj] = ring[j] as Px;
+    if (yi > p[1] !== yj > p[1] && p[0] < ((xj - xi) * (p[1] - yi)) / (yj - yi) + xi)
+      inside = !inside;
+  }
+  return inside;
+}
+
+/** Klik mengenai geometri yang sedang disunting (isi poligon, dekat garis, dekat titik). */
+function hitsGeometry(
+  geometry: Geometry,
+  p: Px,
+  toPx: (c: LngLat) => Px,
+  tolerance: number,
+): boolean {
+  const near = (a: Px, b: Px) => {
+    const q = closestOnSegment(p, a, b);
+    return Math.hypot(q[0] - p[0], q[1] - p[1]) <= tolerance;
+  };
+  switch (geometry.type) {
+    case 'Point': {
+      const q = toPx(geometry.coordinates);
+      return near(q, q);
+    }
+    case 'LineString': {
+      const pts = geometry.coordinates.map((c) => toPx(c as LngLat));
+      return pts.slice(1).some((b, i) => near(pts[i] as Px, b));
+    }
+    case 'Polygon':
+      return insideRing(
+        p,
+        (geometry.coordinates[0] ?? []).map((c) => toPx(c as LngLat)),
+      );
+    case 'MultiPolygon':
+      return geometry.coordinates.some((poly) =>
+        insideRing(
+          p,
+          (poly[0] ?? []).map((c) => toPx(c as LngLat)),
+        ),
+      );
+  }
+}
+
 /** Titik yang sudah ditempatkan pada geometri yang sedang digambar (tanpa titik kursor). */
 function placedVertices(context: SnappableContext): LngLat[] {
   const geometry = context.getCurrentGeometrySnapshot();
@@ -142,12 +190,12 @@ export function createFeatureEditor(
       });
       if (!result) return undefined;
       const { lng, lat } = map.unproject(result.point);
-      return [lng, lat];
+      return roundCoordinate([lng, lat]);
     },
   };
 
   const terra = new TerraDraw({
-    adapter: new TerraDrawMapLibreGLAdapter({ map }),
+    adapter: new TerraDrawMapLibreGLAdapter({ map, coordinatePrecision: COORDINATE_DECIMALS }),
     idStrategy: {
       isValidId: (id) => typeof id === 'string' && id.length > 0,
       getId: () => crypto.randomUUID(),
@@ -197,10 +245,19 @@ export function createFeatureEditor(
 
   function onClick(e: MapMouseEvent) {
     if (tool !== 'select') return;
-    const onEditing = terra
+    const onHandle = terra
       .getFeaturesAtPointerEvent(e.originalEvent, { ignoreSelectFeatures: false })
       .some((f) => f.id === editing || f.properties.selectionPoint || f.properties.midPoint);
-    if (onEditing) return;
+    const editedGeometry = editing ? geometryOf(terra.getSnapshotFeature(editing)) : null;
+    const toPx = (c: LngLat): Px => {
+      const { x, y } = map.project(c);
+      return [x, y];
+    };
+    // Klik di dalam fitur yang sedang disunting tidak membatalkan seleksi (kecuali Shift).
+    const onEdited =
+      editedGeometry !== null &&
+      hitsGeometry(editedGeometry, [e.point.x, e.point.y], toPx, PICK_TOLERANCE_PX + 2);
+    if ((onHandle || onEdited) && !e.originalEvent.shiftKey) return;
     const { x, y } = e.point;
     const hits = map.queryRenderedFeatures(
       [
@@ -229,14 +286,19 @@ export function createFeatureEditor(
       terra.setMode(next);
     },
     edit(feature) {
-      if (feature?.id === editing) return;
+      if (feature && feature.id === editing) {
+        // Geometri bisa berubah dari luar (undo/redo, putar): segarkan lapisan sunting.
+        const current = terra.getSnapshotFeature(feature.id)?.geometry;
+        if (JSON.stringify(current) === JSON.stringify(roundGeometry(feature.geometry))) return;
+      }
       clearEditing();
       if (!feature || tool !== 'select') return;
       const [result] = terra.addFeatures([
         {
           id: feature.id,
           type: 'Feature',
-          geometry: feature.geometry as GeoJSONStoreFeatures['geometry'],
+          // terra-draw menolak koordinat lebih dari 9 desimal (hasil putar/geser/snap).
+          geometry: roundGeometry(feature.geometry) as GeoJSONStoreFeatures['geometry'],
           properties: { mode: MODE_OF[feature.geometry.type] },
         },
       ]);

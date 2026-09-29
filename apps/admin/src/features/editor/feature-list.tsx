@@ -2,8 +2,8 @@ import { FEATURE_KINDS, type FeatureKind } from '@indoor/domain';
 import { cn } from '@indoor/ui';
 import { ChevronRightIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { featureList, useEditorStore } from './editor-store';
 import { FEATURE_KIND_LABELS } from './labels';
+import { featureList, useEditorStore } from './store/editor-store';
 
 const collator = new Intl.Collator('id-ID', { numeric: true, sensitivity: 'base' });
 const labelOf = (f: ReturnType<typeof featureList>[number]) =>
