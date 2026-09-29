@@ -13,10 +13,10 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | --- | --- | --- | --- | --- |
 | T-001 | Monorepo dan tooling | – | review | pnpm + Turborepo + Biome + Vitest + TS 7; CI & template PR. Kriteria "CI hijau di PR" menunggu PR pertama |
 | T-002 | Scaffold aplikasi Admin dan Visitor | T-001 | review | Vite 8 + React 19 + React Router 8; Admin 5173, Visitor 5174 |
-| T-003 | Kerangka paket bersama | T-001 | siap | |
+| T-003 | Kerangka paket bersama | T-001 | review | 5 paket `@indoor/*` (exports ke src); batas impor di Biome |
 | T-004 | Supabase lokal dan skema inti | T-001 | siap | |
 | T-005 | Lapisan data | T-003, T-004 | menunggu | |
-| T-006 | Sistem desain | T-003 | menunggu | |
+| T-006 | Sistem desain | T-003 | siap | |
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | menunggu | |
 | T-008 | Login, logout, reset password | T-007 | menunggu | |
 | T-009 | Kelola pengguna dan otorisasi | T-008 | menunggu | |
@@ -122,6 +122,9 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-001 — `.gitignore` mengecualikan `.env*` kecuali `.env.example` — T-004 mewajibkan `.env.example` di-commit.
 - [2026-09-29] T-002 — Versi dependensi bersama lewat `catalog:` di `pnpm-workspace.yaml` — satu versi TypeScript/React/Vite/Vitest untuk semua paket. Oxlint bawaan template Vite dihapus karena Biome menggantikannya.
 - [2026-09-29] T-002 — Tiap app punya `tsconfig.json` (src, DOM) dan `tsconfig.node.json` (vite.config.ts); `typecheck` menjalankan keduanya. `build` hanya `vite build` karena typecheck sudah di `pnpm check`.
+- [2026-09-29] T-003 — ID bermerek dibuat dari skema zod (`z.uuid().brand<'VenueId'>()`) — satu sumber untuk tipe dan validasi saat parsing baris/URL.
+- [2026-09-29] T-003 — Selain larangan React/MapLibre/Supabase di `domain` dan `routing`, Biome juga menegakkan aturan dependensi `03-arsitektur.md`: `domain` tidak mengimpor `@indoor/*`, `routing` hanya `@indoor/domain`, `map-core` tidak mengimpor `@indoor/data`/`@supabase/*`.
+- [2026-09-29] T-003 — Test paket murni di folder `test/` (sejalan dengan `test/fixtures/` di `06-alur-kerja.md`); `domain` dan `routing` hanya memakai lib ES2023 tanpa DOM.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

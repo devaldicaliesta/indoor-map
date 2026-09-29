@@ -48,6 +48,90 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "react",
+                      "react/**",
+                      "react-dom",
+                      "react-dom/**",
+                      "maplibre-gl",
+                      "maplibre-gl/**",
+                      "@supabase/**"
+                    ],
+                    "message": "packages/domain harus murni: tanpa React, MapLibre, atau Supabase (docs/03-arsitektur.md)."
+                  },
+                  {
+                    "group": ["@indoor/**"],
+                    "message": "packages/domain tidak bergantung pada paket lain di repo."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/routing/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "react",
+                      "react/**",
+                      "react-dom",
+                      "react-dom/**",
+                      "maplibre-gl",
+                      "maplibre-gl/**",
+                      "@supabase/**"
+                    ],
+                    "message": "packages/routing harus murni: tanpa React, MapLibre, atau Supabase (docs/03-arsitektur.md)."
+                  },
+                  {
+                    "group": ["@indoor/data", "@indoor/map-core", "@indoor/ui"],
+                    "message": "packages/routing hanya boleh bergantung pada @indoor/domain."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/map-core/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@indoor/data", "@supabase/**"],
+                    "message": "packages/map-core tidak mengakses data; terima data lewat argumen."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

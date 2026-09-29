@@ -42,6 +42,9 @@ catalogs:
     vitest:
       specifier: 5.0.2
       version: 5.0.2
+    zod:
+      specifier: ^4.6.5
+      version: 4.6.5
 
 importers:
 
@@ -65,6 +68,21 @@ importers:
 
   apps/admin:
     dependencies:
+      '@indoor/data':
+        specifier: workspace:*
+        version: link:../../packages/data
+      '@indoor/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@indoor/map-core':
+        specifier: workspace:*
+        version: link:../../packages/map-core
+      '@indoor/routing':
+        specifier: workspace:*
+        version: link:../../packages/routing
+      '@indoor/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -102,6 +120,21 @@ importers:
 
   apps/visitor:
     dependencies:
+      '@indoor/data':
+        specifier: workspace:*
+        version: link:../../packages/data
+      '@indoor/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@indoor/map-core':
+        specifier: workspace:*
+        version: link:../../packages/map-core
+      '@indoor/routing':
+        specifier: workspace:*
+        version: link:../../packages/routing
+      '@indoor/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -133,6 +166,82 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.1(@types/node@22.20.4)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.2(@types/node@22.20.4)(vite@8.3.1(@types/node@22.20.4))
+
+  packages/data:
+    dependencies:
+      '@indoor/domain':
+        specifier: workspace:*
+        version: link:../domain
+    devDependencies:
+      '@biomejs/biome':
+        specifier: 'catalog:'
+        version: 2.5.14
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.2(@types/node@22.20.4)(vite@8.3.1(@types/node@22.20.4))
+
+  packages/domain:
+    dependencies:
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.5
+    devDependencies:
+      '@biomejs/biome':
+        specifier: 'catalog:'
+        version: 2.5.14
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.2(@types/node@22.20.4)(vite@8.3.1(@types/node@22.20.4))
+
+  packages/map-core:
+    dependencies:
+      '@indoor/domain':
+        specifier: workspace:*
+        version: link:../domain
+    devDependencies:
+      '@biomejs/biome':
+        specifier: 'catalog:'
+        version: 2.5.14
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.2(@types/node@22.20.4)(vite@8.3.1(@types/node@22.20.4))
+
+  packages/routing:
+    dependencies:
+      '@indoor/domain':
+        specifier: workspace:*
+        version: link:../domain
+    devDependencies:
+      '@biomejs/biome':
+        specifier: 'catalog:'
+        version: 2.5.14
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.2(@types/node@22.20.4)(vite@8.3.1(@types/node@22.20.4))
+
+  packages/ui:
+    devDependencies:
+      '@biomejs/biome':
+        specifier: 'catalog:'
+        version: 2.5.14
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 5.0.2(@types/node@22.20.4)(vite@8.3.1(@types/node@22.20.4))
@@ -797,6 +906,9 @@ packages:
     engines: {node: '>=20.11'}
     hasBin: true
 
+  zod@4.6.5:
+    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+
 snapshots:
 
   '@biomejs/biome@2.5.14':
@@ -1219,3 +1331,5 @@ snapshots:
       - msw
 
   why-is-node-running@3.2.2: {}
+
+  zod@4.6.5: {}
