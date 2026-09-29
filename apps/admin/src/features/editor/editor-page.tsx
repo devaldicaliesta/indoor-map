@@ -23,7 +23,8 @@ import { EditorCanvas, type PlanBackground } from './editor-canvas';
 import { EditorToolbar } from './editor-toolbar';
 import { EditorTopbar, OUTDOOR } from './editor-topbar';
 import { FeatureList } from './feature-list';
-import { PropertiesPanel } from './properties-panel';
+import { KindPicker } from './properties/kind-picker';
+import { PropertiesPanel } from './properties/properties-panel';
 import { ReferenceFloorPicker } from './reference-layer';
 import { StatusBar } from './status-bar';
 import { useEditorSession } from './use-editor-session';
@@ -165,9 +166,10 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
               onCursor={setCursor}
             />
           )}
+          {canEdit ? <KindPicker isOutdoor={session.isOutdoor} /> : null}
         </div>
         <aside aria-label="Properti" className="min-h-0 overflow-y-auto border-line border-l">
-          <PropertiesPanel canEdit={canEdit} onRemove={session.remove} />
+          <PropertiesPanel session={session} canEdit={canEdit} />
         </aside>
       </div>
       <StatusBar cursor={cursor} canEdit={canEdit} />

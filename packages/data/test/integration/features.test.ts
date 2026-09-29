@@ -109,6 +109,45 @@ describe.runIf(url && anonKey && serviceKey)('fitur draft (Supabase lokal)', () 
     await editor.features.remove(randomUUID());
     expect((await editor.features.listByFloor(floorId)).features).toHaveLength(2);
 
+    // Kode unit bentrok tanpa membedakan huruf besar/kecil; pemiliknya bisa disebut.
+    const clash = await editor.features.findUnitCode(venue.id, 'g-gf-001', randomUUID());
+    expect(clash).toMatchObject({
+      id: unitId,
+      unitCode: 'G-GF-001',
+      floorName: 'GF',
+      buildingName: 'G',
+    });
+    expect(await editor.features.findUnitCode(venue.id, 'g-gf-001', unitId)).toBeNull();
+    expect(await editor.features.findUnitCode(venue.id, 'G_GF%001', randomUUID())).toBeNull();
+    await expect(
+      editor.features.save(venue.id, {
+        type: 'Feature',
+        geometry: { type: 'Polygon', coordinates: [ring] },
+        properties: { id: randomUUID(), kind: 'unit', floorId, unitCode: 'g-gf-001' },
+      }),
+    ).rejects.toMatchObject({ kind: 'conflict' });
+
+    // Luas koreksi manual dan subjenis area luar bertahan setelah dibaca ulang.
+    await editor.features.save(venue.id, {
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [ring] },
+      properties: { id: unitId, kind: 'unit', floorId, unitCode: 'G-GF-001', areaM2: 350.5 },
+    });
+    const parkId = randomUUID();
+    await editor.features.save(venue.id, {
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [ring] },
+      properties: { id: parkId, kind: 'outdoor_area', floorId, subtype: 'parking' },
+    });
+    const reread = new Map(
+      (await editor.features.listByFloor(floorId)).features.map((f) => [
+        f.properties.id,
+        f.properties,
+      ]),
+    );
+    expect(reread.get(unitId)?.areaM2).toBe(350.5);
+    expect(reread.get(parkId)?.subtype).toBe('parking');
+
     const { data: anonRows } = await newDb(anonKey)
       .from('features')
       .select('id')

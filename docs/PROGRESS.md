@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-109
+**Task berikutnya:** T-110
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -37,8 +37,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-106 | Georeferensi dan opasitas | T-105 | review | |
 | T-107 | Lapisan acuan lantai lain | T-106 | review | |
 | T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | review | model besar |
-| T-109 | Jenis fitur dan atribut unit | T-108 | siap | |
-| T-110 | Edit geometri, multi-select, snapping | T-109 | menunggu | |
+| T-109 | Jenis fitur dan atribut unit | T-108 | review | |
+| T-110 | Edit geometri, multi-select, snapping | T-109 | siap | |
 | T-111 | Undo/redo | T-110 | menunggu | |
 | T-112 | Fasilitas dan jenis fasilitas | T-109 | menunggu | |
 | T-113 | Panel daftar fitur | T-109 | menunggu | |
@@ -170,6 +170,8 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-108 — Store editor (Zustand) memegang semua fitur lantai; fitur dirender lewat layer style map-core (cepat untuk 1.000 fitur), sedangkan terra-draw hanya memegang fitur yang sedang digambar atau disunting (`createFeatureEditor`); fitur yang disunting disembunyikan dari layer style lewat filter. Id fitur dibuat klien (UUID) dan disimpan dengan upsert, sehingga "buat" dan "ubah" satu jalur dan antrean tidak perlu tahu status di server. `SaveQueue` (debounce 800 ms per fitur, tanpa penyimpanan paralel per fitur, yang terakhir menang, "Gagal, coba lagi" mengirim ulang) dengan test.
 - [2026-09-29] T-108 — Jenis awal fitur baru: poligon = unit (Area Luar: `outdoor_area`), garis = dinding, titik = pintu; unit mendapat kode otomatis `{kode gedung}-{lantai}-{nnn}` karena kolom `unit_code` wajib untuk unit. Pemilih jenis dan pengubahan kode di T-109. Luas memakai rumus bola (seperti turf) dengan jari-jari rata-rata; selisih ±0,5% dari PostGIS geography (elipsoid). Gedung/lantai terpilih disimpan di URL (`?building=&floor=`) agar reload kembali ke lantai yang sama. Tombol "Hapus fitur" di panel properti sudah ada (hapus multi-select dan pintasan di T-110).
 - [2026-09-29] T-108 — Kelancaran: dengan WebGL perangkat lunak (SwiftShader) menggeser lantai 1.000 fitur 36 fps vs 43 fps untuk lantai hampir kosong, jadi batasnya perender CPU, bukan jumlah fitur; buka lantai 1.000 fitur 290 ms, pilih fitur 139 ms. Perlu diukur ulang di perangkat dengan GPU.
+- [2026-09-29] T-109 — Jenis dipilih per alat gambar (chip mengambang di kanvas); daftar jenis dan bentuknya di domain (`KIND_SHAPE`, `drawKindsFor`), perubahan jenis lewat `changeFeatureKind` (atribut unit hanya pada unit; unit baru berstatus "kosong" dengan kode otomatis). Area Luar: `outdoor_area` dengan `props.subtype` road/garden/parking; parkir memakai `#E3E5E8` (tidak ada di tabel warna). Pintu keluar hijau `#1B7F4B`, lebih besar dari pintu. Lift/eskalator/tangga tetap satu gaya sesuai tabel `05-desain-ui.md`; pembeda berupa ikon menyusul bersama ikon peta.
+- [2026-09-29] T-109 — Kode unit dinormalkan huruf besar (seperti kode gedung) dan dicek sebelum disimpan: bentrok di lantai yang sama dari store, bentrok lintas lantai lewat `features.findUnitCode` sehingga pesan menyebut gedung dan lantai unit yang bentrok; indeks unik `lower(unit_code)` tetap penjaga terakhir. Luas koreksi manual disimpan di `area_m2` dengan penanda `props.areaManual`; "Pakai otomatis" menghapus koreksi. Luas otomatis 1.266,09 m² vs PostGIS (elipsoid) 1.260,63 m² → 0,43%. File task menyebut `packages/domain/src/features.ts`; aturan ditaruh di `feature.ts`/`feature-draft.ts` yang sudah ada.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

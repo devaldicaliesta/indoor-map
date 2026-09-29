@@ -64,3 +64,22 @@ describe('buildStyle', () => {
     expect(JSON.stringify(style)).not.toMatch(/https?:\/\//);
   });
 });
+
+describe('gaya per jenis (T-109)', () => {
+  const layers = buildStyleLayers();
+  const paintOf = (id: string) => {
+    const found = layers.find((l) => l.id === id);
+    return JSON.stringify(found && 'paint' in found ? found.paint : {});
+  };
+
+  it('Area Luar dibedakan per subjenis: jalan, taman, parkir', () => {
+    const flat = paintOf(LAYER_IDS.flat);
+    for (const color of ['#e6e3da', '#d5e8c8', '#e3e5e8']) expect(flat).toContain(color);
+  });
+
+  it('pintu keluar berbeda warna dan ukuran dari pintu', () => {
+    const points = paintOf(LAYER_IDS.points);
+    expect(points).toContain('"exit",4.5');
+    expect(points).toContain('#1b7f4b');
+  });
+});

@@ -1,5 +1,11 @@
 import type { FloorFeature, FloorFeatures } from '@indoor/data';
-import type { FloorId, Geometry } from '@indoor/domain';
+import {
+  type DrawKind,
+  drawKindsFor,
+  type FeatureShape,
+  type FloorId,
+  type Geometry,
+} from '@indoor/domain';
 import type { EditorTool } from '@indoor/map-core';
 import { create } from 'zustand';
 import type { SaveStatus } from './save-queue';
@@ -12,14 +18,22 @@ interface EditorState {
   tool: EditorTool;
   saveStatus: SaveStatus;
   saveError: string | null;
+  /** Jenis yang dipakai tiap alat gambar (FR-MAP-01). */
+  drawKinds: Record<FeatureShape, DrawKind>;
 
-  load(floorId: FloorId, collection: FloorFeatures): void;
+  load(floorId: FloorId, collection: FloorFeatures, isOutdoor: boolean): void;
+  setDrawKind(shape: FeatureShape, kind: DrawKind): void;
   put(feature: FloorFeature): void;
   setGeometry(id: string, geometry: Geometry): FloorFeature | null;
   remove(id: string): void;
   select(id: string | null): void;
   setTool(tool: EditorTool): void;
   setSaveStatus(status: SaveStatus, error: string | null): void;
+}
+
+function defaultDrawKinds(isOutdoor: boolean): Record<FeatureShape, DrawKind> {
+  const first = (shape: FeatureShape) => drawKindsFor(shape, isOutdoor)[0] ?? { kind: 'wall' };
+  return { polygon: first('polygon'), linestring: first('linestring'), point: first('point') };
 }
 
 /** Store editor per lantai (03-arsitektur.md): memuat lantai lain mengganti seluruh isinya. */
@@ -30,11 +44,22 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
   tool: 'select',
   saveStatus: 'idle',
   saveError: null,
+  drawKinds: defaultDrawKinds(false),
 
-  load(floorId, collection) {
+  load(floorId, collection, isOutdoor) {
     const features: Record<string, FloorFeature> = {};
     for (const f of collection.features) features[f.properties.id] = f;
-    set({ floorId, features, selectedId: null, saveStatus: 'idle', saveError: null });
+    set({
+      floorId,
+      features,
+      selectedId: null,
+      saveStatus: 'idle',
+      saveError: null,
+      drawKinds: defaultDrawKinds(isOutdoor),
+    });
+  },
+  setDrawKind(shape, kind) {
+    set((s) => ({ drawKinds: { ...s.drawKinds, [shape]: kind } }));
   },
   put(feature) {
     set((s) => ({ features: { ...s.features, [feature.properties.id]: feature } }));

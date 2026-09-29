@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { defaultFeatureKind, nextUnitCode } from './feature-draft';
-
-describe('defaultFeatureKind', () => {
-  it('poligon unit di gedung, area luar di Area Luar; garis dinding; titik pintu', () => {
-    expect(defaultFeatureKind('Polygon', false)).toBe('unit');
-    expect(defaultFeatureKind('Polygon', true)).toBe('outdoor_area');
-    expect(defaultFeatureKind('LineString', false)).toBe('wall');
-    expect(defaultFeatureKind('Point', true)).toBe('door');
-  });
-});
+import type { MapFeatureProperties } from './feature';
+import { changeFeatureKind, nextUnitCode } from './feature-draft';
 
 describe('nextUnitCode', () => {
   it('melanjutkan nomor tertinggi dengan awalan yang sama, tidak peka huruf besar/kecil', () => {
@@ -20,5 +12,46 @@ describe('nextUnitCode', () => {
 
   it('awalan dengan karakter regex tetap aman', () => {
     expect(nextUnitCode('A.B', ['AXB-005'])).toBe('A.B-001');
+  });
+});
+
+describe('changeFeatureKind', () => {
+  const unit: MapFeatureProperties = {
+    id: 'a',
+    kind: 'unit',
+    floorId: 'f',
+    name: 'Ruang',
+    unitCode: 'GU-GF-001',
+    unitStatus: 'occupied',
+    areaM2: 80,
+  };
+
+  it('unit → koridor: atribut unit dibuang, nama tetap', () => {
+    expect(changeFeatureKind(unit, { kind: 'corridor' }, () => 'X')).toEqual({
+      id: 'a',
+      kind: 'corridor',
+      floorId: 'f',
+      name: 'Ruang',
+    });
+  });
+
+  it('koridor → unit: kode baru dan status kosong', () => {
+    const corridor: MapFeatureProperties = { id: 'b', kind: 'corridor', floorId: 'f' };
+    expect(changeFeatureKind(corridor, { kind: 'unit' }, () => 'GU-GF-002')).toMatchObject({
+      kind: 'unit',
+      unitCode: 'GU-GF-002',
+      unitStatus: 'vacant',
+    });
+  });
+
+  it('unit → unit mempertahankan atribut; area luar mendapat subjenis', () => {
+    expect(changeFeatureKind(unit, { kind: 'unit' }, () => 'X')).toEqual(unit);
+    expect(
+      changeFeatureKind(
+        { id: 'c', kind: 'non_walkable', floorId: 'f' },
+        { kind: 'outdoor_area', subtype: 'garden' },
+        () => 'X',
+      ),
+    ).toMatchObject({ kind: 'outdoor_area', subtype: 'garden' });
   });
 });

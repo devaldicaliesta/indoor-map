@@ -13,6 +13,7 @@ export type {
   FeaturesRepository,
   FloorFeature,
   FloorFeatures,
+  UnitCodeOwner,
 } from './repositories/features';
 export {
   type FloorPlansRepository,

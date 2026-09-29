@@ -28,6 +28,19 @@ export const DEFAULT_OUTLINE: Partial<Record<FeatureKind, string>> = {
 export const VACANT_UNIT = { fill: '#f7f7f4', outline: '#d5d9de' } as const;
 export const POINT_COLOR = '#545b64';
 
+/** Subjenis Area Luar (05-desain-ui.md); parkir tidak ada di tabel, dipakai abu dingin agar beda dari jalan. */
+export const OUTDOOR_SUBTYPE_FILL = {
+  road: '#e6e3da',
+  garden: '#d5e8c8',
+  parking: '#e3e5e8',
+} as const;
+
+/** Titik per jenis: pintu keluar hijau (warna standar tanda evakuasi) dan sedikit lebih besar. */
+export const POINT_STYLE: Partial<Record<FeatureKind, { color: string; radius: number }>> = {
+  door: { color: POINT_COLOR, radius: 3 },
+  exit: { color: '#1b7f4b', radius: 4.5 },
+};
+
 /** Tinggi 3D default dalam meter; jenis yang tidak disebut datar (0). */
 export const DEFAULT_HEIGHTS: Partial<Record<FeatureKind, number>> = {
   unit: 4,
