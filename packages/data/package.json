@@ -9,13 +9,16 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "node ../../scripts/with-supabase-env.mjs vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
-    "@indoor/domain": "workspace:*"
+    "@indoor/domain": "workspace:*",
+    "@supabase/supabase-js": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

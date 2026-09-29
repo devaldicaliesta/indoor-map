@@ -36,6 +36,19 @@
       "suspicious": {
         "noExplicitAny": "error",
         "noConsole": "error"
+      },
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": ["@supabase/**"],
+                "message": "Hanya packages/data yang boleh mengimpor Supabase; pakai repository dari @indoor/data."
+              }
+            ]
+          }
+        }
       }
     }
   },
@@ -130,6 +143,16 @@
                 ]
               }
             }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/data/**", "supabase/functions/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
           }
         }
       }
