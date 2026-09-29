@@ -18,8 +18,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-005 | Lapisan data | T-003, T-004 | review | Repository profiles & systemSettings, DataError, helper GeoJSON; 25 unit + 7 integrasi lulus |
 | T-006 | Sistem desain | T-003 | review | Tailwind 4 + token, font lokal, 15 komponen, galeri `/_ui` (dev); 19 uji kontras lulus |
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | review | Layout, menu per role dari `permissions.ts`, pemilih venue (Zustand), guard sesi; diuji di browser dengan 5 akun seed |
-| T-008 | Login, logout, reset password | T-007 | siap | |
-| T-009 | Kelola pengguna dan otorisasi | T-008 | menunggu | |
+| T-008 | Login, logout, reset password | T-007 | review | Auth Hook penguncian (migrasi 0002), sesi idle 60 menit, reset lewat email; diuji di browser + Mailpit |
+| T-009 | Kelola pengguna dan otorisasi | T-008 | siap | |
 | T-010 | Pengaturan sistem | T-009 | menunggu | |
 | T-011 | Kerangka Visitor | T-002, T-006 | siap | |
 | T-012 | Catatan peristiwa penting | T-009 | menunggu | |
@@ -128,7 +128,6 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-004 — **Perubahan SQL 0001 (keamanan):** PostGIS dan pgcrypto dibuat `with schema extensions`, bukan di `public` — di Supabase tabel `spatial_ref_sys` dimiliki `supabase_admin`, tidak bisa diberi RLS atau dicabut haknya oleh `postgres`, dan di `public` tabel itu bisa diubah/dihapus `anon` lewat REST API (terbukti: DELETE/INSERT anon → 204/201). PostGIS juga tidak bisa dipindah skema lewat migrasi lanjutan, jadi 0001 diubah sebelum pernah di-merge; blok SQL di `docs/04-model-data.md` diubah identik. Diuji di `supabase/tests/rls.test.sql`.
 - [2026-09-29] T-004 — Password Super Admin seed diteruskan lewat `PGOPTIONS` (`-c seed.admin_password=…`) oleh `pnpm db:reset` (`scripts/db-reset.mjs`), karena seed SQL tidak bisa membaca `.env.local`. `supabase db reset` biasa tetap sukses tetapi tanpa Super Admin.
 - [2026-09-29] T-004 — Supabase CLI dipasang sebagai devDependency root (`onlyBuiltDependencies: supabase`) agar `pnpm db:types` jalan tanpa instalasi global. `db:types` memformat hasil generate dengan Biome; file itu dikecualikan dari lint saja.
-- [2026-09-29] T-004 — Karena 0001 berubah, migrasi Storage T-105 tetap bernomor 0002 seperti rencana `04-model-data.md`.
 - [2026-09-29] T-005 — Konversi GeoJSON ↔ `geometry` tanpa view/RPC: PostgREST sudah mengeluarkan kolom geometry sebagai GeoJSON lewat cast bawaan PostGIS (yang memanggil `ST_AsGeoJSON`), dan PostGIS menerima teks GeoJSON sebagai input dengan SRID kolom. Helper `geometryFromColumn` membuang anggota `crs` dan memvalidasi dengan zod; tetap tanpa WKB manual. Diuji bolak-balik di test integrasi.
 - [2026-09-29] T-005 — `DataErrorKind` ditambah `unknown` untuk error yang tidak dipetakan, agar tidak disamarkan sebagai `invalid`.
 - [2026-09-29] T-005 — Update/delete 0 baris: repository memeriksa apakah baris masih terlihat → `forbidden`, jika tidak → `not_found`. Untuk `system_settings` (baris tunggal yang selalu ada) langsung `forbidden`.
@@ -142,6 +141,10 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-007 — `packages/data` mendapat `auth` (profil saat ini, perubahan sesi, keluar) dan `venues.list()`; login, reset, dan penguncian tetap di T-008. Tombol "Keluar" sudah aktif di menu akun.
 - [2026-09-29] T-007 — Seed membuat satu akun per role (admin@, pengelola@, editor@, operator@, viewer@local.test) dengan password dari `SEED_ADMIN_PASSWORD`.
 - [2026-09-29] T-007 — Kedua app membaca `.env.local` dari root repo (`envDir: '../..'`). Beranda mengarah ke modul pertama yang bisa diubah role (Operator → Penutupan).
+- [2026-09-29] T-008 — Penguncian login memakai Auth Hook *password verification attempt* (GoTrue v2.197) dengan fungsi `app.hook_password_verification_attempt` di migrasi 0002. Fungsi ada di skema `app` (tidak diekspos PostgREST) dan hanya bisa dieksekusi `supabase_auth_admin`, sehingga penghitung tidak bisa diubah atau dipakai orang lain untuk mengunci akun lewat RPC. Hook juga menolak akun nonaktif dan mencatat `login`/`login_failed`. Migrasi Storage T-105 menjadi 0003 (bukan 0002 seperti di `04-model-data.md`).
+- [2026-09-29] T-008 — GoTrue mengembalikan penolakan hook dengan kode `invalid_credentials`; klien mengenali pesan hook secara persis (`ACCOUNT_LOCKED_MESSAGE`, `ACCOUNT_INACTIVE_MESSAGE` di `packages/data/src/auth.ts`), dijaga test integrasi.
+- [2026-09-29] T-008 — Konfigurasi auth lokal: pendaftaran mandiri dimatikan (`[auth] enable_signup = false`; `[auth.email] enable_signup` harus tetap `true` karena di CLI itu mematikan login email), `minimum_password_length = 8`, `[auth.sessions] inactivity_timeout = "1h"`, redirect ke port 5173, template email reset Bahasa Indonesia, batas email lokal 10/jam (default 2 menghambat pengujian).
+- [2026-09-29] T-008 — Batas 60 menit tanpa aktivitas dijaga timer klien (waktu aktivitas terakhir dibagi antar-tab di localStorage; bukan token) dan `inactivity_timeout` server. Pesan untuk halaman login disimpan sekali tampil di sessionStorage karena keluar dari sesi memicu beberapa pengalihan yang menimpa state router.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

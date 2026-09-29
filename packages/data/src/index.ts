@@ -1,4 +1,10 @@
-export type { AuthRepository } from './auth';
+export {
+  ACCOUNT_INACTIVE_MESSAGE,
+  ACCOUNT_LOCKED_MESSAGE,
+  type AuthErrorCode,
+  type AuthEvent,
+  type AuthRepository,
+} from './auth';
 export { createDataClient, type DataClient, type DataClientConfig } from './client';
 export { DataError, type DataErrorKind } from './errors';
 export type { ProfilesRepository } from './repositories/profiles';
