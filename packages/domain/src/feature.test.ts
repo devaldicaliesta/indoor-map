@@ -18,7 +18,8 @@ describe('drawKindsFor', () => {
       'non_walkable',
     ]);
     expect(drawKindsFor('linestring', false)).toEqual([{ kind: 'wall' }]);
-    expect(drawKindsFor('point', false).map((d) => d.kind)).toEqual(['door', 'exit']);
+    expect(drawKindsFor('point', false).map((d) => d.kind)).toEqual(['door', 'exit', 'facility']);
+    expect(drawKindsFor('point', true).map((d) => d.kind)).toEqual(['door', 'exit', 'facility']);
   });
 
   it('Area Luar: jalan/trotoar, taman, parkir sebagai outdoor_area dengan subjenis; tanpa unit', () => {
