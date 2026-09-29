@@ -4,8 +4,12 @@ import { data } from '../../../app/data-client';
 
 const key = (buildingId: BuildingId) => ['floors', buildingId] as const;
 
-export function useFloors(buildingId: BuildingId) {
-  return useQuery({ queryKey: key(buildingId), queryFn: () => data.floors.list(buildingId) });
+export function useFloors(buildingId: BuildingId | null) {
+  return useQuery({
+    queryKey: key(buildingId as BuildingId),
+    queryFn: () => data.floors.list(buildingId as BuildingId),
+    enabled: buildingId !== null,
+  });
 }
 
 function useRefresh(buildingId: BuildingId) {

@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-107
+**Task berikutnya:** T-108
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -35,8 +35,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-103 | Lantai dan default tampilan | T-102 | review | Sheet lantai per gedung, level negatif, konfirmasi hapus dengan jumlah fitur, lantai default, `FloorSwitcher`, `initialFloorView` |
 | T-105 | Unggah denah PNG/JPG/PDF | T-103 | review | |
 | T-106 | Georeferensi dan opasitas | T-105 | review | |
-| T-107 | Lapisan acuan lantai lain | T-106 | siap | |
-| T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | menunggu | model besar |
+| T-107 | Lapisan acuan lantai lain | T-106 | review | |
+| T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | siap | model besar |
 | T-109 | Jenis fitur dan atribut unit | T-108 | menunggu | |
 | T-110 | Edit geometri, multi-select, snapping | T-109 | menunggu | |
 | T-111 | Undo/redo | T-110 | menunggu | |
@@ -166,6 +166,7 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-105 — Dependency baru `pdfjs-dist` (Admin saja, dimuat lazy saat PDF dipilih, tidak masuk bundle awal). Dipakai build `legacy/`: build utama v6 memanggil `Map.prototype.getOrInsertComputed` yang belum ada di Chromium yang dipakai uji (dan Chrome/Edge kantor yang tertinggal). Raster PDF: lebar ±4.000 px, sisi terpanjang ≤ 8.000 px, latar putih.
 - [2026-09-29] T-106 — Posisi denah dimodelkan sebagai persegi panjang berputar (`Placement`: pusat, lebar/tinggi meter, rotasi searah jarum jam dari utara) di `map-core/src/georef.ts`; `corners` yang disimpan selalu diturunkan darinya, sehingga tidak ada warping. Tarik sudut = sudut seberang tetap (dengan "Kunci proporsi": skala seragam); kalibrasi alat ukur menskalakan terhadap titik ukur pertama. Hitungan jarak memakai proyeksi ekuirektangular lokal (galat < 0,01% pada skala gedung). Uji browser: setelah kalibrasi 48 m, jarak lain yang diketahui (32 m) terukur 31,98 m (0,06%).
 - [2026-09-29] T-106 — Halaman "Tempatkan denah" di route `/venues/floors/:floorId/plan` (dibuka dari dialog Denah), file kebab-case `georeference.tsx` sesuai konvensi repo. Posisi awal denah yang belum pernah ditempatkan: selebar footprint gedung di tengahnya. Role tanpa `venue.edit` melihat denah tanpa pegangan (sama dengan RLS `can_manage` untuk update).
+- [2026-09-29] T-107 — Lapisan acuan (`map-core/src/layers/reference.ts`) memakai source dan layer sendiri (`ref-floor-*`) tanpa event, sehingga tidak bisa diseleksi atau disunting, dan tidak pernah disimpan. Fitur samar (isi/garis ≤ 25–50%, garis putus-putus); lift, eskalator, dan tangga berisi --signal 55%. Pilihan lantai acuan dibatasi lantai lain di gedung yang sama. Karena Editor (T-108) belum ada, komponen `features/editor/reference-layer.tsx` dipasang dulu di mode "Tempatkan denah", yang kini juga menampilkan fitur lantainya sendiri. `features.listByFloor` (baca saja) ditambahkan lebih awal di `packages/data/src/repositories/features.ts`; T-108 menambah penulisan.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
