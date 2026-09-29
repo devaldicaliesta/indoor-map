@@ -1,21 +1,4 @@
-import type { FeatureKind } from './feature';
-import type { Geometry } from './geometry';
-
-/**
- * Jenis awal fitur yang baru digambar, sebelum dipilih di panel properti (T-109):
- * poligon = unit (atau area luar di lapisan Area Luar), garis = dinding, titik = pintu.
- */
-export function defaultFeatureKind(geometry: Geometry['type'], isOutdoor: boolean): FeatureKind {
-  switch (geometry) {
-    case 'Polygon':
-    case 'MultiPolygon':
-      return isOutdoor ? 'outdoor_area' : 'unit';
-    case 'LineString':
-      return 'wall';
-    case 'Point':
-      return 'door';
-  }
-}
+import type { DrawKind, MapFeatureProperties } from './feature';
 
 /**
  * Kode unit berikutnya dengan awalan tertentu, misalnya `GU-L1-007`. Kode unit wajib
@@ -28,4 +11,35 @@ export function nextUnitCode(prefix: string, existing: readonly string[]): strin
     return match ? Math.max(max, Number(match[1])) : max;
   }, 0);
   return `${prefix}-${String(highest + 1).padStart(3, '0')}`;
+}
+
+/**
+ * Properti setelah jenis fitur diganti: atribut unit hanya ada pada unit (kode baru dibuat
+ * bila perlu, status awal kosong), subjenis hanya pada area luar.
+ */
+export function changeFeatureKind(
+  properties: MapFeatureProperties,
+  next: DrawKind,
+  newUnitCode: () => string,
+): MapFeatureProperties {
+  const {
+    unitCode: _code,
+    unitStatus: _status,
+    areaM2: _area,
+    subtype: _subtype,
+    ...rest
+  } = properties;
+  const result: MapFeatureProperties = { ...rest, kind: next.kind };
+  if (next.kind === 'unit') {
+    if (properties.kind === 'unit') {
+      if (properties.unitCode) result.unitCode = properties.unitCode;
+      if (properties.unitStatus) result.unitStatus = properties.unitStatus;
+      if (properties.areaM2 !== undefined) result.areaM2 = properties.areaM2;
+    } else {
+      result.unitCode = newUnitCode();
+      result.unitStatus = 'vacant';
+    }
+  }
+  if (next.kind === 'outdoor_area') result.subtype = next.subtype ?? 'road';
+  return result;
 }

@@ -5,7 +5,9 @@ import {
   DEFAULT_HEIGHTS,
   DEFAULT_OUTLINE,
   MAP_BACKGROUND,
+  OUTDOOR_SUBTYPE_FILL,
   POINT_COLOR,
+  POINT_STYLE,
   VACANT_UNIT,
 } from './defaults';
 
@@ -67,7 +69,22 @@ function fillColor(display: MapDisplay): ExpressionSpecification {
   return [
     'coalesce',
     ['get', 'color'],
-    ['case', isVacant, VACANT_UNIT.fill, byKind({ ...DEFAULT_FILL, ...display.colors }, '#ffffff')],
+    [
+      'case',
+      isVacant,
+      VACANT_UNIT.fill,
+      ['==', kind, 'outdoor_area'],
+      [
+        'match',
+        ['get', 'subtype'],
+        'garden',
+        OUTDOOR_SUBTYPE_FILL.garden,
+        'parking',
+        OUTDOOR_SUBTYPE_FILL.parking,
+        display.colors?.outdoor_area ?? OUTDOOR_SUBTYPE_FILL.road,
+      ],
+      byKind({ ...DEFAULT_FILL, ...display.colors }, '#ffffff'),
+    ],
   ] as ExpressionSpecification;
 }
 
@@ -139,7 +156,18 @@ export function buildStyleLayers(display: MapDisplay = {}): LayerSpecification[]
       type: 'circle',
       source,
       filter: ['all', ['==', ['geometry-type'], 'Point'], kindIn(POINT_KINDS)],
-      paint: { 'circle-radius': 3, 'circle-color': POINT_COLOR },
+      paint: {
+        'circle-radius': byKind(
+          Object.fromEntries(Object.entries(POINT_STYLE).map(([k, v]) => [k, v.radius])),
+          3,
+        ),
+        'circle-color': byKind(
+          Object.fromEntries(Object.entries(POINT_STYLE).map(([k, v]) => [k, v.color])),
+          POINT_COLOR,
+        ),
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 1,
+      },
     },
   ];
 }

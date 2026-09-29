@@ -34,4 +34,76 @@ export interface MapFeatureProperties {
   /** Override warna `#rrggbb`. */
   color?: string;
   facilityTypeId?: string;
+  /** Hanya untuk `outdoor_area`. */
+  subtype?: OutdoorSubtype;
+  /** Luas koreksi manual (m²); tanpa nilai ini luas dihitung dari geometri. */
+  areaM2?: number;
+}
+
+/** Bentuk geometri tiap jenis fitur; menentukan alat gambar yang dipakai. */
+export type FeatureShape = 'polygon' | 'linestring' | 'point';
+export const KIND_SHAPE: Record<FeatureKind, FeatureShape> = {
+  unit: 'polygon',
+  corridor: 'polygon',
+  elevator: 'polygon',
+  escalator: 'polygon',
+  stairs: 'polygon',
+  non_walkable: 'polygon',
+  outdoor_area: 'polygon',
+  wall: 'linestring',
+  door: 'point',
+  exit: 'point',
+  facility: 'point',
+  landmark: 'point',
+};
+
+/** Subjenis `outdoor_area` di lapisan Area Luar, disimpan di `props.subtype`. */
+export const OUTDOOR_SUBTYPES = ['road', 'garden', 'parking'] as const;
+export type OutdoorSubtype = (typeof OUTDOOR_SUBTYPES)[number];
+
+/** Pilihan jenis saat menggambar (FR-MAP-01). Fasilitas dan penanda punya alur sendiri. */
+export interface DrawKind {
+  kind: FeatureKind;
+  subtype?: OutdoorSubtype;
+}
+
+const INDOOR_KINDS: FeatureKind[] = [
+  'unit',
+  'corridor',
+  'elevator',
+  'escalator',
+  'stairs',
+  'non_walkable',
+  'wall',
+  'door',
+  'exit',
+];
+const OUTDOOR_KINDS: FeatureKind[] = ['non_walkable', 'wall', 'door', 'exit'];
+
+export function drawKindsFor(shape: FeatureShape, isOutdoor: boolean): DrawKind[] {
+  const kinds = (isOutdoor ? OUTDOOR_KINDS : INDOOR_KINDS)
+    .filter((k) => KIND_SHAPE[k] === shape)
+    .map((kind) => ({ kind }));
+  if (isOutdoor && shape === 'polygon') {
+    return [
+      ...OUTDOOR_SUBTYPES.map((subtype) => ({ kind: 'outdoor_area' as const, subtype })),
+      ...kinds,
+    ];
+  }
+  return kinds;
+}
+
+export type UnitCodeProblem = 'required' | 'too_long' | 'format';
+export const UNIT_CODE_MAX = 32;
+
+/** Kode unit disimpan huruf besar; unik per venue tanpa membedakan huruf besar/kecil. */
+export function normalizeUnitCode(code: string): string {
+  return code.trim().toUpperCase();
+}
+
+export function checkUnitCode(code: string): UnitCodeProblem[] {
+  const value = normalizeUnitCode(code);
+  if (!value) return ['required'];
+  if (value.length > UNIT_CODE_MAX) return ['too_long'];
+  return /^[A-Z0-9][A-Z0-9._/-]*$/.test(value) ? [] : ['format'];
 }
