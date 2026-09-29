@@ -75,6 +75,12 @@ catalogs:
     tailwindcss:
       specifier: ^4.3.3
       version: 4.3.3
+    terra-draw:
+      specifier: ^1.35.0
+      version: 1.35.0
+    terra-draw-maplibre-gl-adapter:
+      specifier: ^1.4.1
+      version: 1.4.1
     turbo:
       specifier: 2.11.5
       version: 2.11.5
@@ -312,6 +318,12 @@ importers:
       maplibre-gl:
         specifier: 'catalog:'
         version: 6.11.2
+      terra-draw:
+        specifier: 'catalog:'
+        version: 1.35.0
+      terra-draw-maplibre-gl-adapter:
+        specifier: 'catalog:'
+        version: 1.4.1(maplibre-gl@6.11.2)(terra-draw@1.35.0)
     devDependencies:
       '@biomejs/biome':
         specifier: 'catalog:'
@@ -3529,6 +3541,15 @@ packages:
   tempy@0.6.0:
     resolution: {integrity: sha512-G13vtMYPT/J8A4X2SjdtBTphZlrp1gKv6hZiOjw14RCWg6GbHuQBGtjlx75xLbYV/wEc0D7G5K4rxKP/cXk8Bw==}
     engines: {node: '>=10'}
+
+  terra-draw-maplibre-gl-adapter@1.4.1:
+    resolution: {integrity: sha512-qZ/bc9bVPnyt0keLVTofV8xiTPkdkbO6RzqrfNLe9zH/edW5PsjvJw97m1EksPZeXNJtFxsVbhi12cPaoNiWfg==}
+    peerDependencies:
+      maplibre-gl: '>=4'
+      terra-draw: ^1.0.0
+
+  terra-draw@1.35.0:
+    resolution: {integrity: sha512-uQI8lcPiUMqwVV29CexTfvT/AM4lGHtA+xWraW4njVExiM1+eGvRetYOBXmXEmgy5pL4X2dmjwMRH8JEYVtbgw==}
 
   terser@5.51.2:
     resolution: {integrity: sha512-bWnjSNscmuI+GJze6ZupnHP8G/cTcsJF+bXCeQknk2SHQsgbNJnLrqiH9jZ2W4STPVXH2mDKKRX3iwPhc9Cn/Q==}
@@ -7053,6 +7074,13 @@ snapshots:
       temp-dir: 2.0.0
       type-fest: 0.16.0
       unique-string: 2.0.0
+
+  terra-draw-maplibre-gl-adapter@1.4.1(maplibre-gl@6.11.2)(terra-draw@1.35.0):
+    dependencies:
+      maplibre-gl: 6.11.2
+      terra-draw: 1.35.0
+
+  terra-draw@1.35.0: {}
 
   terser@5.51.2:
     dependencies:

@@ -100,3 +100,27 @@ export function featureBounds(
       ]
     : null;
 }
+
+const REFERENCE_SOURCE = 'reference';
+
+/** Bentuk acuan (misalnya footprint gedung lain) sebagai garis putus-putus. */
+export function setReferenceShapes(map: MapLibreMap, data: FeatureCollection): void {
+  const source = map.getSource<GeoJSONSource>(REFERENCE_SOURCE);
+  if (source) {
+    source.setData(data);
+    return;
+  }
+  map.addSource(REFERENCE_SOURCE, { type: 'geojson', data });
+  map.addLayer({
+    id: 'reference-fill',
+    type: 'fill',
+    source: REFERENCE_SOURCE,
+    paint: { 'fill-color': '#d5d9de', 'fill-opacity': 0.4 },
+  });
+  map.addLayer({
+    id: 'reference-line',
+    type: 'line',
+    source: REFERENCE_SOURCE,
+    paint: { 'line-color': '#545b64', 'line-width': 1.5, 'line-dasharray': [3, 2] },
+  });
+}

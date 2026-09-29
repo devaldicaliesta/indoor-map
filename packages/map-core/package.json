@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@indoor/domain": "workspace:*",
-    "maplibre-gl": "catalog:"
+    "maplibre-gl": "catalog:",
+    "terra-draw": "catalog:",
+    "terra-draw-maplibre-gl-adapter": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

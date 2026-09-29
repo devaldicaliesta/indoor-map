@@ -9,11 +9,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from '@indoor/ui';
 import { useState } from 'react';
 import { Can } from '../../app/auth/can';
 import { data } from '../../app/data-client';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
+import { useSelectedVenue } from '../../app/venue-store';
+import { BuildingsPanel } from './buildings/buildings-panel';
 import { DeleteVenueDialog } from './delete-venue-dialog';
 import { useVenuesDetailed } from './queries';
 import { VenueFormDialog } from './venue-form-dialog';
@@ -112,26 +118,53 @@ function VenuesTable({
   );
 }
 
+function SelectedVenueBuildings() {
+  const { venue: selected } = useSelectedVenue();
+  const venues = useVenuesDetailed();
+  const venue = venues.data?.find((v) => v.id === selected?.id);
+  if (venues.isPending) return <Skeleton className="h-32 w-full" />;
+  if (!venue) {
+    return (
+      <EmptyState
+        title="Belum ada venue"
+        description="Buat venue di tab Semua venue, lalu tambahkan gedungnya di sini."
+      />
+    );
+  }
+  return <BuildingsPanel venue={venue} />;
+}
+
 export function VenuesPage() {
   const [dialog, setDialog] = useState<Dialog>(null);
   return (
     <ModuleRoute module="venues">
       {(access) => (
-        <ModulePage
-          module="venues"
-          access={access}
-          actions={
-            <Can action="venue.edit">
-              <Button variant="primary" onClick={() => setDialog({ kind: 'form', venue: null })}>
-                Tambah venue
-              </Button>
-            </Can>
-          }
-        >
-          <VenuesTable
-            onEdit={(venue) => setDialog({ kind: 'form', venue })}
-            onDelete={(venue) => setDialog({ kind: 'delete', venue })}
-          />
+        <ModulePage module="venues" access={access}>
+          <Tabs defaultValue="buildings">
+            <TabsList>
+              <TabsTrigger value="buildings">Gedung</TabsTrigger>
+              <TabsTrigger value="venues">Semua venue</TabsTrigger>
+            </TabsList>
+            <TabsContent value="buildings">
+              <SelectedVenueBuildings />
+            </TabsContent>
+            <TabsContent value="venues" className="grid gap-4">
+              <div className="flex justify-end">
+                <Can action="venue.edit">
+                  <Button
+                    variant="primary"
+                    onClick={() => setDialog({ kind: 'form', venue: null })}
+                  >
+                    Tambah venue
+                  </Button>
+                </Can>
+              </div>
+              <VenuesTable
+                onEdit={(venue) => setDialog({ kind: 'form', venue })}
+                onDelete={(venue) => setDialog({ kind: 'delete', venue })}
+              />
+            </TabsContent>
+          </Tabs>
           {dialog?.kind === 'form' ? (
             <VenueFormDialog
               key={dialog.venue?.id ?? 'new'}
