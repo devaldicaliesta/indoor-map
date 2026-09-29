@@ -3,6 +3,7 @@ import { cn, Tooltip, TooltipContent, TooltipTrigger } from '@indoor/ui';
 import { MapPinIcon, MousePointer2Icon, PentagonIcon, SplineIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useEditorStore } from './editor-store';
+import { TOOL_SHORTCUTS } from './use-editor-shortcuts';
 
 const TOOLS: { tool: EditorTool; label: string; hint: string; Icon: ComponentType }[] = [
   {
@@ -42,6 +43,7 @@ export function EditorToolbar({ canEdit }: { canEdit: boolean }) {
             <button
               type="button"
               aria-label={label}
+              aria-keyshortcuts={TOOL_SHORTCUTS[value]}
               aria-pressed={tool === value}
               disabled={!canEdit && value !== 'select'}
               onClick={() => setTool(value)}
@@ -54,7 +56,11 @@ export function EditorToolbar({ canEdit }: { canEdit: boolean }) {
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <span className="font-bold">{label}</span> · {hint}
+            <span className="font-bold">{label}</span>{' '}
+            <kbd className="rounded-sm border border-line px-1 font-mono">
+              {TOOL_SHORTCUTS[value]}
+            </kbd>{' '}
+            · {hint}
           </TooltipContent>
         </Tooltip>
       ))}

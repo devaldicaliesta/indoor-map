@@ -9,10 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@indoor/ui';
-import { useEditorStore } from '../editor-store';
+import { singleSelected, useEditorStore } from '../editor-store';
 import { drawKindLabel, drawKindValue, FEATURE_KIND_LABELS } from '../labels';
 import type { EditorSession } from '../use-editor-session';
 import { CommitInput } from './commit-input';
+import { MultiSelectionPanel } from './multi-selection-panel';
+import { RotateControl } from './rotate-control';
 import { UnitFields } from './unit-fields';
 
 function vertexCount(geometry: FloorFeature['geometry']): number {
@@ -75,17 +77,23 @@ export function PropertiesPanel({
   session: EditorSession;
   canEdit: boolean;
 }) {
-  const feature = useEditorStore((s) => (s.selectedId ? s.features[s.selectedId] : undefined));
+  const feature = useEditorStore(singleSelected);
+  const count = useEditorStore((s) => s.selectedIds.length);
+  if (count > 1) return <MultiSelectionPanel session={session} canEdit={canEdit} />;
   if (!feature) {
     return (
       <p className="p-(--panel-padding) text-ink-muted text-sm">
-        Pilih fitur di peta atau di daftar untuk melihat propertinya.
+        Pilih fitur di peta atau di daftar untuk melihat propertinya. Shift+klik atau Shift+tarik
+        untuk memilih beberapa fitur.
       </p>
     );
   }
   const p = feature.properties;
   return (
-    <section aria-label="Properti fitur" className="grid content-start gap-4 p-(--panel-padding)">
+    <section
+      aria-label="Properti fitur"
+      className="grid min-w-0 content-start gap-4 p-(--panel-padding)"
+    >
       <h2 className="font-bold text-lg">
         {p.subtype
           ? drawKindLabel({ kind: p.kind, subtype: p.subtype })
@@ -111,6 +119,9 @@ export function PropertiesPanel({
       </div>
       {p.kind === 'unit' ? (
         <UnitFields feature={feature} session={session} canEdit={canEdit} />
+      ) : null}
+      {canEdit && feature.geometry.type !== 'Point' ? (
+        <RotateControl onRotate={(deg) => session.rotateMany([p.id], deg)} />
       ) : null}
       <p className="text-ink-muted text-sm">
         {vertexCount(feature.geometry)} titik · {feature.geometry.type}

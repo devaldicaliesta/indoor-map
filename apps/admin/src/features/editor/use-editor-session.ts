@@ -13,6 +13,7 @@ import {
   type UnitCodeProblem,
   type VenueId,
 } from '@indoor/domain';
+import { boundsCenter, type LngLat, rotateGeometry, translateGeometry } from '@indoor/map-core';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo } from 'react';
 import { data } from '../../app/data-client';
@@ -206,6 +207,38 @@ export function useEditorSession(
     saveQueue().enqueue(id, { type: 'remove' });
   }, []);
 
+  const removeMany = useCallback((ids: readonly string[]) => ids.forEach(remove), [remove]);
+
+  /** Mengubah geometri beberapa fitur sekaligus; masing-masing tetap disimpan sendiri. */
+  const transformMany = useCallback(
+    (ids: readonly string[], fn: (geometry: Geometry) => Geometry) => {
+      const store = useEditorStore.getState();
+      for (const id of ids) {
+        const current = store.features[id];
+        if (current) editGeometry(id, fn(current.geometry));
+      }
+    },
+    [editGeometry],
+  );
+
+  const moveMany = useCallback(
+    (ids: readonly string[], from: LngLat, to: LngLat) =>
+      transformMany(ids, (g) => translateGeometry(g, from, to)),
+    [transformMany],
+  );
+
+  /** Putar terhadap pusat kotak batas seluruh fitur terpilih, searah jarum jam. */
+  const rotateMany = useCallback(
+    (ids: readonly string[], degrees: number) => {
+      const features = useEditorStore.getState().features;
+      const origin = boundsCenter(
+        ids.flatMap((id) => (features[id] ? [features[id].geometry] : [])),
+      );
+      if (origin) transformMany(ids, (g) => rotateGeometry(g, degrees, origin));
+    },
+    [transformMany],
+  );
+
   return useMemo(
     () => ({
       ready: loaded,
@@ -217,6 +250,9 @@ export function useEditorSession(
       changeKind,
       setUnitCode,
       remove,
+      removeMany,
+      moveMany,
+      rotateMany,
       retry: () => saveQueue().retry(),
     }),
     [
