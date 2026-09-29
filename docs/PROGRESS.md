@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-101 (R0 dan T-104 menunggu review)
+**Task berikutnya:** T-102
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -30,8 +30,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
 | T-104 | Fondasi peta (map-core) | T-003, T-006 | review | Style tanpa basemap, layer 2D/3D, ganti lantai lewat satu source, MapControls; `/_map` (dev) di Admin & Visitor. Ganti lantai 1.000 fitur 102–204 ms di WebGL perangkat lunak — perlu diukur ulang di perangkat dengan GPU |
-| T-101 | Venue dan multi-venue | R0 | siap | |
-| T-102 | Gedung dan Area Luar | T-101, T-104 | menunggu | |
+| T-101 | Venue dan multi-venue | R0 | review | CRUD venue, logo ke `public-assets` (migrasi 0005), waktu dalam zona venue, hapus dengan ketik ulang nama; 4 test integrasi + browser |
+| T-102 | Gedung dan Area Luar | T-101, T-104 | siap | |
 | T-103 | Lantai dan default tampilan | T-102 | menunggu | |
 | T-105 | Unggah denah PNG/JPG/PDF | T-103 | menunggu | |
 | T-106 | Georeferensi dan opasitas | T-105 | menunggu | |
@@ -157,6 +157,8 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-104 — Fixture venue contoh di `packages/domain/test/fixtures/venue-sample.json` (2 gedung, 5 lantai termasuk Area Luar, 56 unit, lift GF–L1 saja, eskalator naik/turun, tangga), diekspor sebagai `@indoor/domain/fixtures/*`. Peta dengan fixture hanya ada di route pengembangan `/_map` agar tidak ada data contoh di build produksi.
 - [2026-09-29] T-104 — MapLibre 6 memuat worker dari file terpisah: kedua app memakai `optimizeDeps.exclude: ['maplibre-gl']` di Vite. App memakai tipe `MapInstance` dari `@indoor/map-core`, tidak mengimpor `maplibre-gl` langsung.
 - [2026-09-29] T-104 — Di 3D unit bersebelahan tampak menyatu (tinggi dan warna sama, dinding berupa garis tidak diekstrusi). Untuk T-115: ekstrusi dinding dari garis dinding dan pemisah visual antar-unit.
+- [2026-09-29] T-101 — Titik pusat venue diisi dengan menempel koordinat "lat, lng" dari Google Maps (`parseLatLng`), bukan klik di peta kecil: peta on-premise tidak punya basemap sehingga klik di kanvas kosong tidak memberi acuan lokasi. Bucket `public-assets` (5 MB, PNG/JPG/WebP, tanpa SVG) dibuat di migrasi 0005 untuk logo venue; bucket denah tetap di T-105.
+- [2026-09-29] T-101 — `toDataError` juga memetakan status HTTP (Storage/Edge Function): 403 → forbidden, 413/415 → invalid.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

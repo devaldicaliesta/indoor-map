@@ -11,7 +11,8 @@ import {
   toast,
 } from '@indoor/ui';
 import { type ChangeEvent, type FormEvent, type ReactNode, useState } from 'react';
-import { Field } from './field';
+import { Field } from '../../app/components/field';
+import { TimezoneSelect } from '../../app/components/timezone-select';
 import {
   useSaveSystemSettings,
   useSendTestEmail,
@@ -25,7 +26,6 @@ import {
   toPatch,
   validate,
 } from './system-form-model';
-import { TimezoneSelect } from './timezone-select';
 
 function Section({
   title,
