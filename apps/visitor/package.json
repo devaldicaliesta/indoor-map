@@ -17,8 +17,11 @@
     "@indoor/map-core": "workspace:*",
     "@indoor/routing": "workspace:*",
     "@indoor/ui": "workspace:*",
+    "i18next": "catalog:",
+    "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "react-i18next": "catalog:",
     "react-router": "catalog:"
   },
   "devDependencies": {
@@ -31,6 +34,8 @@
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:"
+    "vite-plugin-pwa": "catalog:",
+    "vitest": "catalog:",
+    "workbox-window": "catalog:"
   }
 }

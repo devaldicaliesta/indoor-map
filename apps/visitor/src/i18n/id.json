@@ -1,0 +1,32 @@
+{
+  "app": {
+    "name": "Indoor Map"
+  },
+  "search": {
+    "label": "Cari lokasi",
+    "placeholder": "Cari lokasi…"
+  },
+  "language": {
+    "label": "Bahasa",
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "map": {
+    "label": "Peta"
+  },
+  "sheet": {
+    "handle": "Ubah tinggi panel",
+    "hint": "Tekan panah atas atau bawah untuk mengubah tinggi panel"
+  },
+  "home": {
+    "title": "Buka peta venue",
+    "description": "Pindai QR titik asal di gedung, atau buka tautan venue dari pengelola gedung."
+  },
+  "venue": {
+    "unavailableTitle": "Peta belum tersedia",
+    "unavailableDescription": "Venue ini belum menerbitkan peta. Tanyakan ke petugas terdekat untuk petunjuk arah."
+  },
+  "infoPoint": {
+    "title": "Info Point {{code}}"
+  }
+}
