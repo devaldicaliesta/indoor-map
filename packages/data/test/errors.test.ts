@@ -53,6 +53,16 @@ describe('toDataError', () => {
     expect(toDataError({ code: '', message: 'TypeError: fetch failed' }).kind).toBe('network');
   });
 
+  it('status HTTP dari Storage dipetakan (RLS Storage, ukuran berkas)', () => {
+    expect(
+      toDataError({ statusCode: '403', message: 'new row violates row-level security policy' })
+        .kind,
+    ).toBe('forbidden');
+    const tooLarge = toDataError({ statusCode: '413', message: 'Payload too large' });
+    expect(tooLarge.kind).toBe('invalid');
+    expect(tooLarge.message).toContain('5 MB');
+  });
+
   it('error yang tidak dikenal menjadi unknown', () => {
     expect(toDataError(postgrestError('XX000')).kind).toBe('unknown');
     expect(toDataError('teks').kind).toBe('unknown');
