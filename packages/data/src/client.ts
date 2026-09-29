@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { type AuthRepository, createAuthRepository } from './auth';
 import type { Database } from './database.types';
+import { type AuditRepository, createAuditRepository } from './repositories/audit';
 import { createProfilesRepository, type ProfilesRepository } from './repositories/profiles';
 import {
   createSystemSettingsRepository,
@@ -18,6 +19,7 @@ export interface DataClientConfig {
 
 /** Pintu tunggal app ke database. Klien Supabase mentah tidak pernah diekspos. */
 export interface DataClient {
+  audit: AuditRepository;
   auth: AuthRepository;
   profiles: ProfilesRepository;
   systemSettings: SystemSettingsRepository;
@@ -28,6 +30,7 @@ export interface DataClient {
 export function createRepositories(db: Db): DataClient {
   const profiles = createProfilesRepository(db);
   return {
+    audit: createAuditRepository(db),
     auth: createAuthRepository(db, profiles),
     profiles,
     systemSettings: createSystemSettingsRepository(db),

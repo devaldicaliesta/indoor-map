@@ -1,6 +1,7 @@
 import { EmptyState, Tabs, TabsContent, TabsList, TabsTrigger } from '@indoor/ui';
 import { Can } from '../../app/auth/can';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
+import { AuditLog } from './audit-log';
 import { SystemSettingsForm } from './system-settings-form';
 
 export function SettingsPage() {
@@ -21,6 +22,7 @@ export function SettingsPage() {
               <TabsList>
                 <TabsTrigger value="system">Sistem</TabsTrigger>
                 <TabsTrigger value="display">Tampilan</TabsTrigger>
+                <TabsTrigger value="audit">Catatan</TabsTrigger>
               </TabsList>
               <TabsContent value="system">
                 <SystemSettingsForm />
@@ -30,6 +32,9 @@ export function SettingsPage() {
                   title="Tampilan dan instruksi"
                   description="Atur tinggi 3D, warna, branding, dan teks instruksi rute untuk venue ini."
                 />
+              </TabsContent>
+              <TabsContent value="audit">
+                <AuditLog />
               </TabsContent>
             </Tabs>
           </Can>
