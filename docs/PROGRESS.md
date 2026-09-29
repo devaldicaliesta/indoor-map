@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-011 (juga siap: T-104)
+**Task berikutnya:** T-104 (rilis R0 selesai dikerjakan; menunggu review)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -22,7 +22,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-009a | Peta aksi per role dan pgTAP per role | T-008 | review | `can(role, action)` + 20 uji pgTAP (venues, features, closures, profiles) untuk 5 role |
 | T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | review | Undang/ubah role/nonaktifkan; guard Super Admin terakhir + audit (migrasi 0003); diuji browser, 2 test integrasi, 7 pgTAP |
 | T-010 | Pengaturan sistem | T-009 | review | Tab Sistem, password SMTP di Vault, email uji lewat Edge Function; diuji browser + Mailpit. Lihat pertanyaan terbuka soal SMTP GoTrue |
-| T-011 | Kerangka Visitor | T-002, T-006 | siap | |
+| T-011 | Kerangka Visitor | T-002, T-006 | review | Layout HP/desktop, bottom sheet 3 tinggi (drag + keyboard), i18next ID/EN, PWA installable; tanpa cookie & request pihak ketiga |
 | T-012 | Catatan peristiwa penting | T-009 | review | Tab Catatan (Super Admin), 200 terakhir + filter; login, gagal masuk, role, nonaktif, pengaturan tercatat |
 
 ## R1 · Inti peta (`11-R1-inti-peta.md`)
@@ -152,6 +152,8 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-010 — `system_settings` hanya dibaca Super Admin (migrasi 0004). Password SMTP disimpan di Supabase Vault lewat RPC `set_smtp_password` (cek Super Admin di server) dan dibaca hanya oleh Edge Function lewat `smtp_password_for_sending` (service role); klien hanya melihat status "tersimpan". Tugas T-010 menyebut penyimpanan lewat Edge Function; RPC dipilih karena sama amannya dan lebih sederhana. Fungsi-fungsi ini satu-satunya titik yang terikat Vault.
 - [2026-09-29] T-010 — Email uji dikirim Edge Function `system-settings` dengan klien SMTP minimal tanpa dependensi (`supabase/functions/_shared/smtp.ts`: STARTTLS/TLS 465, AUTH PLAIN, batas waktu 10 detik, pesan gagal Bahasa Indonesia). URL publik Visitor wajib https tanpa `/` akhir; http hanya untuk localhost (pengujian lokal).
 - [2026-09-29] T-012 — Pencatatan dilakukan di server (hook login, trigger `profiles` dan `system_settings`, RPC password SMTP), bukan dari klien; `audit_events` tidak bisa ditulis klien. `publish`, `rollback`, `license_changed` dicatat saat fiturnya dibuat (T-310, T-402). Komponen di `features/settings/audit-log.tsx` (nama file kebab-case seperti file lain, bukan `AuditLog.tsx` di task).
+- [2026-09-29] T-011 — Bahasa Visitor ditentukan `resolveLanguage` di domain (pilihan tersimpan → bahasa perangkat → default), tanpa `i18next-browser-languagedetector` karena detector itu bisa menulis cookie. localStorage hanya berisi `indoor-visitor.language`.
+- [2026-09-29] T-011 — PWA: precache aset (cache-first) kecuali font IBM Plex Sans milik Admin; snapshot `…/public/snapshots/…` stale-while-revalidate. Ikon PNG dirender dari SVG (penanda "Anda di sini" kuning di atas tinta). Installability diperiksa lewat Chrome DevTools Protocol (`Page.getInstallabilityErrors` kosong); Lighthouse tidak tersedia di lingkungan ini.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

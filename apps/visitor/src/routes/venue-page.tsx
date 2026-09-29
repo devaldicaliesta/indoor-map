@@ -1,7 +1,20 @@
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
+import { PanelMessage } from '../app/panel-message';
+import { VisitorShell } from '../app/visitor-shell';
 
-// Placeholder; peta venue dibuat di T-118.
+// Snapshot venue dimuat di T-117/T-118; sampai itu venue tampil sebagai belum menerbitkan peta.
 export function VenuePage() {
+  const { t } = useTranslation();
   const { venueId } = useParams();
-  return <h1 data-venue-id={venueId}>Venue {venueId}</h1>;
+  return (
+    <VisitorShell>
+      <div data-venue-id={venueId}>
+        <PanelMessage
+          title={t('venue.unavailableTitle')}
+          description={t('venue.unavailableDescription')}
+        />
+      </div>
+    </VisitorShell>
+  );
 }

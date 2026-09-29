@@ -1,4 +1,12 @@
-// Placeholder; teks lewat i18next mulai T-011.
+import { useTranslation } from 'react-i18next';
+import { PanelMessage } from '../app/panel-message';
+import { VisitorShell } from '../app/visitor-shell';
+
 export function HomePage() {
-  return <h1>Indoor Map</h1>;
+  const { t } = useTranslation();
+  return (
+    <VisitorShell>
+      <PanelMessage title={t('home.title')} description={t('home.description')} />
+    </VisitorShell>
+  );
 }
