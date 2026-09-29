@@ -20,6 +20,7 @@ import {
   toast,
 } from '@indoor/ui';
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router';
 import { Can } from '../../app/auth/can';
 import { Field } from '../../app/components/field';
 import { FormNotice } from '../auth/auth-layout';
@@ -234,13 +235,20 @@ export function FloorPlanDialog({ floor, onClose }: { floor: Floor; onClose: () 
         ) : (
           <>
             <ActivePlan plan={active} />
-            <Can action="venue.edit">
-              <DialogFooter>
+            <DialogFooter>
+              {active ? (
+                <Button asChild>
+                  <Link to={`/venues/floors/${floor.id}/plan`}>
+                    {active.corners ? 'Atur posisi' : 'Tempatkan di peta'}
+                  </Link>
+                </Button>
+              ) : null}
+              <Can action="venue.edit">
                 <Button variant="primary" onClick={() => setReplacing(true)}>
                   {active ? 'Ganti denah' : 'Unggah denah'}
                 </Button>
-              </DialogFooter>
-            </Can>
+              </Can>
+            </DialogFooter>
           </>
         )}
         <FloorPlanHistory plans={list.filter((p) => !p.isActive)} />

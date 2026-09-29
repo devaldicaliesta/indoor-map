@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   checkFloorPlanFile,
+  checkFloorPlanPlacement,
   MAX_FLOOR_PLAN_BYTES,
   MAX_RASTER_WIDTH_PX,
   pdfRenderScale,
@@ -57,5 +58,29 @@ describe('pdfRenderScale', () => {
     expect(595 * pdfRenderScale(595, 842, 20000)).toBeLessThanOrEqual(MAX_RASTER_WIDTH_PX);
     expect(842 * pdfRenderScale(595, 842, 20000)).toBeCloseTo(MAX_RASTER_WIDTH_PX);
     expect(pdfRenderScale(0, 842)).toBe(1);
+  });
+});
+
+describe('checkFloorPlanPlacement', () => {
+  const corners: [number, number][] = [
+    [106.82, -6.17],
+    [106.83, -6.17],
+    [106.83, -6.18],
+    [106.82, -6.18],
+  ];
+
+  it('menerima 4 sudut dan opasitas 0–1', () => {
+    expect(checkFloorPlanPlacement({ corners, opacity: 0 })).toEqual([]);
+    expect(checkFloorPlanPlacement({ corners, opacity: 1 })).toEqual([]);
+  });
+
+  it('menolak jumlah sudut salah, koordinat di luar WGS84, dan opasitas di luar rentang', () => {
+    expect(checkFloorPlanPlacement({ corners: corners.slice(0, 3), opacity: 0.5 })).toEqual([
+      'corners_invalid',
+    ]);
+    expect(
+      checkFloorPlanPlacement({ corners: [...corners.slice(0, 3), [200, 0]], opacity: 1.2 }),
+    ).toEqual(['corners_invalid', 'opacity_range']);
+    expect(checkFloorPlanPlacement({ corners, opacity: Number.NaN })).toEqual(['opacity_range']);
   });
 });

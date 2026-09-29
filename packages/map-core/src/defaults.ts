@@ -39,3 +39,6 @@ export const DEFAULT_HEIGHTS: Partial<Record<FeatureKind, number>> = {
 
 /** Pitch kamera 3D (05-desain-ui.md: miring ±50°). */
 export const PITCH_3D = 50;
+
+/** Warna alat sunting di peta: token --signal (sorotan) dan --ink (garis). */
+export const EDIT_COLORS = { signal: '#ffc20e', ink: '#111418', paper: '#ffffff' } as const;
