@@ -1452,7 +1452,9 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      set_smtp_password: { Args: { p_password: string }; Returns: undefined };
+      smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
+      smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };
     };
     Enums: {
       app_role: 'super_admin' | 'admin' | 'editor' | 'operator' | 'viewer';

@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-010 (juga siap: T-011, T-012, T-104)
+**Task berikutnya:** T-012 (juga siap: T-011, T-104)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -21,7 +21,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-008 | Login, logout, reset password | T-007 | review | Auth Hook penguncian (migrasi 0002), sesi idle 60 menit, reset lewat email; diuji di browser + Mailpit |
 | T-009a | Peta aksi per role dan pgTAP per role | T-008 | review | `can(role, action)` + 20 uji pgTAP (venues, features, closures, profiles) untuk 5 role |
 | T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | review | Undang/ubah role/nonaktifkan; guard Super Admin terakhir + audit (migrasi 0003); diuji browser, 2 test integrasi, 7 pgTAP |
-| T-010 | Pengaturan sistem | T-009 | siap | |
+| T-010 | Pengaturan sistem | T-009 | review | Tab Sistem, password SMTP di Vault, email uji lewat Edge Function; diuji browser + Mailpit. Lihat pertanyaan terbuka soal SMTP GoTrue |
 | T-011 | Kerangka Visitor | T-002, T-006 | siap | |
 | T-012 | Catatan peristiwa penting | T-009 | siap | |
 
@@ -111,7 +111,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 
 Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … (status: menunggu jawaban)`
 
-- (belum ada)
+- [2026-09-29] T-010 — FR-SYS-01 menyebut SMTP di Pengaturan Sistem dipakai untuk reset password, tetapi email Auth (reset, undangan) dikirim GoTrue memakai SMTP dari konfigurasi server (`[auth.email.smtp]` / variabel `GOTRUE_SMTP_*`), bukan dari tabel `system_settings`. Opsi: A) Auth Hook *send email*: GoTrue memanggil Edge Function yang mengirim email Auth memakai SMTP dari Pengaturan Sistem (klien SMTP `_shared/smtp.ts` sudah ada); satu sumber konfigurasi, bisa diubah dari Admin tanpa restart. B) SMTP Auth tetap konfigurasi instalasi (diisi tim IT di paket T-411), Pengaturan Sistem hanya untuk email lain. Rekomendasi: A. (status: menunggu jawaban)
 
 ## Catatan keputusan
 
@@ -149,6 +149,8 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-009 — Guard "Super Admin aktif terakhir" dan catatan `role_changed`/`user_deactivated` dibuat sebagai trigger database (migrasi 0003), sehingga berlaku untuk jalur apa pun (UI, REST langsung, Edge Function). Ubah role dan nonaktifkan memakai `profiles.update` biasa (RLS Super Admin); hanya pembuatan akun yang lewat Edge Function.
 - [2026-09-29] T-009 — Konvensi SQLSTATE `IMxxx` untuk aturan proyek yang dilempar fungsi SQL: `toDataError` memetakannya ke `conflict` dan menampilkan pesan Bahasa Indonesia dari server apa adanya.
 - [2026-09-29] T-009 — Edge Function `admin-users` memakai `fetch` ke REST Auth/PostgREST, tanpa impor `npm:`/URL, agar bisa dimuat di server on-premise tanpa akses registry (di lingkungan cloud impor npm gagal karena proxy TLS). Undangan ke email yang sudah punya profil ditolak 409 sebelum GoTrue dipanggil, sehingga akun yang ada tidak pernah terhapus oleh langkah pembersihan.
+- [2026-09-29] T-010 — `system_settings` hanya dibaca Super Admin (migrasi 0004). Password SMTP disimpan di Supabase Vault lewat RPC `set_smtp_password` (cek Super Admin di server) dan dibaca hanya oleh Edge Function lewat `smtp_password_for_sending` (service role); klien hanya melihat status "tersimpan". Tugas T-010 menyebut penyimpanan lewat Edge Function; RPC dipilih karena sama amannya dan lebih sederhana. Fungsi-fungsi ini satu-satunya titik yang terikat Vault.
+- [2026-09-29] T-010 — Email uji dikirim Edge Function `system-settings` dengan klien SMTP minimal tanpa dependensi (`supabase/functions/_shared/smtp.ts`: STARTTLS/TLS 465, AUTH PLAIN, batas waktu 10 detik, pesan gagal Bahasa Indonesia). URL publik Visitor wajib https tanpa `/` akhir; http hanya untuk localhost (pengujian lokal).
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
