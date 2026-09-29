@@ -14,8 +14,10 @@ const labelOf = (f: ReturnType<typeof featureList>[number]) =>
 /** Panel daftar fitur per jenis; isi grup baru dirender saat dibuka (lantai bisa 1.000 fitur). */
 export function FeatureList({ floorName }: { floorName: string }) {
   const features = useEditorStore((s) => s.features);
-  const selectedId = useEditorStore((s) => s.selectedId);
+  const selectedIds = useEditorStore((s) => s.selectedIds);
   const select = useEditorStore((s) => s.select);
+  const toggleSelect = useEditorStore((s) => s.toggleSelect);
+  const selectedId = selectedIds.at(-1);
   const [open, setOpen] = useState<Set<FeatureKind>>(new Set());
 
   const groups = useMemo(() => {
@@ -34,7 +36,7 @@ export function FeatureList({ floorName }: { floorName: string }) {
   }, [features]);
 
   // Grup yang memuat fitur terpilih ikut terbuka.
-  const selectedKind = selectedId ? features[selectedId]?.properties.kind : undefined;
+  const selectedKinds = new Set(selectedIds.map((id) => features[id]?.properties.kind));
   const current = useRef<HTMLButtonElement>(null);
   // Gulir setiap kali seleksi berganti (juga saat dipilih dari peta).
   useEffect(() => current.current?.scrollIntoView({ block: 'nearest' }), [selectedId]);
@@ -48,7 +50,7 @@ export function FeatureList({ floorName }: { floorName: string }) {
         </p>
       ) : null}
       {groups.map(({ kind, list }) => {
-        const expanded = open.has(kind) || selectedKind === kind;
+        const expanded = open.has(kind) || selectedKinds.has(kind);
         return (
           <div key={kind}>
             <button
@@ -77,8 +79,10 @@ export function FeatureList({ floorName }: { floorName: string }) {
                     <button
                       ref={f.properties.id === selectedId ? current : undefined}
                       type="button"
-                      aria-current={f.properties.id === selectedId}
-                      onClick={() => select(f.properties.id)}
+                      aria-current={selectedIds.includes(f.properties.id)}
+                      onClick={(e) =>
+                        e.shiftKey ? toggleSelect(f.properties.id) : select(f.properties.id)
+                      }
                       className="w-full cursor-pointer truncate rounded-sm py-1 pr-1 pl-6 text-left text-sm hover:bg-canvas aria-[current=true]:bg-signal-soft aria-[current=true]:font-bold"
                     >
                       {f.properties.unitCode ??

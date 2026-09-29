@@ -1,19 +1,23 @@
 import type { FloorFeatures } from '@indoor/data';
 import type { FloorId } from '@indoor/domain';
 import {
+  buildSnapIndex,
   type Corners,
   createFeatureEditor,
   createMap,
+  createSelectionInteractions,
   type FeatureEditor,
   featureBounds,
   type LngLat,
   type MapInstance,
+  type SnapIndex,
   setFloorData,
   setFloorPlanImage,
-  setHiddenFeature,
+  setHiddenFeatures,
+  setSelectionHighlight,
 } from '@indoor/map-core';
 import { useEffect, useRef, useState } from 'react';
-import { featureList, useEditorStore } from './editor-store';
+import { featureList, singleSelected, useEditorStore } from './editor-store';
 import { ReferenceLayer } from './reference-layer';
 import type { EditorSession } from './use-editor-session';
 
@@ -50,7 +54,11 @@ export function EditorCanvas({
   const [map, setMap] = useState<MapInstance | null>(null);
   const features = useEditorStore((s) => s.features);
   const floorId = useEditorStore((s) => s.floorId);
-  const selectedId = useEditorStore((s) => s.selectedId);
+  const selectedIds = useEditorStore((s) => s.selectedIds);
+  const selected = useEditorStore(singleSelected);
+  const snapIndex = useRef<SnapIndex>(buildSnapIndex([]));
+  const canEditRef = useRef(canEdit);
+  canEditRef.current = canEdit;
   const tool = useEditorStore((s) => s.tool);
   const sessionRef = useRef(session);
   sessionRef.current = session;
@@ -61,6 +69,7 @@ export function EditorCanvas({
   useEffect(() => {
     if (!container.current) return;
     const instance = createMap(container.current, { center: initialCenter.current, zoom: 18 });
+    let selection: { destroy(): void } | null = null;
     let frame = 0;
     instance.on('mousemove', (e) => {
       cancelAnimationFrame(frame);
@@ -71,12 +80,29 @@ export function EditorCanvas({
       editor.current = createFeatureEditor(instance, {
         onDraw: (geometry) => sessionRef.current.draw(geometry),
         onEdit: (id, geometry) => sessionRef.current.editGeometry(id, geometry),
-        onPick: (id) => useEditorStore.getState().select(id),
+        onPick: (id, additive) => {
+          const store = useEditorStore.getState();
+          if (additive && id) store.toggleSelect(id);
+          else if (!additive) store.select(id);
+        },
+        snap: {
+          enabled: () => useEditorStore.getState().snapEnabled,
+          candidates: (bbox, excludeId) => snapIndex.current.query(bbox, excludeId),
+        },
+      });
+      selection = createSelectionInteractions(instance, {
+        enabled: () => canEditRef.current && useEditorStore.getState().tool === 'select',
+        selectedIds: () => useEditorStore.getState().selectedIds,
+        geometryOf: (id) => useEditorStore.getState().features[id]?.geometry,
+        onBoxSelect: (ids) => useEditorStore.getState().selectMany(ids),
+        onGroupMove: (from, to) =>
+          sessionRef.current.moveMany(useEditorStore.getState().selectedIds, from, to),
       });
       setMap(instance);
     });
     return () => {
       cancelAnimationFrame(frame);
+      selection?.destroy();
       editor.current?.destroy();
       editor.current = null;
       instance.remove();
@@ -84,7 +110,9 @@ export function EditorCanvas({
   }, []);
 
   useEffect(() => {
-    if (map) setFloorData(map, toCollection(featureList(features)));
+    const list = featureList(features);
+    snapIndex.current = buildSnapIndex(list);
+    if (map) setFloorData(map, toCollection(list));
   }, [map, features]);
 
   // Kamera diarahkan ke isi lantai setiap kali lantai berganti.
@@ -119,15 +147,16 @@ export function EditorCanvas({
     editor.current?.setTool(canEdit ? tool : 'select');
   }, [map, tool, canEdit]);
 
-  const selected = selectedId ? features[selectedId] : undefined;
   useEffect(() => {
     if (!map) return;
+    // Satu fitur: disunting di terra-draw. Lebih dari satu (atau mode baca): hanya disorot.
     const editing = canEdit && selected && tool === 'select' ? selected : null;
-    setHiddenFeature(map, editing ? editing.properties.id : null);
+    setHiddenFeatures(map, editing ? [editing.properties.id] : []);
+    setSelectionHighlight(map, editing ? [] : selectedIds);
     editor.current?.edit(
       editing ? { id: editing.properties.id, geometry: editing.geometry } : null,
     );
-  }, [map, selected, tool, canEdit]);
+  }, [map, selected, selectedIds, tool, canEdit]);
 
   return (
     <>

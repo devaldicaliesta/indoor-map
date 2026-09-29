@@ -1,9 +1,11 @@
 import { type Geometry, GeometrySchema } from '@indoor/domain';
-import type { FilterSpecification, Map as MapLibreMap, MapMouseEvent } from 'maplibre-gl';
+import type { Map as MapLibreMap, MapMouseEvent } from 'maplibre-gl';
 import {
   type GeoJSONStoreFeatures,
+  type SnappableContext,
   TerraDraw,
   TerraDrawLineStringMode,
+  type TerraDrawMouseEvent,
   TerraDrawPointMode,
   TerraDrawPolygonMode,
   TerraDrawSelectMode,
@@ -11,7 +13,10 @@ import {
 } from 'terra-draw';
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 import { EDIT_COLORS } from './defaults';
-import { buildStyleLayers, LAYER_IDS } from './style';
+import type { LngLat } from './georef';
+import { PICKABLE_LAYERS } from './selection';
+import { type Px, SNAP_TOLERANCE_PX, snapPoint } from './snap';
+import type { BBox, SnapCandidates } from './snap-index';
 
 export type EditorTool = 'select' | 'polygon' | 'linestring' | 'point';
 
@@ -25,8 +30,13 @@ export interface FeatureEditorCallbacks {
   onDraw(geometry: Geometry): void;
   /** Geometri fitur yang sedang disunting selesai diubah (tarik fitur/titik, tambah/hapus titik). */
   onEdit(id: string, geometry: Geometry): void;
-  /** Klik pada fitur lantai di alat pilih; `null` bila klik di ruang kosong. */
-  onPick(id: string | null): void;
+  /** Klik pada fitur lantai di alat pilih; `null` bila klik di ruang kosong. Shift = tambah/kurangi. */
+  onPick(id: string | null, additive: boolean): void;
+  /** FR-MAP-04: sumber titik tempel. `enabled` false = snapping dimatikan di bilah status. */
+  snap: {
+    enabled(): boolean;
+    candidates(bbox: BBox, excludeId: string | null): SnapCandidates;
+  };
 }
 
 export interface FeatureEditor {
@@ -36,14 +46,6 @@ export interface FeatureEditor {
   destroy(): void;
 }
 
-/** Layer lantai yang bisa diklik untuk memilih fitur. */
-const PICKABLE_LAYERS = [
-  LAYER_IDS.flat,
-  LAYER_IDS.rooms,
-  LAYER_IDS.walls,
-  LAYER_IDS.points,
-  LAYER_IDS.extrusion,
-];
 const PICK_TOLERANCE_PX = 4;
 
 const MODE_OF: Record<Geometry['type'], string> = {
@@ -52,20 +54,6 @@ const MODE_OF: Record<Geometry['type'], string> = {
   Polygon: 'polygon',
   MultiPolygon: 'polygon',
 };
-
-/**
- * Menyembunyikan satu fitur dari layer lantai selama ia tampil di lapisan sunting,
- * dengan filter (tanpa `setData`, sehingga murah untuk lantai 1.000 fitur).
- */
-export function setHiddenFeature(map: MapLibreMap, id: string | null): void {
-  for (const layer of buildStyleLayers()) {
-    if (!map.getLayer(layer.id) || !('filter' in layer)) continue;
-    const base = layer.filter as FilterSpecification | undefined;
-    const hide: FilterSpecification = ['!=', ['get', 'id'], id ?? ''];
-    const filter = id ? (base ? (['all', base, hide] as FilterSpecification) : hide) : base;
-    map.setFilter(layer.id, filter ?? null);
-  }
-}
 
 function drawStyles() {
   const { signal, ink, paper } = EDIT_COLORS;
@@ -100,12 +88,26 @@ function drawStyles() {
   } as const;
 }
 
-const editableFlags = {
+/** Tipe opsi snapping terra-draw (tidak diekspor langsung oleh paketnya). */
+type Snapping = NonNullable<
+  NonNullable<ConstructorParameters<typeof TerraDrawPolygonMode>[0]>['snapping']
+>;
+
+const editableFlags = (snapping: Snapping) => ({
   feature: {
     draggable: true,
-    coordinates: { midpoints: true, draggable: true, deletable: true },
+    coordinates: { midpoints: true, draggable: true, deletable: true, snappable: snapping },
   },
-};
+});
+
+/** Titik yang sudah ditempatkan pada geometri yang sedang digambar (tanpa titik kursor). */
+function placedVertices(context: SnappableContext): LngLat[] {
+  const geometry = context.getCurrentGeometrySnapshot();
+  if (!geometry || context.currentCoordinate === undefined) return [];
+  const coords =
+    geometry.type === 'Polygon' ? (geometry.coordinates[0] ?? []) : geometry.coordinates;
+  return coords.slice(0, context.currentCoordinate) as LngLat[];
+}
 
 /**
  * Lapisan interaksi editor peta. Sumber kebenaran geometri ada di luar (store editor);
@@ -117,6 +119,33 @@ export function createFeatureEditor(
   callbacks: FeatureEditorCallbacks,
 ): FeatureEditor {
   const styles = drawStyles();
+  let editing: string | null = null;
+
+  // Tempel ke vertex/tepi fitur lain dan sudut siku; tahan Alt untuk mematikan sementara.
+  const snapping: Snapping = {
+    toCustom(event: TerraDrawMouseEvent, context: SnappableContext) {
+      if (!callbacks.snap.enabled() || event.heldKeys.includes('Alt')) return undefined;
+      const pointer: Px = [event.containerX, event.containerY];
+      const t = SNAP_TOLERANCE_PX;
+      const sw = map.unproject([pointer[0] - t, pointer[1] + t]);
+      const ne = map.unproject([pointer[0] + t, pointer[1] - t]);
+      const found = callbacks.snap.candidates([sw.lng, sw.lat, ne.lng, ne.lat], editing);
+      const px = (p: LngLat): Px => {
+        const { x, y } = map.project(p);
+        return [x, y];
+      };
+      const result = snapPoint({
+        pointer,
+        vertices: found.vertices.map(px),
+        segments: found.segments.map(([a, b]) => [px(a), px(b)] as const),
+        previous: placedVertices(context).map(px),
+      });
+      if (!result) return undefined;
+      const { lng, lat } = map.unproject(result.point);
+      return [lng, lat];
+    },
+  };
+
   const terra = new TerraDraw({
     adapter: new TerraDrawMapLibreGLAdapter({ map }),
     idStrategy: {
@@ -127,8 +156,9 @@ export function createFeatureEditor(
       new TerraDrawPolygonMode({
         validation: (feature) => ValidateNotSelfIntersecting(feature),
         styles: styles.polygon,
+        snapping,
       }),
-      new TerraDrawLineStringMode({ styles: styles.linestring }),
+      new TerraDrawLineStringMode({ styles: styles.linestring, snapping }),
       new TerraDrawPointMode({ styles: styles.point }),
       new TerraDrawSelectMode({
         styles: styles.select,
@@ -136,8 +166,8 @@ export function createFeatureEditor(
         keyEvents: null,
         allowManualDeselection: false,
         flags: {
-          polygon: editableFlags,
-          linestring: editableFlags,
+          polygon: editableFlags(snapping),
+          linestring: editableFlags(snapping),
           point: { feature: { draggable: true } },
         },
       }),
@@ -147,7 +177,6 @@ export function createFeatureEditor(
   terra.setMode('select');
 
   let tool: EditorTool = 'select';
-  let editing: string | null = null;
 
   const geometryOf = (feature: GeoJSONStoreFeatures | undefined): Geometry | null => {
     const parsed = GeometrySchema.safeParse(feature?.geometry);
@@ -178,13 +207,13 @@ export function createFeatureEditor(
         [x - PICK_TOLERANCE_PX, y - PICK_TOLERANCE_PX],
         [x + PICK_TOLERANCE_PX, y + PICK_TOLERANCE_PX],
       ],
-      { layers: PICKABLE_LAYERS.filter((id) => map.getLayer(id)) },
+      { layers: PICKABLE_LAYERS.filter((layer) => map.getLayer(layer)) },
     );
     // Titik dan garis di atas poligon lebih mudah dipilih bila didahulukan.
     const order = (type: string) => (type === 'Point' ? 0 : type === 'LineString' ? 1 : 2);
     const hit = hits.sort((a, b) => order(a.geometry.type) - order(b.geometry.type))[0];
     const id = hit?.properties?.id;
-    callbacks.onPick(typeof id === 'string' ? id : null);
+    callbacks.onPick(typeof id === 'string' ? id : null, e.originalEvent.shiftKey);
   }
   map.on('click', onClick);
 

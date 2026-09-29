@@ -28,6 +28,7 @@ import { PropertiesPanel } from './properties/properties-panel';
 import { ReferenceFloorPicker } from './reference-layer';
 import { StatusBar } from './status-bar';
 import { useEditorSession } from './use-editor-session';
+import { useEditorShortcuts } from './use-editor-shortcuts';
 
 function footprintCenter(building: Building | undefined): LngLat | null {
   const ring = building?.footprint?.coordinates[0];
@@ -100,6 +101,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
   const selection = useFloorSelection(venueId);
   const { floor, building } = selection;
   const session = useEditorSession(venueId, floor, building);
+  useEditorShortcuts(session, canEdit);
   const plan = useActivePlan(floor?.id ?? null);
   const [referenceFloorId, setReferenceFloorId] = useState<FloorId | null>(null);
   const [cursor, setCursor] = useState<LngLat | null>(null);
