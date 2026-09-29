@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-009b (juga siap: T-011, T-104)
+**Task berikutnya:** T-010 (juga siap: T-011, T-012, T-104)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -20,10 +20,10 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | review | Layout, menu per role dari `permissions.ts`, pemilih venue (Zustand), guard sesi; diuji di browser dengan 5 akun seed |
 | T-008 | Login, logout, reset password | T-007 | review | Auth Hook penguncian (migrasi 0002), sesi idle 60 menit, reset lewat email; diuji di browser + Mailpit |
 | T-009a | Peta aksi per role dan pgTAP per role | T-008 | review | `can(role, action)` + 20 uji pgTAP (venues, features, closures, profiles) untuk 5 role |
-| T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | siap | berikutnya |
-| T-010 | Pengaturan sistem | T-009 | menunggu | |
+| T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | review | Undang/ubah role/nonaktifkan; guard Super Admin terakhir + audit (migrasi 0003); diuji browser, 2 test integrasi, 7 pgTAP |
+| T-010 | Pengaturan sistem | T-009 | siap | |
 | T-011 | Kerangka Visitor | T-002, T-006 | siap | |
-| T-012 | Catatan peristiwa penting | T-009 | menunggu | |
+| T-012 | Catatan peristiwa penting | T-009 | siap | |
 
 ## R1 · Inti peta (`11-R1-inti-peta.md`)
 
@@ -142,10 +142,13 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-007 — `packages/data` mendapat `auth` (profil saat ini, perubahan sesi, keluar) dan `venues.list()`; login, reset, dan penguncian tetap di T-008. Tombol "Keluar" sudah aktif di menu akun.
 - [2026-09-29] T-007 — Seed membuat satu akun per role (admin@, pengelola@, editor@, operator@, viewer@local.test) dengan password dari `SEED_ADMIN_PASSWORD`.
 - [2026-09-29] T-007 — Kedua app membaca `.env.local` dari root repo (`envDir: '../..'`). Beranda mengarah ke modul pertama yang bisa diubah role (Operator → Penutupan).
-- [2026-09-29] T-008 — Penguncian login memakai Auth Hook *password verification attempt* (GoTrue v2.197) dengan fungsi `app.hook_password_verification_attempt` di migrasi 0002. Fungsi ada di skema `app` (tidak diekspos PostgREST) dan hanya bisa dieksekusi `supabase_auth_admin`, sehingga penghitung tidak bisa diubah atau dipakai orang lain untuk mengunci akun lewat RPC. Hook juga menolak akun nonaktif dan mencatat `login`/`login_failed`. Migrasi Storage T-105 menjadi 0003 (bukan 0002 seperti di `04-model-data.md`).
+- [2026-09-29] T-008 — Penguncian login memakai Auth Hook *password verification attempt* (GoTrue v2.197) dengan fungsi `app.hook_password_verification_attempt` di migrasi 0002. Fungsi ada di skema `app` (tidak diekspos PostgREST) dan hanya bisa dieksekusi `supabase_auth_admin`, sehingga penghitung tidak bisa diubah atau dipakai orang lain untuk mengunci akun lewat RPC. Hook juga menolak akun nonaktif dan mencatat `login`/`login_failed`. Migrasi Storage T-105 menjadi 0004 (bukan 0002 seperti di `04-model-data.md`).
 - [2026-09-29] T-008 — GoTrue mengembalikan penolakan hook dengan kode `invalid_credentials`; klien mengenali pesan hook secara persis (`ACCOUNT_LOCKED_MESSAGE`, `ACCOUNT_INACTIVE_MESSAGE` di `packages/data/src/auth.ts`), dijaga test integrasi.
 - [2026-09-29] T-008 — Konfigurasi auth lokal: pendaftaran mandiri dimatikan (`[auth] enable_signup = false`; `[auth.email] enable_signup` harus tetap `true` karena di CLI itu mematikan login email), `minimum_password_length = 8`, `[auth.sessions] inactivity_timeout = "1h"`, redirect ke port 5173, template email reset Bahasa Indonesia, batas email lokal 10/jam (default 2 menghambat pengujian).
 - [2026-09-29] T-008 — Batas 60 menit tanpa aktivitas dijaga timer klien (waktu aktivitas terakhir dibagi antar-tab di localStorage; bukan token) dan `inactivity_timeout` server. Pesan untuk halaman login disimpan sekali tampil di sessionStorage karena keluar dari sesi memicu beberapa pengalihan yang menimpa state router.
+- [2026-09-29] T-009 — Guard "Super Admin aktif terakhir" dan catatan `role_changed`/`user_deactivated` dibuat sebagai trigger database (migrasi 0003), sehingga berlaku untuk jalur apa pun (UI, REST langsung, Edge Function). Ubah role dan nonaktifkan memakai `profiles.update` biasa (RLS Super Admin); hanya pembuatan akun yang lewat Edge Function.
+- [2026-09-29] T-009 — Konvensi SQLSTATE `IMxxx` untuk aturan proyek yang dilempar fungsi SQL: `toDataError` memetakannya ke `conflict` dan menampilkan pesan Bahasa Indonesia dari server apa adanya.
+- [2026-09-29] T-009 — Edge Function `admin-users` memakai `fetch` ke REST Auth/PostgREST, tanpa impor `npm:`/URL, agar bisa dimuat di server on-premise tanpa akses registry (di lingkungan cloud impor npm gagal karena proxy TLS). Undangan ke email yang sudah punya profil ditolak 409 sebelum GoTrue dipanggil, sehingga akun yang ada tidak pernah terhapus oleh langkah pembersihan.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

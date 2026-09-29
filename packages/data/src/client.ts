@@ -6,6 +6,7 @@ import {
   createSystemSettingsRepository,
   type SystemSettingsRepository,
 } from './repositories/system-settings';
+import { createUsersRepository, type UsersRepository } from './repositories/users';
 import { createVenuesRepository, type VenuesRepository } from './repositories/venues';
 import type { Db } from './supabase';
 
@@ -20,6 +21,7 @@ export interface DataClient {
   auth: AuthRepository;
   profiles: ProfilesRepository;
   systemSettings: SystemSettingsRepository;
+  users: UsersRepository;
   venues: VenuesRepository;
 }
 
@@ -29,6 +31,7 @@ export function createRepositories(db: Db): DataClient {
     auth: createAuthRepository(db, profiles),
     profiles,
     systemSettings: createSystemSettingsRepository(db),
+    users: createUsersRepository(db),
     venues: createVenuesRepository(db),
   };
 }

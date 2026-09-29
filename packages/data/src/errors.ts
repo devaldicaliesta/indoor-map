@@ -73,6 +73,14 @@ export function toDataError(error: unknown): DataError {
     return error;
   }
   const code = readString(error, 'code');
+  // SQLSTATE 'IMxxx' = aturan proyek yang dilempar fungsi SQL; pesannya untuk pengguna.
+  if (code && /^IM\d{3}$/.test(code)) {
+    return new DataError('conflict', {
+      message: readString(error, 'message') ?? undefined,
+      code,
+      cause: error,
+    });
+  }
   const rule = code ? CODE_RULES[code] : undefined;
   if (code && rule) {
     return new DataError(rule.kind, { message: rule.message, code, cause: error });
