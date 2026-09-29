@@ -17,10 +17,12 @@
     "@indoor/map-core": "workspace:*",
     "@indoor/routing": "workspace:*",
     "@indoor/ui": "workspace:*",
+    "@tanstack/react-query": "catalog:",
     "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router": "catalog:"
+    "react-router": "catalog:",
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
