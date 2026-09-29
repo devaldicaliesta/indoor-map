@@ -17,8 +17,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-004 | Supabase lokal dan skema inti | T-001 | review | Migrasi 0001, seed, 14 uji pgTAP lulus; diverifikasi dengan Docker di lingkungan cloud |
 | T-005 | Lapisan data | T-003, T-004 | review | Repository profiles & systemSettings, DataError, helper GeoJSON; 25 unit + 7 integrasi lulus |
 | T-006 | Sistem desain | T-003 | review | Tailwind 4 + token, font lokal, 15 komponen, galeri `/_ui` (dev); 19 uji kontras lulus |
-| T-007 | Kerangka Admin | T-002, T-005, T-006 | siap | |
-| T-008 | Login, logout, reset password | T-007 | menunggu | |
+| T-007 | Kerangka Admin | T-002, T-005, T-006 | review | Layout, menu per role dari `permissions.ts`, pemilih venue (Zustand), guard sesi; diuji di browser dengan 5 akun seed |
+| T-008 | Login, logout, reset password | T-007 | siap | |
 | T-009 | Kelola pengguna dan otorisasi | T-008 | menunggu | |
 | T-010 | Pengaturan sistem | T-009 | menunggu | |
 | T-011 | Kerangka Visitor | T-002, T-006 | siap | |
@@ -138,6 +138,10 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-006 — Nilai per permukaan lewat `data-surface` (`admin`, `visitor`, `info-point`) di `<html>`: font, ukuran dasar 14/16/20 px, tinggi kontrol 36/44/60 px, padding panel 16/20/24 px.
 - [2026-09-29] T-006 — `--warn` (#B26A00) hanya untuk elemen non-teks (4,24:1 di atas putih, lolos 3:1 tetapi tidak 4,5:1); teks peringatan memakai `--ink`. Batas `Input`/`SelectTrigger` memakai `--ink-muted` (6,87:1) karena `--line` (1,42:1) tidak lolos 3:1 untuk batas kontrol (WCAG 1.4.11); `--line` tetap untuk garis pemisah. Token baru `--on-strong` (#FFFFFF) untuk teks di atas `--danger`/`--route`.
 - [2026-09-29] T-006 — Font dari paket npm @fontsource (OFL-1.1) disalin ke `packages/ui/src/fonts/` (subset latin dan latin-ext, berat 400/700) beserta lisensinya.
+- [2026-09-29] T-007 — Matriks akses modul dibuat di `packages/domain/src/permissions.ts` (file milik T-009) agar menu dan otorisasi aksi berasal dari satu sumber. Tingkat akses `edit`/`read`; modul `read` diberi penanda "baca" di menu dan "Mode baca" di halaman, sehingga menu kelima role berbeda. Editor: Venue, Penutupan, Pengaturan baca; Operator: Editor Peta baca + Penutupan.
+- [2026-09-29] T-007 — `packages/data` mendapat `auth` (profil saat ini, perubahan sesi, keluar) dan `venues.list()`; login, reset, dan penguncian tetap di T-008. Tombol "Keluar" sudah aktif di menu akun.
+- [2026-09-29] T-007 — Seed membuat satu akun per role (admin@, pengelola@, editor@, operator@, viewer@local.test) dengan password dari `SEED_ADMIN_PASSWORD`.
+- [2026-09-29] T-007 — Kedua app membaca `.env.local` dari root repo (`envDir: '../..'`). Beranda mengarah ke modul pertama yang bisa diubah role (Operator → Penutupan).
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

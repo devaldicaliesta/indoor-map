@@ -2,45 +2,64 @@
 -- seed.sql — data lokal untuk pengembangan dan pengujian
 -- Jalankan lewat `pnpm db:reset` agar SEED_ADMIN_PASSWORD dari .env.local
 -- diteruskan sebagai setting `seed.admin_password`. Tanpa password,
--- Super Admin tidak dibuat, tetapi venue contoh tetap dibuat.
+-- pengguna lokal tidak dibuat, tetapi venue contoh tetap dibuat.
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
--- Super Admin lokal: admin@local.test
+-- Pengguna lokal, satu per role, semuanya memakai SEED_ADMIN_PASSWORD:
+--   admin@local.test (Super Admin), pengelola@local.test (Admin),
+--   editor@local.test, operator@local.test, viewer@local.test
 -- ---------------------------------------------------------------------
-do $$
-declare
-  v_password text := nullif(current_setting('seed.admin_password', true), '');
-  v_user_id constant uuid := '00000000-0000-4000-8000-000000000001';
-  v_email constant text := 'admin@local.test';
+create function pg_temp.seed_user(
+  p_id uuid, p_email text, p_full_name text, p_role public.app_role, p_password text
+) returns void
+language plpgsql
+as $$
 begin
-  if v_password is null then
-    raise warning 'seed.admin_password kosong: Super Admin lokal tidak dibuat. Jalankan `pnpm db:reset`.';
-    return;
-  end if;
-
   -- Kolom token diisi '' karena GoTrue gagal membaca NULL saat login.
   insert into auth.users (
     instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
     raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
     confirmation_token, recovery_token, email_change_token_new, email_change
   ) values (
-    '00000000-0000-0000-0000-000000000000', v_user_id, 'authenticated', 'authenticated',
-    v_email, extensions.crypt(v_password, extensions.gen_salt('bf')), now(),
-    '{"provider": "email", "providers": ["email"]}', '{"full_name": "Super Admin Lokal"}',
+    '00000000-0000-0000-0000-000000000000', p_id, 'authenticated', 'authenticated',
+    p_email, extensions.crypt(p_password, extensions.gen_salt('bf')), now(),
+    '{"provider": "email", "providers": ["email"]}', jsonb_build_object('full_name', p_full_name),
     now(), now(), '', '', '', ''
   );
 
   insert into auth.identities (
     id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at
   ) values (
-    gen_random_uuid(), v_user_id, v_user_id::text, 'email',
-    jsonb_build_object('sub', v_user_id::text, 'email', v_email, 'email_verified', true),
+    gen_random_uuid(), p_id, p_id::text, 'email',
+    jsonb_build_object('sub', p_id::text, 'email', p_email, 'email_verified', true),
     now(), now(), now()
   );
 
   insert into public.profiles (user_id, full_name, email, role)
-  values (v_user_id, 'Super Admin Lokal', v_email, 'super_admin');
+  values (p_id, p_full_name, p_email, p_role);
+end
+$$;
+
+do $$
+declare
+  v_password text := nullif(current_setting('seed.admin_password', true), '');
+begin
+  if v_password is null then
+    raise warning 'seed.admin_password kosong: pengguna lokal tidak dibuat. Jalankan `pnpm db:reset`.';
+    return;
+  end if;
+
+  perform pg_temp.seed_user('00000000-0000-4000-8000-000000000001', 'admin@local.test',
+    'Super Admin Lokal', 'super_admin', v_password);
+  perform pg_temp.seed_user('00000000-0000-4000-8000-000000000002', 'pengelola@local.test',
+    'Admin Lokal', 'admin', v_password);
+  perform pg_temp.seed_user('00000000-0000-4000-8000-000000000003', 'editor@local.test',
+    'Editor Lokal', 'editor', v_password);
+  perform pg_temp.seed_user('00000000-0000-4000-8000-000000000004', 'operator@local.test',
+    'Operator Lokal', 'operator', v_password);
+  perform pg_temp.seed_user('00000000-0000-4000-8000-000000000005', 'viewer@local.test',
+    'Viewer Lokal', 'viewer', v_password);
 end
 $$;
 

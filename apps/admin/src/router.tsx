@@ -1,19 +1,47 @@
 import { createBrowserRouter, type RouteObject } from 'react-router';
-import { HomePage } from './routes/home-page';
-import { LoginPage } from './routes/login-page';
+import { RequireAuth } from './app/auth/require-auth';
+import { HomeRedirect } from './app/module-route';
+import { NotFoundPage, RouteError } from './app/route-error';
+import { LoginPage } from './features/auth/login-page';
+import { ClosuresPage } from './features/closures/closures-page';
+import { LicensePage } from './features/license/license-page';
+import { LocationsPage } from './features/locations/locations-page';
+import { MapEditorPage } from './features/map-editor/map-editor-page';
+import { OriginPointsPage } from './features/origin-points/origin-points-page';
+import { PublishPage } from './features/publish/publish-page';
+import { SettingsPage } from './features/settings/settings-page';
+import { UsersPage } from './features/users/users-page';
+import { VenuesPage } from './features/venues/venues-page';
 
 // Galeri komponen hanya ada saat pengembangan; tidak ikut build produksi.
 const devRoutes: RouteObject[] = import.meta.env.DEV
   ? [
       {
         path: '/_ui',
-        lazy: async () => ({ Component: (await import('./routes/ui-gallery')).UiGalleryPage }),
+        lazy: async () => ({ Component: (await import('./app/dev/ui-gallery')).UiGalleryPage }),
       },
     ]
   : [];
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
-  { path: '/', element: <HomePage /> },
+  {
+    path: '/',
+    element: <RequireAuth />,
+    errorElement: <RouteError />,
+    children: [
+      { index: true, element: <HomeRedirect /> },
+      { path: 'venues', element: <VenuesPage /> },
+      { path: 'map-editor', element: <MapEditorPage /> },
+      { path: 'locations', element: <LocationsPage /> },
+      { path: 'closures', element: <ClosuresPage /> },
+      { path: 'origin-points', element: <OriginPointsPage /> },
+      { path: 'publish', element: <PublishPage /> },
+      { path: 'settings', element: <SettingsPage /> },
+      { path: 'users', element: <UsersPage /> },
+      { path: 'license', element: <LicensePage /> },
+      { path: '*', element: <NotFoundPage /> },
+    ],
+  },
   ...devRoutes,
 ]);
