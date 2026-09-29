@@ -12,7 +12,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
 | T-001 | Monorepo dan tooling | – | review | pnpm + Turborepo + Biome + Vitest + TS 7; CI & template PR. Kriteria "CI hijau di PR" menunggu PR pertama |
-| T-002 | Scaffold aplikasi Admin dan Visitor | T-001 | siap | |
+| T-002 | Scaffold aplikasi Admin dan Visitor | T-001 | review | Vite 8 + React 19 + React Router 8; Admin 5173, Visitor 5174 |
 | T-003 | Kerangka paket bersama | T-001 | siap | |
 | T-004 | Supabase lokal dan skema inti | T-001 | siap | |
 | T-005 | Lapisan data | T-003, T-004 | menunggu | |
@@ -120,6 +120,8 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-001 — TypeScript 7 (kompiler native) — versi stabil terbaru; semua opsi di `tsconfig.base.json` didukung. Jika ada alat yang butuh API JS TypeScript lama, turunkan ke 6.x.
 - [2026-09-29] T-001 — `pnpm lint` di root menjalankan `biome check .` untuk seluruh repo (tugas root `//#lint`, tanpa cache) — file konfigurasi root ikut diperiksa; lint per paket tetap ditambahkan di T-002/T-003 untuk cache per paket.
 - [2026-09-29] T-001 — `.gitignore` mengecualikan `.env*` kecuali `.env.example` — T-004 mewajibkan `.env.example` di-commit.
+- [2026-09-29] T-002 — Versi dependensi bersama lewat `catalog:` di `pnpm-workspace.yaml` — satu versi TypeScript/React/Vite/Vitest untuk semua paket. Oxlint bawaan template Vite dihapus karena Biome menggantikannya.
+- [2026-09-29] T-002 — Tiap app punya `tsconfig.json` (src, DOM) dan `tsconfig.node.json` (vite.config.ts); `typecheck` menjalankan keduanya. `build` hanya `vite build` karena typecheck sudah di `pnpm check`.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
