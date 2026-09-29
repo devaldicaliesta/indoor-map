@@ -10,6 +10,8 @@ const INK = '#111418';
 export default defineConfig({
   // .env.local dibaca dari root repo agar satu file dipakai semua app.
   envDir: '../..',
+  // MapLibre 6 memuat web worker dari file terpisah; pre-bundle Vite merusak URL-nya.
+  optimizeDeps: { exclude: ['maplibre-gl'] },
   plugins: [
     react(),
     tailwindcss(),

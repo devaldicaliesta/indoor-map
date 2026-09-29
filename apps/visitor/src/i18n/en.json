@@ -12,7 +12,13 @@
     "en": "English"
   },
   "map": {
-    "label": "Map"
+    "label": "Map",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "resetNorth": "Reset to north",
+    "viewMode": "View mode",
+    "mode2d": "2D",
+    "mode3d": "3D"
   },
   "sheet": {
     "handle": "Resize panel",

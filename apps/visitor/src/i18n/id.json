@@ -12,7 +12,13 @@
     "en": "English"
   },
   "map": {
-    "label": "Peta"
+    "label": "Peta",
+    "zoomIn": "Perbesar",
+    "zoomOut": "Perkecil",
+    "resetNorth": "Arahkan ke utara",
+    "viewMode": "Mode tampilan",
+    "mode2d": "2D",
+    "mode3d": "3D"
   },
   "sheet": {
     "handle": "Ubah tinggi panel",

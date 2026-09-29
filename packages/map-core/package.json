@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./styles.css": "./src/map.css"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -12,10 +13,12 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@indoor/domain": "workspace:*"
+    "@indoor/domain": "workspace:*",
+    "maplibre-gl": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@types/geojson": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
