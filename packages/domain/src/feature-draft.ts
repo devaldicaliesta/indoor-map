@@ -15,7 +15,8 @@ export function nextUnitCode(prefix: string, existing: readonly string[]): strin
 
 /**
  * Properti setelah jenis fitur diganti: atribut unit hanya ada pada unit (kode baru dibuat
- * bila perlu, status awal kosong), subjenis hanya pada area luar.
+ * bila perlu, status awal kosong), subjenis hanya pada area luar, jenis fasilitas hanya
+ * pada fasilitas. Fasilitas tanpa jenis ditolak karena database mewajibkannya.
  */
 export function changeFeatureKind(
   properties: MapFeatureProperties,
@@ -27,9 +28,17 @@ export function changeFeatureKind(
     unitStatus: _status,
     areaM2: _area,
     subtype: _subtype,
+    facilityTypeId: _facilityType,
     ...rest
   } = properties;
   const result: MapFeatureProperties = { ...rest, kind: next.kind };
+  if (next.kind === 'facility') {
+    const facilityTypeId =
+      next.facilityTypeId ??
+      (properties.kind === 'facility' ? properties.facilityTypeId : undefined);
+    if (!facilityTypeId) throw new Error('Fasilitas membutuhkan jenis fasilitas.');
+    result.facilityTypeId = facilityTypeId;
+  }
   if (next.kind === 'unit') {
     if (properties.kind === 'unit') {
       if (properties.unitCode) result.unitCode = properties.unitCode;

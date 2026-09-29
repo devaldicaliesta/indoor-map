@@ -54,4 +54,41 @@ describe('changeFeatureKind', () => {
       ),
     ).toMatchObject({ kind: 'outdoor_area', subtype: 'garden' });
   });
+
+  it('pintu → fasilitas memakai jenis yang dipilih; fasilitas → pintu membuang jenisnya', () => {
+    const door: MapFeatureProperties = { id: 'd', kind: 'door', floorId: 'f', name: 'Utama' };
+    const facility = changeFeatureKind(door, { kind: 'facility', facilityTypeId: 't1' }, () => 'X');
+    expect(facility).toEqual({
+      id: 'd',
+      kind: 'facility',
+      floorId: 'f',
+      name: 'Utama',
+      facilityTypeId: 't1',
+    });
+    expect(changeFeatureKind(facility, { kind: 'exit' }, () => 'X')).toEqual({
+      id: 'd',
+      kind: 'exit',
+      floorId: 'f',
+      name: 'Utama',
+    });
+  });
+
+  it('fasilitas → fasilitas: jenis tetap bila tidak dipilih ulang, berganti bila dipilih', () => {
+    const facility: MapFeatureProperties = {
+      id: 'e',
+      kind: 'facility',
+      floorId: 'f',
+      facilityTypeId: 't1',
+    };
+    expect(changeFeatureKind(facility, { kind: 'facility' }, () => 'X').facilityTypeId).toBe('t1');
+    expect(
+      changeFeatureKind(facility, { kind: 'facility', facilityTypeId: 't2' }, () => 'X')
+        .facilityTypeId,
+    ).toBe('t2');
+  });
+
+  it('fasilitas tanpa jenis ditolak', () => {
+    const door: MapFeatureProperties = { id: 'd', kind: 'door', floorId: 'f' };
+    expect(() => changeFeatureKind(door, { kind: 'facility' }, () => 'X')).toThrow();
+  });
 });

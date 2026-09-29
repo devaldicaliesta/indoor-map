@@ -61,10 +61,12 @@ export const KIND_SHAPE: Record<FeatureKind, FeatureShape> = {
 export const OUTDOOR_SUBTYPES = ['road', 'garden', 'parking'] as const;
 export type OutdoorSubtype = (typeof OUTDOOR_SUBTYPES)[number];
 
-/** Pilihan jenis saat menggambar (FR-MAP-01). Fasilitas dan penanda punya alur sendiri. */
+/** Pilihan jenis saat menggambar (FR-MAP-01, FR-MAP-07). Penanda punya alur sendiri. */
 export interface DrawKind {
   kind: FeatureKind;
   subtype?: OutdoorSubtype;
+  /** Jenis fasilitas untuk `facility`; wajib ada saat fitur dibuat (constraint `features_facility_type`). */
+  facilityTypeId?: string;
 }
 
 const INDOOR_KINDS: FeatureKind[] = [
@@ -77,8 +79,9 @@ const INDOOR_KINDS: FeatureKind[] = [
   'wall',
   'door',
   'exit',
+  'facility',
 ];
-const OUTDOOR_KINDS: FeatureKind[] = ['non_walkable', 'wall', 'door', 'exit'];
+const OUTDOOR_KINDS: FeatureKind[] = ['non_walkable', 'wall', 'door', 'exit', 'facility'];
 
 export function drawKindsFor(shape: FeatureShape, isOutdoor: boolean): DrawKind[] {
   const kinds = (isOutdoor ? OUTDOOR_KINDS : INDOOR_KINDS)
