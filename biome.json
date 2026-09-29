@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/database.types.ts"]
+    "includes": ["**"]
   },
   "formatter": {
     "enabled": true,
@@ -29,6 +29,7 @@
     }
   },
   "linter": {
+    "includes": ["**", "!**/database.types.ts"],
     "enabled": true,
     "rules": {
       "preset": "recommended",

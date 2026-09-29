@@ -13,11 +13,13 @@
     "test": "turbo run test",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "db:types": "supabase gen types typescript --local > packages/data/src/database.types.ts"
+    "db:types": "supabase gen types typescript --local > packages/data/src/database.types.ts && biome format --write packages/data/src/database.types.ts",
+    "db:reset": "node scripts/db-reset.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@types/node": "catalog:",
+    "supabase": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
