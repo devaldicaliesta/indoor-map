@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-002, T-003, T-004
+**Task berikutnya:** T-009b (juga siap: T-011, T-104)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -19,7 +19,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-006 | Sistem desain | T-003 | review | Tailwind 4 + token, font lokal, 15 komponen, galeri `/_ui` (dev); 19 uji kontras lulus |
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | review | Layout, menu per role dari `permissions.ts`, pemilih venue (Zustand), guard sesi; diuji di browser dengan 5 akun seed |
 | T-008 | Login, logout, reset password | T-007 | review | Auth Hook penguncian (migrasi 0002), sesi idle 60 menit, reset lewat email; diuji di browser + Mailpit |
-| T-009 | Kelola pengguna dan otorisasi | T-008 | siap | |
+| T-009a | Peta aksi per role dan pgTAP per role | T-008 | review | `can(role, action)` + 20 uji pgTAP (venues, features, closures, profiles) untuk 5 role |
+| T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | siap | berikutnya |
 | T-010 | Pengaturan sistem | T-009 | menunggu | |
 | T-011 | Kerangka Visitor | T-002, T-006 | siap | |
 | T-012 | Catatan peristiwa penting | T-009 | menunggu | |

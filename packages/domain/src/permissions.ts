@@ -55,3 +55,39 @@ export function visibleModules(role: AppRole): { module: AdminModule; access: Mo
     return access ? [{ module, access }] : [];
   });
 }
+
+/** Aksi yang tombolnya disembunyikan per role; server tetap menegakkan lewat RLS/`app.*`. */
+export const ADMIN_ACTIONS = [
+  'venue.edit',
+  'map.edit',
+  'location.edit',
+  'closure.manage',
+  'origin_point.edit',
+  'publish.validate',
+  'publish.publish',
+  'publish.rollback',
+  'settings.edit',
+  'settings.system',
+  'user.manage',
+  'license.manage',
+] as const;
+export type AdminAction = (typeof ADMIN_ACTIONS)[number];
+
+const ACTION_ROLES: Record<AdminAction, readonly AppRole[]> = {
+  'venue.edit': ['super_admin', 'admin'],
+  'map.edit': ['super_admin', 'admin', 'editor'],
+  'location.edit': ['super_admin', 'admin', 'editor'],
+  'closure.manage': ['super_admin', 'admin', 'operator'],
+  'origin_point.edit': ['super_admin', 'admin', 'editor'],
+  'publish.validate': ['super_admin', 'admin', 'editor'],
+  'publish.publish': ['super_admin', 'admin'],
+  'publish.rollback': ['super_admin', 'admin'],
+  'settings.edit': ['super_admin', 'admin'],
+  'settings.system': ['super_admin'],
+  'user.manage': ['super_admin'],
+  'license.manage': ['super_admin'],
+};
+
+export function can(role: AppRole, action: AdminAction): boolean {
+  return ACTION_ROLES[action].includes(role);
+}
