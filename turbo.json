@@ -20,6 +20,9 @@
     },
     "//#lint": {
       "cache": false
+    },
+    "test:integration": {
+      "cache": false
     }
   }
 }

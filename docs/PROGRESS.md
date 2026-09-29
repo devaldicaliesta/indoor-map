@@ -15,7 +15,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-002 | Scaffold aplikasi Admin dan Visitor | T-001 | review | Vite 8 + React 19 + React Router 8; Admin 5173, Visitor 5174 |
 | T-003 | Kerangka paket bersama | T-001 | review | 5 paket `@indoor/*` (exports ke src); batas impor di Biome |
 | T-004 | Supabase lokal dan skema inti | T-001 | review | Migrasi 0001, seed, 14 uji pgTAP lulus; diverifikasi dengan Docker di lingkungan cloud |
-| T-005 | Lapisan data | T-003, T-004 | siap | |
+| T-005 | Lapisan data | T-003, T-004 | review | Repository profiles & systemSettings, DataError, helper GeoJSON; 25 unit + 7 integrasi lulus |
 | T-006 | Sistem desain | T-003 | siap | |
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | menunggu | |
 | T-008 | Login, logout, reset password | T-007 | menunggu | |
@@ -129,6 +129,10 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-004 — Password Super Admin seed diteruskan lewat `PGOPTIONS` (`-c seed.admin_password=…`) oleh `pnpm db:reset` (`scripts/db-reset.mjs`), karena seed SQL tidak bisa membaca `.env.local`. `supabase db reset` biasa tetap sukses tetapi tanpa Super Admin.
 - [2026-09-29] T-004 — Supabase CLI dipasang sebagai devDependency root (`onlyBuiltDependencies: supabase`) agar `pnpm db:types` jalan tanpa instalasi global. `db:types` memformat hasil generate dengan Biome; file itu dikecualikan dari lint saja.
 - [2026-09-29] T-004 — Karena 0001 berubah, migrasi Storage T-105 tetap bernomor 0002 seperti rencana `04-model-data.md`.
+- [2026-09-29] T-005 — Konversi GeoJSON ↔ `geometry` tanpa view/RPC: PostgREST sudah mengeluarkan kolom geometry sebagai GeoJSON lewat cast bawaan PostGIS (yang memanggil `ST_AsGeoJSON`), dan PostGIS menerima teks GeoJSON sebagai input dengan SRID kolom. Helper `geometryFromColumn` membuang anggota `crs` dan memvalidasi dengan zod; tetap tanpa WKB manual. Diuji bolak-balik di test integrasi.
+- [2026-09-29] T-005 — `DataErrorKind` ditambah `unknown` untuk error yang tidak dipetakan, agar tidak disamarkan sebagai `invalid`.
+- [2026-09-29] T-005 — Update/delete 0 baris: repository memeriksa apakah baris masih terlihat → `forbidden`, jika tidak → `not_found`. Untuk `system_settings` (baris tunggal yang selalu ada) langsung `forbidden`.
+- [2026-09-29] T-005 — Test integrasi (`pnpm test:integration`) memakai `scripts/with-supabase-env.mjs` yang membaca `supabase status -o env`; tidak ikut `pnpm check` karena butuh Docker. Biome melarang `@supabase/*` di luar `packages/data` dan `supabase/functions`.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

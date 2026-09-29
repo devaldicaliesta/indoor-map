@@ -43,6 +43,7 @@ pnpm install          pasang dependensi
 pnpm dev              jalankan semua app
 pnpm check            typecheck + lint + test (wajib hijau sebelum PR)
 pnpm test             test saja
+pnpm test:integration test yang butuh Supabase lokal berjalan (RLS lewat repository)
 supabase start        Supabase lokal (butuh Docker)
 supabase db reset     terapkan ulang semua migrasi + seed (tanpa Super Admin)
 pnpm db:reset         sama, plus Super Admin lokal admin@local.test (password dari .env.local)
