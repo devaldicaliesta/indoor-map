@@ -50,6 +50,7 @@ const toColumns = (input: FloorInput) => ({
 export interface FloorsRepository {
   /** Lantai gedung, dari atas ke bawah. Area Luar tidak termasuk. */
   list(buildingId: BuildingId): Promise<Floor[]>;
+  get(id: FloorId): Promise<Floor>;
   create(buildingId: BuildingId, input: FloorInput): Promise<Floor>;
   update(id: FloorId, input: FloorInput): Promise<Floor>;
   /** Menghapus lantai beserta semua fiturnya (cascade); UI wajib mengonfirmasi jumlah fitur. */
@@ -65,8 +66,9 @@ export function createFloorsRepository(db: Db): FloorsRepository {
   }
 
   async function fetchOne(id: FloorId): Promise<Floor> {
-    const { data, error } = await db.from('floors').select(COLUMNS).eq('id', id).single();
+    const { data, error } = await db.from('floors').select(COLUMNS).eq('id', id).maybeSingle();
     if (error) throw toDataError(error);
+    if (!data) throw new DataError('not_found', { message: 'Lantai tidak ditemukan.' });
     return mapFloorRow(data as unknown as FloorRow);
   }
 
@@ -76,6 +78,8 @@ export function createFloorsRepository(db: Db): FloorsRepository {
       if (error) throw toDataError(error);
       return sortFloorsTopDown((data as unknown as FloorRow[]).map(mapFloorRow));
     },
+
+    get: fetchOne,
 
     async create(buildingId, input) {
       const building = await db

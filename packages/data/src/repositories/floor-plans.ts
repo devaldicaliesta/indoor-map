@@ -1,15 +1,19 @@
 import {
   checkFloorPlanFile,
+  checkFloorPlanPlacement,
   FLOOR_PLAN_FORMATS,
   type FloorId,
   FloorIdSchema,
   type FloorPlan,
   type FloorPlanFileProblem,
   type FloorPlanFormat,
+  type FloorPlanId,
   FloorPlanIdSchema,
+  type FloorPlanPlacement,
 } from '@indoor/domain';
 import type { Tables } from '../database.types';
 import { DataError, toDataError } from '../errors';
+import { zeroRowsError } from '../mutations';
 import type { Db } from '../supabase';
 
 const BUCKET = 'floor-plans';
@@ -55,6 +59,8 @@ export interface FloorPlansRepository {
   list(floorId: FloorId): Promise<FloorPlan[]>;
   /** FR-VEN-07: versi baru menjadi aktif; versi lama tetap tersimpan sebagai riwayat. */
   upload(floorId: FloorId, input: FloorPlanUpload): Promise<FloorPlan>;
+  /** FR-VEN-08/09: posisi 4 sudut dan opasitas denah. */
+  savePlacement(id: FloorPlanId, placement: FloorPlanPlacement): Promise<FloorPlan>;
   /** URL bertanda untuk bucket privat, satu per path (urutan sama dengan masukan). */
   signedUrls(paths: string[]): Promise<string[]>;
 }
@@ -69,6 +75,11 @@ export function createFloorPlansRepository(db: Db): FloorPlansRepository {
     if (error) throw toDataError(error);
     if (!data) throw new DataError('not_found', { message: 'Lantai tidak ditemukan.' });
     return data.venue_id;
+  }
+
+  async function isVisible(id: FloorPlanId) {
+    const { data } = await db.from('floor_plans').select('id').eq('id', id).maybeSingle();
+    return data !== null;
   }
 
   async function put(path: string, body: Blob, contentType: string) {
@@ -135,6 +146,21 @@ export function createFloorPlansRepository(db: Db): FloorPlansRepository {
         if (written.length) await db.storage.from(BUCKET).remove(written);
         throw cause;
       }
+    },
+
+    async savePlacement(id, placement) {
+      if (checkFloorPlanPlacement(placement).length) {
+        throw new DataError('invalid', { message: 'Posisi denah tidak valid.' });
+      }
+      const { data, error } = await db
+        .from('floor_plans')
+        .update({ corners: placement.corners, opacity: placement.opacity })
+        .eq('id', id)
+        .select(COLUMNS);
+      if (error) throw toDataError(error);
+      const row = data[0];
+      if (!row) throw await zeroRowsError(() => isVisible(id));
+      return mapFloorPlanRow(row);
     },
 
     async signedUrls(paths) {

@@ -74,3 +74,26 @@ export function pdfRenderScale(widthPt: number, heightPt: number, targetWidthPx 
   const byWidth = Math.min(targetWidthPx, MAX_RASTER_WIDTH_PX) / widthPt;
   return Math.min(byWidth, MAX_RASTER_WIDTH_PX / heightPt);
 }
+
+export interface FloorPlanPlacement {
+  corners: [number, number][];
+  opacity: number;
+}
+
+export type FloorPlanPlacementProblem = 'corners_invalid' | 'opacity_range';
+
+/** Posisi denah yang disimpan: tepat 4 sudut WGS84 dan opasitas 0–1 (FR-VEN-08, FR-VEN-09). */
+export function checkFloorPlanPlacement(input: FloorPlanPlacement): FloorPlanPlacementProblem[] {
+  const problems: FloorPlanPlacementProblem[] = [];
+  const validPoint = (p: [number, number]) =>
+    p.length === 2 &&
+    Number.isFinite(p[0]) &&
+    Number.isFinite(p[1]) &&
+    Math.abs(p[0]) <= 180 &&
+    Math.abs(p[1]) <= 90;
+  if (input.corners.length !== 4 || !input.corners.every(validPoint)) {
+    problems.push('corners_invalid');
+  }
+  if (!(input.opacity >= 0 && input.opacity <= 1)) problems.push('opacity_range');
+  return problems;
+}

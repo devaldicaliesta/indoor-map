@@ -9,9 +9,10 @@ import {
 } from 'terra-draw';
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 
-/** Warna gambar mengikuti token --signal (sorotan) dan --ink (garis). */
-const DRAW_FILL = '#ffc20e';
-const DRAW_LINE = '#111418';
+import { EDIT_COLORS } from './defaults';
+
+const DRAW_FILL = EDIT_COLORS.signal;
+const DRAW_LINE = EDIT_COLORS.ink;
 
 export interface PolygonDrawer {
   /** Mulai menggambar poligon baru (menghapus yang ada). */

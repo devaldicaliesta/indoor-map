@@ -87,7 +87,21 @@ describe.runIf(url && anonKey && serviceKey)('denah lantai (Supabase lokal)', ()
       [first.id, false],
     ]);
 
+    const corners: [number, number][] = [
+      [106.827, -6.175],
+      [106.828, -6.175],
+      [106.828, -6.176],
+      [106.827, -6.176],
+    ];
+    const placed = await data.floorPlans.savePlacement(second.id, { corners, opacity: 0.35 });
+    expect(placed).toMatchObject({ corners, opacity: 0.35 });
+    expect((await data.floorPlans.list(floor.id))[0]).toMatchObject({ corners, opacity: 0.35 });
+    expect((await data.floors.get(floor.id)).name).toBe('GF');
+
     const viewer = await signIn('viewer');
+    await expect(
+      viewer.floorPlans.savePlacement(second.id, { corners, opacity: 1 }),
+    ).rejects.toMatchObject({ kind: 'forbidden' });
     const [signed] = await viewer.floorPlans.signedUrls([first.sourcePath]);
     expect((await fetch(signed ?? '')).status).toBe(200);
     await expect(viewer.floorPlans.upload(floor.id, { source: png })).rejects.toMatchObject({
