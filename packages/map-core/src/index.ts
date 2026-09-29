@@ -63,4 +63,11 @@ export {
 export { closestOnSegment, type Px, SNAP_TOLERANCE_PX, type SnapKind, snapPoint } from './snap';
 export { type BBox, buildSnapIndex, type SnapCandidates, type SnapIndex } from './snap-index';
 export { buildStyle, buildStyleLayers, FLOOR_SOURCE_ID, LAYER_IDS, type MapDisplay } from './style';
-export { boundsCenter, positionsOf, rotateGeometry, translateGeometry } from './transform';
+export {
+  boundsCenter,
+  positionsOf,
+  rotateGeometry,
+  roundCoordinate,
+  roundGeometry,
+  translateGeometry,
+} from './transform';

@@ -9,7 +9,7 @@ import {
   SelectValue,
   StatusDot,
 } from '@indoor/ui';
-import { useEditorStore } from './editor-store';
+import { useEditorStore } from './store/editor-store';
 
 export const OUTDOOR = 'outdoor';
 

@@ -1,6 +1,6 @@
 import type { EditorTool } from '@indoor/map-core';
 import { useEffect } from 'react';
-import { useEditorStore } from './editor-store';
+import { useEditorStore } from './store/editor-store';
 import type { EditorSession } from './use-editor-session';
 
 /** Pintasan alat; juga ditampilkan di tooltip toolbar. */
@@ -25,13 +25,29 @@ function isTyping(target: EventTarget | null): boolean {
   );
 }
 
-/** FR-MAP-03/04: Delete, Esc, V (pilih), P (poligon), L (garis), T (titik). */
+/** Label pintasan undo/redo sesuai sistem (⌘ di macOS). */
+export const UNDO_SHORTCUT = /Mac|iPhone|iPad/.test(globalThis.navigator?.platform ?? '')
+  ? { undo: '⌘Z', redo: '⇧⌘Z' }
+  : { undo: 'Ctrl+Z', redo: 'Ctrl+Shift+Z' };
+
+/**
+ * FR-MAP-03/04/05: Delete, Esc, V (pilih), P (poligon), L (garis), T (titik),
+ * Ctrl/Cmd+Z (undo), Ctrl/Cmd+Shift+Z atau Ctrl+Y (redo).
+ */
 export function useEditorShortcuts(session: EditorSession, canEdit: boolean) {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
-      if (isTyping(event.target)) return;
+      if (event.defaultPrevented || isTyping(event.target)) return;
       const store = useEditorStore.getState();
+      if ((event.ctrlKey || event.metaKey) && !event.altKey) {
+        const key = event.key.toLowerCase();
+        if (!canEdit || (key !== 'z' && key !== 'y')) return;
+        event.preventDefault();
+        if (key === 'y' || event.shiftKey) session.redo();
+        else session.undo();
+        return;
+      }
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key === 'Escape') {
         if (store.tool !== 'select') store.setTool('select');
         else store.select(null);

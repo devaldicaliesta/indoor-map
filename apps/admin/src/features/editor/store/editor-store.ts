@@ -1,16 +1,22 @@
 import type { FloorFeature, FloorFeatures } from '@indoor/data';
-import {
-  type DrawKind,
-  drawKindsFor,
-  type FeatureShape,
-  type FloorId,
-  type Geometry,
-} from '@indoor/domain';
+import { type DrawKind, drawKindsFor, type FeatureShape, type FloorId } from '@indoor/domain';
 import type { EditorTool } from '@indoor/map-core';
 import { create } from 'zustand';
+import {
+  applyPatch,
+  type Direction,
+  emptyHistory,
+  type History,
+  type Patch,
+  record,
+  redo,
+  undo,
+} from './history';
 import type { SaveStatus } from './save-queue';
 
-interface EditorState {
+export type FeaturePatch = Patch<FloorFeature>;
+
+export interface EditorState {
   floorId: FloorId | null;
   /** Sumber kebenaran geometri lantai yang sedang disunting, berkunci id fitur. */
   features: Record<string, FloorFeature>;
@@ -26,9 +32,13 @@ interface EditorState {
 
   load(floorId: FloorId, collection: FloorFeatures, isOutdoor: boolean): void;
   setDrawKind(shape: FeatureShape, kind: DrawKind): void;
-  put(feature: FloorFeature): void;
-  setGeometry(id: string, geometry: Geometry): FloorFeature | null;
-  remove(id: string): void;
+  /** Riwayat undo/redo lantai ini; tidak disimpan ke database. */
+  history: History<FloorFeature>;
+  /** Menjalankan satu aksi (buat/ubah/hapus/massal) dan mencatatnya di riwayat. */
+  commit(patch: FeaturePatch): void;
+  /** Membatalkan/mengulang satu aksi; mengembalikan patch dan arahnya untuk disimpan. */
+  undo(): { patch: FeaturePatch; direction: Direction } | null;
+  redo(): { patch: FeaturePatch; direction: Direction } | null;
   select(id: string | null): void;
   /** Shift+klik: menambah atau mengurangi satu fitur dari seleksi. */
   toggleSelect(id: string): void;
@@ -36,6 +46,17 @@ interface EditorState {
   setSnapEnabled(enabled: boolean): void;
   setTool(tool: EditorTool): void;
   setSaveStatus(status: SaveStatus, error: string | null): void;
+}
+
+/** Fitur yang hilang karena patch ikut keluar dari seleksi. */
+function withPatch(
+  state: Pick<EditorState, 'features' | 'selectedIds'>,
+  patch: FeaturePatch,
+  direction: Direction,
+  history: History<FloorFeature>,
+) {
+  const features = applyPatch(state.features, patch, direction);
+  return { features, history, selectedIds: state.selectedIds.filter((id) => id in features) };
 }
 
 function defaultDrawKinds(isOutdoor: boolean): Record<FeatureShape, DrawKind> {
@@ -53,6 +74,7 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
   saveStatus: 'idle',
   saveError: null,
   drawKinds: defaultDrawKinds(false),
+  history: emptyHistory(),
 
   load(floorId, collection, isOutdoor) {
     const features: Record<string, FloorFeature> = {};
@@ -64,26 +86,27 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       saveStatus: 'idle',
       saveError: null,
       drawKinds: defaultDrawKinds(isOutdoor),
+      history: emptyHistory(),
     });
   },
   setDrawKind(shape, kind) {
     set((s) => ({ drawKinds: { ...s.drawKinds, [shape]: kind } }));
   },
-  put(feature) {
-    set((s) => ({ features: { ...s.features, [feature.properties.id]: feature } }));
+  commit(patch) {
+    if (patch.length === 0) return;
+    set((s) => withPatch(s, patch, 'do', record(s.history, patch)));
   },
-  setGeometry(id, geometry) {
-    const current = get().features[id];
-    if (!current) return null;
-    const next = { ...current, geometry };
-    set((s) => ({ features: { ...s.features, [id]: next } }));
-    return next;
+  undo() {
+    const step = undo(get().history);
+    if (!step) return null;
+    set((s) => withPatch(s, step.patch, 'undo', step.history));
+    return { patch: step.patch, direction: 'undo' };
   },
-  remove(id) {
-    set((s) => {
-      const { [id]: _removed, ...rest } = s.features;
-      return { features: rest, selectedIds: s.selectedIds.filter((x) => x !== id) };
-    });
+  redo() {
+    const step = redo(get().history);
+    if (!step) return null;
+    set((s) => withPatch(s, step.patch, 'do', step.history));
+    return { patch: step.patch, direction: 'do' };
   },
   select(id) {
     set({ selectedIds: id ? [id] : [] });

@@ -1,6 +1,6 @@
 import type { LngLat } from '@indoor/map-core';
 import { Badge } from '@indoor/ui';
-import { useEditorStore } from './editor-store';
+import { useEditorStore } from './store/editor-store';
 
 const count = new Intl.NumberFormat('id-ID');
 

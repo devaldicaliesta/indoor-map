@@ -148,7 +148,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
       />
       <div className="grid min-h-0 grid-cols-[3rem_15rem_1fr_18rem]">
         <aside className="border-line border-r">
-          <EditorToolbar canEdit={canEdit} />
+          <EditorToolbar canEdit={canEdit} session={session} />
         </aside>
         <aside className="min-h-0 overflow-y-auto border-line border-r">
           <FeatureList floorName={floor.name} />

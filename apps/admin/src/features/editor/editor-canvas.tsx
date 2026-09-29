@@ -17,8 +17,8 @@ import {
   setSelectionHighlight,
 } from '@indoor/map-core';
 import { useEffect, useRef, useState } from 'react';
-import { featureList, singleSelected, useEditorStore } from './editor-store';
 import { ReferenceLayer } from './reference-layer';
+import { featureList, singleSelected, useEditorStore } from './store/editor-store';
 import type { EditorSession } from './use-editor-session';
 
 export interface PlanBackground {
@@ -68,7 +68,20 @@ export function EditorCanvas({
 
   useEffect(() => {
     if (!container.current) return;
-    const instance = createMap(container.current, { center: initialCenter.current, zoom: 18 });
+    const element = container.current;
+    const instance = createMap(element, { center: initialCenter.current, zoom: 18 });
+    // terra-draw mencegah fokus pindah ke peta; kolom yang masih fokus disimpan dan dilepas
+    // agar pintasan (Delete, Ctrl+Z) langsung berlaku setelah mengklik peta.
+    const releaseFocus = () => {
+      const active = document.activeElement;
+      if (
+        active instanceof HTMLElement &&
+        active.matches('input, textarea, select, [contenteditable]')
+      ) {
+        active.blur();
+      }
+    };
+    element.addEventListener('pointerdown', releaseFocus, { capture: true });
     let selection: { destroy(): void } | null = null;
     let frame = 0;
     instance.on('mousemove', (e) => {
@@ -102,6 +115,7 @@ export function EditorCanvas({
     });
     return () => {
       cancelAnimationFrame(frame);
+      element.removeEventListener('pointerdown', releaseFocus, { capture: true });
       selection?.destroy();
       editor.current?.destroy();
       editor.current = null;
