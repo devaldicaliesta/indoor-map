@@ -1,0 +1,109 @@
+/*
+ * Pemetaan token ke tema Tailwind 4 dan variabel shadcn.
+ * Palet, bayangan, radius, ukuran, dan berat bawaan Tailwind dihapus agar
+ * hanya nilai dari docs/05-desain-ui.md yang bisa dipakai.
+ */
+@theme inline {
+  --color-*: initial;
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --color-canvas: var(--canvas);
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
+  --color-route: var(--route);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-on-strong: var(--on-strong);
+
+  /* Nama variabel shadcn, supaya komponen dari registry tetap cocok */
+  --color-background: var(--canvas);
+  --color-foreground: var(--ink);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--ink);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--ink);
+  --color-primary: var(--signal);
+  --color-primary-foreground: var(--ink);
+  --color-secondary: var(--surface);
+  --color-secondary-foreground: var(--ink);
+  --color-muted: var(--canvas);
+  --color-muted-foreground: var(--ink-muted);
+  --color-accent: var(--signal-soft);
+  --color-accent-foreground: var(--ink);
+  --color-destructive: var(--danger);
+  --color-border: var(--line);
+  --color-input: var(--line);
+  --color-ring: var(--signal);
+
+  --shadow-*: initial;
+  --shadow-float: var(--float-shadow);
+
+  --radius-*: initial;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+
+  --font-*: initial;
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-plex-mono);
+
+  /* Skala: 12 · 14 · 16 · 20 · 24 · 32; `text-body` mengikuti permukaan */
+  --text-*: initial;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-lg: 20px;
+  --text-lg--line-height: 28px;
+  --text-xl: 24px;
+  --text-xl--line-height: 32px;
+  --text-2xl: 32px;
+  --text-2xl--line-height: 40px;
+  --text-body: var(--body-size);
+
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    font-size: var(--body-size);
+    color: var(--ink);
+    background: var(--canvas);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  *,
+  ::before,
+  ::after {
+    border-color: var(--line);
+  }
+
+  /* Fokus: outline --signal 2 px + --ink 1 px (05-desain-ui.md bagian 6) */
+  :focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+    box-shadow: 0 0 0 1px var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Preferensi gerak pengguna harus menang atas animasi komponen, maka !important. */
+    *,
+    ::before,
+    ::after {
+      /* biome-ignore lint/complexity/noImportantStyles: preferensi gerak pengguna */
+      animation-duration: 0.01ms !important;
+      /* biome-ignore lint/complexity/noImportantStyles: preferensi gerak pengguna */
+      animation-iteration-count: 1 !important;
+      /* biome-ignore lint/complexity/noImportantStyles: preferensi gerak pengguna */
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

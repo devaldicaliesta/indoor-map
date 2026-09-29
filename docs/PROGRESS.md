@@ -16,19 +16,19 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-003 | Kerangka paket bersama | T-001 | review | 5 paket `@indoor/*` (exports ke src); batas impor di Biome |
 | T-004 | Supabase lokal dan skema inti | T-001 | review | Migrasi 0001, seed, 14 uji pgTAP lulus; diverifikasi dengan Docker di lingkungan cloud |
 | T-005 | Lapisan data | T-003, T-004 | review | Repository profiles & systemSettings, DataError, helper GeoJSON; 25 unit + 7 integrasi lulus |
-| T-006 | Sistem desain | T-003 | siap | |
-| T-007 | Kerangka Admin | T-002, T-005, T-006 | menunggu | |
+| T-006 | Sistem desain | T-003 | review | Tailwind 4 + token, font lokal, 15 komponen, galeri `/_ui` (dev); 19 uji kontras lulus |
+| T-007 | Kerangka Admin | T-002, T-005, T-006 | siap | |
 | T-008 | Login, logout, reset password | T-007 | menunggu | |
 | T-009 | Kelola pengguna dan otorisasi | T-008 | menunggu | |
 | T-010 | Pengaturan sistem | T-009 | menunggu | |
-| T-011 | Kerangka Visitor | T-002, T-006 | menunggu | |
+| T-011 | Kerangka Visitor | T-002, T-006 | siap | |
 | T-012 | Catatan peristiwa penting | T-009 | menunggu | |
 
 ## R1 · Inti peta (`11-R1-inti-peta.md`)
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-104 | Fondasi peta (map-core) | T-003, T-006 | menunggu | boleh paralel dengan akhir R0 |
+| T-104 | Fondasi peta (map-core) | T-003, T-006 | siap | boleh paralel dengan akhir R0 |
 | T-101 | Venue dan multi-venue | R0 | menunggu | |
 | T-102 | Gedung dan Area Luar | T-101, T-104 | menunggu | |
 | T-103 | Lantai dan default tampilan | T-102 | menunggu | |
@@ -133,6 +133,11 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-005 — `DataErrorKind` ditambah `unknown` untuk error yang tidak dipetakan, agar tidak disamarkan sebagai `invalid`.
 - [2026-09-29] T-005 — Update/delete 0 baris: repository memeriksa apakah baris masih terlihat → `forbidden`, jika tidak → `not_found`. Untuk `system_settings` (baris tunggal yang selalu ada) langsung `forbidden`.
 - [2026-09-29] T-005 — Test integrasi (`pnpm test:integration`) memakai `scripts/with-supabase-env.mjs` yang membaca `supabase status -o env`; tidak ikut `pnpm check` karena butuh Docker. Biome melarang `@supabase/*` di luar `packages/data` dan `supabase/functions`.
+- [2026-09-29] T-006 — Komponen shadcn ditulis tangan mengikuti struktur shadcn v4 (radix-ui, cva, `data-slot`) karena `ui.shadcn.com` diblokir kebijakan jaringan lingkungan cloud; `packages/ui/components.json` sudah ada agar `shadcn add` bisa dipakai saat host diizinkan.
+- [2026-09-29] T-006 — Tema Tailwind menghapus palet, bayangan, radius, ukuran huruf, dan berat bawaan (`--color-*: initial`, dst.). Hanya token `05-desain-ui.md` yang menghasilkan kelas, sehingga warna non-token, bayangan besar, dan radius > 8 px tidak bisa dipakai. Skala `text-lg` = 20 px, `text-xl` = 24 px, `text-2xl` = 32 px; `text-body` mengikuti permukaan.
+- [2026-09-29] T-006 — Nilai per permukaan lewat `data-surface` (`admin`, `visitor`, `info-point`) di `<html>`: font, ukuran dasar 14/16/20 px, tinggi kontrol 36/44/60 px, padding panel 16/20/24 px.
+- [2026-09-29] T-006 — `--warn` (#B26A00) hanya untuk elemen non-teks (4,24:1 di atas putih, lolos 3:1 tetapi tidak 4,5:1); teks peringatan memakai `--ink`. Batas `Input`/`SelectTrigger` memakai `--ink-muted` (6,87:1) karena `--line` (1,42:1) tidak lolos 3:1 untuk batas kontrol (WCAG 1.4.11); `--line` tetap untuk garis pemisah. Token baru `--on-strong` (#FFFFFF) untuk teks di atas `--danger`/`--route`.
+- [2026-09-29] T-006 — Font dari paket npm @fontsource (OFL-1.1) disalin ke `packages/ui/src/fonts/` (subset latin dan latin-ext, berat 400/700) beserta lisensinya.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
