@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-103
+**Task berikutnya:** T-105
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -32,8 +32,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-104 | Fondasi peta (map-core) | T-003, T-006 | review | Style tanpa basemap, layer 2D/3D, ganti lantai lewat satu source, MapControls; `/_map` (dev) di Admin & Visitor. Ganti lantai 1.000 fitur 102–204 ms di WebGL perangkat lunak — perlu diukur ulang di perangkat dengan GPU |
 | T-101 | Venue dan multi-venue | R0 | review | CRUD venue, logo ke `public-assets` (migrasi 0005), waktu dalam zona venue, hapus dengan ketik ulang nama; 4 test integrasi + browser |
 | T-102 | Gedung dan Area Luar | T-101, T-104 | review | Tab Gedung (tabel, footprint digambar terra-draw, default), Area Luar dijaga trigger (migrasi 0006); 2 integrasi + 3 pgTAP + browser |
-| T-103 | Lantai dan default tampilan | T-102 | siap | |
-| T-105 | Unggah denah PNG/JPG/PDF | T-103 | menunggu | |
+| T-103 | Lantai dan default tampilan | T-102 | review | Sheet lantai per gedung, level negatif, konfirmasi hapus dengan jumlah fitur, lantai default, `FloorSwitcher`, `initialFloorView` |
+| T-105 | Unggah denah PNG/JPG/PDF | T-103 | siap | |
 | T-106 | Georeferensi dan opasitas | T-105 | menunggu | |
 | T-107 | Lapisan acuan lantai lain | T-106 | menunggu | |
 | T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | menunggu | model besar |
@@ -161,6 +161,7 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-101 — `toDataError` juga memetakan status HTTP (Storage/Edge Function): 403 → forbidden, 413/415 → invalid.
 - [2026-09-29] T-102 — Area Luar dijaga di server (migrasi 0006, trigger `floors_guard_outdoor_layer`, SQLSTATE IM409): hanya terhapus bersama venue. `createPolygonDrawer` di map-core membungkus terra-draw (mode polygon + select, poligon memotong diri ditolak) dengan warna token (--signal isi, --ink garis), bukan biru bawaan terra-draw.
 - [2026-09-29] T-102 — Halaman Venue memakai tab "Gedung" (venue terpilih) dan "Semua venue"; tombol utama berada di dalam tab masing-masing agar satu aksi utama per tampilan.
+- [2026-09-29] T-103 — Urutan lantai mengikuti level (`sortFloorsTopDown`: level terbesar di atas, B1 di bawah GF); `sort_order` hanya pemecah seri, sehingga urutan drag tidak dibuat (urutan manual yang bertentangan dengan level akan membingungkan). Tampilan awal peta memakai `initialFloorView` (gedung default → lantai default → lantai level terdekat ke 0).
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

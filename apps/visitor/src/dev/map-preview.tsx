@@ -1,3 +1,4 @@
+import { initialFloorView, sortFloorsTopDown } from '@indoor/domain';
 import sample from '@indoor/domain/fixtures/venue-sample.json';
 import {
   createMap,
@@ -8,12 +9,15 @@ import {
   setViewMode,
   type ViewMode,
 } from '@indoor/map-core';
-import { type MapControlLabels, MapControls } from '@indoor/ui';
+import { FloorSwitcher, type MapControlLabels, MapControls } from '@indoor/ui';
 import { useEffect, useRef, useState } from 'react';
 
 // Pratinjau peta khusus pengembangan (T-104) dengan fixture venue contoh.
 const all = sample.features as FloorFeatureCollection;
-const floors = sample.floors;
+const floors = sample.floors.map((f, i) => ({ ...f, sortOrder: i }));
+const buildings = sample.buildings.map((b) => ({ ...b, defaultFloorId: null }));
+// FR-VEN-06: tampilan awal dari gedung/lantai default (fixture tanpa default → fallback).
+const start = initialFloorView(null, buildings, floors);
 
 /** Lantai sintetis 1.000 fitur untuk mengukur kecepatan ganti lantai. */
 function syntheticFloor(): FloorFeatureCollection {
@@ -53,11 +57,11 @@ function floorFeatures(floorId: string): FloorFeatureCollection {
 export function MapPreview({
   labels,
 }: {
-  labels: MapControlLabels & { floor: string; synthetic: string };
+  labels: MapControlLabels & { floor: string; synthetic: string; floorSwitcher: string };
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<MapInstance | null>(null);
-  const [floorId, setFloorId] = useState(floors[1]?.id ?? '');
+  const [floorId, setFloorId] = useState(start?.floorId ?? '');
   const [mode, setMode] = useState<ViewMode>('2d');
   const [bearing, setBearing] = useState(0);
   const [lastSwitchMs, setLastSwitchMs] = useState<number | null>(null);
@@ -70,7 +74,7 @@ export function MapPreview({
     });
     instance.on('rotate', () => setBearing(instance.getBearing()));
     instance.once('load', () => {
-      const first = floorFeatures(floors[1]?.id ?? '');
+      const first = floorFeatures(start?.floorId ?? '');
       setFloorData(instance, first);
       const bounds = featureBounds(first);
       if (bounds) instance.fitBounds(bounds, { padding: 40, duration: 0 });
@@ -92,17 +96,21 @@ export function MapPreview({
     <div className="relative h-dvh w-full">
       <div ref={container} className="h-full w-full" data-testid="map" />
       <div className="absolute top-3 left-3 flex flex-wrap gap-1 rounded-sm border border-line bg-surface p-1 shadow-float">
-        {floors.map((floor) => (
-          <button
-            key={floor.id}
-            type="button"
-            aria-pressed={floorId === floor.id}
-            onClick={() => showFloor(floor.id)}
-            className={`h-9 cursor-pointer rounded-sm px-3 font-bold ${floorId === floor.id ? 'bg-ink text-surface' : 'text-ink'}`}
-          >
-            {sample.buildings.find((b) => b.id === floor.buildingId)?.code ?? ''} {floor.name}
-          </button>
-        ))}
+        {buildings.map((building) => {
+          const first = initialFloorView(building.id, buildings, floors)?.floorId;
+          const active = floors.find((f) => f.id === floorId)?.buildingId === building.id;
+          return (
+            <button
+              key={building.id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => first && showFloor(first)}
+              className={`h-9 cursor-pointer rounded-sm px-3 font-bold ${active ? 'bg-ink text-surface' : 'text-ink'}`}
+            >
+              {building.name}
+            </button>
+          );
+        })}
         <button
           type="button"
           aria-pressed={floorId === 'synthetic'}
@@ -112,6 +120,19 @@ export function MapPreview({
           {labels.synthetic}
         </button>
       </div>
+      <FloorSwitcher
+        className="absolute top-3 right-3"
+        label={labels.floorSwitcher}
+        value={floorId}
+        onChange={showFloor}
+        floors={sortFloorsTopDown(
+          floors.filter(
+            (f) =>
+              f.buildingId ===
+              (floors.find((x) => x.id === floorId)?.buildingId ?? start?.buildingId),
+          ),
+        ).map((f) => ({ id: f.id, label: f.name }))}
+      />
       <output
         data-testid="switch-ms"
         className="absolute bottom-3 left-3 rounded-sm bg-surface px-2 py-1 font-mono text-xs shadow-float"

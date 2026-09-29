@@ -18,7 +18,8 @@
     "resetNorth": "Arahkan ke utara",
     "viewMode": "Mode tampilan",
     "mode2d": "2D",
-    "mode3d": "3D"
+    "mode3d": "3D",
+    "floors": "Lantai"
   },
   "sheet": {
     "handle": "Ubah tinggi panel",
