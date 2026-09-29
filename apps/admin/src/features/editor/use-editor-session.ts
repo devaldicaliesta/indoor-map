@@ -144,7 +144,10 @@ export function useEditorSession(
         if (value === undefined) delete properties[key];
         else properties[key] = value;
       }
-      const next: FloorFeature = { ...current, properties: properties as unknown as MapFeatureProperties };
+      const next: FloorFeature = {
+        ...current,
+        properties: properties as unknown as MapFeatureProperties,
+      };
       store.put(next);
       enqueue(next);
     },
