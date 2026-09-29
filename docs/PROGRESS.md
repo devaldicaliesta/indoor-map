@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-105
+**Task berikutnya:** T-106
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -33,8 +33,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-101 | Venue dan multi-venue | R0 | review | CRUD venue, logo ke `public-assets` (migrasi 0005), waktu dalam zona venue, hapus dengan ketik ulang nama; 4 test integrasi + browser |
 | T-102 | Gedung dan Area Luar | T-101, T-104 | review | Tab Gedung (tabel, footprint digambar terra-draw, default), Area Luar dijaga trigger (migrasi 0006); 2 integrasi + 3 pgTAP + browser |
 | T-103 | Lantai dan default tampilan | T-102 | review | Sheet lantai per gedung, level negatif, konfirmasi hapus dengan jumlah fitur, lantai default, `FloorSwitcher`, `initialFloorView` |
-| T-105 | Unggah denah PNG/JPG/PDF | T-103 | siap | |
-| T-106 | Georeferensi dan opasitas | T-105 | menunggu | |
+| T-105 | Unggah denah PNG/JPG/PDF | T-103 | review | |
+| T-106 | Georeferensi dan opasitas | T-105 | siap | |
 | T-107 | Lapisan acuan lantai lain | T-106 | menunggu | |
 | T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | menunggu | model besar |
 | T-109 | Jenis fitur dan atribut unit | T-108 | menunggu | |
@@ -162,6 +162,8 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-102 — Area Luar dijaga di server (migrasi 0006, trigger `floors_guard_outdoor_layer`, SQLSTATE IM409): hanya terhapus bersama venue. `createPolygonDrawer` di map-core membungkus terra-draw (mode polygon + select, poligon memotong diri ditolak) dengan warna token (--signal isi, --ink garis), bukan biru bawaan terra-draw.
 - [2026-09-29] T-102 — Halaman Venue memakai tab "Gedung" (venue terpilih) dan "Semua venue"; tombol utama berada di dalam tab masing-masing agar satu aksi utama per tampilan.
 - [2026-09-29] T-103 — Urutan lantai mengikuti level (`sortFloorsTopDown`: level terbesar di atas, B1 di bawah GF); `sort_order` hanya pemecah seri, sehingga urutan drag tidak dibuat (urutan manual yang bertentangan dengan level akan membingungkan). Tampilan awal peta memakai `initialFloorView` (gedung default → lantai default → lantai level terdekat ke 0).
+- [2026-09-29] T-105 — Bucket `floor-plans` (privat, 50 MB, PNG/JPG/PDF) dan `snapshots` (baca publik, JSON) di migrasi 0007; `public-assets` sudah ada di 0005. Path denah `{venue_id}/{floor_id}/{waktu}-source.{ext}` dan `-raster.png` untuk PDF; untuk PNG/JPG `raster_path` = berkas asli. Riwayat: versi lama `is_active = false` dan dibuka lewat URL bertanda (1 jam). Batas ukuran/tipe dicek di domain (`checkFloorPlanFile`, MIME harus cocok dengan ekstensi) dan ditegakkan lagi oleh bucket (413/415).
+- [2026-09-29] T-105 — Dependency baru `pdfjs-dist` (Admin saja, dimuat lazy saat PDF dipilih, tidak masuk bundle awal). Dipakai build `legacy/`: build utama v6 memanggil `Map.prototype.getOrInsertComputed` yang belum ada di Chromium yang dipakai uji (dan Chrome/Edge kantor yang tertinggal). Raster PDF: lebar ±4.000 px, sisi terpanjang ≤ 8.000 px, latar putih.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
