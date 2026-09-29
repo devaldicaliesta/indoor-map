@@ -9,4 +9,5 @@ export { createDataClient, type DataClient, type DataClientConfig } from './clie
 export { DataError, type DataErrorKind } from './errors';
 export type { ProfilesRepository } from './repositories/profiles';
 export type { SystemSettingsRepository } from './repositories/system-settings';
+export type { InviteUserInput, UsersRepository } from './repositories/users';
 export type { VenuesRepository } from './repositories/venues';

@@ -35,6 +35,14 @@ describe('toDataError', () => {
     expect(error.message).toBe('Anda tidak memiliki izin untuk tindakan ini.');
   });
 
+  it('kode proyek IMxxx menampilkan pesan dari server', () => {
+    const error = toDataError(
+      postgrestError('IM409', 'Tidak bisa mengubah satu-satunya Super Admin aktif.'),
+    );
+    expect(error.kind).toBe('conflict');
+    expect(error.message).toBe('Tidak bisa mengubah satu-satunya Super Admin aktif.');
+  });
+
   it('menyimpan error asli sebagai cause', () => {
     const original = postgrestError('23505');
     expect(toDataError(original).cause).toBe(original);
