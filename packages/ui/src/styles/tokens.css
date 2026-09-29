@@ -1,0 +1,59 @@
+/*
+ * Token desain — sumber: docs/05-desain-ui.md bagian 3.
+ * Hanya file ini yang boleh berisi nilai warna. Komponen memakai kelas Tailwind
+ * yang dipetakan ke token di theme.css.
+ */
+:root {
+  /* Warna antarmuka */
+  --ink: #111418;
+  --ink-muted: #545b64;
+  --line: #d5d9de;
+  --surface: #ffffff;
+  --canvas: #f2f3ef;
+  --signal: #ffc20e;
+  --signal-soft: #ffe9a8;
+  --route: #1463ff;
+  --danger: #c8321e;
+  --ok: #12805c;
+  --warn: #b26a00; /* hanya elemen non-teks: 4,24:1 di atas --surface */
+  /* Teks di atas --route dan --danger; --signal selalu memakai --ink. */
+  --on-strong: #ffffff;
+
+  /* Bentuk */
+  --float-shadow: 0 1px 2px rgb(0 0 0 / 0.12), 0 4px 12px rgb(0 0 0 / 0.08);
+
+  /* Font */
+  --font-plex-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-plex-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-atkinson: "Atkinson Hyperlegible", system-ui, sans-serif;
+
+  /* Nilai per permukaan; default = Admin */
+  --font-body: var(--font-plex-sans);
+  --body-size: 14px;
+  --control-height: 36px;
+  --panel-padding: 16px;
+}
+
+/* Admin: IBM Plex Sans 14 px, tombol 36 px, padding panel 16 px */
+[data-surface="admin"] {
+  --font-body: var(--font-plex-sans);
+  --body-size: 14px;
+  --control-height: 36px;
+  --panel-padding: 16px;
+}
+
+/* Visitor: Atkinson Hyperlegible 16 px, target sentuh 44 px, padding panel 20 px */
+[data-surface="visitor"] {
+  --font-body: var(--font-atkinson);
+  --body-size: 16px;
+  --control-height: 44px;
+  --panel-padding: 20px;
+}
+
+/* Info Point: Atkinson Hyperlegible 20 px, target sentuh 60 px, padding panel 24 px */
+[data-surface="info-point"] {
+  --font-body: var(--font-atkinson);
+  --body-size: 20px;
+  --control-height: 60px;
+  --panel-padding: 24px;
+}

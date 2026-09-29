@@ -1,0 +1,8 @@
+/* Diimpor app setelah `@import 'tailwindcss';` */
+@import "tw-animate-css";
+@import "./fonts.css";
+@import "./tokens.css";
+@import "./theme.css";
+
+/* Pindai komponen di paket ini untuk kelas Tailwind */
+@source "..";
