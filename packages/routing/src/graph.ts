@@ -1,13 +1,6 @@
-import {
-  haversineM,
-  type SnapshotConnectorKind,
-  type SnapshotFloor,
-  type SnapshotGraph,
-} from '@indoor/domain';
-
-/** Bit `arcFlags`. */
-export const ARC_ACCESSIBLE = 1;
-export const ARC_CONNECTOR = 2;
+import type { SnapshotConnectorKind, SnapshotFloor, SnapshotGraph } from '@indoor/domain';
+import { ARC_ACCESSIBLE, type ArcDraft, nodeDistanceM } from './arcs';
+import { connectorArcs } from './connectors';
 
 /**
  * Graf rute dalam array bertipe. Adjacency berbentuk CSR: arc keluar node `i` ada di indeks
@@ -57,36 +50,6 @@ export interface RouteGraph {
 export interface BuildGraphOptions {
   /** Level tiap lantai; lantai yang tidak disebut dianggap level 0. */
   floors: readonly Pick<SnapshotFloor, 'id' | 'level'>[];
-}
-
-/** Arc sebelum disusun ke CSR. */
-export interface ArcDraft {
-  from: number;
-  to: number;
-  cost: number;
-  length: number;
-  flags: number;
-  source: number;
-}
-
-/** Arc konektor dan biaya tetap per level terkecilnya. */
-export interface ConnectorArcs {
-  arcs: ArcDraft[];
-  costPerLevel: number;
-}
-
-// Konektor (lift, eskalator, tangga, pintu gedung) ditambahkan di T-202.
-function connectorArcs(): ConnectorArcs {
-  return { arcs: [], costPerLevel: 0 };
-}
-
-/** Jarak lurus antara dua node graf (m). */
-export function nodeDistanceM(
-  graph: Pick<RouteGraph, 'lng' | 'lat'>,
-  a: number,
-  b: number,
-): number {
-  return haversineM(graph.lng[a] ?? 0, graph.lat[a] ?? 0, graph.lng[b] ?? 0, graph.lat[b] ?? 0);
 }
 
 /**
@@ -140,7 +103,7 @@ export function buildGraph(source: SnapshotGraph, options: BuildGraphOptions): R
     arcs.push({ from: u, to: v, cost, length: cost, flags, source: k });
     arcs.push({ from: v, to: u, cost, length: cost, flags, source: k });
   }
-  const connectors = connectorArcs();
+  const connectors = connectorArcs(source, nodes);
   arcs.push(...connectors.arcs);
 
   const m = arcs.length;

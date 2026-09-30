@@ -99,3 +99,34 @@ export function referenceCost(graph: SnapshotGraph, from: string, to: string): n
     }
   }
 }
+
+/** Dijkstra polos di atas arc graf yang sudah dibangun (tanpa heuristik), untuk graf berkonektor. */
+export function graphCost(
+  graph: {
+    offsets: Int32Array;
+    arcTo: Int32Array;
+    arcCost: Float64Array;
+    nodeIds: readonly string[];
+  },
+  from: number,
+  to: number,
+): number | null {
+  const n = graph.nodeIds.length;
+  const dist = new Float64Array(n).fill(Number.POSITIVE_INFINITY);
+  const done = new Uint8Array(n);
+  dist[from] = 0;
+  for (;;) {
+    let u = -1;
+    for (let i = 0; i < n; i++) {
+      if (!done[i] && (u < 0 || (dist[i] ?? 0) < (dist[u] ?? 0))) u = i;
+    }
+    if (u < 0 || !Number.isFinite(dist[u] ?? Number.POSITIVE_INFINITY)) return null;
+    if (u === to) return dist[u] ?? null;
+    done[u] = 1;
+    for (let a = graph.offsets[u] ?? 0; a < (graph.offsets[u + 1] ?? 0); a++) {
+      const v = graph.arcTo[a] ?? 0;
+      const candidate = (dist[u] ?? 0) + (graph.arcCost[a] ?? 0);
+      if (candidate < (dist[v] ?? Number.POSITIVE_INFINITY)) dist[v] = candidate;
+    }
+  }
+}
