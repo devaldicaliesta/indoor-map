@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - e2e
 
 # pnpm 10 memblokir skrip install; supabase perlu postinstall untuk mengunduh binary CLI.
 onlyBuiltDependencies:
@@ -9,6 +10,8 @@ onlyBuiltDependencies:
 # Versi bersama untuk semua paket; pakai `"nama": "catalog:"` di package.json.
 catalog:
   '@biomejs/biome': 2.5.14
+  # Sama dengan versi browser Playwright di lingkungan cloud (chromium-1194); naikkan bersama browsernya.
+  '@playwright/test': 1.56.1
   '@supabase/supabase-js': ^2.117.2
   '@tailwindcss/vite': ^4.3.3
   '@tanstack/react-query': ^5.104.0
