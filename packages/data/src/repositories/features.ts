@@ -16,6 +16,7 @@ import type { Feature, FeatureCollection } from 'geojson';
 import type { Tables } from '../database.types';
 import { toDataError } from '../errors';
 import { geometryFromColumn, geometryToColumn } from '../geometry';
+import { fetchAllPages } from '../pagination';
 import type { Db } from '../supabase';
 
 const COLUMNS =
@@ -127,9 +128,10 @@ export function toFeatureColumns(venueId: VenueId, feature: FloorFeature) {
 export function createFeaturesRepository(db: Db): FeaturesRepository {
   return {
     async listByFloor(floorId) {
-      const { data, error } = await db.from('features').select(COLUMNS).eq('floor_id', floorId);
-      if (error) throw toDataError(error);
-      return { type: 'FeatureCollection', features: data.map(mapFeatureRow) };
+      const rows = await fetchAllPages((from, to) =>
+        db.from('features').select(COLUMNS).eq('floor_id', floorId).order('id').range(from, to),
+      );
+      return { type: 'FeatureCollection', features: rows.map(mapFeatureRow) };
     },
 
     async save(venueId, feature) {

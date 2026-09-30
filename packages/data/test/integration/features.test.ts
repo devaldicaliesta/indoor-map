@@ -25,7 +25,7 @@ describe.runIf(url && anonKey && serviceKey)('fitur draft (Supabase lokal)', () 
   });
 
   async function signIn(role: 'admin' | 'editor') {
-    const email = `${role}-${suffix}@features.test`;
+    const email = `${role}-${suffix}-${userIds.length}@features.test`;
     const created = await service.auth.admin.createUser({
       email,
       password: PASSWORD,
@@ -153,5 +153,27 @@ describe.runIf(url && anonKey && serviceKey)('fitur draft (Supabase lokal)', () 
       .select('id')
       .eq('floor_id', floorId);
     expect(anonRows ?? []).toEqual([]);
+  });
+
+  it('lantai dengan lebih dari 1.000 fitur dimuat utuh (melewati max_rows PostgREST)', async () => {
+    const floor = await service
+      .from('floors')
+      .select('id')
+      .eq('venue_id', venueId)
+      .eq('is_outdoor', true)
+      .single();
+    const floorId = floor.data?.id as FloorId;
+    const rows = Array.from({ length: 1001 }, (_, i) => ({
+      venue_id: venueId,
+      floor_id: floorId,
+      kind: 'door' as const,
+      geom: { type: 'Point', coordinates: [106.827 + i * 1e-6, -6.175] },
+    }));
+    const inserted = await service.from('features').insert(rows);
+    expect(inserted.error).toBeNull();
+    const admin = await signIn('admin');
+    const listed = await admin.features.listByFloor(floorId);
+    expect(listed.features).toHaveLength(1001);
+    expect(new Set(listed.features.map((f) => f.properties.id)).size).toBe(1001);
   });
 });
