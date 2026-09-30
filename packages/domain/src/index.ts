@@ -16,6 +16,7 @@ export * from './image';
 export * from './label-point';
 export * from './language';
 export * from './location';
+export * from './location-detail';
 export * from './map-labels';
 export * from './map-view';
 export * from './names';

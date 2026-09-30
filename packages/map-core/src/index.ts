@@ -87,7 +87,13 @@ export {
   setViewMode,
   type ViewMode,
 } from './map';
-export { type MapPick, PICK_TOLERANCE_PX, pickAt } from './pick';
+export {
+  createTapInteractions,
+  type MapPick,
+  PICK_TOLERANCE_PX,
+  pickAt,
+  type TapInteractionOptions,
+} from './pick';
 export {
   createSelectionInteractions,
   PICKABLE_LAYERS,
