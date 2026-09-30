@@ -50,6 +50,15 @@ export {
   type GeoreferencerOptions,
 } from './georef-layer';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
+export {
+  LABEL_LAYER_ID,
+  LABEL_SOURCE_ID,
+  type LabelFont,
+  labelCollection,
+  labelFontFaces,
+  labelLayer,
+  setLabels,
+} from './layers/labels';
 export { MUTED_LAYER_IDS, mutedLayers, setMutedFeatures } from './layers/muted';
 export {
   REFERENCE_LAYER_IDS,

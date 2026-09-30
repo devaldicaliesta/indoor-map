@@ -1,4 +1,4 @@
-import { MinusIcon, NavigationIcon, PlusIcon } from 'lucide-react';
+import { LocateFixedIcon, MinusIcon, NavigationIcon, PlusIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { cn } from '../lib/utils';
 
@@ -9,6 +9,8 @@ export interface MapControlLabels {
   viewMode: string;
   mode2d: string;
   mode3d: string;
+  /** Wajib bila `onResetView` diisi. */
+  resetView?: string;
 }
 
 interface MapControlsProps extends Omit<ComponentProps<'div'>, 'children'> {
@@ -22,6 +24,8 @@ interface MapControlsProps extends Omit<ComponentProps<'div'>, 'children'> {
   onModeChange: (mode: '2d' | '3d') => void;
   /** Disembunyikan bila fitur 3D tidak aktif di lisensi atau Info Point dipaksa 2D. */
   allow3d?: boolean;
+  /** Kembali ke gedung, lantai, dan kamera awal (Visitor); tombol tidak tampil tanpa ini. */
+  onResetView?: () => void;
 }
 
 const button =
@@ -37,6 +41,7 @@ function MapControls({
   mode,
   onModeChange,
   allow3d = true,
+  onResetView,
   className,
   ...props
 }: MapControlsProps) {
@@ -74,6 +79,16 @@ function MapControls({
         <button type="button" aria-label={labels.zoomOut} onClick={onZoomOut} className={button}>
           <MinusIcon strokeWidth={1.75} />
         </button>
+        {onResetView ? (
+          <button
+            type="button"
+            aria-label={labels.resetView}
+            onClick={onResetView}
+            className={button}
+          >
+            <LocateFixedIcon strokeWidth={1.75} />
+          </button>
+        ) : null}
         <button
           type="button"
           aria-label={labels.resetNorth}
