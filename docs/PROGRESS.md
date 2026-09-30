@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-112
+**Task berikutnya:** T-113
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -40,8 +40,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-109 | Jenis fitur dan atribut unit | T-108 | review | |
 | T-110 | Edit geometri, multi-select, snapping | T-109 | review | |
 | T-111 | Undo/redo | T-110 | review | |
-| T-112 | Fasilitas dan jenis fasilitas | T-109 | siap | |
-| T-113 | Panel daftar fitur | T-109 | menunggu | |
+| T-112 | Fasilitas dan jenis fasilitas | T-109 | review | Tab Pengaturan → Jenis fasilitas, 14 piktogram bawaan, ikon unggahan SVG/PNG, sprite + layer simbol di map-core, pilihan Fasilitas di alat Titik (migrasi 0008); 2 integrasi + 7 pgTAP + browser |
+| T-113 | Panel daftar fitur | T-109 | siap | |
 | T-114 | Validasi geometri | T-109 | menunggu | |
 | T-115 | Tampilan 2D/3D | T-104, T-109 | menunggu | |
 | T-116 | Lokasi dasar, kategori, tautan unit | T-109 | menunggu | |
@@ -113,6 +113,8 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 - [2026-09-29] T-010 — FR-SYS-01 menyebut SMTP di Pengaturan Sistem dipakai untuk reset password, tetapi email Auth (reset, undangan) dikirim GoTrue memakai SMTP dari konfigurasi server (`[auth.email.smtp]` / variabel `GOTRUE_SMTP_*`), bukan dari tabel `system_settings`. Opsi: A) Auth Hook *send email*: GoTrue memanggil Edge Function yang mengirim email Auth memakai SMTP dari Pengaturan Sistem (klien SMTP `_shared/smtp.ts` sudah ada); satu sumber konfigurasi, bisa diubah dari Admin tanpa restart. B) SMTP Auth tetap konfigurasi instalasi (diisi tim IT di paket T-411), Pengaturan Sistem hanya untuk email lain. Rekomendasi: A. (status: menunggu jawaban)
 
+- [2026-09-30] T-112 — Siapa yang boleh mengubah jenis fasilitas? `05-user-flow.md` menaruh jenis fasilitas di Pengaturan (Admin, Super Admin), tetapi `04-model-data.md` memasukkan `facility_types` ke "konten yang boleh diubah Editor" (RLS `app.can_edit()`), sehingga Editor bisa mengubahnya lewat API walau tombolnya tidak tampil. Opsi: A) migrasi baru memperketat RLS `facility_types` dan policy Storage ikon ke `app.can_manage()`; B) tab Jenis fasilitas juga bisa diubah Editor (aksi `settings.edit` tidak dipakai di tab ini). Rekomendasi: A, sejalan dengan struktur menu; dikerjakan bersama matriks otorisasi T-312 atau lebih awal bila disetujui. Sementara ini UI mengikuti A, server mengikuti `04-model-data.md`. (status: menunggu jawaban)
+
 ## Catatan keputusan
 
 Format: `- [tanggal] T-xxx — keputusan — alasan`
@@ -175,6 +177,12 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-110 — Snapping memakai `toCustom` terra-draw dengan fungsi murni `snapPoint` (vertex → tepi → sudut siku terhadap ruas terakhir, 8 px layar) dan `buildSnapIndex` dari store, karena fitur lantai sengaja tidak disimpan di terra-draw; berlaku saat menggambar poligon/garis dan menarik vertex. Mode titik terra-draw tidak mendukung snapping, jadi pintu belum menempel ke dinding. Seleksi ganda di store (`selectedIds`): Shift+klik, Shift+tarik (kotak), geser kelompok dengan pratinjau di source kecil lalu satu kali tulis ke store; putar lewat panel properti (±15°/±90° atau sudut bebas) terhadap pusat kotak batas seleksi. Pintasan global (Delete/Backspace, Esc, V/P/L/T) tidak aktif saat fokus di kolom isian atau menu.
 - [2026-09-29] T-111 — Undo/redo memakai command berbasis patch (`store/history.ts`): setiap aksi dicatat sebagai daftar `{id, before, after}` fitur; `do` memasang `after`, `undo` memasang `before`, aksi massal = satu patch. Riwayat 100 langkah di store, dibersihkan saat lantai dimuat (ganti lantai/reload), tidak disimpan ke database; undo/redo masuk antrean simpan yang sama. Test: 50 undo lalu 50 redo acak (buat/ubah/hapus/massal) sama persis dengan snapshot tiap langkah. Store dan antrean dipindah ke `features/editor/store/`.
 - [2026-09-29] T-111 — Perbaikan dari uji: (1) koordinat hasil snap/putar/geser kini dibulatkan 9 desimal (≈0,1 mm) karena terra-draw menolak presisi lebih tinggi, yang sebelumnya membuat fitur tersebut tidak bisa disunting ulang; (2) klik di dalam fitur yang sedang disunting tidak lagi membatalkan seleksi; (3) mengklik peta melepas fokus kolom isian (terra-draw mencegah fokus pindah) sehingga pintasan langsung berlaku.
+- [2026-09-30] T-112 — Ikon jenis fasilitas di `facility_types.icon_path`: `builtin:<kunci>` untuk piktogram bawaan (kunci di `PICTOGRAM_KEYS` domain, gambar path SVG 24×24 di `packages/ui/src/pictograms`), selain itu path Storage `public-assets/facility-types/{venue_id}/{id}-{waktu}.png`. Tanpa perubahan skema. Ikon unggahan SVG/PNG (≤ 200 kB, dicek di domain) dirasterisasi di Admin ke PNG 128 px lewat `<img>` + canvas, sehingga skrip/rujukan luar di SVG tidak pernah jalan dan bucket tetap tanpa SVG (sesuai 0005).
+- [2026-09-30] T-112 — Sprite dibangun saat memuat oleh `setFacilityIcons` (map-core), bukan berkas sprite dari server: lingkaran 28 px (bitmap 2×), latar putih + cincin dan simbol --ink; keselamatan berlatar --danger dengan simbol putih (simbol --ink di atas merah tidak kontras). Gambar unggahan yang punya piksel transparan dipakai sebagai topeng dan diwarnai seperti ikon bawaan; gambar buram penuh ditampilkan apa adanya. Jenis tanpa ikon atau ikon yang belum/ gagal dimuat tampil sebagai lingkaran bertitik lewat `setMissingStyleImageResolver`. Pratinjau di Admin memakai fungsi yang sama (`renderFacilityIcon`) agar persis seperti di peta.
+- [2026-09-30] T-112 — Fasilitas dirender layer `symbol` `floor-facilities` (bukan lingkaran titik) dengan `icon-allow-overlap` agar semuanya terlihat dan bisa diklik di editor; aturan label/ikon bertumpuk untuk pengunjung (FR-VST-03) diatur di T-118/T-119. Titik terpilih (fasilitas, pintu) tetap tampil dengan cincin sorotan, tidak disembunyikan saat disunting. Snapshot (T-117) perlu memuat jenis fasilitas (nama, ikon, keselamatan) agar Visitor bisa membangun sprite yang sama.
+- [2026-09-30] T-112 — Jenis yang masih dipakai: penjaga server tetap FK `features.facility_type_id … on delete restrict` (hapus venue tetap cascade, sudah diuji); repository menerjemahkan 23503 menjadi pesan yang menyebut jumlah fasilitas dan lantainya. Tabel Admin menampilkan jumlah pemakaian dan dialog hapus menolak lebih dulu.
+- [2026-09-30] T-112 — Migrasi 0008 juga menambah policy SELECT `public-assets` untuk pengguna Admin (`app.can_read()`): tanpa itu `remove()`/`list()` Storage sukses tanpa menghapus apa pun, sehingga ikon lama — dan logo venue lama sejak T-101 — tertinggal. `venues.remove` kini ikut membersihkan folder `facility-types/{venue_id}`.
+- [2026-09-30] T-112 — Pengaturan kini bertab untuk semua role yang melihatnya: Jenis fasilitas (ubah: `settings.edit`; Editor/Viewer baca), Tampilan (placeholder), Sistem dan Catatan (hanya Super Admin). Fasilitas di editor = pilihan "Fasilitas" pada alat Titik dengan pemilih jenis berikon di sebelahnya; nama opsional di panel properti; pintu ↔ fasilitas bisa diubah lewat "Jenis" (jenis fasilitas dipertahankan/diambil dari pilihan terakhir). Seed menambah 8 jenis contoh dengan ikon bawaan.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
