@@ -2,6 +2,7 @@ export * from './area';
 export * from './audit';
 export * from './auth';
 export * from './building';
+export * from './display-settings';
 export * from './facility';
 export * from './feature';
 export * from './feature-draft';
