@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R2 Navigasi (R1 menunggu review)
-**Task berikutnya:** T-213
+**Task berikutnya:** T-201
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -54,7 +54,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-213 | Spesifikasi deep link | – | siap | boleh paralel sejak R1 |
+| T-213 | Spesifikasi deep link | – | review | `encodeDeepLink`/`decodeDeepLink`/`deepLinkUrl` (zod) di `deep-link.ts`, URL kanonik `/v/{venue}?…`; round-trip 8.192 kombinasi, parameter rusak dibuang satu per satu; contoh URL di README paket domain |
 | T-201 | Routing: graf dan A* | R1 | siap | model besar |
 | T-202 | Routing: konektor | T-201 | menunggu | |
 | T-203 | Routing: aksesibel, penutupan, titik masuk | T-202 | menunggu | |
@@ -224,6 +224,7 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-30] T-119 — Direktori: filter gedung hanya bila ada > 1 pilihan (gedung yang punya lokasi, ditambah "Area Luar" bila ada lokasi di sana), filter lantai setelah gedung dipilih (atau langsung bila venue satu gedung), filter tipe hanya bila > 1 tipe dipakai; kelompok huruf tanpa diakritik dengan `#` (angka/simbol) di akhir; lokasi tanpa unit hanya muncul tanpa filter gedung.
 - [2026-09-30] T-119 — E2E: proyek Playwright `visitor` (360 × 740, sentuh) dengan server Visitor 5174 di `webServer`, fixture `publishedVenue` (dua unit, satu lokasi, diterbitkan lewat Edge Function), page object `VisitorPage`, dan `tests/visitor/search.spec.ts` (3 test, stabil 15/15 dengan `--repeat-each=5`). Kontainer peta Visitor mendapat `data-camera="moving|idle"` (ditulis langsung dari event peta, tanpa render) agar ketukan di test menunggu kamera diam.
 - [2026-09-30] T-120 — Urutan bahasa (pilihan tersimpan → bahasa perangkat ID/EN → default venue) sudah dibuat di T-011 (`resolveLanguage`) dan T-118 (`applyVenueLanguage`); task ini menambah bukti dan menutup celah. Test kelengkapan dipindah ke `apps/visitor/test/i18n.test.ts` sesuai task (folder `test` masuk `tsconfig`): selain kunci ID = EN dan tanpa teks kosong, test gagal bila variabel `{{…}}` berbeda antar-bahasa, kunci jamak tidak punya `_one`/`_other`, kunci `t('…')` di kode tidak ada di terjemahan (kode dibaca lewat `import.meta.glob` `?raw`, tanpa API Node), atau ada kunci yang tidak dipakai (kecuali awalan dinamis `language.`). MapLibre memasang `aria-label="Map"` berbahasa Inggris di kanvas; `setMapLabel` (map-core) menggantinya dengan teks terjemahan yang juga menjelaskan tombol panah dan +/−. Label kanvas Admin masih bawaan MapLibre (di luar lingkup Visitor). Konten lokasi tidak diterjemahkan (F2). E2E `tests/visitor/language.spec.ts`: perangkat `en-US` membuka Visitor berbahasa Inggris, memilih Bahasa Indonesia langsung berlaku dan tetap setelah muat ulang.
+- [2026-09-30] T-213 — Deep link di `packages/domain/src/deep-link.ts` (nama kebab-case sesuai konvensi repo; task menyebut `deepLink.ts`). Bentuk kanonik memakai rute venue yang sudah ada: `{URL publik}/v/{venue}?b&f&loc&o&ip&from&to&a11y&lang` dengan urutan tetap; `decodeDeepLink` juga menerima `?v={venue}` dan mengabaikan fragmen. `from`/`to` = UUID lokasi atau `lng,lat,lantai` (7 desimal, angka desimal biasa saja; `1e2`, kosong, dan di luar rentang ditolak). `o` = kode publik QR titik asal (12 heksadesimal, default `origin_points.public_code`); `ip` = kode Info Point sebagai titik asal di Visitor biasa (bukan mode kios `/ip/:code`). Decode tidak pernah melempar error: persen-enkode rusak dan nilai tidak sah dibuang per parameter, parameter berulang memakai kemunculan pertama, `null` hanya bila venue tidak terbaca. Kolom `info_points.code` belum dibatasi di database; T-407 wajib membatasi kode ke pola yang sama (`[A-Za-z0-9_-]{1,32}`) di domain dan constraint, agar setiap Info Point bisa dipakai di QR "Lanjutkan di HP".
 - [2026-09-30] Umum — Lingkungan cloud: image Supabase di `public.ecr.aws` dan `ghcr.io` diblokir proxy, Docker Hub kena batas unduh anonim. `supabase start` berhasil dengan `SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io` setelah image yang kena batas ditarik dari `mirror.gcr.io/<nama>` lalu di-tag ulang (`docker tag mirror.gcr.io/supabase/gotrue:v2.197.0 supabase/gotrue:v2.197.0`, begitu juga `library/kong`, `supabase/edge-runtime`). Docker daemon dinyalakan manual (`dockerd`).
 
 ## Riwayat rilis
