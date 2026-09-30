@@ -10,7 +10,8 @@ import {
   POINT_STYLE,
   VACANT_UNIT,
 } from './defaults';
-import { FACILITY_ICON_PREFIX } from './sprites';
+import { FLOOR_3D_SOURCE_ID, ROOM_KINDS as ROOM_KINDS_3D } from './extrude';
+import { FACILITY_ICON_COLORS, FACILITY_ICON_PREFIX } from './sprites';
 
 export const FLOOR_SOURCE_ID = 'floor';
 
@@ -29,16 +30,17 @@ export const LAYER_IDS = {
   vacantOutline: 'floor-vacant-outline',
   walls: 'floor-walls',
   extrusion: 'floor-extrusion',
+  extrusionEdges: 'floor-extrusion-edges',
   points: 'floor-points',
   facilities: 'floor-facilities',
 } as const;
 
 /** Layer yang hanya tampil di mode 2D / 3D. */
 export const LAYERS_2D_ONLY = [LAYER_IDS.rooms, LAYER_IDS.roomOutline, LAYER_IDS.vacantOutline];
-export const LAYERS_3D_ONLY = [LAYER_IDS.extrusion];
+export const LAYERS_3D_ONLY = [LAYER_IDS.extrusion, LAYER_IDS.extrusionEdges];
 
 const FLAT_KINDS: FeatureKind[] = ['outdoor_area', 'corridor', 'non_walkable'];
-const ROOM_KINDS: FeatureKind[] = ['unit', 'elevator', 'escalator', 'stairs'];
+const ROOM_KINDS: FeatureKind[] = [...ROOM_KINDS_3D];
 const POINT_KINDS: FeatureKind[] = ['door', 'exit', 'landmark'];
 
 const kind: ExpressionSpecification = ['get', 'kind'];
@@ -90,12 +92,36 @@ function fillColor(display: MapDisplay): ExpressionSpecification {
   ] as ExpressionSpecification;
 }
 
-function height(display: MapDisplay): ExpressionSpecification {
-  return [
-    'coalesce',
-    ['get', 'height'],
-    byKind({ ...DEFAULT_HEIGHTS, ...display.heights }, 0),
-  ] as ExpressionSpecification;
+/** Warna dinding: override fitur → warna venue → default (garis 2D dan ekstrusi 3D). */
+function wallColor(display: MapDisplay): ExpressionSpecification {
+  return ['coalesce', ['get', 'color'], display.colors?.wall ?? DEFAULT_OUTLINE.wall ?? '#8a929b'];
+}
+
+/** Ekstrusi: dinding memakai warna dinding, lainnya warna isi per jenis. */
+function extrusionColor(display: MapDisplay): ExpressionSpecification {
+  return ['case', ['==', kind, 'wall'], wallColor(display), fillColor(display)];
+}
+
+/** Tinggi default gabungan (aplikasi + venue), dipakai builder data 3D. */
+export function venueHeights(display: MapDisplay): Partial<Record<FeatureKind, number>> {
+  return { ...DEFAULT_HEIGHTS, ...display.heights };
+}
+
+const EDGE_COLOR = '#8a929b';
+
+/** Warna bawaan per jenis untuk isian Pengaturan → Tampilan (isi, garis dinding, titik, latar ikon). */
+export function defaultKindColor(featureKind: FeatureKind): string {
+  if (featureKind === 'wall') return DEFAULT_OUTLINE.wall ?? '#8a929b';
+  if (featureKind === 'facility') return FACILITY_ICON_COLORS.normal.background;
+  if (featureKind === 'outdoor_area') return OUTDOOR_SUBTYPE_FILL.road;
+  return POINT_STYLE[featureKind]?.color ?? DEFAULT_FILL[featureKind] ?? '#ffffff';
+}
+
+/** Warna titik (pintu, pintu keluar) dari pengaturan venue. */
+function pointColors(display: MapDisplay): Partial<Record<FeatureKind, string>> {
+  const colors: Partial<Record<FeatureKind, string>> = {};
+  for (const k of ['door', 'exit'] as const) if (display.colors?.[k]) colors[k] = display.colors[k];
+  return colors;
 }
 
 /** Layer 2D dan 3D per `feature_kind`; tanpa WebGL sehingga bisa diuji langsung. */
@@ -135,20 +161,32 @@ export function buildStyleLayers(display: MapDisplay = {}): LayerSpecification[]
       type: 'line',
       source,
       filter: ['==', kind, 'wall'],
+      paint: { 'line-color': wallColor(display), 'line-width': 2 },
+    },
+    {
+      // FR-VIS-01/02: tinggi sudah dihitung builder 3D (override → venue → default).
+      id: LAYER_IDS.extrusion,
+      type: 'fill-extrusion',
+      source: FLOOR_3D_SOURCE_ID,
+      filter: ['!', ['has', 'edge']],
+      layout: { visibility: 'none' },
       paint: {
-        'line-color': ['coalesce', ['get', 'color'], DEFAULT_OUTLINE.wall ?? '#8a929b'],
-        'line-width': 2,
+        'fill-extrusion-color': extrusionColor(display),
+        'fill-extrusion-height': ['get', 'extrude'],
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': 0.92,
       },
     },
     {
-      id: LAYER_IDS.extrusion,
+      // Pemisah tipis di tepi atas ruang agar unit bersebelahan tidak tampak menyatu.
+      id: LAYER_IDS.extrusionEdges,
       type: 'fill-extrusion',
-      source,
-      filter: ['all', isPolygon, kindIn(ROOM_KINDS)],
+      source: FLOOR_3D_SOURCE_ID,
+      filter: ['has', 'edge'],
       layout: { visibility: 'none' },
       paint: {
-        'fill-extrusion-color': fillColor(display),
-        'fill-extrusion-height': height(display),
+        'fill-extrusion-color': EDGE_COLOR,
+        'fill-extrusion-height': ['get', 'extrude'],
         'fill-extrusion-base': 0,
         'fill-extrusion-opacity': 0.92,
       },
@@ -164,7 +202,10 @@ export function buildStyleLayers(display: MapDisplay = {}): LayerSpecification[]
           3,
         ),
         'circle-color': byKind(
-          Object.fromEntries(Object.entries(POINT_STYLE).map(([k, v]) => [k, v.color])),
+          {
+            ...Object.fromEntries(Object.entries(POINT_STYLE).map(([k, v]) => [k, v.color])),
+            ...pointColors(display),
+          },
           POINT_COLOR,
         ),
         'circle-stroke-color': '#ffffff',
@@ -199,6 +240,7 @@ export function buildStyle(display: MapDisplay = {}): StyleSpecification {
     version: 8,
     sources: {
       [FLOOR_SOURCE_ID]: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+      [FLOOR_3D_SOURCE_ID]: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
     },
     layers: [
       {

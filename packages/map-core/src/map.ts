@@ -3,13 +3,16 @@ import type { FeatureCollection, Geometry } from 'geojson';
 import { type GeoJSONSource, type LngLatLike, Map as MapLibreMap } from 'maplibre-gl';
 import { prefersReducedMotion } from './camera';
 import { PITCH_3D } from './defaults';
+import { build3dFeatures, FLOOR_3D_SOURCE_ID } from './extrude';
 import { handleMissingFacilityIcons } from './sprites';
 import {
   buildStyle,
+  buildStyleLayers,
   FLOOR_SOURCE_ID,
   LAYERS_2D_ONLY,
   LAYERS_3D_ONLY,
   type MapDisplay,
+  venueHeights,
 } from './style';
 
 export type ViewMode = '2d' | '3d';
@@ -42,8 +45,29 @@ export function createMap(container: HTMLElement, options: CreateMapOptions): Ma
     ...(options.fadeDuration === undefined ? {} : { fadeDuration: options.fadeDuration }),
   });
   handleMissingFacilityIcons(map);
+  states.set(map, { features: EMPTY, display: options.display ?? {}, mode });
   if (mode === '3d') map.once('load', () => applyModeVisibility(map, '3d'));
   return map;
+}
+
+const EMPTY: FloorFeatureCollection = { type: 'FeatureCollection', features: [] };
+
+/** Data lantai terakhir, pengaturan tampilan, dan mode per peta (untuk membangun ulang 3D). */
+interface MapState {
+  features: FloorFeatureCollection;
+  display: MapDisplay;
+  mode: ViewMode;
+}
+const states = new WeakMap<MapLibreMap, MapState>();
+const stateOf = (map: MapLibreMap): MapState =>
+  states.get(map) ?? { features: EMPTY, display: {}, mode: map.getPitch() > 0 ? '3d' : '2d' };
+
+/** Source 3D hanya berisi data saat mode 3D; mode 2D tidak membayar biaya ekstrusi. */
+function refresh3d(map: MapLibreMap, state: MapState) {
+  const source = map.getSource<GeoJSONSource>(FLOOR_3D_SOURCE_ID);
+  source?.setData(
+    state.mode === '3d' ? build3dFeatures(state.features, venueHeights(state.display)) : EMPTY,
+  );
 }
 
 /** Berganti lantai = mengganti data satu source, bukan membuat peta baru. */
@@ -51,6 +75,29 @@ export function setFloorData(map: MapLibreMap, features: FloorFeatureCollection)
   const source = map.getSource<GeoJSONSource>(FLOOR_SOURCE_ID);
   if (!source) throw new Error(`Source ${FLOOR_SOURCE_ID} belum ada; tunggu event load.`);
   source.setData(features);
+  const state = { ...stateOf(map), features };
+  states.set(map, state);
+  refresh3d(map, state);
+}
+
+/**
+ * Menerapkan pengaturan tampilan venue tanpa membuat peta baru (FR-VIS-01..03): warna
+ * lewat paint property, tinggi lewat data 3D. Filter layer (fitur tersembunyi) tidak diubah.
+ */
+export function setMapDisplay(map: MapLibreMap, display: MapDisplay): void {
+  const state = { ...stateOf(map), display };
+  states.set(map, state);
+  for (const layer of buildStyleLayers(display)) {
+    if (!map.getLayer(layer.id) || !('paint' in layer) || !layer.paint) continue;
+    for (const [property, value] of Object.entries(layer.paint)) {
+      map.setPaintProperty(
+        layer.id,
+        property as Parameters<MapLibreMap['setPaintProperty']>[1],
+        value,
+      );
+    }
+  }
+  refresh3d(map, state);
 }
 
 function applyModeVisibility(map: MapLibreMap, mode: ViewMode) {
@@ -61,6 +108,9 @@ function applyModeVisibility(map: MapLibreMap, mode: ViewMode) {
 }
 
 export function setViewMode(map: MapLibreMap, mode: ViewMode): void {
+  const state = { ...stateOf(map), mode };
+  states.set(map, state);
+  refresh3d(map, state);
   applyModeVisibility(map, mode);
   map.easeTo({
     pitch: mode === '3d' ? PITCH_3D : 0,
@@ -69,7 +119,7 @@ export function setViewMode(map: MapLibreMap, mode: ViewMode): void {
 }
 
 export function getViewMode(map: MapLibreMap): ViewMode {
-  return map.getPitch() > 0 ? '3d' : '2d';
+  return stateOf(map).mode;
 }
 
 /** Batas kotak semua fitur, untuk mengarahkan kamera ke lantai. */

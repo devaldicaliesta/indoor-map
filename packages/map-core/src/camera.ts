@@ -47,3 +47,19 @@ export function focusFeature(map: MapLibreMap, geometry: Geometry, padding = 64)
     duration: prefersReducedMotion() ? 0 : FOCUS_MS,
   });
 }
+
+/** Kamera peta sekarang, untuk "Simpan sebagai tampilan awal" (FR-VIS-05). */
+export function getCamera(map: MapLibreMap): {
+  center: [number, number];
+  zoom: number;
+  pitch: number;
+  bearing: number;
+} {
+  const { lng, lat } = map.getCenter();
+  return {
+    center: [lng, lat],
+    zoom: map.getZoom(),
+    pitch: map.getPitch(),
+    bearing: map.getBearing(),
+  };
+}
