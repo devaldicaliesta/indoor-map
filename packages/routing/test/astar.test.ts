@@ -1,6 +1,8 @@
+import { buildSnapshot } from '@indoor/domain';
+import { sampleSnapshotSource } from '@indoor/domain/fixtures/snapshot-source.ts';
 import { describe, expect, it } from 'vitest';
 import { aStar, buildGraph, findRoute } from '../src';
-import { random, randomGraph, referenceCost } from './helpers';
+import { graphCost, random, randomGraph, referenceCost } from './helpers';
 
 describe('A* sama dengan Dijkstra rujukan', () => {
   it('200 pasang node acak di tiga graf acak (termasuk bagian yang terputus)', () => {
@@ -84,5 +86,19 @@ describe('A* sama dengan Dijkstra rujukan', () => {
     });
     for (const arc of detour?.arcs ?? []) expect(blocked[arc]).toBe(0);
     if (detour) expect(detour.cost).toBeGreaterThanOrEqual(free?.cost ?? 0);
+  });
+
+  it('graf berkonektor (venue contoh): penalti lantai heuristik tidak mengubah hasil', () => {
+    const snapshot = buildSnapshot(sampleSnapshotSource());
+    const graph = buildGraph(snapshot.graph, { floors: snapshot.floors });
+    const pick = random(2026);
+    for (let i = 0; i < 60; i++) {
+      const a = Math.floor(pick() * graph.nodeIds.length);
+      const b = Math.floor(pick() * graph.nodeIds.length);
+      const expected = graphCost(graph, a, b);
+      const search = aStar(graph, [{ node: a, cost: 0 }], [{ node: b, cost: 0 }]);
+      if (expected === null) expect(search).toBeNull();
+      else expect(search?.cost).toBeCloseTo(expected, 6);
+    }
   });
 });

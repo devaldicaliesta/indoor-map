@@ -1,14 +1,17 @@
+export { ARC_ACCESSIBLE, ARC_CONNECTOR, nodeDistanceM } from './arcs';
 export { aStar, type Goal, type SearchOptions, type SearchResult, type Seed } from './astar';
+export { connectorAllows, connectorArcs } from './connectors';
+export {
+  BUILDING_DOOR_M,
+  connectorCost,
+  ELEVATOR_BASE_M,
+  ELEVATOR_PER_FLOOR_M,
+  ESCALATOR_PER_FLOOR_M,
+  STAIRS_PER_FLOOR_M,
+} from './costs';
 export { directCost, type ResolvedEnd, resolveEnd, type Snap, snapToEdge } from './endpoints';
 export { findRoute } from './find-route';
-export {
-  ARC_ACCESSIBLE,
-  ARC_CONNECTOR,
-  type BuildGraphOptions,
-  buildGraph,
-  nodeDistanceM,
-  type RouteGraph,
-} from './graph';
+export { type BuildGraphOptions, buildGraph, type RouteGraph } from './graph';
 export type {
   ConnectorLeg,
   RouteFailure,

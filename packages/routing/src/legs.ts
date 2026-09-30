@@ -1,7 +1,8 @@
 import type { SnapshotPosition } from '@indoor/domain';
+import { ARC_CONNECTOR } from './arcs';
 import type { SearchResult } from './astar';
 import type { ResolvedEnd } from './endpoints';
-import { ARC_CONNECTOR, type RouteGraph } from './graph';
+import type { RouteGraph } from './graph';
 import type { RouteLeg, RouteSuccess, WalkLeg } from './types';
 
 const position = (graph: RouteGraph, node: number): SnapshotPosition => [
