@@ -19,7 +19,9 @@
     "viewMode": "View mode",
     "mode2d": "2D",
     "mode3d": "3D",
-    "floors": "Floors"
+    "floors": "Floors",
+    "resetView": "Back to the start view",
+    "building": "Building"
   },
   "sheet": {
     "handle": "Resize panel",
@@ -34,10 +36,7 @@
     "unavailableDescription": "This venue has not published its map yet. Ask the nearest staff member for directions.",
     "loadFailedTitle": "The map could not be loaded",
     "loadFailedDescription": "Check your internet connection, then try again.",
-    "retry": "Try again",
-    "buildings": "Buildings",
-    "floorCount_one": "{{count}} floor",
-    "floorCount_other": "{{count}} floors"
+    "retry": "Try again"
   },
   "infoPoint": {
     "title": "Info Point {{code}}"

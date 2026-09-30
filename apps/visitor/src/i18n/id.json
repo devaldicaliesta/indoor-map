@@ -19,7 +19,9 @@
     "viewMode": "Mode tampilan",
     "mode2d": "2D",
     "mode3d": "3D",
-    "floors": "Lantai"
+    "floors": "Lantai",
+    "resetView": "Kembali ke tampilan awal",
+    "building": "Gedung"
   },
   "sheet": {
     "handle": "Ubah tinggi panel",
@@ -34,10 +36,7 @@
     "unavailableDescription": "Venue ini belum menerbitkan peta. Tanyakan ke petugas terdekat untuk petunjuk arah.",
     "loadFailedTitle": "Peta tidak bisa dimuat",
     "loadFailedDescription": "Periksa koneksi internet, lalu coba lagi.",
-    "retry": "Coba lagi",
-    "buildings": "Gedung",
-    "floorCount_one": "{{count}} lantai",
-    "floorCount_other": "{{count}} lantai"
+    "retry": "Coba lagi"
   },
   "infoPoint": {
     "title": "Info Point {{code}}"

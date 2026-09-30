@@ -1,13 +1,15 @@
 import { DataError } from '@indoor/data';
 import { type VenueId, VenueIdSchema } from '@indoor/domain';
 import { Button, Skeleton } from '@indoor/ui';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { PanelMessage } from '../app/panel-message';
 import { VisitorShell } from '../app/visitor-shell';
 import { useSnapshot } from '../data/loadSnapshot';
-import { BuildingList } from '../features/venue/building-list';
+import { VenueMap } from '../features/map/venue-map';
 import { VenueInfo } from '../features/venue/venue-info';
+import { applyVenueLanguage } from '../i18n';
 
 function Unavailable() {
   const { t } = useTranslation();
@@ -24,6 +26,11 @@ function Unavailable() {
 function VenueView({ venueId }: { venueId: VenueId }) {
   const { t } = useTranslation();
   const snapshot = useSnapshot(venueId);
+  const defaultLanguage = snapshot.data?.venue.defaultLanguage;
+
+  useEffect(() => {
+    if (defaultLanguage) applyVenueLanguage(defaultLanguage);
+  }, [defaultLanguage]);
 
   if (snapshot.isPending) {
     return (
@@ -54,8 +61,12 @@ function VenueView({ venueId }: { venueId: VenueId }) {
   }
 
   return (
-    <VisitorShell title={snapshot.data.venue.name} actions={<VenueInfo snapshot={snapshot.data} />}>
-      <BuildingList snapshot={snapshot.data} />
+    <VisitorShell
+      title={snapshot.data.venue.name}
+      actions={<VenueInfo snapshot={snapshot.data} />}
+      map={<VenueMap snapshot={snapshot.data} />}
+    >
+      {null}
     </VisitorShell>
   );
 }
