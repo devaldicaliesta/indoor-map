@@ -1,5 +1,12 @@
 export type { Map as MapInstance } from 'maplibre-gl';
 export {
+  FOCUS_MIN_ZOOM,
+  focusFeature,
+  focusZoom,
+  geometryBounds,
+  prefersReducedMotion,
+} from './camera';
+export {
   DEFAULT_FILL,
   DEFAULT_HEIGHTS,
   EDIT_COLORS,
@@ -58,6 +65,7 @@ export {
   PICKABLE_LAYERS,
   type SelectionInteractionOptions,
   setHiddenFeatures,
+  setHoverHighlight,
   setSelectionHighlight,
 } from './selection';
 export { closestOnSegment, type Px, SNAP_TOLERANCE_PX, type SnapKind, snapPoint } from './snap';
