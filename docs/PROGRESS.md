@@ -4,8 +4,8 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
-**Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-116
+**Rilis aktif:** R1 Inti peta
+**Task berikutnya:** T-117
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -44,8 +44,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-113 | Panel daftar fitur | T-109 | review | Pencarian kode/nama/jenis, hover menyorot, klik memilih dan menerbangkan peta, daftar tervirtualisasi; lantai > 1.000 fitur kini dimuat utuh (paginasi). 1.006 fitur: gulir 60 fps tanpa long task, cari 27 ms |
 | T-114 | Validasi geometri | T-109 | review | `validateFloorGeometry` (5 kode temuan, fixture per kasus, 102 test domain); garis/isi merah di peta, ikon di daftar fitur, pesan di panel properti, ringkasan "● n temuan" yang bisa diklik. 1.006 fitur divalidasi 11–48 ms |
 | T-115 | Tampilan 2D/3D | T-104, T-109 | review | Pengaturan → Tampilan (tinggi, warna, mode awal, pratinjau langsung, simpan tampilan awal), override tinggi di panel properti, tombol 2D/3D editor; ekstrusi dinding dan pemisah tepi unit; diuji browser + integrasi |
-| T-116 | Lokasi dasar, kategori, tautan unit | T-109 | dikerjakan | Migrasi 0010 (save_location, tautan hanya ke unit, storage logo lokasi dan ikon kategori) + 24 pgTAP |
-| T-117 | Snapshot minimal | T-115, T-116 | menunggu | |
+| T-116 | Lokasi dasar, kategori, tautan unit | T-109 | review | Tab Lokasi (cari, filter kategori/gedung/lantai bersamaan, penanda belum tertaut, 50 per halaman) dan Kategori (ikon, urutan); formulir dengan tautan unit (ketik kode atau pilih di peta), logo, dan foto; tautan dari panel unit di editor. Migrasi 0010; 24 pgTAP, integrasi, dan browser |
+| T-117 | Snapshot minimal | T-115, T-116 | siap | |
 | T-118 | Visitor: peta, gedung, lantai | T-117, T-011 | menunggu | |
 | T-119 | Visitor: cari, kategori, detail, A–Z | T-118 | menunggu | |
 | T-120 | Visitor: bahasa ID/EN | T-119 | menunggu | |
@@ -197,6 +197,13 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 - [2026-09-30] Umum — Komentar kode tanpa tag kebutuhan seperti `(FR-MAP-09)` dan tanpa komentar yang hanya mengulang isi kode (permintaan pemilik); nomor task hanya untuk menunjuk pekerjaan lanjutan. Seluruh komentar TS/TSX dibersihkan dan aturannya ditambahkan ke `CLAUDE.md`.
 - [2026-09-30] Umum — Workflow AI: agent, command `/ecc-*`, dan skill dari worldflowai/everything-claude-code (MIT) ditulis ulang untuk repo ini di `.claude/` (panduan `.claude/WORLDFLOWAI.md`), atas pilihan pemilik "salin sebagian". Hook asal tidak dibawa karena bentrok dengan repo (format Prettier vs Biome, blokir `pnpm dev` di luar tmux, blokir file `.md` baru); rules asal tidak dibawa karena tumpang tindih dengan `CLAUDE.md`.
+- [2026-09-30] T-116 — Lokasi disimpan lewat RPC `save_location` (`security invoker`, satu transaksi: lokasi, kategori, unit, logo, foto). Id dibuat klien agar logo/foto diunggah lebih dulu ke `public-assets/locations/{venue_id}/`; bila RPC gagal berkasnya dihapus, bila berhasil berkas lama yang tidak dipakai dibersihkan. Server menolak path di luar folder venue itu.
+- [2026-09-30] T-116 — Integritas di server (migrasi 0010): tautan hanya ke fitur jenis unit di venue yang sama, kategori harus milik tipe lokasinya, unit yang diganti jenisnya di editor otomatis lepas dari lokasi (seperti hapus unit yang sudah cascade). Pesan unit yang sudah dipakai dan kode ganda menyebut kode unit dan nama lokasi pemiliknya (SQLSTATE IM409); indeks unik kode tetap penjaga terakhir. Kode lokasi dinormalkan huruf besar seperti kode unit.
+- [2026-09-30] T-116 — Menautkan atau melepas lokasi tidak mengubah status unit (terisi/kosong/renovasi); status tetap diatur di editor. Alasannya, sesi editor yang terbuka menyimpan baris fitur utuh dan akan menimpa perubahan status dari halaman Lokasi. Aturan otomatis yang ada hanya nonaktif permanen → kosong (0001). T-304 perlu memutuskan otomatisasi status unit dan menambah pemeriksaan saat lokasi nonaktif permanen diaktifkan lagi sementara unitnya sudah dipakai lokasi lain.
+- [2026-09-30] T-116 — Kategori memakai format ikon yang sama dengan jenis fasilitas (`builtin:<kunci>` atau PNG di `public-assets/categories/{venue_id}/`), dikelola Editor ke atas sesuai RLS 0001. Pemilih ikon diekstrak menjadi `IconField` dan dipakai bersama dialog jenis fasilitas. Urutan diubah dengan tombol naik/turun (dinomori ulang 0..n-1), tanpa dependency drag-and-drop.
+- [2026-09-30] T-116 — Filter tipe dan status belum ditampilkan karena baru ada satu tipe dan status belum bisa diubah (T-303, T-304). Pencarian nama, kode lokasi, dan kode unit memakai `normalizeSearchText` di domain, yang nanti dipakai juga untuk indeks pencarian snapshot (T-117).
+- [2026-09-30] T-116 — "Pilih di peta" berupa dialog peta per gedung/lantai: unit yang dipakai lokasi aktif lain abu-abu (`setMutedFeatures` baru di map-core), unit terpilih disorot, dan kode unit yang dilewati kursor tampil di bawah peta karena label peta menunggu glyph di T-118. Peta dibuat lewat callback ref karena isi Dialog Radix baru ada di portal setelah render pertama.
+- [2026-09-30] T-116 — Panel properti unit di editor menampilkan lokasi yang menempatinya (tautan `/locations?location=<id>`), atau "Buat lokasi" yang mengosongkan antrean simpan lalu membuka `/locations?unit=<id>`. Repository ada di `packages/data/src/repositories/locations.ts` dan `categories.ts`, mengikuti konvensi repo (task menyebut `packages/data/src/locations.ts`). Hapus venue kini ikut membersihkan folder `locations/` dan `categories/`.
 
 ## Riwayat rilis
 
