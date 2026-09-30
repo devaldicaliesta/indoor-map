@@ -17,24 +17,13 @@ import {
 import { useState } from 'react';
 import { Can } from '../../app/auth/can';
 import { data } from '../../app/data-client';
+import { inVenueTime } from '../../app/format';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
 import { BuildingsPanel } from './buildings/buildings-panel';
 import { DeleteVenueDialog } from './delete-venue-dialog';
 import { useVenuesDetailed } from './queries';
 import { VenueFormDialog } from './venue-form-dialog';
-
-function inVenueTime(iso: string, timezone: string) {
-  return new Intl.DateTimeFormat('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: timezone,
-    timeZoneName: 'short',
-  }).format(new Date(iso));
-}
 
 type Dialog = { kind: 'form'; venue: Venue | null } | { kind: 'delete'; venue: Venue } | null;
 

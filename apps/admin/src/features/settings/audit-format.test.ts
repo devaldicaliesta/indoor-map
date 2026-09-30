@@ -25,6 +25,13 @@ describe('describeAuditDetails', () => {
     );
   });
 
+  it('publish menyebut nomor versi dan venue', () => {
+    expect(describeAuditDetails(event('publish', { version: 4, venue: 'RS Harapan' }))).toBe(
+      'Versi 4 · RS Harapan',
+    );
+    expect(describeAuditDetails(event('publish', {}))).toBe('');
+  });
+
   it('pengaturan menyebut kolom, bukan nilainya', () => {
     expect(
       describeAuditDetails(event('settings_changed', { fields: ['smtp_host', 'smtp_password'] })),

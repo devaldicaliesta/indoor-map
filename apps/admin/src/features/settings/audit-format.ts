@@ -42,6 +42,13 @@ export function describeAuditDetails(event: AuditEvent): string {
     }
     case 'role_changed':
       return `${roleLabel(details.from)} → ${roleLabel(details.to)}`;
+    case 'publish':
+      return [
+        typeof details.version === 'number' ? `Versi ${details.version}` : '',
+        typeof details.venue === 'string' ? details.venue : '',
+      ]
+        .filter(Boolean)
+        .join(' · ');
     case 'settings_changed':
       return Array.isArray(details.fields)
         ? details.fields.map((f) => SETTING_FIELDS[String(f)] ?? String(f)).join(', ')
