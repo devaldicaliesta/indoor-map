@@ -1,5 +1,5 @@
-// Klien SMTP minimal (EHLO, STARTTLS/TLS, AUTH PLAIN, satu email teks) tanpa dependensi,
-// agar Edge Function bisa dimuat di server on-premise tanpa akses registry.
+// Klien SMTP minimal (EHLO, STARTTLS/TLS, AUTH PLAIN, satu email teks + HTML opsional)
+// tanpa dependensi, agar Edge Function bisa dimuat di server on-premise tanpa akses registry.
 
 export interface SmtpConfig {
   host: string;
@@ -13,6 +13,8 @@ export interface SmtpMessage {
   to: string;
   subject: string;
   text: string;
+  /** Versi HTML; bila ada, email dikirim multipart/alternative bersama teks biasa. */
+  html?: string;
 }
 
 export type SmtpFailure =
@@ -106,22 +108,54 @@ function encodeHeader(value: string): string {
   return /^[\x20-\x7e]*$/.test(value) ? value : `=?UTF-8?B?${base64(value)}?=`;
 }
 
-function buildMessage(config: SmtpConfig, message: SmtpMessage): string {
-  const body = message.text
+/** Titik di awal baris digandakan (dot-stuffing) agar tidak dianggap akhir DATA. */
+function dotStuff(text: string): string {
+  return text
     .replace(/\r?\n/g, '\r\n')
     .split('\r\n')
     .map((line) => (line.startsWith('.') ? `.${line}` : line))
     .join('\r\n');
-  return [
+}
+
+/** Base64 dipotong 76 karakter per baris (RFC 2045). */
+function base64Lines(value: string): string {
+  return (base64(value).match(/.{1,76}/g) ?? []).join('\r\n');
+}
+
+function buildMessage(config: SmtpConfig, message: SmtpMessage): string {
+  const headers = [
     `From: ${config.from}`,
     `To: ${message.to}`,
     `Subject: ${encodeHeader(message.subject)}`,
     `Date: ${new Date().toUTCString()}`,
     'MIME-Version: 1.0',
+  ];
+  if (!message.html) {
+    return [
+      ...headers,
+      'Content-Type: text/plain; charset=utf-8',
+      'Content-Transfer-Encoding: 8bit',
+      '',
+      dotStuff(message.text),
+      '.',
+    ].join('\r\n');
+  }
+  const boundary = `indoor-map-${crypto.randomUUID()}`;
+  return [
+    ...headers,
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    '',
+    `--${boundary}`,
     'Content-Type: text/plain; charset=utf-8',
     'Content-Transfer-Encoding: 8bit',
     '',
-    body,
+    dotStuff(message.text),
+    `--${boundary}`,
+    'Content-Type: text/html; charset=utf-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    base64Lines(message.html),
+    `--${boundary}--`,
     '.',
   ].join('\r\n');
 }
