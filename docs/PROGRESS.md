@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R1 Inti peta
-**Task berikutnya:** T-118
+**Task berikutnya:** T-119
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -46,8 +46,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-115 | Tampilan 2D/3D | T-104, T-109 | review | Pengaturan → Tampilan (tinggi, warna, mode awal, pratinjau langsung, simpan tampilan awal), override tinggi di panel properti, tombol 2D/3D editor; ekstrusi dinding dan pemisah tepi unit; diuji browser + integrasi |
 | T-116 | Lokasi dasar, kategori, tautan unit | T-109 | review | Tab Lokasi (cari, filter kategori/gedung/lantai bersamaan, penanda belum tertaut, 50 per halaman) dan Kategori (ikon, urutan); formulir dengan tautan unit (ketik kode atau pilih di peta), logo, dan foto; tautan dari panel unit di editor. Migrasi 0010; 24 pgTAP, integrasi, dan browser |
 | T-117 | Snapshot minimal | T-115, T-116 | review | Format `Snapshot` + builder + skema zod di domain (137 test), Edge Function `publish` + fungsi SQL pesanan versi (migrasi 0011; 28 pgTAP, 3 integrasi), tombol "Terbitkan (dev)", Visitor memuat snapshot dengan cache service worker dan info versi. Venue contoh 53 KB (8 KB gzip); 2.000 fitur + 1.200 lokasi 1,48 MB (121 KB gzip) |
-| T-118 | Visitor: peta, gedung, lantai | T-117, T-011 | siap | |
-| T-119 | Visitor: cari, kategori, detail, A–Z | T-118 | menunggu | |
+| T-118 | Visitor: peta, gedung, lantai | T-117, T-011 | review | Peta snapshot di `/v/:venueId`: gedung/lantai/kamera/mode default, Area Luar di lantai dasar, pemilih gedung + `FloorSwitcher`, zoom/putar/utara/tampilan awal, 2D/3D hanya bila `3d` aktif; nama lokasi dan ikon fasilitas dalam satu layer label berprioritas (font Atkinson via `font-faces`, tanpa server glyph). Diuji di browser 360 px dan desktop dengan venue demo 2 gedung/5 lantai/127 fitur |
+| T-119 | Visitor: cari, kategori, detail, A–Z | T-118 | siap | |
 | T-120 | Visitor: bahasa ID/EN | T-119 | menunggu | |
 
 ## R2 · Navigasi (`12-R2-navigasi.md`)
@@ -210,6 +210,11 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-30] T-117 — Alur publish minimal: `publish_begin` memesan nomor versi (izin Admin/Super Admin dicek di database, satu publish berjalan per venue; pesanan yang belum aktif berumur < 5 menit menolak pesanan baru), Edge Function membangun snapshot dari draft yang dibaca dengan JWT pemanggil lalu menyimpan `v{n}.json`, `publish_commit` mengaktifkan versi dan mencatat peristiwa `publish`, lalu `latest.json` ditimpa. Gagal sebelum aktif memanggil `publish_abort`; pesanan dari proses yang mati tertinggal tidak aktif dan ditangani riwayat versi di T-310. Menghapus venue ikut menghapus snapshot publiknya (policy daftar/hapus bucket `snapshots` untuk Admin).
 - [2026-09-30] T-117 — `latest.json` salinan penuh `v{n}.json` dengan `cache-control: no-cache` + ETag, `v{n}.json` immutable. Service worker Visitor untuk `latest.json` diganti dari StaleWhileRevalidate (T-011) ke NetworkFirst dengan batas 3 detik: kunjungan berikutnya cukup satu balasan 304 bila versi tidak berubah, versi baru langsung terpakai saat halaman dibuka (FR-VST-02/14), dan saat server tidak terjangkau versi tersimpan yang tampil. Selama halaman terbuka snapshot tidak dimuat ulang agar rute tidak terputus.
 - [2026-09-30] T-117 — Menu info Visitor berupa tombol ikon di header (sebelah pemilih bahasa) yang membuka dialog versi dan waktu terbit dalam zona waktu venue; tidak ada wireframe, diturunkan dari pola header Visitor. Panel Visitor sementara menampilkan daftar gedung dan jumlah lantai sampai peta dipasang di T-118. Visitor kini memakai TanStack Query (sudah dipakai Admin). Test ukuran snapshot ada di `packages/data` karena memakai `node:zlib`. Test E2E alur publish menyusul saat testing E2E dilanjutkan.
+- [2026-09-30] T-118 — Label peta memakai properti style `font-faces` MapLibre 6: berkas Atkinson Hyperlegible 700 (latin + latin-ext) yang sama dengan teks Visitor, diekspor `@indoor/ui/fonts/*` dan digambar langsung oleh MapLibre, tanpa server glyph/PBF (on-premise). Nama lokasi dan ikon fasilitas ada di satu layer `symbol` agar tabrakan keduanya diselesaikan bersama lewat `symbol-sort-key` (lokasi terpilih 0 > fasilitas keselamatan 1 > lokasi 2 > fasilitas lain 3); yang kalah disembunyikan pada zoom itu. Layer ikon editor yang selalu tampil tidak dipakai di mode ini.
+- [2026-09-30] T-118 — Posisi label: satu label per lokasi per lantai, di unit utamanya atau unit terbesar di lantai itu, pada titik "pole of inaccessibility" (`labelPoint` di domain) agar tidak jatuh di luar unit berbentuk L. Dihitung di Visitor saat lantai berganti, tidak disimpan di snapshot (format tidak berubah).
+- [2026-09-30] T-118 — Area Luar digambar bersama lantai dasar gedung (level 0, atau yang paling dekat ke 0 dengan lantai di atas tanah didahulukan); gedung lain tidak ikut digambar. Venue tanpa gedung membuka lapisan Area Luar. Memilih gedung membuka lantai default gedung itu dan membingkai ulang kamera; berganti lantai di gedung yang sama tidak menggeser kamera.
+- [2026-09-30] T-118 — Tata letak peta Visitor (tanpa wireframe rinci, diturunkan dari pola 05-desain-ui.md): pemilih gedung (Select, hanya bila > 1 gedung) di kiri atas; kolom kanan berisi `FloorSwitcher` di atas dan kontrol di bawah yang tidak saling tumpuk (daftar lantai menyusut dan bisa digulir); di HP kolom ini dimulai di bawah header dan berhenti di atas bottom sheet. `MapControls` mendapat tombol opsional "Kembali ke tampilan awal" (gedung, lantai, mode, dan kamera awal). Kamera awal dari Pengaturan → Tampilan, atau pembingkaian lantai di area yang tidak tertutup kontrol (zoom maksimal 20); kemiringan hanya berubah saat pengunjung menekan 2D/3D.
+- [2026-09-30] T-118 — Bahasa default venue dari snapshot dipakai bila pengunjung belum memilih bahasa dan bahasa perangkat bukan ID/EN (`applyVenueLanguage`). Panel Visitor kosong sampai kategori dan direktori di T-119 (daftar gedung sementara dari T-117 dihapus).
 
 ## Riwayat rilis
 
