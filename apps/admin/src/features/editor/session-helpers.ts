@@ -54,3 +54,15 @@ export function unitCodesOf(features: EditorState['features']) {
     f.properties.unitCode ? [f.properties.unitCode] : [],
   );
 }
+
+/**
+ * Jenis fasilitas untuk fitur baru atau fitur yang diubah menjadi fasilitas: pilihan
+ * terakhir bila masih ada, selain itu jenis pertama; `null` bila venue belum punya jenis.
+ */
+export function pickFacilityTypeId(
+  preferred: string | undefined,
+  types: readonly { id: string }[],
+): string | null {
+  if (preferred && types.some((t) => t.id === preferred)) return preferred;
+  return types[0]?.id ?? null;
+}

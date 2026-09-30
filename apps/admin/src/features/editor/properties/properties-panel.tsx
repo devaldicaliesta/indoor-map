@@ -13,6 +13,7 @@ import { drawKindLabel, drawKindValue, FEATURE_KIND_LABELS } from '../labels';
 import { singleSelected, useEditorStore } from '../store/editor-store';
 import type { EditorSession } from '../use-editor-session';
 import { CommitInput } from './commit-input';
+import { FacilityFields } from './facility-fields';
 import { MultiSelectionPanel } from './multi-selection-panel';
 import { RotateControl } from './rotate-control';
 import { UnitFields } from './unit-fields';
@@ -41,7 +42,10 @@ function KindSelect({
 }) {
   const p = feature.properties;
   const current: DrawKind = p.subtype ? { kind: p.kind, subtype: p.subtype } : { kind: p.kind };
-  const options = drawKindsFor(KIND_SHAPE[p.kind], session.isOutdoor);
+  // Fasilitas butuh jenis fasilitas; tanpa jenis di venue pilihan itu tidak ditawarkan.
+  const options = drawKindsFor(KIND_SHAPE[p.kind], session.isOutdoor).filter(
+    (o) => o.kind !== 'facility' || session.facilityTypes.length > 0 || p.kind === 'facility',
+  );
   const inList = options.some((o) => drawKindValue(o) === drawKindValue(current));
   return (
     <div className="grid gap-1">
@@ -119,6 +123,9 @@ export function PropertiesPanel({
       </div>
       {p.kind === 'unit' ? (
         <UnitFields feature={feature} session={session} canEdit={canEdit} />
+      ) : null}
+      {p.kind === 'facility' ? (
+        <FacilityFields feature={feature} session={session} canEdit={canEdit} />
       ) : null}
       {canEdit && feature.geometry.type !== 'Point' ? (
         <RotateControl onRotate={(deg) => session.rotateMany([p.id], deg)} />

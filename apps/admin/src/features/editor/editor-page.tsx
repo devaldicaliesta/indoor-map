@@ -151,7 +151,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
           <EditorToolbar canEdit={canEdit} session={session} />
         </aside>
         <aside className="min-h-0 overflow-y-auto border-line border-r">
-          <FeatureList floorName={floor.name} />
+          <FeatureList floorName={floor.name} facilityTypes={session.facilityTypes} />
         </aside>
         <div className="relative min-h-0">
           {session.error ? (
@@ -165,10 +165,13 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
               plan={plan}
               center={center}
               referenceFloorId={referenceFloorId}
+              facilityTypes={session.facilityTypes}
               onCursor={setCursor}
             />
           )}
-          {canEdit ? <KindPicker isOutdoor={session.isOutdoor} /> : null}
+          {canEdit ? (
+            <KindPicker isOutdoor={session.isOutdoor} facilityTypes={session.facilityTypes} />
+          ) : null}
         </div>
         <aside aria-label="Properti" className="min-h-0 overflow-y-auto border-line border-l">
           <PropertiesPanel session={session} canEdit={canEdit} />

@@ -4,6 +4,7 @@ import {
   changeFeatureKind,
   checkUnitCode,
   type DrawKind,
+  type FacilityType,
   type Floor,
   type Geometry,
   KIND_SHAPE,
@@ -16,8 +17,10 @@ import { boundsCenter, type LngLat, rotateGeometry, translateGeometry } from '@i
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo } from 'react';
 import { data } from '../../app/data-client';
+import { useFacilityTypes } from '../facilities/queries';
 import {
   type PropertiesPatch,
+  pickFacilityTypeId,
   SHAPE_OF,
   saveQueue,
   UNIT_CODE_MESSAGES,
@@ -25,6 +28,9 @@ import {
   unitCodesOf,
 } from './session-helpers';
 import { type FeaturePatch, featureList, useEditorStore } from './store/editor-store';
+
+const NO_FACILITY_TYPES: FacilityType[] = [];
+
 import { type Change, type Direction, valueAfter } from './store/history';
 
 /**
@@ -37,6 +43,7 @@ export function useEditorSession(
   building: Building | undefined,
 ) {
   const floorId = floor?.id ?? null;
+  const facilityTypes = useFacilityTypes(venueId).data ?? NO_FACILITY_TYPES;
   const loaded = useEditorStore((s) => s.floorId === floorId && floorId !== null);
   const query = useQuery({
     queryKey: ['features', floorId],
@@ -121,16 +128,29 @@ export function useEditorSession(
     );
   }, [floor, building]);
 
+  /** Fasilitas selalu punya jenis yang masih ada; `null` bila venue belum punya jenis. */
+  const withFacilityType = useCallback(
+    (drawKind: DrawKind): DrawKind | null => {
+      if (drawKind.kind !== 'facility') return drawKind;
+      const facilityTypeId = pickFacilityTypeId(drawKind.facilityTypeId, facilityTypes);
+      return facilityTypeId ? { ...drawKind, facilityTypeId } : null;
+    },
+    [facilityTypes],
+  );
+
   const draw = useCallback(
     (geometry: Geometry) => {
       if (!floor) return;
-      const drawKind = useEditorStore.getState().drawKinds[SHAPE_OF[geometry.type]];
+      const drawKind = withFacilityType(
+        useEditorStore.getState().drawKinds[SHAPE_OF[geometry.type]],
+      );
+      if (!drawKind) return;
       const id = crypto.randomUUID();
       const base: MapFeatureProperties = { id, kind: 'corridor', floorId: floor.id };
       const properties = changeFeatureKind(base, drawKind, newUnitCode);
       commit([{ id, before: null, after: { type: 'Feature', id, geometry, properties } }]);
     },
-    [floor, commit, newUnitCode],
+    [floor, commit, newUnitCode, withFacilityType],
   );
 
   const update = useCallback(
@@ -147,16 +167,28 @@ export function useEditorSession(
   );
 
   const changeKind = useCallback(
-    (id: string, drawKind: DrawKind) =>
-      changeEach([id], (current) =>
-        KIND_SHAPE[drawKind.kind] === KIND_SHAPE[current.properties.kind]
+    (id: string, requested: DrawKind) => {
+      const store = useEditorStore.getState();
+      const current = store.features[id]?.properties;
+      // Fitur yang sudah fasilitas mempertahankan jenisnya; lainnya memakai pilihan alat Titik.
+      const preferred =
+        requested.facilityTypeId ??
+        (current?.kind === 'facility' ? current.facilityTypeId : undefined) ??
+        store.drawKinds.point.facilityTypeId;
+      const drawKind = withFacilityType(
+        preferred ? { ...requested, facilityTypeId: preferred } : requested,
+      );
+      if (!drawKind) return;
+      changeEach([id], (feature) =>
+        KIND_SHAPE[drawKind.kind] === KIND_SHAPE[feature.properties.kind]
           ? {
-              ...current,
-              properties: changeFeatureKind(current.properties, drawKind, newUnitCode),
+              ...feature,
+              properties: changeFeatureKind(feature.properties, drawKind, newUnitCode),
             }
-          : current,
-      ),
-    [changeEach, newUnitCode],
+          : feature,
+      );
+    },
+    [changeEach, newUnitCode, withFacilityType],
   );
 
   /** FR-MAP-06: kode unit unik per venue; pesan menyebut unit yang bentrok. */
@@ -224,6 +256,7 @@ export function useEditorSession(
       ready: loaded,
       error: query.error,
       isOutdoor: floor?.isOutdoor ?? false,
+      facilityTypes,
       draw,
       editGeometry,
       update,
@@ -241,6 +274,7 @@ export function useEditorSession(
       loaded,
       query.error,
       floor?.isOutdoor,
+      facilityTypes,
       draw,
       editGeometry,
       update,

@@ -1,5 +1,5 @@
 import type { FloorFeatures } from '@indoor/data';
-import type { FloorId } from '@indoor/domain';
+import type { FacilityType, FloorId } from '@indoor/domain';
 import {
   buildSnapIndex,
   type Corners,
@@ -11,12 +11,14 @@ import {
   type LngLat,
   type MapInstance,
   type SnapIndex,
+  setFacilityIcons,
   setFloorData,
   setFloorPlanImage,
   setHiddenFeatures,
   setSelectionHighlight,
 } from '@indoor/map-core';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { facilityIconSpecs } from '../facilities/icons';
 import { ReferenceLayer } from './reference-layer';
 import { featureList, singleSelected, useEditorStore } from './store/editor-store';
 import type { EditorSession } from './use-editor-session';
@@ -40,9 +42,11 @@ export function EditorCanvas({
   plan,
   center,
   referenceFloorId,
+  facilityTypes,
   onCursor,
 }: {
   session: EditorSession;
+  facilityTypes: readonly FacilityType[];
   canEdit: boolean;
   plan: PlanBackground | null;
   center: LngLat | null;
@@ -157,6 +161,13 @@ export function EditorCanvas({
     if (map) setFloorPlanImage(map, plan);
   }, [map, plan]);
 
+  // FR-MAP-07: sprite ikon fasilitas dibangun ulang hanya bila ikon/keselamatan berubah.
+  const iconSpecs = useMemo(() => facilityIconSpecs(facilityTypes), [facilityTypes]);
+  const iconKey = JSON.stringify(iconSpecs);
+  useEffect(() => {
+    if (map) void setFacilityIcons(map, iconSpecs);
+  }, [map, iconKey]);
+
   useEffect(() => {
     editor.current?.setTool(canEdit ? tool : 'select');
   }, [map, tool, canEdit]);
@@ -165,8 +176,11 @@ export function EditorCanvas({
     if (!map) return;
     // Satu fitur: disunting di terra-draw. Lebih dari satu (atau mode baca): hanya disorot.
     const editing = canEdit && selected && tool === 'select' ? selected : null;
-    setHiddenFeatures(map, editing ? [editing.properties.id] : []);
-    setSelectionHighlight(map, editing ? [] : selectedIds);
+    // Titik (ikon fasilitas, pintu) tetap tampil dan disorot agar jelas mana yang terpilih;
+    // pegangan terra-draw untuk menggeser ada di atasnya.
+    const editingPoint = editing?.geometry.type === 'Point' ? editing.properties.id : null;
+    setHiddenFeatures(map, editing && !editingPoint ? [editing.properties.id] : []);
+    setSelectionHighlight(map, editing ? (editingPoint ? [editingPoint] : []) : selectedIds);
     editor.current?.edit(
       editing ? { id: editing.properties.id, geometry: editing.geometry } : null,
     );
