@@ -49,6 +49,7 @@ export {
   setReferenceFloor,
   VERTICAL_CONNECTOR_KINDS,
 } from './layers/reference';
+export { ISSUE_COLOR, ISSUE_LAYER_IDS, setIssueHighlight } from './layers/validation';
 export {
   type CreateMapOptions,
   createMap,

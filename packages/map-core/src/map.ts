@@ -21,6 +21,8 @@ export interface CreateMapOptions {
   bearing?: number;
   mode?: ViewMode;
   display?: MapDisplay;
+  /** Durasi fade ikon/label (ms). Editor memakai 0: setiap perubahan data langsung tampil tanpa repaint beruntun. */
+  fadeDuration?: number;
 }
 
 const MODE_TRANSITION_MS = 300;
@@ -37,6 +39,7 @@ export function createMap(container: HTMLElement, options: CreateMapOptions): Ma
     pitch: mode === '3d' ? PITCH_3D : 0,
     maxPitch: 60,
     attributionControl: false,
+    ...(options.fadeDuration === undefined ? {} : { fadeDuration: options.fadeDuration }),
   });
   handleMissingFacilityIcons(map);
   if (mode === '3d') map.once('load', () => applyModeVisibility(map, '3d'));
