@@ -4,6 +4,7 @@ import { type GeoJSONSource, type LngLatLike, Map as MapLibreMap } from 'maplibr
 import { prefersReducedMotion } from './camera';
 import { PITCH_3D } from './defaults';
 import { build3dFeatures, FLOOR_3D_SOURCE_ID } from './extrude';
+import type { LabelFont } from './layers/labels';
 import { handleMissingFacilityIcons } from './sprites';
 import {
   buildStyle,
@@ -26,6 +27,8 @@ export interface CreateMapOptions {
   display?: MapDisplay;
   /** Durasi fade ikon/label (ms). Editor memakai 0: setiap perubahan data langsung tampil tanpa repaint beruntun. */
   fadeDuration?: number;
+  /** Font label nama lokasi (Visitor); tanpa ini peta tidak menggambar label teks. */
+  labelFont?: LabelFont;
 }
 
 const MODE_TRANSITION_MS = 300;
@@ -35,7 +38,7 @@ export function createMap(container: HTMLElement, options: CreateMapOptions): Ma
   const mode = options.mode ?? '2d';
   const map = new MapLibreMap({
     container,
-    style: buildStyle(options.display),
+    style: buildStyle(options.display, options.labelFont ? { labelFont: options.labelFont } : {}),
     center: options.center,
     zoom: options.zoom ?? 18,
     bearing: options.bearing ?? 0,

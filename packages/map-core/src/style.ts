@@ -11,6 +11,7 @@ import {
   VACANT_UNIT,
 } from './defaults';
 import { FLOOR_3D_SOURCE_ID, ROOM_KINDS as ROOM_KINDS_3D } from './extrude';
+import { LABEL_SOURCE_ID, type LabelFont, labelFontFaces, labelLayer } from './layers/labels';
 import { FACILITY_ICON_COLORS, FACILITY_ICON_PREFIX } from './sprites';
 
 export const FLOOR_SOURCE_ID = 'floor';
@@ -234,13 +235,28 @@ export function buildStyleLayers(display: MapDisplay = {}): LayerSpecification[]
   ];
 }
 
-/** Style tanpa basemap internet: hanya latar dan data lantai dari snapshot/editor. */
-export function buildStyle(display: MapDisplay = {}): StyleSpecification {
+const emptyCollection = () => ({ type: 'FeatureCollection' as const, features: [] });
+
+/**
+ * Style tanpa basemap internet: hanya latar dan data lantai dari snapshot/editor.
+ * Dengan `labelFont` (Visitor), nama lokasi dan ikon fasilitas digambar lewat satu layer label
+ * yang saling menyembunyikan saat bertumpuk; layer ikon editor yang selalu tampil tidak dipakai.
+ */
+export function buildStyle(
+  display: MapDisplay = {},
+  options: { labelFont?: LabelFont } = {},
+): StyleSpecification {
+  const { labelFont } = options;
+  const layers = buildStyleLayers(display).filter(
+    (layer) => !labelFont || layer.id !== LAYER_IDS.facilities,
+  );
   return {
     version: 8,
+    ...(labelFont ? { 'font-faces': labelFontFaces(labelFont) } : {}),
     sources: {
-      [FLOOR_SOURCE_ID]: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
-      [FLOOR_3D_SOURCE_ID]: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+      [FLOOR_SOURCE_ID]: { type: 'geojson', data: emptyCollection() },
+      [FLOOR_3D_SOURCE_ID]: { type: 'geojson', data: emptyCollection() },
+      ...(labelFont ? { [LABEL_SOURCE_ID]: { type: 'geojson', data: emptyCollection() } } : {}),
     },
     layers: [
       {
@@ -248,7 +264,8 @@ export function buildStyle(display: MapDisplay = {}): StyleSpecification {
         type: 'background',
         paint: { 'background-color': MAP_BACKGROUND },
       },
-      ...buildStyleLayers(display),
+      ...layers,
+      ...(labelFont ? [labelLayer(labelFont)] : []),
     ],
   };
 }
