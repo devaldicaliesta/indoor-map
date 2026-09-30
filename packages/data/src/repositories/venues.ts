@@ -81,10 +81,18 @@ export function createVenuesRepository(db: Db): VenuesRepository {
 
   /** Logo venue dan ikon jenis fasilitasnya (T-112). */
   async function removeFiles(id: VenueId) {
-    for (const folder of [`venues/${id}`, `facility-types/${id}`]) {
-      const { data } = await db.storage.from(ASSETS_BUCKET).list(folder);
-      if (data?.length)
-        await db.storage.from(ASSETS_BUCKET).remove(data.map((f) => `${folder}/${f.name}`));
+    const folders = [`venues/${id}`, `facility-types/${id}`, `locations/${id}`, `categories/${id}`];
+    for (const folder of folders) {
+      // Storage mendaftar paling banyak `limit` berkas per panggilan; berkas yang sudah
+      // dihapus hilang dari daftar, jadi daftar diulang dari awal sampai kosong.
+      for (;;) {
+        const { data } = await db.storage.from(ASSETS_BUCKET).list(folder, { limit: 1000 });
+        if (!data?.length) break;
+        const removed = await db.storage
+          .from(ASSETS_BUCKET)
+          .remove(data.map((f) => `${folder}/${f.name}`));
+        if (removed.error || !removed.data?.length) break;
+      }
     }
   }
 

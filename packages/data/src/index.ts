@@ -9,6 +9,7 @@ export { createDataClient, type DataClient, type DataClientConfig } from './clie
 export { DataError, type DataErrorKind } from './errors';
 export type { AuditRepository } from './repositories/audit';
 export type { BuildingsRepository, OutdoorLayer } from './repositories/buildings';
+export type { CategoriesRepository, CategoryWithUsage } from './repositories/categories';
 export type { DisplaySettingsRepository } from './repositories/display-settings';
 export type {
   FacilityTypesRepository,
@@ -26,6 +27,7 @@ export {
   floorPlanProblemMessage,
 } from './repositories/floor-plans';
 export type { FloorsRepository } from './repositories/floors';
+export type { LocationImages, LocationsRepository } from './repositories/locations';
 export type { ProfilesRepository } from './repositories/profiles';
 export type { SystemSettingsRepository } from './repositories/system-settings';
 export type { InviteUserInput, UsersRepository } from './repositories/users';
