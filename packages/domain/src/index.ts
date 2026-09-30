@@ -2,6 +2,7 @@ export * from './area';
 export * from './audit';
 export * from './auth';
 export * from './building';
+export * from './deep-link';
 export * from './directory';
 export * from './display-settings';
 export * from './explore';
