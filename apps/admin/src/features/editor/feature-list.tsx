@@ -1,4 +1,4 @@
-import { FEATURE_KINDS, type FeatureKind } from '@indoor/domain';
+import { type FacilityType, FEATURE_KINDS, type FeatureKind } from '@indoor/domain';
 import { cn } from '@indoor/ui';
 import { ChevronRightIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -6,13 +6,26 @@ import { FEATURE_KIND_LABELS } from './labels';
 import { featureList, useEditorStore } from './store/editor-store';
 
 const collator = new Intl.Collator('id-ID', { numeric: true, sensitivity: 'base' });
-const labelOf = (f: ReturnType<typeof featureList>[number]) =>
-  f.properties.unitCode ??
-  f.properties.name ??
-  `${FEATURE_KIND_LABELS[f.properties.kind]} tanpa nama`;
+type Feature = ReturnType<typeof featureList>[number];
+
+/** Fasilitas tanpa nama memakai nama jenisnya, misalnya "Toilet Pria". */
+function labeler(facilityTypes: readonly FacilityType[]) {
+  const typeNames = new Map(facilityTypes.map((t) => [t.id as string, t.name]));
+  return (f: Feature) =>
+    f.properties.unitCode ??
+    f.properties.name ??
+    (f.properties.facilityTypeId ? typeNames.get(f.properties.facilityTypeId) : undefined) ??
+    `${FEATURE_KIND_LABELS[f.properties.kind]} tanpa nama`;
+}
 
 /** Panel daftar fitur per jenis; isi grup baru dirender saat dibuka (lantai bisa 1.000 fitur). */
-export function FeatureList({ floorName }: { floorName: string }) {
+export function FeatureList({
+  floorName,
+  facilityTypes,
+}: {
+  floorName: string;
+  facilityTypes: readonly FacilityType[];
+}) {
   const features = useEditorStore((s) => s.features);
   const selectedIds = useEditorStore((s) => s.selectedIds);
   const select = useEditorStore((s) => s.select);
@@ -20,6 +33,7 @@ export function FeatureList({ floorName }: { floorName: string }) {
   const selectedId = selectedIds.at(-1);
   const [open, setOpen] = useState<Set<FeatureKind>>(new Set());
 
+  const labelOf = useMemo(() => labeler(facilityTypes), [facilityTypes]);
   const groups = useMemo(() => {
     const byKind = new Map<FeatureKind, ReturnType<typeof featureList>>();
     for (const f of featureList(features)) {
@@ -33,7 +47,7 @@ export function FeatureList({ floorName }: { floorName: string }) {
         ? [{ kind, list: list.sort((a, b) => collator.compare(labelOf(a), labelOf(b))) }]
         : [];
     });
-  }, [features]);
+  }, [features, labelOf]);
 
   // Grup yang memuat fitur terpilih ikut terbuka.
   const selectedKinds = new Set(selectedIds.map((id) => features[id]?.properties.kind));
@@ -85,9 +99,7 @@ export function FeatureList({ floorName }: { floorName: string }) {
                       }
                       className="w-full cursor-pointer truncate rounded-sm py-1 pr-1 pl-6 text-left text-sm hover:bg-canvas aria-[current=true]:bg-signal-soft aria-[current=true]:font-bold"
                     >
-                      {f.properties.unitCode ??
-                        f.properties.name ??
-                        `${FEATURE_KIND_LABELS[kind]} tanpa nama`}
+                      {labelOf(f)}
                     </button>
                   </li>
                 ))}
