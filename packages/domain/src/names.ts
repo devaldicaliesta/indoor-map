@@ -1,3 +1,4 @@
+// Tanpa impor: modul ini dimuat builder snapshot di Edge Function Deno (lihat snapshot.ts).
 export type NameProblem = 'required' | 'too_long' | 'duplicate';
 
 /**
