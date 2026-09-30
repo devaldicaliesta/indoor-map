@@ -83,6 +83,7 @@ export {
   getViewMode,
   setFloorData,
   setMapDisplay,
+  setMapLabel,
   setReferenceShapes,
   setViewMode,
   type ViewMode,

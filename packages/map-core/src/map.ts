@@ -128,6 +128,14 @@ export function setViewMode(
   });
 }
 
+/**
+ * Label aksesibilitas kanvas peta. MapLibre memasang "Map" berbahasa Inggris, jadi aplikasi
+ * mengganti dengan teks dalam bahasa antarmuka (juga saat bahasa diganti).
+ */
+export function setMapLabel(map: MapLibreMap, label: string): void {
+  map.getCanvas().setAttribute('aria-label', label);
+}
+
 export function getViewMode(map: MapLibreMap): ViewMode {
   return stateOf(map).mode;
 }

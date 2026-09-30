@@ -32,7 +32,8 @@
     "floors": "Lantai",
     "resetView": "Kembali ke tampilan awal",
     "building": "Gedung",
-    "floorHasResults": "ada hasil"
+    "floorHasResults": "ada hasil",
+    "canvas": "Peta lantai. Tombol panah menggeser peta, + dan − memperbesar atau memperkecil."
   },
   "sheet": {
     "handle": "Ubah tinggi panel",
