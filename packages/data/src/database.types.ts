@@ -1452,6 +1452,22 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      save_location: {
+        Args: {
+          p_category_ids: string[];
+          p_code?: string;
+          p_description?: string;
+          p_id: string;
+          p_location_type_id: string;
+          p_logo_path?: string;
+          p_name: string;
+          p_photo_paths: string[];
+          p_primary_unit_id?: string;
+          p_unit_ids: string[];
+          p_venue_id: string;
+        };
+        Returns: string;
+      };
       set_smtp_password: { Args: { p_password: string }; Returns: undefined };
       smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
       smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };
