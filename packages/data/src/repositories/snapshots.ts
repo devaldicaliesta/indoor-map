@@ -1,0 +1,54 @@
+import { parseSnapshot, type Snapshot, type VenueId } from '@indoor/domain';
+import { DataError } from '../errors';
+import type { Db } from '../supabase';
+
+const SNAPSHOTS_BUCKET = 'snapshots';
+const ASSETS_BUCKET = 'public-assets';
+
+/** Bacaan Visitor: snapshot published dan aset publik, tanpa login. */
+export interface SnapshotsRepository {
+  /** URL publik `latest.json` venue; service worker Visitor meng-cache URL ini. */
+  latestUrl(venueId: VenueId): string;
+  /** Snapshot versi published terbaru, sudah diperiksa terhadap skemanya. */
+  latest(venueId: VenueId): Promise<Snapshot>;
+  /** URL publik logo, foto, atau ikon dari path yang tercatat di snapshot. */
+  assetUrl(path: string): string;
+}
+
+export function createSnapshotsRepository(db: Db): SnapshotsRepository {
+  const latestUrl = (venueId: VenueId) =>
+    db.storage.from(SNAPSHOTS_BUCKET).getPublicUrl(`${venueId}/latest.json`).data.publicUrl;
+
+  return {
+    latestUrl,
+
+    async latest(venueId) {
+      let response: Response;
+      try {
+        response = await fetch(latestUrl(venueId));
+      } catch (cause) {
+        throw new DataError('network', { cause });
+      }
+      // Storage membalas 400 atau 404 untuk objek yang belum ada, tergantung versinya.
+      if (response.status === 400 || response.status === 404) {
+        throw new DataError('not_found', { message: 'Venue ini belum menerbitkan peta.' });
+      }
+      if (!response.ok) {
+        throw new DataError('unknown', { message: `Peta tidak bisa dimuat (${response.status}).` });
+      }
+      const body: unknown = await response.json().catch(() => null);
+      try {
+        return parseSnapshot(body);
+      } catch (cause) {
+        throw new DataError('invalid', {
+          message: 'Data peta tidak bisa dibaca. Muat ulang halaman.',
+          cause,
+        });
+      }
+    },
+
+    assetUrl(path) {
+      return db.storage.from(ASSETS_BUCKET).getPublicUrl(path).data.publicUrl;
+    },
+  };
+}

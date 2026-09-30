@@ -19,6 +19,7 @@ import type { Db } from '../supabase';
 const COLUMNS =
   'id, name, address, center, logo_path, timezone, venue_type, default_building_id, created_at, updated_at';
 const ASSETS_BUCKET = 'public-assets';
+const SNAPSHOTS_BUCKET = 'snapshots';
 const LOGO_TYPES: Record<string, string> = {
   'image/png': 'png',
   'image/jpeg': 'jpg',
@@ -80,15 +81,22 @@ export function createVenuesRepository(db: Db): VenuesRepository {
 
   /** Berkas publik venue: logo, ikon jenis fasilitas dan kategori, gambar lokasi. */
   async function removeFiles(id: VenueId) {
-    const folders = [`venues/${id}`, `facility-types/${id}`, `locations/${id}`, `categories/${id}`];
-    for (const folder of folders) {
+    const folders: [bucket: string, folder: string][] = [
+      [ASSETS_BUCKET, `venues/${id}`],
+      [ASSETS_BUCKET, `facility-types/${id}`],
+      [ASSETS_BUCKET, `locations/${id}`],
+      [ASSETS_BUCKET, `categories/${id}`],
+      // Snapshot publik venue yang dihapus tidak boleh tetap bisa dibuka Visitor.
+      [SNAPSHOTS_BUCKET, id],
+    ];
+    for (const [bucket, folder] of folders) {
       // Storage mendaftar paling banyak `limit` berkas per panggilan; berkas yang sudah
       // dihapus hilang dari daftar, jadi daftar diulang dari awal sampai kosong.
       for (;;) {
-        const { data } = await db.storage.from(ASSETS_BUCKET).list(folder, { limit: 1000 });
+        const { data } = await db.storage.from(bucket).list(folder, { limit: 1000 });
         if (!data?.length) break;
         const removed = await db.storage
-          .from(ASSETS_BUCKET)
+          .from(bucket)
           .remove(data.map((f) => `${folder}/${f.name}`));
         if (removed.error || !removed.data?.length) break;
       }

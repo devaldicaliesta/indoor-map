@@ -1452,6 +1452,16 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
+      publish_begin: {
+        Args: { p_venue_id: string };
+        Returns: {
+          publication_id: string;
+          published_at: string;
+          version: number;
+        }[];
+      };
+      publish_commit: { Args: { p_publication_id: string }; Returns: undefined };
       save_location: {
         Args: {
           p_category_ids: string[];
