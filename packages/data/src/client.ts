@@ -18,6 +18,11 @@ import { createFloorsRepository, type FloorsRepository } from './repositories/fl
 import { createLocationsRepository, type LocationsRepository } from './repositories/locations';
 import { createProfilesRepository, type ProfilesRepository } from './repositories/profiles';
 import {
+  createPublicationsRepository,
+  type PublicationsRepository,
+} from './repositories/publications';
+import { createSnapshotsRepository, type SnapshotsRepository } from './repositories/snapshots';
+import {
   createSystemSettingsRepository,
   type SystemSettingsRepository,
 } from './repositories/system-settings';
@@ -44,6 +49,8 @@ export interface DataClient {
   floors: FloorsRepository;
   locations: LocationsRepository;
   profiles: ProfilesRepository;
+  publications: PublicationsRepository;
+  snapshots: SnapshotsRepository;
   systemSettings: SystemSettingsRepository;
   users: UsersRepository;
   venues: VenuesRepository;
@@ -63,6 +70,8 @@ export function createRepositories(db: Db): DataClient {
     floors: createFloorsRepository(db),
     locations: createLocationsRepository(db),
     profiles,
+    publications: createPublicationsRepository(db),
+    snapshots: createSnapshotsRepository(db),
     systemSettings: createSystemSettingsRepository(db),
     users: createUsersRepository(db),
     venues: createVenuesRepository(db),

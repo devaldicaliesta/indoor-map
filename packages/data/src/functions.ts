@@ -4,6 +4,7 @@ const FUNCTION_KINDS: Record<string, DataErrorKind> = {
   forbidden: 'forbidden',
   conflict: 'conflict',
   invalid: 'invalid',
+  not_found: 'not_found',
 };
 
 /**
