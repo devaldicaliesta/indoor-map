@@ -1,4 +1,5 @@
 import type { FacilityTypeId, VenueId } from './ids';
+import { checkUniqueName, type NameProblem, sortByOrder } from './names';
 
 /**
  * Piktogram bawaan (05-desain-ui.md "Ruang, bentuk, ikon"); gambarnya di
@@ -64,30 +65,19 @@ export interface FacilityTypeInput {
 }
 
 export const FACILITY_TYPE_NAME_MAX = 60;
-export type FacilityTypeNameProblem = 'required' | 'too_long' | 'duplicate';
+export type FacilityTypeNameProblem = NameProblem;
 
-/** Nama unik per venue; dibandingkan tanpa membedakan huruf besar/kecil agar "Toilet" dan "toilet" tidak kembar. */
+/** Nama unik per venue, tanpa membedakan huruf besar/kecil. */
 export function checkFacilityTypeName(
   name: string,
   others: readonly { id: string; name: string }[],
   selfId: string | null,
 ): FacilityTypeNameProblem[] {
-  const value = name.trim();
-  if (!value) return ['required'];
-  if (value.length > FACILITY_TYPE_NAME_MAX) return ['too_long'];
-  const lower = value.toLocaleLowerCase('id');
-  const clash = others.some(
-    (t) => t.id !== selfId && t.name.trim().toLocaleLowerCase('id') === lower,
-  );
-  return clash ? ['duplicate'] : [];
+  return checkUniqueName(name, others, selfId, FACILITY_TYPE_NAME_MAX);
 }
 
 /** Urutan tampil: `sort_order`, lalu nama. */
-export function sortFacilityTypes<T extends Pick<FacilityType, 'name' | 'sortOrder'>>(
-  types: readonly T[],
-): T[] {
-  return [...types].sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'id'));
-}
+export const sortFacilityTypes = sortByOrder;
 
 /** Ikon unggahan: SVG atau PNG ≤ 200 kB (FR-MAP-07, T-112). */
 export const MAX_FACILITY_ICON_BYTES = 200 * 1024;

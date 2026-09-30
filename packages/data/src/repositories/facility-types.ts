@@ -65,7 +65,8 @@ export interface FacilityTypesRepository {
   iconUrl(path: string): string;
 }
 
-function checkIconPng(file: Blob) {
+/** Ikon unggahan (jenis fasilitas, kategori) selalu PNG hasil rasterisasi di Admin. */
+export function checkIconPng(file: Blob) {
   if (file.type !== 'image/png') {
     throw new DataError('invalid', { message: 'Ikon harus berupa PNG hasil konversi.' });
   }

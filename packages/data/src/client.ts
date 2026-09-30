@@ -3,6 +3,7 @@ import { type AuthRepository, createAuthRepository } from './auth';
 import type { Database } from './database.types';
 import { type AuditRepository, createAuditRepository } from './repositories/audit';
 import { type BuildingsRepository, createBuildingsRepository } from './repositories/buildings';
+import { type CategoriesRepository, createCategoriesRepository } from './repositories/categories';
 import {
   createDisplaySettingsRepository,
   type DisplaySettingsRepository,
@@ -14,6 +15,7 @@ import {
 import { createFeaturesRepository, type FeaturesRepository } from './repositories/features';
 import { createFloorPlansRepository, type FloorPlansRepository } from './repositories/floor-plans';
 import { createFloorsRepository, type FloorsRepository } from './repositories/floors';
+import { createLocationsRepository, type LocationsRepository } from './repositories/locations';
 import { createProfilesRepository, type ProfilesRepository } from './repositories/profiles';
 import {
   createSystemSettingsRepository,
@@ -34,11 +36,13 @@ export interface DataClient {
   audit: AuditRepository;
   auth: AuthRepository;
   buildings: BuildingsRepository;
+  categories: CategoriesRepository;
   displaySettings: DisplaySettingsRepository;
   facilityTypes: FacilityTypesRepository;
   features: FeaturesRepository;
   floorPlans: FloorPlansRepository;
   floors: FloorsRepository;
+  locations: LocationsRepository;
   profiles: ProfilesRepository;
   systemSettings: SystemSettingsRepository;
   users: UsersRepository;
@@ -51,11 +55,13 @@ export function createRepositories(db: Db): DataClient {
     audit: createAuditRepository(db),
     auth: createAuthRepository(db, profiles),
     buildings: createBuildingsRepository(db),
+    categories: createCategoriesRepository(db),
     displaySettings: createDisplaySettingsRepository(db),
     facilityTypes: createFacilityTypesRepository(db),
     features: createFeaturesRepository(db),
     floorPlans: createFloorPlansRepository(db),
     floors: createFloorsRepository(db),
+    locations: createLocationsRepository(db),
     profiles,
     systemSettings: createSystemSettingsRepository(db),
     users: createUsersRepository(db),
