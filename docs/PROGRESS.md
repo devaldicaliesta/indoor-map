@@ -4,8 +4,8 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
-**Rilis aktif:** R1 Inti peta
-**Task berikutnya:** T-120
+**Rilis aktif:** R2 Navigasi (R1 menunggu review)
+**Task berikutnya:** T-213
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -48,14 +48,14 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-117 | Snapshot minimal | T-115, T-116 | review | Format `Snapshot` + builder + skema zod di domain (137 test), Edge Function `publish` + fungsi SQL pesanan versi (migrasi 0011; 28 pgTAP, 3 integrasi), tombol "Terbitkan (dev)", Visitor memuat snapshot dengan cache service worker dan info versi. Venue contoh 53 KB (8 KB gzip); 2.000 fitur + 1.200 lokasi 1,48 MB (121 KB gzip) |
 | T-118 | Visitor: peta, gedung, lantai | T-117, T-011 | review | Peta snapshot di `/v/:venueId`: gedung/lantai/kamera/mode default, Area Luar di lantai dasar, pemilih gedung + `FloorSwitcher`, zoom/putar/utara/tampilan awal, 2D/3D hanya bila `3d` aktif; nama lokasi dan ikon fasilitas dalam satu layer label berprioritas (font Atkinson via `font-faces`, tanpa server glyph). Diuji di browser 360 px dan desktop dengan venue demo 2 gedung/5 lantai/127 fitur |
 | T-119 | Visitor: cari, kategori, detail, A–Z | T-118 | review | Pencarian di perangkat dari `searchIndex` (awalan, salah ketik ≤ 1 untuk kata ≥ 5 huruf, kode harus tepat, jeda 150 ms), chip kategori/jenis fasilitas + A–Z, anggota disorot di peta (2D/3D) dengan penanda lantai, ketuk unit/fasilitas membuka detail, profil lokasi, direktori dengan filter gedung/lantai/tipe. 208 test domain, 19 test Visitor, 3 E2E Visitor (360 px) + uji browser HP/desktop, ID/EN |
-| T-120 | Visitor: bahasa ID/EN | T-119 | siap | |
+| T-120 | Visitor: bahasa ID/EN | T-119 | review | Bahasa perangkat → default venue sudah sejak T-011/T-118; test kelengkapan `apps/visitor/test/i18n.test.ts` (kunci ID = EN, tanpa teks kosong, variabel interpolasi sama, bentuk jamak lengkap, kunci yang dipakai kode ada, tanpa kunci yatim); label kanvas MapLibre ikut diterjemahkan; E2E perangkat EN + pilihan manual diingat |
 
 ## R2 · Navigasi (`12-R2-navigasi.md`)
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-213 | Spesifikasi deep link | – | menunggu | boleh paralel sejak R1 |
-| T-201 | Routing: graf dan A* | R1 | menunggu | model besar |
+| T-213 | Spesifikasi deep link | – | siap | boleh paralel sejak R1 |
+| T-201 | Routing: graf dan A* | R1 | siap | model besar |
 | T-202 | Routing: konektor | T-201 | menunggu | |
 | T-203 | Routing: aksesibel, penutupan, titik masuk | T-202 | menunggu | |
 | T-204 | Routing: instruksi | T-203 | menunggu | |
@@ -94,7 +94,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-410 | Branding Visitor | T-117 | menunggu | boleh paralel sejak R1 |
+| T-410 | Branding Visitor | T-117 | siap | boleh paralel sejak R1 |
 | T-401 | Format lisensi dan license-cli | R3 | menunggu | model besar |
 | T-402 | Aktivasi online dan manual | T-401 | menunggu | |
 | T-403 | Check-in, pencabutan, proteksi waktu | T-402 | menunggu | |
@@ -223,6 +223,7 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-30] T-119 — Profil lokasi: nama (+ logo), tipe · kategori, gedung · lantai · kode unit per lantai (lantai unit utama dulu; "Belum ada di peta" bila tanpa unit), status segera buka (dengan tanggal) atau tutup sementara, "Rute ke sini" nonaktif dengan keterangan sampai T-215, deskripsi, foto, dan field kustom yang tampil (jam operasional menjadi status di T-304; "Bagikan" di T-217). Detail unit tanpa lokasi hanya kode dan tempatnya; detail fasilitas berisi jenis (ikon), nama bila ada, dan tempatnya.
 - [2026-09-30] T-119 — Direktori: filter gedung hanya bila ada > 1 pilihan (gedung yang punya lokasi, ditambah "Area Luar" bila ada lokasi di sana), filter lantai setelah gedung dipilih (atau langsung bila venue satu gedung), filter tipe hanya bila > 1 tipe dipakai; kelompok huruf tanpa diakritik dengan `#` (angka/simbol) di akhir; lokasi tanpa unit hanya muncul tanpa filter gedung.
 - [2026-09-30] T-119 — E2E: proyek Playwright `visitor` (360 × 740, sentuh) dengan server Visitor 5174 di `webServer`, fixture `publishedVenue` (dua unit, satu lokasi, diterbitkan lewat Edge Function), page object `VisitorPage`, dan `tests/visitor/search.spec.ts` (3 test, stabil 15/15 dengan `--repeat-each=5`). Kontainer peta Visitor mendapat `data-camera="moving|idle"` (ditulis langsung dari event peta, tanpa render) agar ketukan di test menunggu kamera diam.
+- [2026-09-30] T-120 — Urutan bahasa (pilihan tersimpan → bahasa perangkat ID/EN → default venue) sudah dibuat di T-011 (`resolveLanguage`) dan T-118 (`applyVenueLanguage`); task ini menambah bukti dan menutup celah. Test kelengkapan dipindah ke `apps/visitor/test/i18n.test.ts` sesuai task (folder `test` masuk `tsconfig`): selain kunci ID = EN dan tanpa teks kosong, test gagal bila variabel `{{…}}` berbeda antar-bahasa, kunci jamak tidak punya `_one`/`_other`, kunci `t('…')` di kode tidak ada di terjemahan (kode dibaca lewat `import.meta.glob` `?raw`, tanpa API Node), atau ada kunci yang tidak dipakai (kecuali awalan dinamis `language.`). MapLibre memasang `aria-label="Map"` berbahasa Inggris di kanvas; `setMapLabel` (map-core) menggantinya dengan teks terjemahan yang juga menjelaskan tombol panah dan +/−. Label kanvas Admin masih bawaan MapLibre (di luar lingkup Visitor). Konten lokasi tidak diterjemahkan (F2). E2E `tests/visitor/language.spec.ts`: perangkat `en-US` membuka Visitor berbahasa Inggris, memilih Bahasa Indonesia langsung berlaku dan tetap setelah muat ulang.
 - [2026-09-30] Umum — Lingkungan cloud: image Supabase di `public.ecr.aws` dan `ghcr.io` diblokir proxy, Docker Hub kena batas unduh anonim. `supabase start` berhasil dengan `SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io` setelah image yang kena batas ditarik dari `mirror.gcr.io/<nama>` lalu di-tag ulang (`docker tag mirror.gcr.io/supabase/gotrue:v2.197.0 supabase/gotrue:v2.197.0`, begitu juga `library/kong`, `supabase/edge-runtime`). Docker daemon dinyalakan manual (`dockerd`).
 
 ## Riwayat rilis
