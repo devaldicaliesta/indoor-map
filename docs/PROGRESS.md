@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-113
+**Task berikutnya:** T-114
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -41,8 +41,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-110 | Edit geometri, multi-select, snapping | T-109 | review | |
 | T-111 | Undo/redo | T-110 | review | |
 | T-112 | Fasilitas dan jenis fasilitas | T-109 | review | Tab Pengaturan → Jenis fasilitas, 14 piktogram bawaan, ikon unggahan SVG/PNG, sprite + layer simbol di map-core, pilihan Fasilitas di alat Titik (migrasi 0008); 2 integrasi + 7 pgTAP + browser |
-| T-113 | Panel daftar fitur | T-109 | siap | |
-| T-114 | Validasi geometri | T-109 | menunggu | |
+| T-113 | Panel daftar fitur | T-109 | review | Pencarian kode/nama/jenis, hover menyorot, klik memilih dan menerbangkan peta, daftar tervirtualisasi; lantai > 1.000 fitur kini dimuat utuh (paginasi). 1.006 fitur: gulir 60 fps tanpa long task, cari 27 ms |
+| T-114 | Validasi geometri | T-109 | siap | |
 | T-115 | Tampilan 2D/3D | T-104, T-109 | menunggu | |
 | T-116 | Lokasi dasar, kategori, tautan unit | T-109 | menunggu | |
 | T-117 | Snapshot minimal | T-115, T-116 | menunggu | |
@@ -183,6 +183,9 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-30] T-112 — Jenis yang masih dipakai: penjaga server tetap FK `features.facility_type_id … on delete restrict` (hapus venue tetap cascade, sudah diuji); repository menerjemahkan 23503 menjadi pesan yang menyebut jumlah fasilitas dan lantainya. Tabel Admin menampilkan jumlah pemakaian dan dialog hapus menolak lebih dulu.
 - [2026-09-30] T-112 — Migrasi 0008 juga menambah policy SELECT `public-assets` untuk pengguna Admin (`app.can_read()`): tanpa itu `remove()`/`list()` Storage sukses tanpa menghapus apa pun, sehingga ikon lama — dan logo venue lama sejak T-101 — tertinggal. `venues.remove` kini ikut membersihkan folder `facility-types/{venue_id}`.
 - [2026-09-30] T-112 — Pengaturan kini bertab untuk semua role yang melihatnya: Jenis fasilitas (ubah: `settings.edit`; Editor/Viewer baca), Tampilan (placeholder), Sistem dan Catatan (hanya Super Admin). Fasilitas di editor = pilihan "Fasilitas" pada alat Titik dengan pemilih jenis berikon di sebelahnya; nama opsional di panel properti; pintu ↔ fasilitas bisa diubah lewat "Jenis" (jenis fasilitas dipertahankan/diambil dari pilihan terakhir). Seed menambah 8 jenis contoh dengan ikon bawaan.
+- [2026-09-30] T-113 — Daftar fitur divirtualisasi sendiri (baris tinggi tetap: judul grup 32 px, item 28 px; posisi dihitung dari offset + pencarian biner di `feature-list-model.ts`) tanpa dependency baru; hanya ±30–40 baris di DOM untuk 1.000 fitur. Pencarian tanpa membedakan huruf besar/kecil dan diakritik atas kode unit, nama, dan nama jenis fasilitas; saat mencari, grup yang punya hasil terbuka otomatis dan jumlahnya = jumlah yang cocok. Enter memilih hasil pertama, Escape mengosongkan pencarian.
+- [2026-09-30] T-113 — Hover dan fokus tidak menduplikasi seleksi: store editor mendapat `hoveredId` (sorotan sementara, garis putus-putus lewat `setHoverHighlight` map-core) dan `focus(id)` yang memilih satu fitur, kembali ke alat Pilih, dan menaikkan `focusRequest.seq`; kanvas lalu memanggil `focusFeature` (map-core): zoom sekarang dipertahankan bila fitur muat, minimal 19, diturunkan bila fitur lebih besar dari layar; tanpa animasi bila `prefers-reduced-motion`.
+- [2026-09-30] T-113 — **Perbaikan di luar file task:** PostgREST memotong hasil di `max_rows` (1.000) tanpa galat, sehingga `features.listByFloor` diam-diam hanya memuat 1.000 fitur (ditemukan saat uji 1.006 fitur: GU-L1-020 tidak muncul). Kini diambil per halaman 1.000 berurutan `id` (`fetchAllPages` di `packages/data/src/pagination.ts`), dengan test unit dan integrasi 1.001 fitur. Batas `max_rows` tetap sebagai pengaman server. Daftar lain yang bisa melewati 1.000 baris (mis. node graf di R2) perlu memakai helper yang sama.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
