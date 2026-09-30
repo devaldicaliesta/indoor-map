@@ -18,6 +18,7 @@ import {
   setFacilityIcons,
   setFloorData,
   setLabels,
+  setMapLabel,
   setViewMode,
 } from '@indoor/map-core';
 import { FloorSwitcher, type MapControlLabels, MapControls } from '@indoor/ui';
@@ -149,6 +150,10 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
     setFloorData(map, features);
     setLabels(map, labels);
   }, [map, features, labels]);
+
+  useEffect(() => {
+    if (map) setMapLabel(map, t('map.canvas'));
+  }, [map, t]);
 
   useEffect(() => {
     if (!map || appliedMode.current === mode) return;

@@ -32,7 +32,8 @@
     "floors": "Floors",
     "resetView": "Back to the start view",
     "building": "Building",
-    "floorHasResults": "has results"
+    "floorHasResults": "has results",
+    "canvas": "Floor map. Arrow keys move the map, + and − zoom in or out."
   },
   "sheet": {
     "handle": "Resize panel",
