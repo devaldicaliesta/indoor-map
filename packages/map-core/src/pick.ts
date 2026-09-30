@@ -1,4 +1,4 @@
-import type { Map as MapLibreMap, PointLike } from 'maplibre-gl';
+import type { Map as MapLibreMap, MapMouseEvent, PointLike } from 'maplibre-gl';
 import { LABEL_LAYER_ID } from './layers/labels';
 import { HIGHLIGHT_LAYER_IDS, LAYER_IDS } from './style';
 
@@ -44,4 +44,32 @@ export function pickAt(map: MapLibreMap, point: { x: number; y: number }): MapPi
   const [hit] = map.queryRenderedFeatures([point.x, point.y], { layers });
   const id = idOf(hit?.properties);
   return id ? { layer: 'floor', id } : null;
+}
+
+export interface TapInteractionOptions {
+  /** Sasaran yang membuka sesuatu; kursor berubah menjadi penunjuk di atasnya. */
+  isTarget(pick: MapPick): boolean;
+  /** Ketukan atau klik (bukan geser); `null` bila tidak mengenai apa pun. */
+  onTap(pick: MapPick | null): void;
+}
+
+/** Ketuk untuk membuka detail, dan kursor penunjuk di atas sasaran pada perangkat bertetikus. */
+export function createTapInteractions(
+  map: MapLibreMap,
+  options: TapInteractionOptions,
+): { destroy(): void } {
+  const onClick = (e: MapMouseEvent) => options.onTap(pickAt(map, e.point));
+  const onMove = (e: MapMouseEvent) => {
+    const pick = pickAt(map, e.point);
+    map.getCanvas().style.cursor = pick && options.isTarget(pick) ? 'pointer' : '';
+  };
+  map.on('click', onClick);
+  map.on('mousemove', onMove);
+  return {
+    destroy() {
+      map.off('click', onClick);
+      map.off('mousemove', onMove);
+      map.getCanvas().style.cursor = '';
+    },
+  };
 }

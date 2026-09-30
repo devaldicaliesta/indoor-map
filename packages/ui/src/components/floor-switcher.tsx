@@ -14,6 +14,10 @@ interface FloorSwitcherProps extends Omit<ComponentProps<'fieldset'>, 'onChange'
   onChange: (floorId: string) => void;
   /** Label akses, misalnya "Lantai". */
   label: string;
+  /** Lantai yang memuat hasil pilihan pengunjung (misalnya anggota kategori), diberi penanda. */
+  marked?: readonly string[];
+  /** Teks pembaca layar untuk penanda, misalnya "ada hasil". */
+  markedLabel?: string;
 }
 
 /** Pemilih lantai vertikal di tepi kanan peta (Admin dan Visitor). */
@@ -22,6 +26,8 @@ function FloorSwitcher({
   value,
   onChange,
   label,
+  marked = [],
+  markedLabel,
   className,
   ...props
 }: FloorSwitcherProps) {
@@ -37,6 +43,7 @@ function FloorSwitcher({
     >
       {floors.map((floor) => {
         const active = floor.id === value;
+        const isMarked = marked.includes(floor.id);
         return (
           <button
             key={floor.id}
@@ -44,11 +51,20 @@ function FloorSwitcher({
             aria-pressed={active}
             onClick={() => onChange(floor.id)}
             className={cn(
-              'h-(--control-height) min-w-(--control-height) cursor-pointer border-line border-b px-2 font-bold font-mono last:border-b-0',
+              'relative h-(--control-height) min-w-(--control-height) cursor-pointer border-line border-b px-2 font-bold font-mono last:border-b-0',
               active ? 'bg-ink text-surface' : 'text-ink hover:bg-canvas',
             )}
           >
             {floor.label}
+            {isMarked ? (
+              <>
+                <span
+                  aria-hidden="true"
+                  className="absolute top-1 right-1 size-2 rounded-full bg-signal ring-1 ring-ink"
+                />
+                {markedLabel ? <span className="sr-only">, {markedLabel}</span> : null}
+              </>
+            ) : null}
           </button>
         );
       })}
