@@ -78,13 +78,18 @@ describe('findRoute', () => {
 
   it('asal atau tujuan yang tidak ada di graf', () => {
     const node = (nodeId: string) => ({ kind: 'node' as const, nodeId });
-    expect(findRoute(graph, node('x'), node('a'))).toEqual({ ok: false, reason: 'origin_invalid' });
+    expect(findRoute(graph, node('x'), node('a'))).toEqual({
+      ok: false,
+      reason: 'origin_invalid',
+      blockingClosureIds: [],
+    });
     expect(findRoute(graph, node('a'), node('x'))).toEqual({
       ok: false,
       reason: 'destination_invalid',
+      blockingClosureIds: [],
     });
     expect(
       findRoute(graph, { kind: 'point', lng: 106.8, lat: -6.175, floorId: 'f9' }, node('a')),
-    ).toEqual({ ok: false, reason: 'origin_invalid' });
+    ).toEqual({ ok: false, reason: 'origin_invalid', blockingClosureIds: [] });
   });
 });

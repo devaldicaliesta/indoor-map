@@ -25,7 +25,7 @@ describe('A* sama dengan Dijkstra rujukan', () => {
         compared++;
         if (expected === null) {
           unreachable++;
-          expect(result).toEqual({ ok: false, reason: 'no_path' });
+          expect(result).toEqual({ ok: false, reason: 'no_path', blockingClosureIds: [] });
         } else {
           expect(result.ok).toBe(true);
           if (result.ok) {

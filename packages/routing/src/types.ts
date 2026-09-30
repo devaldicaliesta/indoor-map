@@ -56,11 +56,21 @@ export interface RouteSuccess {
   distanceM: number;
   /** Total bobot yang diminimalkan (jarak + bobot konektor). */
   costM: number;
+  /**
+   * Penutupan yang membuat rute ini memutar: rute tanpa penutupan lebih pendek dan melewatinya.
+   * Kosong bila rute tidak terdampak.
+   */
+  avoidedClosureIds: string[];
 }
 
 export interface RouteFailure {
   ok: false;
   reason: RouteFailureReason;
+  /**
+   * Penutupan yang menghalangi rute yang seharusnya ada (misalnya lift aksesibel yang ditutup),
+   * untuk pesan "tidak tersedia sementara" beserta lokasinya. Kosong bila bukan karena penutupan.
+   */
+  blockingClosureIds: string[];
 }
 
 export type RouteResult = RouteSuccess | RouteFailure;

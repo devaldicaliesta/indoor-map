@@ -1,19 +1,31 @@
-import { buildSnapshot } from '@indoor/domain';
-import { sampleSnapshotSource } from '@indoor/domain/fixtures/snapshot-source.ts';
+import { buildSnapshot, type SnapshotSource } from '@indoor/domain';
+import { IDS, sampleSnapshotSource } from '@indoor/domain/fixtures/snapshot-source.ts';
 import { ENTRANCES, FLOORS, GRAPH, unitIdOf } from '@indoor/domain/fixtures/venue-graph.ts';
 import { describe, expect, it } from 'vitest';
 import {
   buildGraph,
   type ConnectorLeg,
   findRoute,
+  infoPointTarget,
+  locationTarget,
+  originPointTarget,
+  type RouteClosure,
   type RouteLeg,
   type RoutePoint,
   type RouteResult,
 } from '../src';
 import { referenceCost } from './helpers';
 
-const snapshot = buildSnapshot(sampleSnapshotSource());
-const graph = buildGraph(snapshot.graph, { floors: snapshot.floors });
+/** Snapshot dan graf rute venue contoh, dengan poligon fitur untuk penutupan area. */
+function venue(source: SnapshotSource = sampleSnapshotSource()) {
+  const snapshot = buildSnapshot(source);
+  const graph = buildGraph(snapshot.graph, {
+    floors: snapshot.floors,
+    features: snapshot.features.features,
+  });
+  return { snapshot, graph };
+}
+const { snapshot, graph } = venue();
 const entrance = (code: string): RoutePoint => ({
   kind: 'node',
   nodeId: ENTRANCES.get(unitIdOf(code)) ?? '',
@@ -102,5 +114,148 @@ describe('skenario uji rute wajib (venue contoh)', () => {
       );
       expect(toL2.map((leg) => leg.connectorKind)).toEqual(['stairs']);
     }
+  });
+
+  const now = new Date('2026-10-01T10:00:00Z');
+  const closure = (id: string, target: Partial<RouteClosure>): RouteClosure => ({
+    id,
+    featureId: null,
+    edgeId: null,
+    connectorId: null,
+    startsAt: '2026-10-01T08:00:00Z',
+    endsAt: null,
+    ...target,
+  });
+  const lobby: RoutePoint = { kind: 'node', nodeId: GRAPH.lobby };
+
+  it('4. rute aksesibel ke lantai yang hanya dilayani satu lift; lift ditutup → accessible_blocked', () => {
+    const open = findRoute(graph, lobby, entrance('L1-A03'), { accessible: true });
+    expect(connectorsOf(open).map((leg) => leg.connectorId)).toEqual([connectors.lift]);
+
+    const liftClosed = closure('lift-rusak', { connectorId: connectors.lift });
+    expect(
+      findRoute(graph, lobby, entrance('L1-A03'), {
+        accessible: true,
+        closures: [liftClosed],
+        now,
+      }),
+    ).toEqual({ ok: false, reason: 'accessible_blocked', blockingClosureIds: ['lift-rusak'] });
+
+    // Area lift L1 yang ditutup (bukan konektornya) juga memutus pemberhentian L1.
+    const liftArea = snapshot.features.features.find(
+      (f) => f.properties.kind === 'elevator' && f.properties.floorId === FLOORS.guL1,
+    );
+    expect(
+      findRoute(graph, lobby, entrance('L1-A03'), {
+        accessible: true,
+        closures: [closure('area-lift', { featureId: liftArea?.id ?? '' })],
+        now,
+      }),
+    ).toMatchObject({ reason: 'accessible_blocked', blockingClosureIds: ['area-lift'] });
+
+    // Tanpa mode aksesibel rute tetap ada lewat eskalator.
+    const any = findRoute(graph, lobby, entrance('L1-A03'), { closures: [liftClosed], now });
+    expect(connectorsOf(any).map((leg) => leg.connectorKind)).toEqual(['escalator']);
+
+    // L2 tidak dilayani lift sama sekali: gagal aksesibel tanpa penutupan penyebab.
+    expect(findRoute(graph, lobby, entrance('L2-A01'), { accessible: true })).toEqual({
+      ok: false,
+      reason: 'accessible_blocked',
+      blockingClosureIds: [],
+    });
+  });
+
+  it('penutupan yang sudah lewat tidak berpengaruh (waktu disuntikkan)', () => {
+    const expired = closure('kemarin', {
+      connectorId: connectors.lift,
+      startsAt: '2026-09-30T08:00:00Z',
+      endsAt: '2026-09-30T17:00:00Z',
+    });
+    const result = findRoute(graph, lobby, entrance('L1-A03'), {
+      accessible: true,
+      closures: [expired],
+      now,
+    });
+    expect(connectorsOf(result).map((leg) => leg.connectorId)).toEqual([connectors.lift]);
+    expect(result.ok && result.avoidedClosureIds).toEqual([]);
+  });
+
+  it('rute memutar karena penutupan menyebut penutupannya; jalan satu-satunya → closed', () => {
+    const shortcut = closure('tangga-luar', { edgeId: GRAPH.outdoorShortcut });
+    const detour = findRoute(graph, entrance('GF-A02'), entrance('GT-B03'), {
+      closures: [shortcut],
+      now,
+    });
+    expect(detour.ok && detour.avoidedClosureIds).toEqual(['tangga-luar']);
+    expect(detour.ok && detour.legs[2]?.kind === 'walk' && detour.legs[2].nodeIds).toEqual([
+      GRAPH.guDoorOut,
+      GRAPH.outdoorWest,
+      GRAPH.outdoorEast,
+      GRAPH.gtDoorOut,
+    ]);
+
+    const door = closure('pintu-utama', { connectorId: connectors.guDoor });
+    expect(
+      findRoute(graph, entrance('GF-A02'), entrance('GT-B03'), { closures: [door], now }),
+    ).toEqual({ ok: false, reason: 'closed', blockingClosureIds: ['pintu-utama'] });
+  });
+
+  it('6. tujuan dengan dua unit: rute ke titik masuk terdekat', () => {
+    const source = sampleSnapshotSource();
+    const east = unitIdOf('GF-A08');
+    const west = unitIdOf('GF-A01');
+    const split = venue({
+      ...source,
+      locations: source.locations.map((l) =>
+        l.id === IDS.radiology ? { ...l, unitIds: [west, east], primaryUnitId: west } : l,
+      ),
+    });
+    const target = locationTarget(split.snapshot, IDS.radiology);
+    expect(target).toEqual({
+      kind: 'nodes',
+      nodeIds: expect.arrayContaining([ENTRANCES.get(west), ENTRANCES.get(east)]),
+    });
+    const fromEast = findRoute(split.graph, entrance('GF-B08'), target ?? lobby);
+    expect(fromEast.ok && fromEast.path.at(-1)).toBe(ENTRANCES.get(east));
+    const fromWest = findRoute(split.graph, lobby, target ?? lobby);
+    expect(fromWest.ok && fromWest.path.at(-1)).toBe(ENTRANCES.get(west));
+  });
+
+  it('7. dari QR titik asal dan dari Info Point ke lokasi di gedung lain', () => {
+    const source = sampleSnapshotSource();
+    const gtUnit = unitIdOf('GT-A02');
+    const kiosk = '0a9b3f6e-1c2d-4e5f-8a9b-0c1d2e3f4c01';
+    const [template] = source.locations;
+    const withKiosk = venue({
+      ...source,
+      locations: template
+        ? [
+            ...source.locations,
+            {
+              ...template,
+              id: kiosk,
+              code: 'KIO-1',
+              name: 'Kios',
+              unitIds: [gtUnit],
+              primaryUnitId: gtUnit,
+            },
+          ]
+        : source.locations,
+    });
+    const to = locationTarget(withKiosk.snapshot, kiosk);
+    for (const from of [
+      originPointTarget(withKiosk.snapshot, '3fa9c1d2e4b5'),
+      infoPointTarget(withKiosk.snapshot, 'IP-LOBI'),
+    ]) {
+      expect(from).not.toBeNull();
+      const result = findRoute(withKiosk.graph, from ?? lobby, to ?? lobby);
+      expect(result.ok).toBe(true);
+      expect(connectorsOf(result).map((leg) => leg.connectorKind)).toEqual([
+        'building_door',
+        'building_door',
+      ]);
+      expect(result.ok && result.path.at(-1)).toBe(ENTRANCES.get(gtUnit));
+    }
+    expect(originPointTarget(withKiosk.snapshot, 'tidak-ada')).toBeNull();
   });
 });

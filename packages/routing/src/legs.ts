@@ -78,6 +78,7 @@ export function routeFromSearch(
     legs,
     distanceM: legs.reduce((sum, leg) => sum + (leg.kind === 'walk' ? leg.distanceM : 0), 0),
     costM: search.cost,
+    avoidedClosureIds: [],
   };
 }
 
@@ -98,5 +99,6 @@ export function directRoute(
     legs: [{ kind: 'walk', floorId: floorOf(graph, a), coordinates, nodeIds: [], distanceM: cost }],
     distanceM: cost,
     costM: cost,
+    avoidedClosureIds: [],
   };
 }
