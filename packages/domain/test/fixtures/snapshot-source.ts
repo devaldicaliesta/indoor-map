@@ -4,6 +4,7 @@ import type {
   SnapshotPolygon,
   SnapshotSource,
 } from '../../src';
+import { GRAPH, sampleGraph } from './venue-graph';
 import sample from './venue-sample.json';
 
 // Id tetap agar test bisa menunjuk entitas tertentu.
@@ -205,7 +206,7 @@ export function sampleSnapshotSource(): SnapshotSource {
       { targetKind: 'facility_type', targetId: IDS.toiletType, keyword: 'WC' },
       { targetKind: 'location', targetId: IDS.closedPharmacy, keyword: 'Obat lama' },
     ],
-    graph: { nodes: [], edges: [], connectors: [] },
+    graph: sampleGraph(),
     instructionTemplates: [
       { action: 'start', id: 'Mulai dari {origin}', en: 'Start at {origin}' },
       { action: 'arrive', id: 'Tiba di {destination}', en: 'Arrive at {destination}' },
@@ -215,9 +216,9 @@ export function sampleSnapshotSource(): SnapshotSource {
         id: IDS.lobbyOrigin,
         floorId: groundFloor?.id ?? '',
         name: 'Lobi Utama',
-        coordinates: [106.827123456789, -6.175123456789],
+        coordinates: [106.826800012345, -6.175280854321],
         headingDeg: 90,
-        nodeId: null,
+        nodeId: GRAPH.lobby,
         code: '3fa9c1d2e4b5',
       },
     ],
@@ -227,13 +228,13 @@ export function sampleSnapshotSource(): SnapshotSource {
         code: 'IP-LOBI',
         name: 'Info Point Lobi',
         floorId: groundFloor?.id ?? '',
-        coordinates: [106.8271, -6.1752],
+        coordinates: [106.82689, -6.17528085],
         headingDeg: 180,
         defaultMode: '2d',
         force2d: false,
         defaultLanguage: 'id',
         idleSeconds: 60,
-        nodeId: null,
+        nodeId: GRAPH.infoPoint,
       },
     ],
   };
