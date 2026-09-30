@@ -29,6 +29,8 @@ import { ReferenceFloorPicker } from './reference-layer';
 import { StatusBar } from './status-bar';
 import { useEditorSession } from './use-editor-session';
 import { useEditorShortcuts } from './use-editor-shortcuts';
+import { useFloorValidation } from './use-floor-validation';
+import { ValidationSummary } from './validation-overlay';
 
 function footprintCenter(building: Building | undefined): LngLat | null {
   const ring = building?.footprint?.coordinates[0];
@@ -103,6 +105,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
   const session = useEditorSession(venueId, floor, building);
   useEditorShortcuts(session, canEdit);
   const plan = useActivePlan(floor?.id ?? null);
+  const validation = useFloorValidation(floor?.isOutdoor ? null : (building?.footprint ?? null));
   const [referenceFloorId, setReferenceFloorId] = useState<FloorId | null>(null);
   const [cursor, setCursor] = useState<LngLat | null>(null);
 
@@ -134,6 +137,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
         floorId={floor.id}
         onFloor={selection.setFloor}
         onRetry={session.retry}
+        validation={<ValidationSummary issues={validation.issues} />}
         reference={
           building ? (
             <ReferenceFloorPicker
@@ -151,7 +155,11 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
           <EditorToolbar canEdit={canEdit} session={session} />
         </aside>
         <aside className="min-h-0 overflow-hidden border-line border-r">
-          <FeatureList floorName={floor.name} facilityTypes={session.facilityTypes} />
+          <FeatureList
+            floorName={floor.name}
+            facilityTypes={session.facilityTypes}
+            issues={validation.byFeature}
+          />
         </aside>
         <div className="relative min-h-0">
           {session.error ? (
@@ -166,6 +174,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
               center={center}
               referenceFloorId={referenceFloorId}
               facilityTypes={session.facilityTypes}
+              issueFeatureIds={validation.featureIds}
               onCursor={setCursor}
             />
           )}
@@ -174,7 +183,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
           ) : null}
         </div>
         <aside aria-label="Properti" className="min-h-0 overflow-y-auto border-line border-l">
-          <PropertiesPanel session={session} canEdit={canEdit} />
+          <PropertiesPanel session={session} canEdit={canEdit} issues={validation.byFeature} />
         </aside>
       </div>
       <StatusBar cursor={cursor} canEdit={canEdit} />

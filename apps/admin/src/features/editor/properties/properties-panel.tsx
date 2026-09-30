@@ -1,5 +1,5 @@
 import type { FloorFeature } from '@indoor/data';
-import { type DrawKind, drawKindsFor, KIND_SHAPE } from '@indoor/domain';
+import { type DrawKind, drawKindsFor, KIND_SHAPE, type ValidationIssue } from '@indoor/domain';
 import {
   Button,
   Label,
@@ -74,12 +74,30 @@ function KindSelect({
 }
 
 /** Panel properti kontekstual (kosong saat tidak ada seleksi). */
+/** FR-MAP-09: temuan validasi fitur terpilih, dengan penyebab dan cara memperbaiki. */
+function IssueList({ issues }: { issues: readonly ValidationIssue[] }) {
+  return (
+    <div role="alert" className="grid gap-1 border-danger border-l-4 bg-surface py-1 pl-3">
+      <p className="font-bold text-danger">
+        {issues.length === 1 ? 'Ada masalah geometri' : `${issues.length} masalah geometri`}
+      </p>
+      <ul className="grid gap-1 text-sm">
+        {issues.map((issue) => (
+          <li key={`${issue.code}-${issue.featureIds.join('-')}`}>{issue.message}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function PropertiesPanel({
   session,
   canEdit,
+  issues,
 }: {
   session: EditorSession;
   canEdit: boolean;
+  issues: ReadonlyMap<string, ValidationIssue[]>;
 }) {
   const feature = useEditorStore(singleSelected);
   const count = useEditorStore((s) => s.selectedIds.length);
@@ -106,6 +124,7 @@ export function PropertiesPanel({
           <span className="ml-2 font-mono font-normal text-ink-muted">{p.unitCode}</span>
         ) : null}
       </h2>
+      {issues.get(p.id)?.length ? <IssueList issues={issues.get(p.id) ?? []} /> : null}
       <KindSelect feature={feature} session={session} canEdit={canEdit} />
       <div className="grid gap-1">
         <Label htmlFor="feature-name">Nama</Label>

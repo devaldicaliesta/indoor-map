@@ -24,6 +24,7 @@ import { facilityIconSpecs } from '../facilities/icons';
 import { ReferenceLayer } from './reference-layer';
 import { featureList, singleSelected, useEditorStore } from './store/editor-store';
 import type { EditorSession } from './use-editor-session';
+import { ValidationOverlay } from './validation-overlay';
 
 export interface PlanBackground {
   imageUrl: string;
@@ -45,10 +46,12 @@ export function EditorCanvas({
   center,
   referenceFloorId,
   facilityTypes,
+  issueFeatureIds,
   onCursor,
 }: {
   session: EditorSession;
   facilityTypes: readonly FacilityType[];
+  issueFeatureIds: readonly string[];
   canEdit: boolean;
   plan: PlanBackground | null;
   center: LngLat | null;
@@ -77,7 +80,11 @@ export function EditorCanvas({
   useEffect(() => {
     if (!container.current) return;
     const element = container.current;
-    const instance = createMap(element, { center: initialCenter.current, zoom: 18 });
+    const instance = createMap(element, {
+      center: initialCenter.current,
+      zoom: 18,
+      fadeDuration: 0,
+    });
     // terra-draw mencegah fokus pindah ke peta; kolom yang masih fokus disimpan dan dilepas
     // agar pintasan (Delete, Ctrl+Z) langsung berlaku setelah mengklik peta.
     const releaseFocus = () => {
@@ -210,6 +217,7 @@ export function EditorCanvas({
         data-ready={map && session.ready ? 'true' : 'false'}
       />
       <ReferenceLayer map={map} floorId={referenceFloorId} />
+      <ValidationOverlay map={map} featureIds={issueFeatureIds} />
     </>
   );
 }

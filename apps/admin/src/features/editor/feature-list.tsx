@@ -1,6 +1,6 @@
-import type { FacilityType, FeatureKind } from '@indoor/domain';
+import type { FacilityType, FeatureKind, ValidationIssue } from '@indoor/domain';
 import { cn, Input } from '@indoor/ui';
-import { ChevronRightIcon } from 'lucide-react';
+import { ChevronRightIcon, TriangleAlertIcon } from 'lucide-react';
 import {
   type KeyboardEvent,
   useDeferredValue,
@@ -66,9 +66,11 @@ function GroupRow({
 function ItemRow({
   row,
   selected,
+  issues,
 }: {
   row: Extract<ListRow, { type: 'item' }>;
   selected: boolean;
+  issues: readonly ValidationIssue[] | undefined;
 }) {
   const focus = useEditorStore((s) => s.focus);
   const toggleSelect = useEditorStore((s) => s.toggleSelect);
@@ -89,6 +91,13 @@ function ItemRow({
       {row.detail ? (
         <span className="truncate font-normal text-ink-muted">{row.detail}</span>
       ) : null}
+      {issues?.length ? (
+        // FR-MAP-09: fitur bermasalah ditandai; pesannya di tooltip dan panel properti.
+        <span title={issues.map((i) => i.message).join('\n')} className="ml-auto self-center">
+          <TriangleAlertIcon aria-hidden="true" className="size-4 text-danger" strokeWidth={1.75} />
+          <span className="sr-only">{`, ${issues.length} temuan validasi`}</span>
+        </span>
+      ) : null}
     </button>
   );
 }
@@ -101,9 +110,11 @@ function ItemRow({
 export function FeatureList({
   floorName,
   facilityTypes,
+  issues,
 }: {
   floorName: string;
   facilityTypes: readonly FacilityType[];
+  issues: ReadonlyMap<string, ValidationIssue[]>;
 }) {
   const features = useEditorStore((s) => s.features);
   const selectedIds = useEditorStore((s) => s.selectedIds);
@@ -227,7 +238,11 @@ export function FeatureList({
                   {row.type === 'group' ? (
                     <GroupRow row={row} onToggle={() => toggle(row.kind)} />
                   ) : (
-                    <ItemRow row={row} selected={selectedIds.includes(row.id)} />
+                    <ItemRow
+                      row={row}
+                      selected={selectedIds.includes(row.id)}
+                      issues={issues.get(row.id)}
+                    />
                   )}
                 </div>
               );
