@@ -67,9 +67,13 @@ pnpm db:types         generate tipe TS dari skema ke packages/data
 - Fungsi kecil dengan nama jelas. File di atas ±300 baris dipecah.
 - Tidak menambah dependency tanpa menuliskan alasannya di deskripsi PR.
 - Tidak ada data dummy di kode produksi; data contoh hanya di `supabase/seed.sql` atau fixture test.
-- Komentar hanya untuk menjelaskan *mengapa*, bukan mengulang *apa*.
+- Komentar hanya untuk menjelaskan *mengapa*, bukan mengulang *apa*. Tanpa tag kebutuhan seperti `(FR-MAP-09)`; nomor task hanya untuk menunjuk pekerjaan lanjutan ("dibuat di T-119").
 - Teks UI Admin dalam Bahasa Indonesia. Teks Visitor lewat i18next (ID/EN), tidak di-hardcode.
 - Nama commit: `T-xxx: ringkasan singkat` (misalnya `T-201: A* dengan heuristik jarak`).
+
+## Workflow AI
+
+Agent, command `/ecc-*`, dan skill di `.claude/` diadaptasi dari everything-claude-code (WorldFlowAI); isi dan alurnya di `.claude/WORLDFLOWAI.md`. Bila berbeda, aturan di file ini yang berlaku.
 
 ## Kapan berhenti dan bertanya
 
