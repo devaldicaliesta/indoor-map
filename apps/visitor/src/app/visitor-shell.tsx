@@ -6,12 +6,17 @@ import { SearchField } from '../components/search-field';
 import { useMediaQuery } from './use-media-query';
 
 // Lebar panel kiri desktop mengikuti pola Visitor di 05-desain-ui.md.
-const DESKTOP_QUERY = '(min-width: 1024px)';
+export const DESKTOP_QUERY = '(min-width: 1024px)';
+/** Tinggi header mengambang di HP (padding 12 px + kontrol 44 px + padding 12 px). */
+export const MOBILE_HEADER_PX = 68;
 
-function MapArea() {
+function MapArea({ children }: { children?: ReactNode }) {
   const { t } = useTranslation();
-  // Peta MapLibre dipasang di T-118; area ini sudah memegang tempat dan label aksesnya.
-  return <section aria-label={t('map.label')} className="h-full w-full bg-canvas" />;
+  return (
+    <section aria-label={t('map.label')} className="h-full w-full bg-canvas">
+      {children}
+    </section>
+  );
 }
 
 function Brand({ name }: { name: string }) {
@@ -27,11 +32,14 @@ function Brand({ name }: { name: string }) {
 export function VisitorShell({
   title,
   actions,
+  map,
   children,
 }: {
   title?: string;
   /** Tombol tambahan di header, di samping pemilih bahasa (misalnya info versi peta). */
   actions?: ReactNode;
+  /** Peta venue; tanpa ini area peta kosong (beranda, venue yang belum terbit). */
+  map?: ReactNode;
   children: ReactNode;
 }) {
   const { t } = useTranslation();
@@ -53,7 +61,7 @@ export function VisitorShell({
           <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
         </aside>
         <main className="min-w-0">
-          <MapArea />
+          <MapArea>{map}</MapArea>
         </main>
       </div>
     );
@@ -62,7 +70,7 @@ export function VisitorShell({
   return (
     <div className="relative h-dvh overflow-hidden bg-canvas">
       <main className="absolute inset-0">
-        <MapArea />
+        <MapArea>{map}</MapArea>
       </main>
       <header className="absolute inset-x-0 top-0 z-20 flex gap-2 p-3">
         <SearchField className="min-w-0 flex-1 rounded-sm shadow-float" />

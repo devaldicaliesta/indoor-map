@@ -15,7 +15,7 @@ function readStoredLanguage(): string | null {
   }
 }
 
-// Default venue dari snapshot menggantikan 'id' saat data venue dimuat (T-118).
+// 'id' dipakai sampai bahasa default venue diketahui dari snapshot (applyVenueLanguage).
 const initial = resolveLanguage(readStoredLanguage(), navigator.languages, 'id');
 
 void i18next.use(initReactI18next).init({
@@ -40,3 +40,9 @@ export function setLanguage(language: LanguageCode) {
 }
 
 export { i18next };
+
+/** Bahasa default venue berlaku bila pengunjung belum memilih dan bahasa perangkat bukan ID/EN. */
+export function applyVenueLanguage(venueDefault: LanguageCode) {
+  const language = resolveLanguage(readStoredLanguage(), navigator.languages, venueDefault);
+  if (language !== i18next.resolvedLanguage) void i18next.changeLanguage(language);
+}
