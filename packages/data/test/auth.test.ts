@@ -32,6 +32,16 @@ describe('toAuthError', () => {
     expect(error.code).toBe('account_inactive');
   });
 
+  it('kegagalan hook email Auth meneruskan pesan untuk pengguna', () => {
+    const message =
+      'Server email belum diatur. Minta Super Admin mengisi SMTP di Pengaturan → Sistem.';
+    const error = toAuthError({ code: 'unexpected_failure', status: 500, message });
+    expect(error).toMatchObject({ kind: 'unknown', code: 'email_unavailable', message });
+    expect(
+      toAuthError({ status: 500, message: 'Email tidak terkirim. Server SMTP menolak.' }).code,
+    ).toBe('email_unavailable');
+  });
+
   it('batas permintaan menjadi rate_limited', () => {
     expect(
       toAuthError({ code: 'over_email_send_rate_limit', status: 429, message: 'x' }).code,

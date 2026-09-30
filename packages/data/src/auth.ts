@@ -9,6 +9,10 @@ export const ACCOUNT_LOCKED_MESSAGE =
   'Akun terkunci karena terlalu banyak percobaan gagal. Coba lagi dalam 15 menit.';
 export const ACCOUNT_INACTIVE_MESSAGE = 'Akun Anda dinonaktifkan. Hubungi Super Admin.';
 
+// Awal pesan dari Edge Function auth-email (Auth Hook send email) saat email Auth tidak
+// bisa dikirim lewat SMTP Pengaturan Sistem; pesannya ditujukan ke pengguna apa adanya.
+export const EMAIL_UNAVAILABLE_PREFIXES = ['Server email belum diatur', 'Email tidak terkirim'];
+
 /** Kode pada `DataError.code` untuk kegagalan autentikasi. */
 export type AuthErrorCode =
   | 'invalid_credentials'
@@ -17,7 +21,8 @@ export type AuthErrorCode =
   | 'rate_limited'
   | 'weak_password'
   | 'same_password'
-  | 'session_missing';
+  | 'session_missing'
+  | 'email_unavailable';
 
 export type AuthEvent =
   | 'initial_session'
@@ -54,6 +59,13 @@ export function toAuthError(error: AuthErrorLike): DataError {
   }
   if (error.message === ACCOUNT_INACTIVE_MESSAGE) {
     return authError('account_inactive', ACCOUNT_INACTIVE_MESSAGE, error);
+  }
+  if (EMAIL_UNAVAILABLE_PREFIXES.some((prefix) => error.message.startsWith(prefix))) {
+    return new DataError('unknown', {
+      code: 'email_unavailable',
+      message: error.message,
+      cause: error,
+    });
   }
   switch (error.code) {
     case 'invalid_credentials':

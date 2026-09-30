@@ -6,5 +6,7 @@ export default defineConfig({
     include: ['test/integration/**/*.test.ts'],
     testTimeout: 20_000,
     hookTimeout: 30_000,
+    // Berkas berbagi satu database lokal (mis. Pengaturan Sistem dan Mailpit); dijalankan berurutan.
+    fileParallelism: false,
   },
 });
