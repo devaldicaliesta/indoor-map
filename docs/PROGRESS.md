@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R0 Fondasi
-**Task berikutnya:** T-114
+**Task berikutnya:** T-115
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -42,8 +42,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-111 | Undo/redo | T-110 | review | |
 | T-112 | Fasilitas dan jenis fasilitas | T-109 | review | Tab Pengaturan → Jenis fasilitas, 14 piktogram bawaan, ikon unggahan SVG/PNG, sprite + layer simbol di map-core, pilihan Fasilitas di alat Titik (migrasi 0008); 2 integrasi + 7 pgTAP + browser |
 | T-113 | Panel daftar fitur | T-109 | review | Pencarian kode/nama/jenis, hover menyorot, klik memilih dan menerbangkan peta, daftar tervirtualisasi; lantai > 1.000 fitur kini dimuat utuh (paginasi). 1.006 fitur: gulir 60 fps tanpa long task, cari 27 ms |
-| T-114 | Validasi geometri | T-109 | siap | |
-| T-115 | Tampilan 2D/3D | T-104, T-109 | menunggu | |
+| T-114 | Validasi geometri | T-109 | review | `validateFloorGeometry` (5 kode temuan, fixture per kasus, 102 test domain); garis/isi merah di peta, ikon di daftar fitur, pesan di panel properti, ringkasan "● n temuan" yang bisa diklik. 1.006 fitur divalidasi 11–48 ms |
+| T-115 | Tampilan 2D/3D | T-104, T-109 | siap | |
 | T-116 | Lokasi dasar, kategori, tautan unit | T-109 | menunggu | |
 | T-117 | Snapshot minimal | T-115, T-116 | menunggu | |
 | T-118 | Visitor: peta, gedung, lantai | T-117, T-011 | menunggu | |
@@ -186,6 +186,10 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-30] T-113 — Daftar fitur divirtualisasi sendiri (baris tinggi tetap: judul grup 32 px, item 28 px; posisi dihitung dari offset + pencarian biner di `feature-list-model.ts`) tanpa dependency baru; hanya ±30–40 baris di DOM untuk 1.000 fitur. Pencarian tanpa membedakan huruf besar/kecil dan diakritik atas kode unit, nama, dan nama jenis fasilitas; saat mencari, grup yang punya hasil terbuka otomatis dan jumlahnya = jumlah yang cocok. Enter memilih hasil pertama, Escape mengosongkan pencarian.
 - [2026-09-30] T-113 — Hover dan fokus tidak menduplikasi seleksi: store editor mendapat `hoveredId` (sorotan sementara, garis putus-putus lewat `setHoverHighlight` map-core) dan `focus(id)` yang memilih satu fitur, kembali ke alat Pilih, dan menaikkan `focusRequest.seq`; kanvas lalu memanggil `focusFeature` (map-core): zoom sekarang dipertahankan bila fitur muat, minimal 19, diturunkan bila fitur lebih besar dari layar; tanpa animasi bila `prefers-reduced-motion`.
 - [2026-09-30] T-113 — **Perbaikan di luar file task:** PostgREST memotong hasil di `max_rows` (1.000) tanpa galat, sehingga `features.listByFloor` diam-diam hanya memuat 1.000 fitur (ditemukan saat uji 1.006 fitur: GU-L1-020 tidak muncul). Kini diambil per halaman 1.000 berurutan `id` (`fetchAllPages` di `packages/data/src/pagination.ts`), dengan test unit dan integrasi 1.001 fitur. Batas `max_rows` tetap sebagai pengaman server. Daftar lain yang bisa melewati 1.000 baris (mis. node graf di R2) perlu memakai helper yang sama.
+- [2026-09-30] T-114 — Validasi geometri murni di `packages/domain/src/validation/` tanpa dependency: `planar.ts` memproyeksikan WGS84 ke meter (ekuirektangular di sekitar titik pertama), memeriksa silang ruas, triangulasi ear clipping (titik cekung di tepi calon telinga ikut menghalangi), dan luas irisan = jumlah irisan segitiga (Sutherland–Hodgman), dengan inklusi–eksklusi untuk lubang. Pasangan unit dicari dengan sapuan sumbu x. Kode temuan: `polygon_not_closed`, `polygon_self_intersection`, `unit_overlap` (> 0,5 m², hanya antar-unit), `outside_floor` (poligon: luas di luar > 0,5 m²; titik/ujung garis ≤ 0,1 m dari tepi masih di dalam agar dinding luar di tepi footprint tidak ditandai; garis yang menyilang tepi ditandai), `duplicate_unit_code`. Pesan Bahasa Indonesia dibuat di domain (sesuai format temuan task), menyebut penyebab dan cara memperbaiki.
+- [2026-09-30] T-114 — Semua temuan geometri berseverity `error` karena FR-MAP-09/kriteria menandai keempatnya merah; T-307 boleh menurunkan "di luar batas" menjadi peringatan bila publish terlalu ketat. Tidak ada batas lantai untuk Area Luar dan gedung tanpa footprint (pemeriksaan dilewati). Kode ganda dicek di antara fitur yang diberikan (di editor: satu lantai; lintas lantai sudah dicegah saat mengisi kode dan oleh indeks unik database); publish (T-307) cukup memberi semua fitur venue. Poligon tidak tertutup praktis tidak bisa masuk dari database (PostGIS dan zod menolak), tetapi tetap diperiksa untuk data impor (T-305).
+- [2026-09-30] T-114 — Di editor, validasi berjalan ulang setiap isi lantai berubah (nilai tertunda `useDeferredValue`), tidak memblokir simpan draft. Fitur bermasalah: isi/garis merah (--danger) lewat `setIssueHighlight` map-core, ikon segitiga merah di daftar fitur (pesan di tooltip dan teks pembaca layar), kotak merah di panel properti, dan ringkasan "● n temuan" di bilah atas yang dikelompokkan per jenis (maks. 20 butir per jenis; membuka daftar 958 butir sempat 681 ms). File task `ValidationOverlay.tsx` ditulis `validation-overlay.tsx` (konvensi kebab-case repo).
+- [2026-09-30] T-114 — Kanvas editor memakai `fadeDuration: 0` (opsi baru `createMap`): tanpa itu layer simbol fasilitas memicu repaint beruntun ±300 ms setiap data berubah. Di WebGL perangkat lunak satu repaint lantai 1.000 fitur ±80–100 ms (validasinya sendiri 11–48 ms); perlu diukur ulang di perangkat dengan GPU.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis
