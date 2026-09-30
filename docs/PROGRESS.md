@@ -44,7 +44,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-113 | Panel daftar fitur | T-109 | review | Pencarian kode/nama/jenis, hover menyorot, klik memilih dan menerbangkan peta, daftar tervirtualisasi; lantai > 1.000 fitur kini dimuat utuh (paginasi). 1.006 fitur: gulir 60 fps tanpa long task, cari 27 ms |
 | T-114 | Validasi geometri | T-109 | review | `validateFloorGeometry` (5 kode temuan, fixture per kasus, 102 test domain); garis/isi merah di peta, ikon di daftar fitur, pesan di panel properti, ringkasan "● n temuan" yang bisa diklik. 1.006 fitur divalidasi 11–48 ms |
 | T-115 | Tampilan 2D/3D | T-104, T-109 | review | Pengaturan → Tampilan (tinggi, warna, mode awal, pratinjau langsung, simpan tampilan awal), override tinggi di panel properti, tombol 2D/3D editor; ekstrusi dinding dan pemisah tepi unit; diuji browser + integrasi |
-| T-116 | Lokasi dasar, kategori, tautan unit | T-109 | siap | Draf migrasi (save_location, tautan hanya ke unit, storage logo lokasi) di `supabase/drafts/0010_location_links.sql`, belum diuji |
+| T-116 | Lokasi dasar, kategori, tautan unit | T-109 | dikerjakan | Migrasi 0010 (save_location, tautan hanya ke unit, storage logo lokasi dan ikon kategori) + 24 pgTAP |
 | T-117 | Snapshot minimal | T-115, T-116 | menunggu | |
 | T-118 | Visitor: peta, gedung, lantai | T-117, T-011 | menunggu | |
 | T-119 | Visitor: cari, kategori, detail, A–Z | T-118 | menunggu | |
