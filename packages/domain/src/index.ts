@@ -14,4 +14,5 @@ export * from './permissions';
 export * from './profile';
 export * from './system-settings';
 export * from './units';
+export * from './validation/geometry';
 export * from './venue';
