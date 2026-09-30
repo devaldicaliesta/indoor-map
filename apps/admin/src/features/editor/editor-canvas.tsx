@@ -66,7 +66,7 @@ export function EditorCanvas({
   session: EditorSession;
   facilityTypes: readonly FacilityType[];
   issueFeatureIds: readonly string[];
-  /** Tinggi dan warna venue (FR-VIS-01..03) agar pratinjau 3D sesuai pengaturan. */
+  /** Tinggi dan warna venue agar pratinjau 3D sesuai pengaturan. */
   display: MapDisplay;
   canEdit: boolean;
   plan: PlanBackground | null;
@@ -194,7 +194,6 @@ export function EditorCanvas({
     if (map) setFloorPlanImage(map, plan);
   }, [map, plan]);
 
-  // FR-MAP-08: item panel daftar disorot saat dilewati kursor, dan peta terbang saat diklik.
   useEffect(() => {
     if (map) setHoverHighlight(map, hoveredId);
   }, [map, hoveredId]);
@@ -205,7 +204,7 @@ export function EditorCanvas({
     if (geometry) focusFeature(map, geometry);
   }, [map, focusRequest]);
 
-  // FR-MAP-07: sprite ikon fasilitas dibangun ulang hanya bila ikon/keselamatan berubah.
+  // Sprite dibangun ulang hanya bila ikon atau tanda keselamatan berubah.
   const iconSpecs = useMemo(() => facilityIconSpecs(facilityTypes), [facilityTypes]);
   const iconKey = JSON.stringify(iconSpecs);
   const iconBackground = display.colors?.facility;
@@ -218,7 +217,7 @@ export function EditorCanvas({
     if (map) setMapDisplay(map, display);
   }, [map, displayKey]);
 
-  // FR-VIS-06: beralih 2D/3D hanya mengganti tampilan; isi store (dan riwayat) tidak berubah.
+  // Beralih 2D/3D hanya mengganti tampilan; isi store dan riwayat tidak tersentuh.
   useEffect(() => {
     if (map) setViewMode(map, viewMode);
   }, [map, viewMode]);

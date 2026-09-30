@@ -15,7 +15,7 @@ export const ISSUE_LAYER_IDS = {
 const ABOVE = ['floor-selected-fill', 'floor-hover-fill'];
 
 /**
- * FR-MAP-09: fitur bermasalah bergaris merah (isi merah tipis untuk poligon, cincin merah
+ * Fitur bermasalah bergaris merah (isi merah tipis untuk poligon, cincin merah
  * untuk titik). Hanya tampilan; tidak memengaruhi seleksi.
  */
 export function setIssueHighlight(map: MapLibreMap, ids: readonly string[]): void {

@@ -1,7 +1,6 @@
-/** NFR-SEC-02: panjang password minimal. Sama dengan `minimum_password_length` di Supabase. */
+/** Sama dengan `minimum_password_length` di Supabase. */
 export const PASSWORD_MIN_LENGTH = 8;
 
-/** FR-AUTH-01: sesi Admin berakhir setelah 60 menit tanpa aktivitas. */
 export const SESSION_IDLE_TIMEOUT_MS = 60 * 60 * 1000;
 
 export function isSessionIdle(

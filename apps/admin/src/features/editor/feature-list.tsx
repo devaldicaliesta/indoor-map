@@ -92,7 +92,7 @@ function ItemRow({
         <span className="truncate font-normal text-ink-muted">{row.detail}</span>
       ) : null}
       {issues?.length ? (
-        // FR-MAP-09: fitur bermasalah ditandai; pesannya di tooltip dan panel properti.
+        // Pesan temuan ada di tooltip dan panel properti.
         <span title={issues.map((i) => i.message).join('\n')} className="ml-auto self-center">
           <TriangleAlertIcon aria-hidden="true" className="size-4 text-danger" strokeWidth={1.75} />
           <span className="sr-only">{`, ${issues.length} temuan validasi`}</span>
@@ -103,7 +103,7 @@ function ItemRow({
 }
 
 /**
- * Panel daftar fitur lantai aktif (FR-MAP-08): dikelompokkan per jenis dengan jumlah,
+ * Panel daftar fitur lantai aktif: dikelompokkan per jenis dengan jumlah,
  * dicari berdasarkan kode/nama/jenis fasilitas, dan tervirtualisasi sehingga lantai
  * dengan ribuan fitur hanya merender baris yang terlihat. Seleksi tetap di store editor.
  */

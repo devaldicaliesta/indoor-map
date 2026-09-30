@@ -77,7 +77,7 @@ export interface BuildingsRepository {
   update(id: BuildingId, input: BuildingInput): Promise<Building>;
   /** Menghapus gedung beserta lantai dan isinya (cascade). */
   remove(id: BuildingId): Promise<void>;
-  /** FR-VEN-06: gedung yang tampil pertama di Visitor. */
+  /** Gedung yang tampil pertama di Visitor. */
   setDefault(venueId: VenueId, buildingId: BuildingId): Promise<void>;
   /** Lapisan Area Luar venue (dibuat trigger, tidak bisa dihapus lewat Admin). */
   outdoorLayer(venueId: VenueId): Promise<OutdoorLayer>;

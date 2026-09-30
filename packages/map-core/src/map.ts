@@ -81,7 +81,7 @@ export function setFloorData(map: MapLibreMap, features: FloorFeatureCollection)
 }
 
 /**
- * Menerapkan pengaturan tampilan venue tanpa membuat peta baru (FR-VIS-01..03): warna
+ * Menerapkan pengaturan tampilan venue tanpa membuat peta baru: warna
  * lewat paint property, tinggi lewat data 3D. Filter layer (fitur tersembunyi) tidak diubah.
  */
 export function setMapDisplay(map: MapLibreMap, display: MapDisplay): void {

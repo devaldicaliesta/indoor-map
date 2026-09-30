@@ -29,7 +29,7 @@ export interface MapFeatureProperties {
   name?: string;
   unitCode?: string;
   unitStatus?: UnitStatus;
-  /** Override tinggi 3D dalam meter (FR-VIS-02). */
+  /** Override tinggi 3D dalam meter. */
   height?: number;
   /** Override warna `#rrggbb`. */
   color?: string;
@@ -61,7 +61,7 @@ export const KIND_SHAPE: Record<FeatureKind, FeatureShape> = {
 export const OUTDOOR_SUBTYPES = ['road', 'garden', 'parking'] as const;
 export type OutdoorSubtype = (typeof OUTDOOR_SUBTYPES)[number];
 
-/** Pilihan jenis saat menggambar (FR-MAP-01, FR-MAP-07). Penanda punya alur sendiri. */
+/** Penanda punya alur sendiri, jadi tidak ada di pilihan jenis saat menggambar. */
 export interface DrawKind {
   kind: FeatureKind;
   subtype?: OutdoorSubtype;

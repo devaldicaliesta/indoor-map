@@ -16,7 +16,7 @@ export const hasHeight = (feature: FloorFeature) =>
   (HEIGHT_KINDS as readonly string[]).includes(feature.properties.kind);
 
 /**
- * FR-VIS-02: tinggi 3D fitur ini. Kosong = mengikuti tinggi bawaan jenisnya di Pengaturan →
+ * Kosong = mengikuti tinggi bawaan jenisnya di Pengaturan →
  * Tampilan; tinggi sendiri tetap berlaku walau bawaan jenisnya diubah.
  */
 export function HeightField({

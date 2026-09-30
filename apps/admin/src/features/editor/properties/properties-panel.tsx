@@ -75,8 +75,6 @@ function KindSelect({
   );
 }
 
-/** Panel properti kontekstual (kosong saat tidak ada seleksi). */
-/** FR-MAP-09: temuan validasi fitur terpilih, dengan penyebab dan cara memperbaiki. */
 function IssueList({ issues }: { issues: readonly ValidationIssue[] }) {
   return (
     <div role="alert" className="grid gap-1 border-danger border-l-4 bg-surface py-1 pl-3">

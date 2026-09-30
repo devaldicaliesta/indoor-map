@@ -31,7 +31,7 @@ export interface LocationTypeSummary {
   name: string;
 }
 
-/** Kategori per tipe lokasi (FR-LOC-07). Ikonnya berformat sama dengan ikon jenis fasilitas. */
+/** Ikonnya berformat sama dengan ikon jenis fasilitas. */
 export interface Category {
   id: CategoryId;
   locationTypeId: LocationTypeId;
@@ -182,7 +182,7 @@ export function orderedUnits(units: readonly LocationUnit[]): LocationUnit[] {
 /** Nilai filter gedung untuk unit di lapisan Area Luar (tidak punya gedung). */
 export const OUTDOOR_BUILDING = 'outdoor';
 
-/** FR-LOC-10: semua filter berlaku bersamaan. */
+/** Semua filter berlaku bersamaan. */
 export interface LocationFilter {
   query: string;
   categoryId: CategoryId | null;

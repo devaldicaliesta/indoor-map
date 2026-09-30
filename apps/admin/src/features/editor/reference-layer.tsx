@@ -22,7 +22,7 @@ async function loadReference(floorId: FloorId) {
 }
 
 /**
- * FR-VEN-10: satu lantai lain tampil samar sebagai acuan penyelarasan. Hanya tampilan;
+ * Satu lantai lain tampil samar sebagai acuan penyelarasan. Hanya tampilan;
  * tidak disimpan dan tidak bisa diseleksi (layer tanpa event).
  */
 export function ReferenceLayer({

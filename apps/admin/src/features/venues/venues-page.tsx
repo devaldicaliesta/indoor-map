@@ -24,7 +24,6 @@ import { DeleteVenueDialog } from './delete-venue-dialog';
 import { useVenuesDetailed } from './queries';
 import { VenueFormDialog } from './venue-form-dialog';
 
-/** FR-VEN-01: waktu venue selalu ditampilkan dalam zona waktu venue. */
 function inVenueTime(iso: string, timezone: string) {
   return new Intl.DateTimeFormat('id-ID', {
     day: 'numeric',

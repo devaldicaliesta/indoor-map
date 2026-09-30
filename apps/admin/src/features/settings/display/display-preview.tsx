@@ -37,7 +37,7 @@ const LABELS: MapControlLabels = {
   mode3d: '3D',
 };
 
-/** Gedung dan lantai yang dipratinjau: awalnya gedung dan lantai default venue (FR-VEN-06). */
+/** Awalnya gedung dan lantai default venue. */
 function usePreviewFloor(venueId: VenueId) {
   const venue = useQuery({ queryKey: ['venue', venueId], queryFn: () => data.venues.get(venueId) });
   const buildings = useBuildings(venueId).data ?? [];

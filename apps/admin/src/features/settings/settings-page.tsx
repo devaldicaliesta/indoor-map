@@ -11,7 +11,7 @@ import { SystemSettingsForm } from './system-settings-form';
 export function SettingsPage() {
   const role = useRole();
   const { venue } = useSelectedVenue();
-  // Sistem dan Catatan berlaku untuk seluruh instalasi; hanya Super Admin (T-010, T-012).
+  // Sistem dan Catatan berlaku untuk seluruh instalasi, jadi hanya untuk Super Admin.
   const system = role !== null && can(role, 'settings.system');
   return (
     <ModuleRoute module="settings">

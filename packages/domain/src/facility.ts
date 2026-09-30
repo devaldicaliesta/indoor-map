@@ -79,7 +79,6 @@ export function checkFacilityTypeName(
 /** Urutan tampil: `sort_order`, lalu nama. */
 export const sortFacilityTypes = sortByOrder;
 
-/** Ikon unggahan: SVG atau PNG ≤ 200 kB (FR-MAP-07, T-112). */
 export const MAX_FACILITY_ICON_BYTES = 200 * 1024;
 export type FacilityIconFormat = 'svg' | 'png';
 export type FacilityIconFileProblem = 'empty' | 'too_large' | 'unsupported_type';

@@ -55,7 +55,7 @@ export interface FloorsRepository {
   update(id: FloorId, input: FloorInput): Promise<Floor>;
   /** Menghapus lantai beserta semua fiturnya (cascade); UI wajib mengonfirmasi jumlah fitur. */
   remove(id: FloorId): Promise<void>;
-  /** FR-VEN-06: lantai yang tampil pertama untuk gedung ini. */
+  /** Lantai yang tampil pertama untuk gedung ini. */
   setDefault(buildingId: BuildingId, floorId: FloorId): Promise<void>;
 }
 

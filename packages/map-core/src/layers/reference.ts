@@ -12,7 +12,7 @@ import type { FloorFeatureCollection } from '../map';
 const FEATURE_SOURCE = 'ref-floor';
 const PLAN_SOURCE = 'ref-floor-plan';
 
-/** FR-VEN-10: lantai acuan tampil samar agar tidak tertukar dengan lantai yang disunting. */
+/** Samar agar lantai acuan tidak tertukar dengan lantai yang disunting. */
 export const REFERENCE_OPACITY = 0.25;
 
 export const REFERENCE_LAYER_IDS = {

@@ -2,7 +2,7 @@
 -- 0010_location_links.sql — lokasi dasar, kategori, tautan unit (T-116)
 -- * save_location: simpan lokasi, kategori, dan unitnya dalam satu transaksi, dengan
 --   pesan Bahasa Indonesia untuk kode ganda dan unit yang sudah dipakai (SQLSTATE IM409).
--- * Lokasi hanya ditautkan ke fitur jenis unit di venue yang sama (FR-LOC-04); unit yang
+-- * Lokasi hanya ditautkan ke fitur jenis unit di venue yang sama; unit yang
 --   diganti jenisnya di editor otomatis lepas dari lokasinya.
 -- * Kategori lokasi harus milik tipe lokasinya.
 -- * Storage: logo/foto lokasi (public-assets/locations/{venue_id}/…) dan ikon kategori

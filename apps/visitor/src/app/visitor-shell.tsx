@@ -10,7 +10,7 @@ const DESKTOP_QUERY = '(min-width: 1024px)';
 
 function MapArea() {
   const { t } = useTranslation();
-  // Peta MapLibre dipasang di T-104/T-118; area ini sudah memegang tempat dan label aksesnya.
+  // Peta MapLibre dipasang di T-118; area ini sudah memegang tempat dan label aksesnya.
   return <section aria-label={t('map.label')} className="h-full w-full bg-canvas" />;
 }
 

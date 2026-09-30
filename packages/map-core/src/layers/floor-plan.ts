@@ -8,7 +8,7 @@ export const FLOOR_PLAN_LAYER_ID = 'floor-plan-bg';
 export interface FloorPlanImage {
   imageUrl: string;
   corners: Corners;
-  /** 0–1 (FR-VEN-09). */
+  /** 0–1. */
   opacity: number;
 }
 

@@ -11,7 +11,7 @@ function toLanguageCode(tag: string | null | undefined): LanguageCode | null {
 }
 
 /**
- * FR-VST-11: pilihan pengunjung yang tersimpan, lalu bahasa perangkat (urut preferensi),
+ * Pilihan pengunjung yang tersimpan, lalu bahasa perangkat (urut preferensi),
  * lalu bahasa default venue/instalasi.
  */
 export function resolveLanguage(

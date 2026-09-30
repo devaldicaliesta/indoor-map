@@ -31,7 +31,7 @@ export const UNDO_SHORTCUT = /Mac|iPhone|iPad/.test(globalThis.navigator?.platfo
   : { undo: 'Ctrl+Z', redo: 'Ctrl+Shift+Z' };
 
 /**
- * FR-MAP-03/04/05: Delete, Esc, V (pilih), P (poligon), L (garis), T (titik),
+ * Delete, Esc, V (pilih), P (poligon), L (garis), T (titik),
  * Ctrl/Cmd+Z (undo), Ctrl/Cmd+Shift+Z atau Ctrl+Y (redo).
  */
 export function useEditorShortcuts(session: EditorSession, canEdit: boolean) {

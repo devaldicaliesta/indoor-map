@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { checkImageFile, MAX_IMAGE_BYTES } from './image';
 
-describe('checkImageFile (NFR-SEC-04)', () => {
+describe('checkImageFile', () => {
   it('PNG, JPG, dan WebP diterima; MIME kosong mengikuti ekstensi', () => {
     expect(checkImageFile({ name: 'logo.PNG', type: 'image/png', size: 10 })).toEqual({
       ok: true,

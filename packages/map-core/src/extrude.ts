@@ -22,7 +22,7 @@ export type Feature3dProperties = MapFeatureProperties & { extrude: number; edge
 export type Floor3dCollection = FeatureCollection<Polygon | MultiPolygon, Feature3dProperties>;
 
 /**
- * Tinggi 3D satu fitur (FR-VIS-01/02): override per fitur lebih dulu, lalu tinggi default
+ * Override per fitur lebih dulu, lalu tinggi default
  * venue per jenis, lalu default aplikasi. Override tetap berlaku walau default diubah.
  */
 export function resolveHeight(properties: MapFeatureProperties, venueHeights: HeightTable): number {

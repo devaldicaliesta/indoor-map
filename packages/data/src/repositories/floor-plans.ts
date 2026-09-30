@@ -57,9 +57,8 @@ export interface FloorPlanUpload {
 export interface FloorPlansRepository {
   /** Semua versi denah lantai, terbaru dulu; yang aktif paling banyak satu. */
   list(floorId: FloorId): Promise<FloorPlan[]>;
-  /** FR-VEN-07: versi baru menjadi aktif; versi lama tetap tersimpan sebagai riwayat. */
+  /** Versi baru menjadi aktif; versi lama tetap tersimpan sebagai riwayat. */
   upload(floorId: FloorId, input: FloorPlanUpload): Promise<FloorPlan>;
-  /** FR-VEN-08/09: posisi 4 sudut dan opasitas denah. */
   savePlacement(id: FloorPlanId, placement: FloorPlanPlacement): Promise<FloorPlan>;
   /** URL bertanda untuk bucket privat, satu per path (urutan sama dengan masukan). */
   signedUrls(paths: string[]): Promise<string[]>;

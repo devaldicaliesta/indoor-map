@@ -4,7 +4,7 @@ import { initReactI18next } from 'react-i18next';
 import en from './en.json';
 import id from './id.json';
 
-// Satu-satunya data yang disimpan Visitor di perangkat (NFR-SEC-06).
+// Satu-satunya data yang disimpan Visitor di perangkat.
 const STORAGE_KEY = 'indoor-visitor.language';
 
 function readStoredLanguage(): string | null {

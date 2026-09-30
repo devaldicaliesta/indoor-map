@@ -2,11 +2,11 @@ import { z } from 'zod';
 import type { FeatureKind } from './feature';
 import type { VenueId } from './ids';
 
-/** Mode awal peta venue (FR-VIS-04). Sama dengan enum `display_mode` di migrasi 0001. */
+/** Mode awal peta venue. Sama dengan enum `display_mode` di migrasi 0001. */
 export const DISPLAY_MODES = ['2d', '3d'] as const;
 export type DisplayMode = (typeof DISPLAY_MODES)[number];
 
-/** Jenis fitur yang punya tinggi 3D (FR-VIS-01): semua poligon dan dinding. */
+/** Jenis fitur yang punya tinggi 3D: semua poligon dan dinding. */
 export const HEIGHT_KINDS = [
   'unit',
   'corridor',
@@ -19,7 +19,7 @@ export const HEIGHT_KINDS = [
 ] as const satisfies readonly FeatureKind[];
 export type HeightKind = (typeof HEIGHT_KINDS)[number];
 
-/** Jenis fitur yang warnanya bisa diatur per venue (FR-VIS-03). */
+/** Jenis fitur yang warnanya bisa diatur per venue. */
 export const COLOR_KINDS = [
   'unit',
   'corridor',
@@ -41,7 +41,7 @@ export const MAX_HEIGHT_M = 100;
 export const HexColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 export const HeightSchema = z.number().min(0).max(MAX_HEIGHT_M);
 
-/** Kamera awal Visitor (FR-VIS-05): pusat WGS84, zoom, kemiringan, dan rotasi. */
+/** Kamera awal Visitor: pusat WGS84, zoom, kemiringan, dan rotasi. */
 export const CameraViewSchema = z.object({
   center: z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]),
   zoom: z.number().min(0).max(24),

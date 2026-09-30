@@ -9,7 +9,7 @@ const dateFormat = new Intl.DateTimeFormat('id-ID', {
   minute: '2-digit',
 });
 
-/** FR-VEN-07: versi lama tidak dihapus agar bisa dibandingkan atau diambil kembali. */
+/** Versi lama tidak dihapus agar bisa dibandingkan atau diambil kembali. */
 export function FloorPlanHistory({ plans }: { plans: FloorPlanVersion[] }) {
   if (plans.length === 0) return null;
   return (

@@ -95,7 +95,7 @@ export function useEditorSession(
     [persist],
   );
 
-  /** FR-MAP-05: undo/redo ikut memicu simpan otomatis. */
+  /** Undo/redo ikut memicu simpan otomatis. */
   const undo = useCallback(() => {
     const step = useEditorStore.getState().undo();
     if (step) persist(step.patch, step.direction);
@@ -191,7 +191,7 @@ export function useEditorSession(
     [changeEach, newUnitCode, withFacilityType],
   );
 
-  /** FR-MAP-06: kode unit unik per venue; pesan menyebut unit yang bentrok. */
+  /** Kode unit unik per venue; pesan menyebut unit yang bentrok. */
   const setUnitCode = useCallback(
     async (id: string, input: string): Promise<string | null> => {
       const problem = checkUnitCode(input)[0];

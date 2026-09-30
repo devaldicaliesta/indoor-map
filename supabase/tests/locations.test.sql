@@ -1,4 +1,4 @@
--- Lokasi dasar, kategori, dan tautan unit (T-116, FR-LOC-03, FR-LOC-04, FR-LOC-07).
+-- Lokasi dasar, kategori, dan tautan unit (T-116).
 begin;
 create extension if not exists pgtap with schema extensions;
 
@@ -79,7 +79,7 @@ $$;
 set local role authenticated;
 select pg_temp.as_user('e2000000-0000-4000-8000-000000000001');
 
--- Editor: lokasi dengan dua unit dan satu kategori (kriteria T-116 butir 1)
+-- Editor: lokasi dengan dua unit dan satu kategori
 select lives_ok(
   $$ select pg_temp.save('11111111-0000-4000-8000-000000000001', 'a2000000-0000-4000-8000-00000000000a',
        ' rad-01 ', 'Radiologi', '{f2000000-0000-4000-8000-00000000000a}',

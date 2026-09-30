@@ -18,7 +18,7 @@ function asRecord(value: Json): Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value) ? value : {};
 }
 
-/** Baris dengan aksi di luar daftar NFR-SEC-05 dilewati, bukan menggagalkan seluruh daftar. */
+/** Baris dengan aksi yang tidak dikenal dilewati, bukan menggagalkan seluruh daftar. */
 export function mapAuditRows(rows: AuditRow[], actors: ActorRow[]): AuditEvent[] {
   const byId = new Map(actors.map((a) => [a.user_id, a]));
   return rows.flatMap((row) => {

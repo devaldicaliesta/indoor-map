@@ -85,7 +85,7 @@ export interface FeaturesRepository {
   listByFloor(floorId: FloorId): Promise<FloorFeatures>;
   /**
    * Menyimpan fitur ke draft (buat atau timpa berdasarkan id dari klien). Luas unit
-   * dihitung dari geometri. Tidak menyentuh snapshot publish (FR-MAP-10).
+   * dihitung dari geometri. Tidak menyentuh snapshot publish.
    */
   save(venueId: VenueId, feature: FloorFeature): Promise<void>;
   remove(id: string): Promise<void>;

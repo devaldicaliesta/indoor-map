@@ -86,7 +86,7 @@ export function setSelectionHighlight(map: MapLibreMap, ids: readonly string[]):
 }
 
 /**
- * Sorotan sementara saat kursor/fokus berada di item panel daftar (FR-MAP-08): garis
+ * Sorotan sementara saat kursor/fokus berada di item panel daftar: garis
  * putus-putus agar beda dari seleksi, dan tidak mengubah seleksi.
  */
 export function setHoverHighlight(map: MapLibreMap, id: string | null): void {

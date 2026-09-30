@@ -1,4 +1,4 @@
-// SMTP dari Pengaturan Sistem (FR-SYS-01): kolom di system_settings, password dari Vault
+// SMTP dari Pengaturan Sistem: kolom di system_settings, password dari Vault
 // lewat fungsi khusus service role. Dipakai email uji dan email Auth (reset, undangan).
 import { serviceHeaders, url } from './auth.ts';
 import type { SmtpConfig } from './smtp.ts';

@@ -1,4 +1,4 @@
-/** NFR-SEC-04: gambar (logo, foto) maksimal 5 MB; batas yang sama ditegakkan bucket Storage. */
+/** Batas yang sama ditegakkan bucket Storage `public-assets`. */
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 export type ImageMime = 'image/png' | 'image/jpeg' | 'image/webp';
