@@ -11,7 +11,23 @@ export {
 } from './costs';
 export { directCost, type ResolvedEnd, resolveEnd, type Snap, snapToEdge } from './endpoints';
 export { findRoute } from './find-route';
-export { type BuildGraphOptions, buildGraph, type RouteGraph } from './graph';
+export { type BuildGraphOptions, buildGraph, type RouteArea, type RouteGraph } from './graph';
+export {
+  activeClosures,
+  closedFeatureNodes,
+  closuresOnRoute,
+  type Restrictions,
+  type RouteClosure,
+  type RouteOptions,
+  restrictionsFor,
+} from './options';
+export {
+  featureTarget,
+  infoPointTarget,
+  locationTarget,
+  originPointTarget,
+  routeEndTarget,
+} from './targets';
 export type {
   ConnectorLeg,
   RouteFailure,

@@ -1,4 +1,10 @@
-import type { SnapshotConnectorKind, SnapshotFloor, SnapshotGraph } from '@indoor/domain';
+import type {
+  SnapshotConnectorKind,
+  SnapshotFeature,
+  SnapshotFloor,
+  SnapshotGraph,
+  SnapshotPosition,
+} from '@indoor/domain';
 import { ARC_ACCESSIBLE, type ArcDraft, nodeDistanceM } from './arcs';
 import { connectorArcs } from './connectors';
 
@@ -40,6 +46,8 @@ export interface RouteGraph {
 
   readonly connectorIds: readonly string[];
   readonly connectorKinds: readonly SnapshotConnectorKind[];
+  /** Poligon fitur per id untuk penutupan area (node di dalamnya ikut tertutup). */
+  readonly areas: ReadonlyMap<string, RouteArea>;
   /**
    * Bobot tetap terkecil per satu level lantai di antara konektor graf. Heuristik A* memakai
    * `costPerLevel × selisih level` agar tetap tidak melebihi biaya sebenarnya.
@@ -47,9 +55,17 @@ export interface RouteGraph {
   readonly costPerLevel: number;
 }
 
+export interface RouteArea {
+  floor: number;
+  /** Poligon (cincin luar lalu lubang) fitur; MultiPolygon menjadi beberapa poligon. */
+  polygons: readonly (readonly SnapshotPosition[])[][];
+}
+
 export interface BuildGraphOptions {
   /** Level tiap lantai; lantai yang tidak disebut dianggap level 0. */
   floors: readonly Pick<SnapshotFloor, 'id' | 'level'>[];
+  /** Fitur peta; poligonnya dipakai penutupan area (misalnya koridor yang ditutup). */
+  features?: readonly Pick<SnapshotFeature, 'id' | 'geometry' | 'properties'>[];
 }
 
 /**
@@ -104,6 +120,17 @@ export function buildGraph(source: SnapshotGraph, options: BuildGraphOptions): R
     arcs.push({ from: v, to: u, cost, length: cost, flags, source: k });
   }
   const connectors = connectorArcs(source, nodes);
+  const areas = new Map<string, RouteArea>();
+  for (const feature of options.features ?? []) {
+    const floor = floorIndex.get(feature.properties.floorId);
+    const { geometry } = feature;
+    if (floor === undefined) continue;
+    if (geometry.type === 'Polygon')
+      areas.set(feature.id, { floor, polygons: [geometry.coordinates] });
+    else if (geometry.type === 'MultiPolygon') {
+      areas.set(feature.id, { floor, polygons: geometry.coordinates });
+    }
+  }
   arcs.push(...connectors.arcs);
 
   const m = arcs.length;
@@ -151,6 +178,7 @@ export function buildGraph(source: SnapshotGraph, options: BuildGraphOptions): R
     edgeAccessible: Uint8Array.from(edgeAccessible),
     connectorIds: source.connectors.map((c) => c.id),
     connectorKinds: source.connectors.map((c) => c.kind),
+    areas,
     costPerLevel: connectors.costPerLevel,
   };
 }
