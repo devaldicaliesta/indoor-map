@@ -24,5 +24,6 @@ Artefak test yang gagal (screenshot, video, trace) ada di `e2e/test-results/`, l
 | `tests/admin/login.spec.ts` | Tiap role masuk ke berandanya lalu keluar; password salah ditolak; halaman Admin tanpa sesi diarahkan ke login dan kembali setelah masuk |
 | `tests/admin/draw-unit.spec.ts` | Editor menggambar poligon: unit tersimpan di server dengan kode otomatis dan tetap ada setelah muat ulang; Viewer tidak bisa menggambar |
 | `tests/visitor/search.spec.ts` | Di HP 360 px: "radilogi" menemukan Radiologi, detail dibuka, kode lokasi dan kode unit bisa dicari; kategori menampilkan anggotanya; direktori A–Z membuka detail; mengetuk unit di peta membuka detailnya (unit tanpa lokasi hanya kodenya). Venue uji diterbitkan lewat Edge Function `publish` |
+| `tests/visitor/language.spec.ts` | Perangkat berbahasa Inggris membuka Visitor dalam bahasa Inggris (`<html lang>`, label, jumlah hasil); memilih Bahasa Indonesia langsung berlaku dan tetap setelah muat ulang |
 
 Setiap test membuat venue uji sendiri (`E2E …`) lewat fixture dan menghapusnya di akhir.
