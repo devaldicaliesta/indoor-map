@@ -107,11 +107,17 @@ function applyModeVisibility(map: MapLibreMap, mode: ViewMode) {
     map.setLayoutProperty(id, 'visibility', mode === '3d' ? 'visible' : 'none');
 }
 
-export function setViewMode(map: MapLibreMap, mode: ViewMode): void {
+/** `keepCamera`: hanya layer dan data yang berganti, kemiringan kamera tidak diubah (kamera tersimpan). */
+export function setViewMode(
+  map: MapLibreMap,
+  mode: ViewMode,
+  options: { keepCamera?: boolean } = {},
+): void {
   const state = { ...stateOf(map), mode };
   states.set(map, state);
   refresh3d(map, state);
   applyModeVisibility(map, mode);
+  if (options.keepCamera) return;
   map.easeTo({
     pitch: mode === '3d' ? PITCH_3D : 0,
     duration: prefersReducedMotion() ? 0 : MODE_TRANSITION_MS,

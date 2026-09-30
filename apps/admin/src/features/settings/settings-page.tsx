@@ -5,6 +5,7 @@ import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
 import { FacilityTypesPanel } from '../facilities/facility-types-panel';
 import { AuditLog } from './audit-log';
+import { DisplaySettingsPanel } from './display/display-settings';
 import { SystemSettingsForm } from './system-settings-form';
 
 export function SettingsPage() {
@@ -34,10 +35,14 @@ export function SettingsPage() {
               )}
             </TabsContent>
             <TabsContent value="display">
-              <EmptyState
-                title="Tampilan dan instruksi"
-                description="Atur tinggi 3D, warna, branding, dan teks instruksi rute untuk venue ini."
-              />
+              {venue ? (
+                <DisplaySettingsPanel venueId={venue.id} />
+              ) : (
+                <EmptyState
+                  title="Belum ada venue"
+                  description="Buat venue di menu Venue untuk mengatur tampilannya."
+                />
+              )}
             </TabsContent>
             {system ? (
               <TabsContent value="system">

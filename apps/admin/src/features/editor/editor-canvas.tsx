@@ -10,6 +10,7 @@ import {
   featureBounds,
   focusFeature,
   type LngLat,
+  type MapDisplay,
   type MapInstance,
   type SnapIndex,
   setFacilityIcons,
@@ -17,8 +18,11 @@ import {
   setFloorPlanImage,
   setHiddenFeatures,
   setHoverHighlight,
+  setMapDisplay,
   setSelectionHighlight,
+  setViewMode,
 } from '@indoor/map-core';
+import { type MapControlLabels, MapControls } from '@indoor/ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { facilityIconSpecs } from '../facilities/icons';
 import { ReferenceLayer } from './reference-layer';
@@ -34,6 +38,15 @@ export interface PlanBackground {
 
 const FALLBACK_CENTER: LngLat = [106.8272, -6.1754];
 
+const CONTROL_LABELS: MapControlLabels = {
+  zoomIn: 'Perbesar',
+  zoomOut: 'Perkecil',
+  resetNorth: 'Arahkan ke utara',
+  viewMode: 'Mode tampilan',
+  mode2d: '2D',
+  mode3d: '3D',
+};
+
 function toCollection(features: ReturnType<typeof featureList>): FloorFeatures {
   return { type: 'FeatureCollection', features };
 }
@@ -47,11 +60,14 @@ export function EditorCanvas({
   referenceFloorId,
   facilityTypes,
   issueFeatureIds,
+  display,
   onCursor,
 }: {
   session: EditorSession;
   facilityTypes: readonly FacilityType[];
   issueFeatureIds: readonly string[];
+  /** Tinggi dan warna venue (FR-VIS-01..03) agar pratinjau 3D sesuai pengaturan. */
+  display: MapDisplay;
   canEdit: boolean;
   plan: PlanBackground | null;
   center: LngLat | null;
@@ -70,6 +86,8 @@ export function EditorCanvas({
   canEditRef.current = canEdit;
   const tool = useEditorStore((s) => s.tool);
   const hoveredId = useEditorStore((s) => s.hoveredId);
+  const viewMode = useEditorStore((s) => s.viewMode);
+  const [bearing, setBearing] = useState(0);
   const focusRequest = useEditorStore((s) => s.focusRequest);
   const sessionRef = useRef(session);
   sessionRef.current = session;
@@ -104,6 +122,7 @@ export function EditorCanvas({
       frame = requestAnimationFrame(() => onCursorRef.current([e.lngLat.lng, e.lngLat.lat]));
     });
     instance.on('mouseout', () => onCursorRef.current(null));
+    instance.on('rotate', () => setBearing(instance.getBearing()));
     instance.once('load', () => {
       editor.current = createFeatureEditor(instance, {
         onDraw: (geometry) => sessionRef.current.draw(geometry),
@@ -119,7 +138,10 @@ export function EditorCanvas({
         },
       });
       selection = createSelectionInteractions(instance, {
-        enabled: () => canEditRef.current && useEditorStore.getState().tool === 'select',
+        enabled: () => {
+          const state = useEditorStore.getState();
+          return canEditRef.current && state.tool === 'select' && state.viewMode === '2d';
+        },
         selectedIds: () => useEditorStore.getState().selectedIds,
         geometryOf: (id) => useEditorStore.getState().features[id]?.geometry,
         onBoxSelect: (ids) => useEditorStore.getState().selectMany(ids),
@@ -186,9 +208,20 @@ export function EditorCanvas({
   // FR-MAP-07: sprite ikon fasilitas dibangun ulang hanya bila ikon/keselamatan berubah.
   const iconSpecs = useMemo(() => facilityIconSpecs(facilityTypes), [facilityTypes]);
   const iconKey = JSON.stringify(iconSpecs);
+  const iconBackground = display.colors?.facility;
   useEffect(() => {
-    if (map) void setFacilityIcons(map, iconSpecs);
-  }, [map, iconKey]);
+    if (map) void setFacilityIcons(map, iconSpecs, { background: iconBackground });
+  }, [map, iconKey, iconBackground]);
+
+  const displayKey = JSON.stringify(display);
+  useEffect(() => {
+    if (map) setMapDisplay(map, display);
+  }, [map, displayKey]);
+
+  // FR-VIS-06: beralih 2D/3D hanya mengganti tampilan; isi store (dan riwayat) tidak berubah.
+  useEffect(() => {
+    if (map) setViewMode(map, viewMode);
+  }, [map, viewMode]);
 
   useEffect(() => {
     editor.current?.setTool(canEdit ? tool : 'select');
@@ -197,7 +230,7 @@ export function EditorCanvas({
   useEffect(() => {
     if (!map) return;
     // Satu fitur: disunting di terra-draw. Lebih dari satu (atau mode baca): hanya disorot.
-    const editing = canEdit && selected && tool === 'select' ? selected : null;
+    const editing = canEdit && selected && tool === 'select' && viewMode === '2d' ? selected : null;
     // Titik (ikon fasilitas, pintu) tetap tampil dan disorot agar jelas mana yang terpilih;
     // pegangan terra-draw untuk menggeser ada di atasnya.
     const editingPoint = editing?.geometry.type === 'Point' ? editing.properties.id : null;
@@ -206,7 +239,7 @@ export function EditorCanvas({
     editor.current?.edit(
       editing ? { id: editing.properties.id, geometry: editing.geometry } : null,
     );
-  }, [map, selected, selectedIds, tool, canEdit]);
+  }, [map, selected, selectedIds, tool, canEdit, viewMode]);
 
   return (
     <>
@@ -218,6 +251,21 @@ export function EditorCanvas({
       />
       <ReferenceLayer map={map} floorId={referenceFloorId} />
       <ValidationOverlay map={map} featureIds={issueFeatureIds} />
+      <MapControls
+        className="absolute right-3 bottom-3"
+        labels={CONTROL_LABELS}
+        bearing={bearing}
+        mode={viewMode}
+        onModeChange={(mode) => useEditorStore.getState().setViewMode(mode)}
+        onZoomIn={() => map?.zoomIn()}
+        onZoomOut={() => map?.zoomOut()}
+        onResetNorth={() => map?.easeTo({ bearing: 0 })}
+      />
+      {viewMode === '3d' ? (
+        <p className="absolute bottom-3 left-3 rounded-sm bg-surface px-3 py-1.5 text-sm shadow-(--shadow-float)">
+          Mode 3D untuk memeriksa hasil. Pilih alat gambar untuk kembali ke 2D.
+        </p>
+      ) : null}
     </>
   );
 }

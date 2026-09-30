@@ -7,16 +7,17 @@ import {
   type Point,
   type VenueId,
 } from '@indoor/domain';
-import type { LngLat } from '@indoor/map-core';
+import type { LngLat, MapDisplay } from '@indoor/map-core';
 import { EmptyState, Skeleton } from '@indoor/ui';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useRole } from '../../app/auth/can';
 import { data } from '../../app/data-client';
 import { ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
 import { useFloorPlans } from '../floor-plans/queries';
+import { useDisplaySettings } from '../settings/display/queries';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
 import { useFloors } from '../venues/floors/queries';
 import { EditorCanvas, type PlanBackground } from './editor-canvas';
@@ -106,6 +107,11 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
   useEditorShortcuts(session, canEdit);
   const plan = useActivePlan(floor?.id ?? null);
   const validation = useFloorValidation(floor?.isOutdoor ? null : (building?.footprint ?? null));
+  const displaySettings = useDisplaySettings(venueId).data;
+  const display = useMemo<MapDisplay>(
+    () => ({ heights: displaySettings?.heights ?? {}, colors: displaySettings?.colors ?? {} }),
+    [displaySettings],
+  );
   const [referenceFloorId, setReferenceFloorId] = useState<FloorId | null>(null);
   const [cursor, setCursor] = useState<LngLat | null>(null);
 
@@ -175,6 +181,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
               referenceFloorId={referenceFloorId}
               facilityTypes={session.facilityTypes}
               issueFeatureIds={validation.featureIds}
+              display={display}
               onCursor={setCursor}
             />
           )}
@@ -183,7 +190,12 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
           ) : null}
         </div>
         <aside aria-label="Properti" className="min-h-0 overflow-y-auto border-line border-l">
-          <PropertiesPanel session={session} canEdit={canEdit} issues={validation.byFeature} />
+          <PropertiesPanel
+            session={session}
+            canEdit={canEdit}
+            issues={validation.byFeature}
+            display={display}
+          />
         </aside>
       </div>
       <StatusBar cursor={cursor} canEdit={canEdit} />
