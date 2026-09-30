@@ -31,9 +31,22 @@
   },
   "venue": {
     "unavailableTitle": "Map not available yet",
-    "unavailableDescription": "This venue has not published its map yet. Ask the nearest staff member for directions."
+    "unavailableDescription": "This venue has not published its map yet. Ask the nearest staff member for directions.",
+    "loadFailedTitle": "The map could not be loaded",
+    "loadFailedDescription": "Check your internet connection, then try again.",
+    "retry": "Try again",
+    "buildings": "Buildings",
+    "floorCount_one": "{{count}} floor",
+    "floorCount_other": "{{count}} floors"
   },
   "infoPoint": {
     "title": "Info Point {{code}}"
+  },
+  "info": {
+    "open": "Map information",
+    "close": "Close",
+    "description": "This map is updated whenever the building manager publishes a new version.",
+    "version": "Map version",
+    "publishedAt": "Published"
   }
 }

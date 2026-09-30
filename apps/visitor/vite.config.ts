@@ -47,10 +47,18 @@ export default defineConfig({
         navigateFallback: '/index.html',
         runtimeCaching: [
           {
-            // Snapshot venue: tampil cepat dari cache, diperbarui di latar.
-            urlPattern: ({ url }) => url.pathname.includes('/storage/v1/object/public/snapshots/'),
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'snapshots', expiration: { maxEntries: 20 } },
+            // Snapshot venue: selalu ditanyakan ke server lebih dulu agar versi terbaru terpakai;
+            // bila tidak berubah server membalas 304 (ETag) sehingga isinya diambil dari cache
+            // browser. Saat server tidak terjangkau atau lambat, versi tersimpan yang dipakai.
+            urlPattern: ({ url }) =>
+              url.pathname.includes('/storage/v1/object/public/snapshots/') &&
+              url.pathname.endsWith('/latest.json'),
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'snapshots',
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 20 },
+            },
           },
         ],
       },

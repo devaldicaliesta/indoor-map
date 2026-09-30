@@ -17,6 +17,7 @@
     "@indoor/map-core": "workspace:*",
     "@indoor/routing": "workspace:*",
     "@indoor/ui": "workspace:*",
+    "@tanstack/react-query": "catalog:",
     "i18next": "catalog:",
     "lucide-react": "catalog:",
     "react": "catalog:",

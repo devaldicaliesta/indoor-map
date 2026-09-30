@@ -225,6 +225,9 @@ importers:
       '@indoor/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@tanstack/react-query':
+        specifier: 'catalog:'
+        version: 5.104.0(react@19.3.0)
       i18next:
         specifier: 'catalog:'
         version: 26.4.2(typescript@7.0.2)
