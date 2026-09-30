@@ -1,4 +1,4 @@
-// Edge Function auth-email (T-010, FR-SYS-01): Auth Hook "send email" GoTrue. Email Auth
+// Edge Function auth-email: Auth Hook "send email" GoTrue. Email Auth
 // (reset password, undangan) dikirim memakai SMTP dari Pengaturan Sistem, sehingga server
 // email cukup diatur Super Admin di Admin tanpa mengubah konfigurasi server atau restart.
 import { SmtpError, sendMail } from '../_shared/smtp.ts';

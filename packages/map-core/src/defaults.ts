@@ -2,7 +2,7 @@ import type { FeatureKind } from '@indoor/domain';
 
 /**
  * Warna dan tinggi default peta (05-desain-ui.md "Warna peta"); dapat ditimpa per venue
- * lewat display_settings (FR-VIS-01, FR-VIS-03). Nilai hex di sini adalah data style
+ * lewat display_settings. Nilai hex di sini adalah data style
  * MapLibre, bukan warna komponen UI.
  */
 export const MAP_BACKGROUND = '#f2f3ef';

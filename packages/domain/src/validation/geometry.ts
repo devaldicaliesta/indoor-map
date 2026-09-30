@@ -15,7 +15,6 @@ import {
   segmentsCross,
 } from './planar';
 
-/** Irisan dua unit atau bagian fitur di luar gedung yang lebih kecil dari ini diabaikan (FR-MAP-09). */
 export const OVERLAP_TOLERANCE_M2 = 0.5;
 /** Titik/ujung garis sejauh ini dari tepi footprint masih dianggap di dalam (dinding luar). */
 export const BOUNDARY_TOLERANCE_M = 0.1;
@@ -152,7 +151,7 @@ function originOf(features: readonly ValidatedFeature[], boundary: Geometry | nu
 }
 
 /**
- * Validasi geometri satu lantai (FR-MAP-09): poligon tidak tertutup atau memotong diri,
+ * Validasi geometri satu lantai: poligon tidak tertutup atau memotong diri,
  * unit tumpang tindih lebih dari 0,5 m², fitur di luar batas lantai, dan kode unit ganda.
  * Tidak pernah memblokir penyimpanan draft; publish (R3) memakai temuan `error`.
  */
@@ -232,7 +231,7 @@ function outsideIssues(
   project: (p: Position) => Pt,
 ): ValidationIssue[] {
   const checked = checkPolygon(boundary, project);
-  // Footprint rusak tidak bisa dijadikan acuan; footprint divalidasi saat digambar (T-102).
+  // Footprint rusak tidak bisa dijadikan acuan; footprint divalidasi saat digambar.
   if (!checked.ok) return [];
   const issues: ValidationIssue[] = [];
   for (const f of features) {

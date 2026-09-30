@@ -49,7 +49,6 @@ export function toListItem(
   };
 }
 
-/** Kode unit, nama, dan nama jenis fasilitas ikut dicari (FR-MAP-08). */
 export function matchesSearch(item: ListItem, query: string): boolean {
   if (!query) return true;
   return [item.label, item.detail].some((text) => text && normalizeSearch(text).includes(query));

@@ -3,7 +3,6 @@ import { Label } from '@indoor/ui';
 import { FacilityTypeSelect } from '../../facilities/facility-type-select';
 import type { EditorSession } from '../use-editor-session';
 
-/** FR-MAP-07: jenis fasilitas menentukan ikon di peta; nama fasilitas opsional. */
 export function FacilityFields({
   feature,
   session,

@@ -1,4 +1,3 @@
-/** Sistem koordinat semua geometri: WGS84 dalam GeoJSON (NFR-MNT-03). */
 export const COORDINATE_SYSTEM = 'EPSG:4326';
 
 /** Semua jarak, panjang, dan tinggi disimpan dalam meter. */

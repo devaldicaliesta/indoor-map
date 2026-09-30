@@ -15,7 +15,7 @@ export interface FloorValidation {
 }
 
 /**
- * FR-MAP-09: validasi geometri dijalankan ulang setiap kali isi lantai berubah (setiap
+ * Validasi geometri dijalankan ulang setiap kali isi lantai berubah (setiap
  * aksi yang disimpan). Memakai nilai tertunda agar menyunting tetap lancar di lantai besar.
  * Tidak pernah memblokir penyimpanan draft.
  */

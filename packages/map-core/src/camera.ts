@@ -32,7 +32,7 @@ export function focusZoom(currentZoom: number, fitZoom: number, minZoom = FOCUS_
   return Math.min(fitZoom, Math.max(currentZoom, minZoom));
 }
 
-/** Mengarahkan peta ke satu fitur (FR-MAP-08); tanpa animasi bila pengguna meminta gerak minimal. */
+/** Tanpa animasi bila pengguna meminta gerak minimal. */
 export function focusFeature(map: MapLibreMap, geometry: Geometry, padding = 64): void {
   const bounds = geometryBounds(geometry);
   if (!bounds) return;
@@ -48,7 +48,6 @@ export function focusFeature(map: MapLibreMap, geometry: Geometry, padding = 64)
   });
 }
 
-/** Kamera peta sekarang, untuk "Simpan sebagai tampilan awal" (FR-VIS-05). */
 export function getCamera(map: MapLibreMap): {
   center: [number, number];
   zoom: number;

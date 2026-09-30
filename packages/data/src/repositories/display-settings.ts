@@ -45,7 +45,7 @@ export function toDisplaySettingsUpdate(
 }
 
 export interface DisplaySettingsRepository {
-  /** Pengaturan tampilan venue (FR-VIS-01..05); barisnya dibuat trigger saat venue dibuat. */
+  /** Barisnya dibuat trigger saat venue dibuat. */
   get(venueId: VenueId): Promise<DisplaySettings>;
   /** Hanya Admin dan Super Admin (RLS `app.can_manage()`). `camera: null` menghapus kamera awal. */
   update(venueId: VenueId, patch: DisplaySettingsPatch): Promise<DisplaySettings>;

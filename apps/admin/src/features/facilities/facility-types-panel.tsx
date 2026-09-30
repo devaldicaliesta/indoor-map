@@ -81,7 +81,6 @@ type Open =
   | { kind: 'delete'; type: FacilityTypeWithUsage }
   | null;
 
-/** Pengaturan → Jenis fasilitas (FR-MAP-07). */
 export function FacilityTypesPanel({
   venueId,
   venueName,

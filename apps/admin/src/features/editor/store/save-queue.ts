@@ -8,7 +8,7 @@ export interface SaveQueueOptions<T> {
 }
 
 /**
- * Antrean simpan draft per fitur (FR-MAP-10): perubahan beruntun digabung (yang terakhir
+ * Antrean simpan draft per fitur: perubahan beruntun digabung (yang terakhir
  * menang) setelah jeda `delayMs`, dan satu fitur tidak pernah punya dua penyimpanan
  * berjalan bersamaan sehingga urutan tulis di server sama dengan urutan edit.
  */

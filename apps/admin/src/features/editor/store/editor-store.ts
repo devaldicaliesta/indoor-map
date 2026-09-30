@@ -22,14 +22,12 @@ export interface EditorState {
   features: Record<string, FloorFeature>;
   /** Seleksi; satu fitur = sunting bentuk, lebih dari satu = geser/putar/hapus bersama. */
   selectedIds: string[];
-  /** FR-MAP-04: sakelar snapping di bilah status. */
   snapEnabled: boolean;
   tool: EditorTool;
   saveStatus: SaveStatus;
   saveError: string | null;
-  /** Jenis yang dipakai tiap alat gambar (FR-MAP-01). */
   drawKinds: Record<FeatureShape, DrawKind>;
-  /** FR-VIS-06: 3D hanya untuk memeriksa hasil; menggambar dan menyunting bentuk di 2D. */
+  /** 3D hanya untuk memeriksa hasil; menggambar dan menyunting bentuk di 2D. */
   viewMode: ViewMode;
   /** Fitur yang disorot sementara dari panel daftar (hover/fokus), bukan seleksi. */
   hoveredId: string | null;
@@ -49,7 +47,6 @@ export interface EditorState {
   /** Shift+klik: menambah atau mengurangi satu fitur dari seleksi. */
   toggleSelect(id: string): void;
   selectMany(ids: string[]): void;
-  /** FR-MAP-08: pilih satu fitur dari daftar dan arahkan peta ke sana. */
   focus(id: string): void;
   setHovered(id: string | null): void;
   setViewMode(mode: ViewMode): void;
@@ -152,7 +149,7 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     set({ snapEnabled });
   },
   setTool(tool) {
-    // Memilih alat gambar di mode 3D kembali ke 2D: menggambar selalu di 2D (FR-VIS-06).
+    // Menggambar selalu di 2D.
     set((s) => ({
       tool,
       selectedIds: tool === 'select' ? s.selectedIds : [],

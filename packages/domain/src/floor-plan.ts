@@ -6,7 +6,7 @@ export type FloorPlanFormat = (typeof FLOOR_PLAN_FORMATS)[number];
 /** Format yang bisa diunggah sekarang; DWG/DXF menunggu konversi CAD (T-313). */
 export type UploadableFloorPlanFormat = Extract<FloorPlanFormat, 'png' | 'jpg' | 'pdf'>;
 
-/** NFR-SEC-04: denah ≤ 50 MB (juga batas bucket di server). */
+/** Batas yang sama ditegakkan bucket Storage. */
 export const MAX_FLOOR_PLAN_BYTES = 50 * 1024 * 1024;
 /** Raster hasil PDF tidak lebih lebar dari ini agar tetap bisa dimuat browser. */
 export const MAX_RASTER_WIDTH_PX = 8000;
@@ -19,7 +19,7 @@ export interface FloorPlan {
   /** Gambar yang ditampilkan di peta: raster PDF, atau file asli untuk PNG/JPG. */
   rasterPath: string | null;
   pdfPage: number | null;
-  /** Sudut TL, TR, BR, BL sebagai [lng, lat]; kosong sebelum georeferensi (T-106). */
+  /** Sudut TL, TR, BR, BL sebagai [lng, lat]; kosong sebelum georeferensi. */
   corners: [number, number][] | null;
   opacity: number;
   isActive: boolean;
@@ -82,7 +82,7 @@ export interface FloorPlanPlacement {
 
 export type FloorPlanPlacementProblem = 'corners_invalid' | 'opacity_range';
 
-/** Posisi denah yang disimpan: tepat 4 sudut WGS84 dan opasitas 0–1 (FR-VEN-08, FR-VEN-09). */
+/** Posisi denah yang disimpan: tepat 4 sudut WGS84 dan opasitas 0–1 . */
 export function checkFloorPlanPlacement(input: FloorPlanPlacement): FloorPlanPlacementProblem[] {
   const problems: FloorPlanPlacementProblem[] = [];
   const validPoint = (p: [number, number]) =>

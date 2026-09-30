@@ -9,7 +9,7 @@ function subscribe(onChange: () => void) {
   return () => media.removeEventListener('change', onChange);
 }
 
-/** NFR-COMP-03: Admin untuk layar ≥ 1280 px, kecuali Penutupan yang dipakai Operator dari HP. */
+/** Admin untuk layar ≥ 1280 px, kecuali Penutupan yang dipakai Operator dari HP. */
 export function NarrowScreenNotice() {
   const isNarrow = useSyncExternalStore(subscribe, () => window.matchMedia(QUERY).matches);
   const onClosures = useMatch('/closures/*');

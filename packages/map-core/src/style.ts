@@ -15,7 +15,7 @@ import { FACILITY_ICON_COLORS, FACILITY_ICON_PREFIX } from './sprites';
 
 export const FLOOR_SOURCE_ID = 'floor';
 
-/** Bagian display_settings yang memengaruhi style (FR-VIS-01..03). */
+/** Bagian display_settings yang memengaruhi style. */
 export interface MapDisplay {
   heights?: Partial<Record<FeatureKind, number>>;
   colors?: Partial<Record<FeatureKind, string>>;
@@ -164,7 +164,7 @@ export function buildStyleLayers(display: MapDisplay = {}): LayerSpecification[]
       paint: { 'line-color': wallColor(display), 'line-width': 2 },
     },
     {
-      // FR-VIS-01/02: tinggi sudah dihitung builder 3D (override → venue → default).
+      // Tinggi sudah dihitung builder 3D (override → venue → default).
       id: LAYER_IDS.extrusion,
       type: 'fill-extrusion',
       source: FLOOR_3D_SOURCE_ID,
@@ -213,7 +213,7 @@ export function buildStyleLayers(display: MapDisplay = {}): LayerSpecification[]
       },
     },
     {
-      // FR-MAP-07: ikon per jenis fasilitas dari sprite yang dibangun saat memuat (sprites.ts).
+      // Ikon dari sprite yang dibangun saat memuat (sprites.ts), bukan berkas sprite server.
       id: LAYER_IDS.facilities,
       type: 'symbol',
       source,
@@ -226,7 +226,7 @@ export function buildStyleLayers(display: MapDisplay = {}): LayerSpecification[]
         ],
         'icon-size': ['interpolate', ['linear'], ['zoom'], 15, 0.5, 18, 1],
         // Di editor setiap fasilitas harus terlihat dan bisa diklik; penyembunyian label
-        // yang bertumpuk untuk pengunjung diatur saat Visitor dibuat (FR-VST-03).
+        // yang bertumpuk untuk pengunjung diatur saat Visitor dibuat.
         'icon-allow-overlap': true,
         'icon-ignore-placement': true,
       },

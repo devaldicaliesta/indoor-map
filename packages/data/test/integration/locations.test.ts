@@ -97,7 +97,7 @@ describe.runIf(url && anonKey && serviceKey)('lokasi dan kategori (Supabase loka
     expect(type?.name).toBe('Lokasi');
     const typeId = type?.id as NonNullable<typeof type>['id'];
 
-    // Kategori: ikon bawaan dan ikon unggahan (Editor boleh, FR-LOC-07)
+    // Editor boleh mengelola kategori, dengan ikon bawaan maupun unggahan.
     const pemeriksaan = await editor.categories.create(venue.id, typeId, {
       name: 'Pemeriksaan',
       icon: { kind: 'builtin', key: 'first-aid' },
@@ -128,7 +128,7 @@ describe.runIf(url && anonKey && serviceKey)('lokasi dan kategori (Supabase loka
       ...patch,
     });
 
-    // Kriteria 1: dua unit sekaligus, dengan logo
+    // Dua unit sekaligus, dengan logo dan foto.
     const radiologi = await editor.locations.save(
       venue.id,
       typeId,
@@ -159,7 +159,7 @@ describe.runIf(url && anonKey && serviceKey)('lokasi dan kategori (Supabase loka
     const logo = await fetch(editor.locations.imageUrl(saved?.logoPath ?? ''));
     expect(logo.status).toBe(200);
 
-    // Kriteria 1: unit yang dipakai lokasi aktif lain ditolak dengan pesan yang jelas
+    // Unit yang dipakai lokasi aktif lain ditolak dengan pesan yang menyebut pemiliknya.
     await expect(
       editor.locations.save(venue.id, typeId, null, input({ name: 'Apotek', unitIds: [u2, u3] }), {
         keepPhotoPaths: [],
@@ -172,7 +172,6 @@ describe.runIf(url && anonKey && serviceKey)('lokasi dan kategori (Supabase loka
     // Foto yang sempat diunggah untuk penyimpanan yang gagal ikut dihapus.
     expect(await storedFiles('locations')).toHaveLength(2);
 
-    // Kriteria 2: kode lokasi ganda ditolak
     await expect(
       editor.locations.save(
         venue.id,

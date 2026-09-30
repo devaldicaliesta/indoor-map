@@ -64,7 +64,7 @@ function luminance(hex: string): number {
 }
 
 /**
- * Warna simbol di atas latar pilihan venue (FR-VIS-03): --ink atau putih, mana yang
+ * Warna simbol di atas latar pilihan venue: --ink atau putih, mana yang
  * kontrasnya lebih tinggi, agar piktogram tetap terbaca.
  */
 export function glyphColorOn(background: string): string {

@@ -1,4 +1,4 @@
-// Edge Function system-settings (T-010): kirim email uji memakai SMTP dari Pengaturan Sistem.
+// Edge Function system-settings: kirim email uji memakai SMTP dari Pengaturan Sistem.
 // Password SMTP dibaca dari Vault lewat fungsi khusus service role, tidak pernah ke klien.
 import { CORS_HEADERS, fail, reply, requireSuperAdmin } from '../_shared/auth.ts';
 import { SmtpError, sendMail } from '../_shared/smtp.ts';

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 /**
- * NFR-SEC-05: peristiwa penting yang wajib dicatat di `audit_events`. Audit log lengkap
- * (setiap perubahan data) adalah F2 (FR-AUTH-07).
+ * Peristiwa penting yang wajib dicatat di `audit_events`. Audit log lengkap
+ * (setiap perubahan data) menyusul di F2.
  */
 export const AUDIT_ACTIONS = [
   'login',

@@ -47,7 +47,7 @@ export default defineConfig({
         navigateFallback: '/index.html',
         runtimeCaching: [
           {
-            // Snapshot venue: tampil cepat dari cache, diperbarui di latar (FR-VST-02, NFR-REL-03).
+            // Snapshot venue: tampil cepat dari cache, diperbarui di latar.
             urlPattern: ({ url }) => url.pathname.includes('/storage/v1/object/public/snapshots/'),
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'snapshots', expiration: { maxEntries: 20 } },

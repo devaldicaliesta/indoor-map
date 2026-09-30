@@ -277,7 +277,6 @@ function DisplayForm({
   );
 }
 
-/** Pengaturan → Tampilan (FR-VIS-01..05): tinggi, warna, mode awal, dan kamera awal venue. */
 export function DisplaySettingsPanel({ venueId }: { venueId: VenueId }) {
   const settings = useDisplaySettings(venueId);
   const role = useRole();

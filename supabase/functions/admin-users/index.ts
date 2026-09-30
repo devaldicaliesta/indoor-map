@@ -1,4 +1,4 @@
-// Edge Function admin-users (T-009): Super Admin mengundang pengguna baru.
+// Edge Function admin-users: Super Admin mengundang pengguna baru.
 // Membuat akun Auth butuh service role, jadi tidak bisa dilakukan dari klien.
 // Memakai REST API Auth/PostgREST langsung, tanpa impor dari internet: fungsi tetap
 // bisa dimuat di server on-premise yang aksesnya ke registry dibatasi.

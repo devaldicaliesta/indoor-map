@@ -12,11 +12,11 @@ import {
 import { FloorSwitcher, type MapControlLabels, MapControls } from '@indoor/ui';
 import { useEffect, useRef, useState } from 'react';
 
-// Pratinjau peta khusus pengembangan (T-104) dengan fixture venue contoh.
+// Pratinjau peta khusus pengembangan dengan fixture venue contoh.
 const all = sample.features as FloorFeatureCollection;
 const floors = sample.floors.map((f, i) => ({ ...f, sortOrder: i }));
 const buildings = sample.buildings.map((b) => ({ ...b, defaultFloorId: null }));
-// FR-VEN-06: tampilan awal dari gedung/lantai default (fixture tanpa default → fallback).
+// Tampilan awal dari gedung/lantai default (fixture tanpa default → fallback).
 const start = initialFloorView(null, buildings, floors);
 
 /** Lantai sintetis 1.000 fitur untuk mengukur kecepatan ganti lantai. */

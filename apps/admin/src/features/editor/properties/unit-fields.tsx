@@ -16,7 +16,6 @@ import { CommitInput } from './commit-input';
 const number = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
 const parseDecimal = (value: string) => Number(value.trim().replace(/\./g, '').replace(',', '.'));
 
-/** FR-MAP-06: kode unit, luas (otomatis, bisa dikoreksi), dan status. */
 export function UnitFields({
   feature,
   session,

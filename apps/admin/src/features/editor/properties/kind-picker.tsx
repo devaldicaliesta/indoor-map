@@ -7,7 +7,7 @@ import { useEditorStore } from '../store/editor-store';
 
 /**
  * Pilihan jenis untuk alat gambar aktif; tampil mengambang di pojok kiri atas kanvas.
- * Fasilitas (FR-MAP-07) memilih jenis fasilitasnya di sebelah pilihan jenis fitur.
+ * Fasilitas memilih jenis fasilitasnya di sebelah pilihan jenis fitur.
  */
 export function KindPicker({
   isOutdoor,

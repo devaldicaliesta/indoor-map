@@ -41,7 +41,7 @@ export function contrastRatio(a: string, b: string): number {
 
 /**
  * Warna teks pertama dari `candidates` yang lolos AA di atas `background`;
- * jika tidak ada, yang kontrasnya tertinggi (dipakai branding venue, FR-VIS-07).
+ * jika tidak ada, yang kontrasnya tertinggi (dipakai branding venue).
  */
 export function readableTextOn(background: string, candidates: readonly string[]): string {
   const first = candidates[0];

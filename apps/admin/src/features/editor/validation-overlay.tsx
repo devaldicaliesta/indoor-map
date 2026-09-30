@@ -14,7 +14,6 @@ import {
 import { useEffect, useRef } from 'react';
 import { useEditorStore } from './store/editor-store';
 
-/** Tanda merah di peta untuk fitur yang punya temuan validasi (FR-MAP-09). */
 export function ValidationOverlay({
   map,
   featureIds,

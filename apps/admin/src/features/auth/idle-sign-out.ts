@@ -36,7 +36,7 @@ function clearActivity() {
   }
 }
 
-/** FR-AUTH-01: keluar otomatis setelah 60 menit tanpa aktivitas di tab mana pun. */
+/** Aktivitas di tab mana pun menunda keluar otomatis. */
 export function useIdleSignOut() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();

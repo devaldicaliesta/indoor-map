@@ -58,7 +58,7 @@ interface ViewFloor {
 }
 
 /**
- * FR-VEN-06: tampilan awal = gedung default venue dan lantai default gedung itu.
+ * Tampilan awal = gedung default venue dan lantai default gedung itu.
  * Fallback: gedung pertama, lalu lantai level 0 (atau yang paling dekat ke 0).
  */
 export function initialFloorView(

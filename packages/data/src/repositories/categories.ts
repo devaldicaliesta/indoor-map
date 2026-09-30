@@ -41,7 +41,7 @@ export function mapCategoryRow(row: CategoryRow): Category {
 }
 
 export interface CategoriesRepository {
-  /** Tipe lokasi venue. T-116 hanya memakai tipe bawaan "Lokasi"; kelola tipe di T-303. */
+  /** Saat ini hanya tipe bawaan "Lokasi"; kelola tipe di T-303. */
   listTypes(venueId: VenueId): Promise<LocationTypeSummary[]>;
   /** Kategori semua tipe lokasi venue, terurut, dengan jumlah lokasinya. */
   list(venueId: VenueId): Promise<CategoryWithUsage[]>;
@@ -53,7 +53,6 @@ export interface CategoriesRepository {
     iconPng?: Blob,
   ): Promise<Category>;
   update(id: CategoryId, input: CategoryInput, iconPng?: Blob): Promise<Category>;
-  /** Menyimpan urutan tampil baru (FR-LOC-07). */
   reorder(order: readonly { id: CategoryId; sortOrder: number }[]): Promise<void>;
   /** Kategori yang dipakai lokasi ikut dilepas dari lokasi tersebut (cascade). */
   remove(id: CategoryId): Promise<void>;

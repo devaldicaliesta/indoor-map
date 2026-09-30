@@ -1,7 +1,7 @@
 import type { AppRole } from './profile';
 
 /**
- * Matriks akses per role (FR-AUTH-04, docs/spec/05-user-flow.md "Struktur menu Admin").
+ * Matriks akses per role (docs/spec/05-user-flow.md "Struktur menu Admin").
  * Satu sumber untuk UI; server menegakkan aturan yang sama lewat RLS dan fungsi `app.*`.
  */
 export const ADMIN_MODULES = [
@@ -38,7 +38,7 @@ const MODULE_ACCESS: Record<AdminModule, Partial<Record<AppRole, ModuleAccess>>>
     viewer: 'read',
   },
   origin_points: { super_admin: 'edit', admin: 'edit', editor: 'edit', viewer: 'read' },
-  // Editor hanya menjalankan validasi; tombol Publish/Rollback diatur per aksi (T-009).
+  // Editor hanya menjalankan validasi; tombol Publish/Rollback diatur per aksi.
   publish: { super_admin: 'edit', admin: 'edit', editor: 'edit', viewer: 'read' },
   settings: { super_admin: 'edit', admin: 'edit', editor: 'read', viewer: 'read' },
   users: { super_admin: 'edit' },

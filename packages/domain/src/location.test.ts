@@ -84,7 +84,7 @@ const LOCATIONS = [
 
 const names = (list: Location[]) => list.map((l) => l.name);
 
-describe('filterLocations (FR-LOC-10)', () => {
+describe('filterLocations', () => {
   it('tanpa filter: semua lokasi, urut nama', () => {
     expect(names(filterLocations(LOCATIONS, EMPTY_LOCATION_FILTER))).toEqual([
       'Apotek 2',
@@ -138,7 +138,7 @@ describe('filterLocations (FR-LOC-10)', () => {
   });
 });
 
-describe('checkLocationCode (FR-LOC-03)', () => {
+describe('checkLocationCode', () => {
   const others = [
     { id: 'a', code: 'POL-01', name: 'Poli Anak' },
     { id: 'b', code: null, name: 'Apotek' },
@@ -182,7 +182,7 @@ describe('checkLocationInput', () => {
   });
 });
 
-describe('unit lokasi (FR-LOC-04)', () => {
+describe('unit lokasi', () => {
   const venueUnit = (code: string, holders: VenueUnit['holders'] = []): VenueUnit => ({
     featureId: id<FeatureId>(code.charCodeAt(code.length - 1)),
     unitCode: code,
@@ -231,7 +231,7 @@ describe('unit lokasi (FR-LOC-04)', () => {
   });
 });
 
-describe('kategori (FR-LOC-07)', () => {
+describe('kategori', () => {
   const categories = [
     { id: 'a', name: 'Anak', sortOrder: 0 },
     { id: 'b', name: 'Bedah', sortOrder: 0 },

@@ -1,5 +1,5 @@
 /**
- * Riwayat undo/redo editor (FR-MAP-05) dengan pola command berbasis patch: setiap aksi
+ * Riwayat undo/redo editor dengan pola command berbasis patch: setiap aksi
  * (buat, ubah geometri/properti, hapus, aksi massal) dicatat sebagai daftar perubahan
  * `before → after` per fitur. `do` memasang `after`, `undo` memasang `before`, sehingga
  * pembalikan selalu tepat tanpa logika khusus per jenis aksi.
@@ -18,7 +18,7 @@ export interface History<T> {
   future: Patch<T>[];
 }
 
-/** Minimal 50 langkah per sesi (T-111); disimpan 100 agar ada kelonggaran. */
+/** Minimal 50 langkah per sesi; disimpan 100 agar ada kelonggaran. */
 export const HISTORY_LIMIT = 100;
 
 export const emptyHistory = <T>(): History<T> => ({ past: [], future: [] });

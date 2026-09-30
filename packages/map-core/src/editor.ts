@@ -33,7 +33,7 @@ export interface FeatureEditorCallbacks {
   onEdit(id: string, geometry: Geometry): void;
   /** Klik pada fitur lantai di alat pilih; `null` bila klik di ruang kosong. Shift = tambah/kurangi. */
   onPick(id: string | null, additive: boolean): void;
-  /** FR-MAP-04: sumber titik tempel. `enabled` false = snapping dimatikan di bilah status. */
+  /** `enabled` false = snapping dimatikan di bilah status. */
   snap: {
     enabled(): boolean;
     candidates(bbox: BBox, excludeId: string | null): SnapCandidates;
@@ -210,7 +210,7 @@ export function createFeatureEditor(
       new TerraDrawPointMode({ styles: styles.point }),
       new TerraDrawSelectMode({
         styles: styles.select,
-        // Hapus dan pintasan lain lewat store editor (T-110), bukan langsung di terra-draw.
+        // Hapus dan pintasan lain lewat store editor, bukan langsung di terra-draw.
         keyEvents: null,
         allowManualDeselection: false,
         flags: {

@@ -12,7 +12,6 @@ export interface SnapInput {
   tolerancePx?: number;
 }
 
-/** FR-MAP-04: toleransi snapping 8 px layar. */
 export const SNAP_TOLERANCE_PX = 8;
 
 const dist = (a: Px, b: Px) => Math.hypot(a[0] - b[0], a[1] - b[1]);

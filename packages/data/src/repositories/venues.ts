@@ -1,5 +1,6 @@
 import {
   BuildingIdSchema,
+  MAX_IMAGE_BYTES,
   type Point,
   VENUE_TYPES,
   type Venue,
@@ -18,8 +19,6 @@ import type { Db } from '../supabase';
 const COLUMNS =
   'id, name, address, center, logo_path, timezone, venue_type, default_building_id, created_at, updated_at';
 const ASSETS_BUCKET = 'public-assets';
-/** NFR-SEC-04: 5 MB per gambar; juga ditegakkan batas bucket di server. */
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const LOGO_TYPES: Record<string, string> = {
   'image/png': 'png',
   'image/jpeg': 'jpg',
@@ -79,7 +78,7 @@ export function createVenuesRepository(db: Db): VenuesRepository {
     return data !== null;
   }
 
-  /** Logo venue dan ikon jenis fasilitasnya (T-112). */
+  /** Berkas publik venue: logo, ikon jenis fasilitas dan kategori, gambar lokasi. */
   async function removeFiles(id: VenueId) {
     const folders = [`venues/${id}`, `facility-types/${id}`, `locations/${id}`, `categories/${id}`];
     for (const folder of folders) {

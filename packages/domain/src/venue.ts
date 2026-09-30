@@ -19,7 +19,6 @@ export const VENUE_TYPES = [
 ] as const;
 export type VenueType = (typeof VENUE_TYPES)[number];
 
-/** FR-VEN-01: nama, alamat, koordinat pusat, logo, zona waktu. */
 export interface Venue extends VenueSummary {
   address: string | null;
   center: Point | null;
