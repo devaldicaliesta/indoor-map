@@ -23,6 +23,10 @@
     },
     "test:integration": {
       "cache": false
+    },
+    "test:e2e": {
+      "cache": false,
+      "passThroughEnv": ["CI", "E2E_*", "PLAYWRIGHT_*", "SEED_ADMIN_PASSWORD", "VITE_SUPABASE_*"]
     }
   }
 }

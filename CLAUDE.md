@@ -33,6 +33,7 @@ packages/map-core wrapper MapLibre: style, layer 2D/3D, georeferensi, kamera
 packages/data     satu-satunya pintu ke Supabase (repository)
 packages/ui       komponen shadcn yang sudah dikustom + design token
 supabase/         migrations (SQL murni), functions (Edge Functions)
+e2e/              test E2E Playwright (alur utama), satu konfigurasi untuk Admin dan Visitor
 docs/             playbook, dibaca per kebutuhan task
 ```
 
@@ -44,6 +45,7 @@ pnpm dev              jalankan semua app
 pnpm check            typecheck + lint + test (wajib hijau sebelum PR)
 pnpm test             test saja
 pnpm test:integration test yang butuh Supabase lokal berjalan (RLS lewat repository)
+pnpm test:e2e         test E2E Playwright (butuh Supabase lokal dan pnpm db:reset)
 supabase start        Supabase lokal (butuh Docker)
 supabase db reset     terapkan ulang semua migrasi + seed (tanpa Super Admin)
 pnpm db:reset         sama, plus Super Admin lokal admin@local.test (password dari .env.local)

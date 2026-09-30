@@ -159,7 +159,7 @@ Saat test gagal, Playwright menyimpan di `e2e/test-results/<test>/`: screenshot 
 
 ## CI
 
-Workflow E2E terpisah dari `ci.yml` (`.github/workflows/e2e.yml`), berjalan di pull request dan push ke `main`, dilewati bila hanya `docs/**` atau `*.md` yang berubah:
+Workflow E2E terpisah dari `ci.yml` (`.github/workflows/e2e.yml`; buat bila belum ada), berjalan di pull request dan push ke `main`, dilewati bila hanya `docs/**` atau `*.md` yang berubah:
 
 1. `pnpm install --frozen-lockfile`.
 2. `pnpm exec supabase start` (tanpa layanan yang tidak dipakai test, misalnya Studio dan analitik), lalu `pnpm db:reset` dengan `SEED_ADMIN_PASSWORD` yang dibuat per run.
