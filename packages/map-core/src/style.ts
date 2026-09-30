@@ -36,9 +36,27 @@ export const LAYER_IDS = {
   facilities: 'floor-facilities',
 } as const;
 
-/** Layer yang hanya tampil di mode 2D / 3D. */
-export const LAYERS_2D_ONLY = [LAYER_IDS.rooms, LAYER_IDS.roomOutline, LAYER_IDS.vacantOutline];
-export const LAYERS_3D_ONLY = [LAYER_IDS.extrusion, LAYER_IDS.extrusionEdges];
+/** Sorotan pilihan pengunjung (layers/highlight.ts); ditambahkan saat pertama dipakai. */
+export const HIGHLIGHT_LAYER_IDS = {
+  fill: 'floor-highlight-fill',
+  line: 'floor-highlight-line',
+  extrusion: 'floor-highlight-extrusion',
+  point: 'floor-highlight-point',
+} as const;
+
+/** Layer yang hanya tampil di mode 2D / 3D; yang belum ada di peta dilewati. */
+export const LAYERS_2D_ONLY = [
+  LAYER_IDS.rooms,
+  LAYER_IDS.roomOutline,
+  LAYER_IDS.vacantOutline,
+  HIGHLIGHT_LAYER_IDS.fill,
+  HIGHLIGHT_LAYER_IDS.line,
+];
+export const LAYERS_3D_ONLY = [
+  LAYER_IDS.extrusion,
+  LAYER_IDS.extrusionEdges,
+  HIGHLIGHT_LAYER_IDS.extrusion,
+];
 
 const FLAT_KINDS: FeatureKind[] = ['outdoor_area', 'corridor', 'non_walkable'];
 const ROOM_KINDS: FeatureKind[] = [...ROOM_KINDS_3D];

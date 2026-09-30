@@ -103,11 +103,12 @@ export function setMapDisplay(map: MapLibreMap, display: MapDisplay): void {
   refresh3d(map, state);
 }
 
-function applyModeVisibility(map: MapLibreMap, mode: ViewMode) {
-  for (const id of LAYERS_2D_ONLY)
-    map.setLayoutProperty(id, 'visibility', mode === '2d' ? 'visible' : 'none');
-  for (const id of LAYERS_3D_ONLY)
-    map.setLayoutProperty(id, 'visibility', mode === '3d' ? 'visible' : 'none');
+export function applyModeVisibility(map: MapLibreMap, mode: ViewMode) {
+  const show = (id: string, visible: boolean) => {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none');
+  };
+  for (const id of LAYERS_2D_ONLY) show(id, mode === '2d');
+  for (const id of LAYERS_3D_ONLY) show(id, mode === '3d');
 }
 
 /** `keepCamera`: hanya layer dan data yang berganti, kemiringan kamera tidak diubah (kamera tersimpan). */
