@@ -183,7 +183,7 @@
   1. Audit semua halaman Admin dengan akun Viewer: semua kontrol ubah disembunyikan atau nonaktif.
   2. Test pgTAP untuk setiap tabel × setiap role × setiap operasi (dibangkitkan dari matriks di `permissions.ts`).
   3. Test Playwright singkat: login Viewer, buka semua menu, pastikan tidak ada tombol ubah aktif.
-- **File:** `supabase/tests/permissions_matrix.test.sql`, `apps/admin/e2e/viewer.spec.ts`
+- **File:** `supabase/tests/permissions_matrix.test.sql`, `e2e/tests/admin/viewer.spec.ts`
 - **Selesai jika:**
   - [ ] Matriks role × tabel × operasi lulus seluruhnya
   - [ ] Viewer tidak bisa mengubah apa pun lewat UI maupun API

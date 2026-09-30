@@ -29,3 +29,4 @@ Bila CI atau `pnpm check` merah: `/ecc-build-fix`. Untuk perubahan RLS, Storage,
 - **Rules** (`rules/*.md`): tumpang tindih dan sebagian bertentangan dengan `CLAUDE.md` (misalnya format commit `T-xxx: …`).
 - Command yang bergantung pada hook atau stack lain: `/checkpoint`, `/learn`, `/eval`, `/orchestrate`, `/setup-pm`, `/test-coverage`, `/update-codemaps`, `/update-docs`.
 - Skill untuk stack lain (ClickHouse, backend Node/Express) dan konfigurasi MCP.
+- Dari `e2e-runner`: karantina test tidak stabil (`test.fixme`), project Firefox/WebKit, dan contoh skenario proyek asal (markets, wallet, trading). Pola lainnya dibawa: Page Object Model, fixture, artefak saat gagal, laporan HTML/JUnit, cek stabilitas `--repeat-each`, dan workflow CI dengan unggah artefak.
