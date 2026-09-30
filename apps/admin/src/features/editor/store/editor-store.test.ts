@@ -49,4 +49,22 @@ describe('store editor: command dan riwayat', () => {
     expect(useEditorStore.getState().history).toEqual({ past: [], future: [] });
     expect(useEditorStore.getState().undo()).toBeNull();
   });
+
+  it('focus dari daftar memilih satu fitur, kembali ke alat pilih, dan meminta kamera', () => {
+    const store = useEditorStore.getState();
+    store.commit([{ id: 'b', before: null, after: unit('b', 2) }]);
+    store.setTool('polygon');
+    store.focus('b');
+    const first = useEditorStore.getState();
+    expect(first.selectedIds).toEqual(['b']);
+    expect(first.tool).toBe('select');
+    expect(first.focusRequest?.id).toBe('b');
+    // Klik ulang item yang sama tetap menerbangkan peta.
+    first.focus('b');
+    expect(useEditorStore.getState().focusRequest?.seq).toBe((first.focusRequest?.seq ?? 0) + 1);
+    // Fitur yang tidak ada diabaikan; riwayat undo tidak berubah.
+    useEditorStore.getState().focus('tidak-ada');
+    expect(useEditorStore.getState().selectedIds).toEqual(['b']);
+    expect(useEditorStore.getState().history.past).toHaveLength(1);
+  });
 });

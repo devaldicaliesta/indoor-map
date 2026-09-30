@@ -29,6 +29,10 @@ export interface EditorState {
   saveError: string | null;
   /** Jenis yang dipakai tiap alat gambar (FR-MAP-01). */
   drawKinds: Record<FeatureShape, DrawKind>;
+  /** Fitur yang disorot sementara dari panel daftar (hover/fokus), bukan seleksi. */
+  hoveredId: string | null;
+  /** Permintaan kamera dari panel daftar; `seq` naik setiap klik agar klik ulang tetap terbang. */
+  focusRequest: { id: string; seq: number } | null;
 
   load(floorId: FloorId, collection: FloorFeatures, isOutdoor: boolean): void;
   setDrawKind(shape: FeatureShape, kind: DrawKind): void;
@@ -43,6 +47,9 @@ export interface EditorState {
   /** Shift+klik: menambah atau mengurangi satu fitur dari seleksi. */
   toggleSelect(id: string): void;
   selectMany(ids: string[]): void;
+  /** FR-MAP-08: pilih satu fitur dari daftar dan arahkan peta ke sana. */
+  focus(id: string): void;
+  setHovered(id: string | null): void;
   setSnapEnabled(enabled: boolean): void;
   setTool(tool: EditorTool): void;
   setSaveStatus(status: SaveStatus, error: string | null): void;
@@ -74,6 +81,8 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
   saveStatus: 'idle',
   saveError: null,
   drawKinds: defaultDrawKinds(false),
+  hoveredId: null,
+  focusRequest: null,
   history: emptyHistory(),
 
   load(floorId, collection, isOutdoor) {
@@ -86,6 +95,8 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       saveStatus: 'idle',
       saveError: null,
       drawKinds: defaultDrawKinds(isOutdoor),
+      hoveredId: null,
+      focusRequest: null,
       history: emptyHistory(),
     });
   },
@@ -120,6 +131,18 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
   },
   selectMany(ids) {
     set((s) => ({ selectedIds: [...new Set([...s.selectedIds, ...ids])] }));
+  },
+  focus(id) {
+    if (!get().features[id]) return;
+    // Memilih dari daftar berarti ingin melihat/menyunting fitur itu: kembali ke alat pilih.
+    set((s) => ({
+      selectedIds: [id],
+      tool: 'select',
+      focusRequest: { id, seq: (s.focusRequest?.seq ?? 0) + 1 },
+    }));
+  },
+  setHovered(hoveredId) {
+    set({ hoveredId });
   },
   setSnapEnabled(snapEnabled) {
     set({ snapEnabled });
