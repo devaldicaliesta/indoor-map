@@ -27,7 +27,14 @@ import { useMediaQuery } from '../../app/use-media-query';
 import { DESKTOP_QUERY, MOBILE_HEADER_PX } from '../../app/visitor-shell';
 import { PEEK_HEIGHT_PX } from '../../components/sheet-snap';
 import { BuildingPicker } from './building-picker';
-import { type CameraPadding, type InitialCamera, initialCamera, moveCamera } from './camera';
+import {
+  type CameraPadding,
+  type InitialCamera,
+  initialCamera,
+  MAP_GAP_PX,
+  moveCamera,
+} from './camera';
+import { useExploreMap } from './explore-map';
 import { facilityIconSpecs } from './facility-icons';
 import { LABEL_FONT } from './label-font';
 
@@ -44,7 +51,6 @@ function startCamera(snapshot: Snapshot, view: MapView, mode: SnapshotDisplayMod
   return initialCamera(snapshot, floorCollection(snapshot, floorIds), mode);
 }
 
-const GAP_PX = 12;
 // Pemilih gedung di kiri atas dan kolom lantai/kontrol di kanan (lebar kontrol 44 px).
 const PICKER_PX = 44;
 const CONTROLS_PX = 44;
@@ -58,13 +64,13 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
   // Di HP kontrol tidak boleh tertutup kolom cari di atas dan bottom sheet di bawah.
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const inset = isDesktop
-    ? { top: GAP_PX, bottom: GAP_PX }
-    : { top: MOBILE_HEADER_PX + GAP_PX, bottom: PEEK_HEIGHT_PX + GAP_PX };
+    ? { top: MAP_GAP_PX, bottom: MAP_GAP_PX }
+    : { top: MOBILE_HEADER_PX + MAP_GAP_PX, bottom: PEEK_HEIGHT_PX + MAP_GAP_PX };
   const padding: CameraPadding = {
-    top: inset.top + PICKER_PX + GAP_PX,
-    bottom: inset.bottom + GAP_PX,
-    left: GAP_PX,
-    right: CONTROLS_PX + 2 * GAP_PX,
+    top: inset.top + PICKER_PX + MAP_GAP_PX,
+    bottom: inset.bottom + MAP_GAP_PX,
+    left: MAP_GAP_PX,
+    right: CONTROLS_PX + 2 * MAP_GAP_PX,
   };
   const paddingRef = useRef(padding);
   paddingRef.current = padding;
@@ -84,7 +90,18 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
     [snapshot, view.floorId],
   );
   const features = useMemo(() => floorCollection(snapshot, floorIds), [snapshot, floorIds]);
-  const labels = useMemo(() => mapLabels(snapshot, floorIds), [snapshot, floorIds]);
+  const { labelIds, markedFloors } = useExploreMap({
+    map,
+    snapshot,
+    view,
+    setView,
+    padding,
+    isDesktop,
+  });
+  const labels = useMemo(
+    () => mapLabels(snapshot, floorIds, labelIds),
+    [snapshot, floorIds, labelIds],
+  );
   const floors = useMemo(
     () =>
       view.buildingId
@@ -109,6 +126,14 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
       labelFont: LABEL_FONT,
     });
     instance.on('rotate', () => setBearing(instance.getBearing()));
+    // Status kamera untuk test E2E; ditulis langsung ke elemen agar tidak memicu render.
+    container.dataset.camera = 'idle';
+    instance.on('movestart', () => {
+      container.dataset.camera = 'moving';
+    });
+    instance.on('moveend', () => {
+      container.dataset.camera = 'idle';
+    });
     instance.once('load', () => {
       if (camera) moveCamera(instance, camera, { animate: false, padding: paddingRef.current });
       void setFacilityIcons(instance, facilityIconSpecs(snapshot.facilityTypes), {
@@ -188,6 +213,8 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
               value={view.floorId}
               onChange={(floorId) => setView({ ...view, floorId })}
               label={t('map.floors')}
+              marked={markedFloors}
+              markedLabel={t('map.floorHasResults')}
             />
           ) : null}
         </div>

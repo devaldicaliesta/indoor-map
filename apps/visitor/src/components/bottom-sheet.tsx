@@ -5,9 +5,23 @@ import { cycleSnap, nearestSnap, type SheetSnap, snapHeight, stepSnap } from './
 
 const DRAG_THRESHOLD_PX = 4;
 
-export function BottomSheet({ children }: { children: ReactNode }) {
+/** Tinggi sheet diatur sendiri, atau oleh halaman lewat `snap` dan `onSnapChange`. */
+export function BottomSheet({
+  children,
+  snap: controlledSnap,
+  onSnapChange,
+}: {
+  children: ReactNode;
+  snap?: SheetSnap | undefined;
+  onSnapChange?: ((snap: SheetSnap) => void) | undefined;
+}) {
   const { t } = useTranslation();
-  const [snap, setSnap] = useState<SheetSnap>('peek');
+  const [ownSnap, setOwnSnap] = useState<SheetSnap>('peek');
+  const snap = controlledSnap ?? ownSnap;
+  const setSnap = (next: SheetSnap) => {
+    setOwnSnap(next);
+    onSnapChange?.(next);
+  };
   const [dragHeight, setDragHeight] = useState<number | null>(null);
   const drag = useRef<{ startY: number; startHeight: number; moved: boolean } | null>(null);
 
@@ -74,7 +88,7 @@ export function BottomSheet({ children }: { children: ReactNode }) {
       >
         <span aria-hidden="true" className="h-1 w-10 rounded-full bg-line" />
       </button>
-      <div className="min-h-0 flex-1 overflow-y-auto px-(--panel-padding) pb-(--panel-padding)">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-(--panel-padding) pb-(--panel-padding)">
         {children}
       </div>
     </section>

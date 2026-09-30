@@ -4,7 +4,17 @@
   },
   "search": {
     "label": "Search locations",
-    "placeholder": "Search places…"
+    "placeholder": "Search places…",
+    "clear": "Clear search",
+    "results": "Search results",
+    "count_one": "{{count}} result",
+    "count_other": "{{count}} results",
+    "emptyTitle": "No results for “{{query}}”",
+    "emptyDescription": "Check the spelling, try a unit code, or browse all places A–Z.",
+    "categoryHit_one": "Category · {{count}} place",
+    "categoryHit_other": "Category · {{count}} places",
+    "facilityTypeHit_one": "Facility · {{count}} spot",
+    "facilityTypeHit_other": "Facility · {{count}} spots"
   },
   "language": {
     "label": "Language",
@@ -21,7 +31,8 @@
     "mode3d": "3D",
     "floors": "Floors",
     "resetView": "Back to the start view",
-    "building": "Building"
+    "building": "Building",
+    "floorHasResults": "has results"
   },
   "sheet": {
     "handle": "Resize panel",
@@ -47,5 +58,42 @@
     "description": "This map is updated whenever the building manager publishes a new version.",
     "version": "Map version",
     "publishedAt": "Published"
+  },
+  "explore": {
+    "chips": "Categories and facilities",
+    "directoryChip": "A–Z",
+    "directoryTitle": "All places A–Z",
+    "openDirectory": "Open the A–Z list",
+    "hint": "Search for a place name or unit code, pick a category, or open the A–Z list.",
+    "closeList": "Close list",
+    "back": "Back",
+    "locationCount_one": "{{count}} place",
+    "locationCount_other": "{{count}} places",
+    "facilityCount_one": "{{count}} spot",
+    "facilityCount_other": "{{count}} spots",
+    "filterBuilding": "Filter by building",
+    "filterFloor": "Filter by floor",
+    "filterType": "Filter by type",
+    "allBuildings": "All buildings",
+    "allFloors": "All floors",
+    "allTypes": "All types",
+    "outdoorArea": "Outdoor area",
+    "directoryEmpty": "No places match these filters. Change or clear a filter."
+  },
+  "location": {
+    "route": "Directions to here",
+    "routeUnavailable": "Directions are not available on this map yet.",
+    "notOnMap": "Not on the map yet",
+    "comingSoon": "Opening soon",
+    "comingSoonFrom": "Opening soon · from {{date}}",
+    "temporarilyClosed": "Temporarily closed",
+    "photo": "Photo of {{name}} {{number}}",
+    "yes": "Yes",
+    "no": "No",
+    "missingTitle": "Not found on this map",
+    "missingDescription": "Go back and search again by name or unit code."
+  },
+  "unit": {
+    "label": "Unit"
   }
 }

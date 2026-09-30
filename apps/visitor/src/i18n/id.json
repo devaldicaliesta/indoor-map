@@ -4,7 +4,17 @@
   },
   "search": {
     "label": "Cari lokasi",
-    "placeholder": "Cari lokasi…"
+    "placeholder": "Cari lokasi…",
+    "clear": "Hapus pencarian",
+    "results": "Hasil pencarian",
+    "count_one": "{{count}} hasil",
+    "count_other": "{{count}} hasil",
+    "emptyTitle": "Tidak ada hasil untuk “{{query}}”",
+    "emptyDescription": "Periksa ejaan, coba kode unit, atau telusuri semua lokasi A–Z.",
+    "categoryHit_one": "Kategori · {{count}} lokasi",
+    "categoryHit_other": "Kategori · {{count}} lokasi",
+    "facilityTypeHit_one": "Fasilitas · {{count}} tempat",
+    "facilityTypeHit_other": "Fasilitas · {{count}} tempat"
   },
   "language": {
     "label": "Bahasa",
@@ -21,7 +31,8 @@
     "mode3d": "3D",
     "floors": "Lantai",
     "resetView": "Kembali ke tampilan awal",
-    "building": "Gedung"
+    "building": "Gedung",
+    "floorHasResults": "ada hasil"
   },
   "sheet": {
     "handle": "Ubah tinggi panel",
@@ -47,5 +58,42 @@
     "description": "Peta ini diperbarui setiap kali pengelola gedung menerbitkan versi baru.",
     "version": "Versi peta",
     "publishedAt": "Diterbitkan"
+  },
+  "explore": {
+    "chips": "Kategori dan fasilitas",
+    "directoryChip": "A–Z",
+    "directoryTitle": "Semua lokasi A–Z",
+    "openDirectory": "Buka daftar A–Z",
+    "hint": "Cari nama lokasi atau kode unit, pilih kategori, atau buka daftar A–Z.",
+    "closeList": "Tutup daftar",
+    "back": "Kembali",
+    "locationCount_one": "{{count}} lokasi",
+    "locationCount_other": "{{count}} lokasi",
+    "facilityCount_one": "{{count}} tempat",
+    "facilityCount_other": "{{count}} tempat",
+    "filterBuilding": "Saring gedung",
+    "filterFloor": "Saring lantai",
+    "filterType": "Saring tipe",
+    "allBuildings": "Semua gedung",
+    "allFloors": "Semua lantai",
+    "allTypes": "Semua tipe",
+    "outdoorArea": "Area Luar",
+    "directoryEmpty": "Tidak ada lokasi dengan filter ini. Ubah atau hapus filter."
+  },
+  "location": {
+    "route": "Rute ke sini",
+    "routeUnavailable": "Petunjuk rute belum tersedia di peta ini.",
+    "notOnMap": "Belum ada di peta",
+    "comingSoon": "Segera buka",
+    "comingSoonFrom": "Segera buka · mulai {{date}}",
+    "temporarilyClosed": "Tutup sementara",
+    "photo": "Foto {{name}} {{number}}",
+    "yes": "Ya",
+    "no": "Tidak",
+    "missingTitle": "Tidak ditemukan di peta ini",
+    "missingDescription": "Kembali lalu cari lagi dengan nama atau kode unit."
+  },
+  "unit": {
+    "label": "Unit"
   }
 }

@@ -1,13 +1,17 @@
 import { DataError } from '@indoor/data';
-import { type VenueId, VenueIdSchema } from '@indoor/domain';
+import { type Snapshot, type VenueId, VenueIdSchema } from '@indoor/domain';
 import { Button, Skeleton } from '@indoor/ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { PanelMessage } from '../app/panel-message';
-import { VisitorShell } from '../app/visitor-shell';
+import { useMediaQuery } from '../app/use-media-query';
+import { DESKTOP_QUERY, VisitorShell } from '../app/visitor-shell';
 import { useSnapshot } from '../data/loadSnapshot';
 import { VenueMap } from '../features/map/venue-map';
+import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
+import { DetailBackBar, ExplorePanel } from '../features/search/explore-panel';
+import { VenueSearch } from '../features/search/venue-search';
 import { VenueInfo } from '../features/venue/venue-info';
 import { applyVenueLanguage } from '../i18n';
 
@@ -61,12 +65,28 @@ function VenueView({ venueId }: { venueId: VenueId }) {
   }
 
   return (
+    <ExploreProvider key={venueId} snapshot={snapshot.data}>
+      <VenueExplorer snapshot={snapshot.data} />
+    </ExploreProvider>
+  );
+}
+
+/** Peta dengan pencarian, chip, daftar, dan detail; semuanya dari snapshot di perangkat. */
+function VenueExplorer({ snapshot }: { snapshot: Snapshot }) {
+  const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const sheetSnap = useExploreStore((s) => s.sheetSnap);
+  const setSheetSnap = useExploreStore((s) => s.setSheetSnap);
+  const hasDetail = useExploreStore((s) => s.detail !== null);
+  return (
     <VisitorShell
-      title={snapshot.data.venue.name}
-      actions={<VenueInfo snapshot={snapshot.data} />}
-      map={<VenueMap snapshot={snapshot.data} />}
+      title={snapshot.venue.name}
+      actions={<VenueInfo snapshot={snapshot} />}
+      map={<VenueMap snapshot={snapshot} />}
+      search={<VenueSearch />}
+      mobileHeader={hasDetail ? <DetailBackBar /> : undefined}
+      sheet={{ snap: sheetSnap, onSnapChange: setSheetSnap }}
     >
-      {null}
+      <ExplorePanel desktop={isDesktop} />
     </VisitorShell>
   );
 }
