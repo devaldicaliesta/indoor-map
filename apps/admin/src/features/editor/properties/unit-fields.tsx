@@ -12,6 +12,7 @@ import {
 import { UNIT_STATUS_LABELS } from '../labels';
 import type { EditorSession } from '../use-editor-session';
 import { CommitInput } from './commit-input';
+import { UnitLocation } from './unit-location';
 
 const number = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
 const parseDecimal = (value: string) => Number(value.trim().replace(/\./g, '').replace(',', '.'));
@@ -96,6 +97,7 @@ export function UnitFields({
           </SelectContent>
         </Select>
       </div>
+      <UnitLocation featureId={p.id} />
     </>
   );
 }
