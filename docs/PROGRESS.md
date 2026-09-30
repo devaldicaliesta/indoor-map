@@ -45,7 +45,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-114 | Validasi geometri | T-109 | review | `validateFloorGeometry` (5 kode temuan, fixture per kasus, 102 test domain); garis/isi merah di peta, ikon di daftar fitur, pesan di panel properti, ringkasan "● n temuan" yang bisa diklik. 1.006 fitur divalidasi 11–48 ms |
 | T-115 | Tampilan 2D/3D | T-104, T-109 | review | Pengaturan → Tampilan (tinggi, warna, mode awal, pratinjau langsung, simpan tampilan awal), override tinggi di panel properti, tombol 2D/3D editor; ekstrusi dinding dan pemisah tepi unit; diuji browser + integrasi |
 | T-116 | Lokasi dasar, kategori, tautan unit | T-109 | review | Tab Lokasi (cari, filter kategori/gedung/lantai bersamaan, penanda belum tertaut, 50 per halaman) dan Kategori (ikon, urutan); formulir dengan tautan unit (ketik kode atau pilih di peta), logo, dan foto; tautan dari panel unit di editor. Migrasi 0010; 24 pgTAP, integrasi, dan browser |
-| T-117 | Snapshot minimal | T-115, T-116 | siap | |
+| T-117 | Snapshot minimal | T-115, T-116 | dikerjakan | |
 | T-118 | Visitor: peta, gedung, lantai | T-117, T-011 | menunggu | |
 | T-119 | Visitor: cari, kategori, detail, A–Z | T-118 | menunggu | |
 | T-120 | Visitor: bahasa ID/EN | T-119 | menunggu | |
