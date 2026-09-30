@@ -46,3 +46,8 @@ export function applyVenueLanguage(venueDefault: LanguageCode) {
   const language = resolveLanguage(readStoredLanguage(), navigator.languages, venueDefault);
   if (language !== i18next.resolvedLanguage) void i18next.changeLanguage(language);
 }
+
+/** Locale `Intl` untuk tanggal dan urutan nama dalam bahasa antarmuka. */
+export function intlLocale(language: string | undefined): string {
+  return language === 'en' ? 'en-GB' : 'id-ID';
+}
