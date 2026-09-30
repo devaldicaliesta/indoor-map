@@ -24,7 +24,16 @@ function Brand({ name }: { name: string }) {
 }
 
 /** Kerangka Visitor: panel kiri di desktop, peta penuh + bottom sheet di HP. */
-export function VisitorShell({ title, children }: { title?: string; children: ReactNode }) {
+export function VisitorShell({
+  title,
+  actions,
+  children,
+}: {
+  title?: string;
+  /** Tombol tambahan di header, di samping pemilih bahasa (misalnya info versi peta). */
+  actions?: ReactNode;
+  children: ReactNode;
+}) {
   const { t } = useTranslation();
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const name = title ?? t('app.name');
@@ -35,7 +44,10 @@ export function VisitorShell({ title, children }: { title?: string; children: Re
         <aside className="flex min-h-0 flex-col gap-4 border-line border-r bg-surface p-(--panel-padding)">
           <header className="flex items-center justify-between gap-3">
             <Brand name={name} />
-            <LanguagePicker />
+            <div className="flex shrink-0 gap-2">
+              {actions}
+              <LanguagePicker />
+            </div>
           </header>
           <SearchField />
           <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
@@ -54,6 +66,7 @@ export function VisitorShell({ title, children }: { title?: string; children: Re
       </main>
       <header className="absolute inset-x-0 top-0 z-20 flex gap-2 p-3">
         <SearchField className="min-w-0 flex-1 rounded-sm shadow-float" />
+        {actions ? <div className="shrink-0 rounded-sm shadow-float">{actions}</div> : null}
         <LanguagePicker className="shadow-float" />
       </header>
       <BottomSheet>
