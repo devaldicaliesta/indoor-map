@@ -41,8 +41,16 @@ describe('label peta', () => {
   });
 
   it('lokasi terpilih mendapat prioritas tertinggi', () => {
-    const labels = mapLabels(snapshot, floors, IDS.radiology);
+    const labels = mapLabels(snapshot, floors, [IDS.radiology]);
     expect(labels.find((l) => l.id === IDS.radiology)?.priority).toBe(LABEL_PRIORITY.selected);
+  });
+
+  it('fasilitas yang dipilih (misalnya lewat chip jenis fasilitas) mengalahkan keselamatan', () => {
+    const all = snapshot.floors.map((f) => f.id);
+    const other = mapLabels(snapshot, all).find((l) => l.kind === 'facility' && l.id !== safetyId);
+    const labels = mapLabels(snapshot, all, new Set([other?.id ?? '']));
+    expect(labels.find((l) => l.id === other?.id)?.priority).toBe(LABEL_PRIORITY.selected);
+    expect(labels.find((l) => l.id === safetyId)?.priority).toBe(LABEL_PRIORITY.safety);
   });
 
   it('fasilitas keselamatan didahulukan dari lokasi dan fasilitas lain', () => {

@@ -5,7 +5,7 @@ import type { Snapshot, SnapshotFeature } from './snapshot';
 
 /**
  * Urutan penempatan label yang bertabrakan: angka kecil ditempatkan lebih dulu, yang kalah
- * disembunyikan pada tingkat zoom itu (lokasi terpilih > fasilitas keselamatan > lokasi >
+ * disembunyikan pada tingkat zoom itu (pilihan pengunjung > fasilitas keselamatan > lokasi >
  * fasilitas lain).
  */
 export const LABEL_PRIORITY = { selected: 0, safety: 1, location: 2, facility: 3 } as const;
@@ -51,13 +51,16 @@ function largestPolygon(feature: SnapshotFeature): Polygon | null {
 /**
  * Label lokasi dan ikon fasilitas untuk lantai yang digambar. Lokasi yang menempati beberapa
  * unit di satu lantai diberi satu label di unit utamanya, atau unit terbesar di lantai itu.
+ * `selectedIds` (id lokasi atau id fitur fasilitas yang sedang dipilih pengunjung) ditempatkan
+ * lebih dulu daripada label lain.
  */
 export function mapLabels(
   snapshot: Pick<Snapshot, 'features' | 'locations' | 'facilityTypes'>,
   floorIds: readonly string[],
-  selectedLocationId: string | null = null,
+  selectedIds: readonly string[] | ReadonlySet<string> = [],
 ): MapLabel[] {
   const visible = new Set(floorIds);
+  const selected = new Set(selectedIds);
   const units = new Map<string, SnapshotFeature>();
   const labels: MapLabel[] = [];
   const safety = new Set(snapshot.facilityTypes.filter((t) => t.isSafety).map((t) => t.id));
@@ -73,7 +76,11 @@ export function mapLabels(
         floorId,
         facilityTypeId,
         position: feature.geometry.coordinates,
-        priority: safety.has(facilityTypeId) ? LABEL_PRIORITY.safety : LABEL_PRIORITY.facility,
+        priority: selected.has(feature.id)
+          ? LABEL_PRIORITY.selected
+          : safety.has(facilityTypeId)
+            ? LABEL_PRIORITY.safety
+            : LABEL_PRIORITY.facility,
       });
     }
   }
@@ -99,8 +106,7 @@ export function mapLabels(
         floorId,
         name: location.name,
         position: labelPoint(polygon.coordinates),
-        priority:
-          location.id === selectedLocationId ? LABEL_PRIORITY.selected : LABEL_PRIORITY.location,
+        priority: selected.has(location.id) ? LABEL_PRIORITY.selected : LABEL_PRIORITY.location,
       });
     }
   }
