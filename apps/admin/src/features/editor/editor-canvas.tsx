@@ -8,6 +8,7 @@ import {
   createSelectionInteractions,
   type FeatureEditor,
   featureBounds,
+  focusFeature,
   type LngLat,
   type MapInstance,
   type SnapIndex,
@@ -15,6 +16,7 @@ import {
   setFloorData,
   setFloorPlanImage,
   setHiddenFeatures,
+  setHoverHighlight,
   setSelectionHighlight,
 } from '@indoor/map-core';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -64,6 +66,8 @@ export function EditorCanvas({
   const canEditRef = useRef(canEdit);
   canEditRef.current = canEdit;
   const tool = useEditorStore((s) => s.tool);
+  const hoveredId = useEditorStore((s) => s.hoveredId);
+  const focusRequest = useEditorStore((s) => s.focusRequest);
   const sessionRef = useRef(session);
   sessionRef.current = session;
   const onCursorRef = useRef(onCursor);
@@ -160,6 +164,17 @@ export function EditorCanvas({
   useEffect(() => {
     if (map) setFloorPlanImage(map, plan);
   }, [map, plan]);
+
+  // FR-MAP-08: item panel daftar disorot saat dilewati kursor, dan peta terbang saat diklik.
+  useEffect(() => {
+    if (map) setHoverHighlight(map, hoveredId);
+  }, [map, hoveredId]);
+
+  useEffect(() => {
+    if (!map || !focusRequest) return;
+    const geometry = useEditorStore.getState().features[focusRequest.id]?.geometry;
+    if (geometry) focusFeature(map, geometry);
+  }, [map, focusRequest]);
 
   // FR-MAP-07: sprite ikon fasilitas dibangun ulang hanya bila ikon/keselamatan berubah.
   const iconSpecs = useMemo(() => facilityIconSpecs(facilityTypes), [facilityTypes]);
