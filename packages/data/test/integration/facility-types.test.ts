@@ -32,7 +32,7 @@ describe.runIf(url && anonKey && serviceKey)('jenis fasilitas (Supabase lokal)',
   });
 
   async function signIn(role: 'admin' | 'editor' | 'viewer') {
-    const email = `${role}-${suffix}@facility-types.test`;
+    const email = `${role}-${suffix}-${userIds.length}@facility-types.test`;
     const created = await service.auth.admin.createUser({
       email,
       password: PASSWORD,
@@ -143,7 +143,15 @@ describe.runIf(url && anonKey && serviceKey)('jenis fasilitas (Supabase lokal)',
     expect((await admin.facilityTypes.list(venue.id)).map((t) => t.name)).toEqual(['Toilet']);
   });
 
-  it('viewer tidak bisa membuat jenis atau mengunggah ikon', async () => {
+  it('editor dan viewer tidak bisa membuat jenis atau mengunggah ikon', async () => {
+    const editor = await signIn('editor');
+    await expect(
+      editor.facilityTypes.create(
+        venueId as Parameters<typeof editor.facilityTypes.create>[0],
+        { name: 'Dari editor', isSafety: false, icon: null },
+        png(),
+      ),
+    ).rejects.toMatchObject({ kind: 'forbidden' });
     const viewer = await signIn('viewer');
     await expect(
       viewer.facilityTypes.create(

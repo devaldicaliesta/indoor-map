@@ -43,7 +43,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-112 | Fasilitas dan jenis fasilitas | T-109 | review | Tab Pengaturan → Jenis fasilitas, 14 piktogram bawaan, ikon unggahan SVG/PNG, sprite + layer simbol di map-core, pilihan Fasilitas di alat Titik (migrasi 0008); 2 integrasi + 7 pgTAP + browser |
 | T-113 | Panel daftar fitur | T-109 | review | Pencarian kode/nama/jenis, hover menyorot, klik memilih dan menerbangkan peta, daftar tervirtualisasi; lantai > 1.000 fitur kini dimuat utuh (paginasi). 1.006 fitur: gulir 60 fps tanpa long task, cari 27 ms |
 | T-114 | Validasi geometri | T-109 | review | `validateFloorGeometry` (5 kode temuan, fixture per kasus, 102 test domain); garis/isi merah di peta, ikon di daftar fitur, pesan di panel properti, ringkasan "● n temuan" yang bisa diklik. 1.006 fitur divalidasi 11–48 ms |
-| T-115 | Tampilan 2D/3D | T-104, T-109 | siap | |
+| T-115 | Tampilan 2D/3D | T-104, T-109 | dikerjakan | |
 | T-116 | Lokasi dasar, kategori, tautan unit | T-109 | menunggu | |
 | T-117 | Snapshot minimal | T-115, T-116 | menunggu | |
 | T-118 | Visitor: peta, gedung, lantai | T-117, T-011 | menunggu | |
@@ -112,8 +112,6 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … (status: menunggu jawaban)`
 
 - [2026-09-29] T-010 — FR-SYS-01 menyebut SMTP di Pengaturan Sistem dipakai untuk reset password, tetapi email Auth (reset, undangan) dikirim GoTrue memakai SMTP dari konfigurasi server (`[auth.email.smtp]` / variabel `GOTRUE_SMTP_*`), bukan dari tabel `system_settings`. Opsi: A) Auth Hook *send email*: GoTrue memanggil Edge Function yang mengirim email Auth memakai SMTP dari Pengaturan Sistem (klien SMTP `_shared/smtp.ts` sudah ada); satu sumber konfigurasi, bisa diubah dari Admin tanpa restart. B) SMTP Auth tetap konfigurasi instalasi (diisi tim IT di paket T-411), Pengaturan Sistem hanya untuk email lain. Rekomendasi: A. (status: menunggu jawaban)
-
-- [2026-09-30] T-112 — Siapa yang boleh mengubah jenis fasilitas? `05-user-flow.md` menaruh jenis fasilitas di Pengaturan (Admin, Super Admin), tetapi `04-model-data.md` memasukkan `facility_types` ke "konten yang boleh diubah Editor" (RLS `app.can_edit()`), sehingga Editor bisa mengubahnya lewat API walau tombolnya tidak tampil. Opsi: A) migrasi baru memperketat RLS `facility_types` dan policy Storage ikon ke `app.can_manage()`; B) tab Jenis fasilitas juga bisa diubah Editor (aksi `settings.edit` tidak dipakai di tab ini). Rekomendasi: A, sejalan dengan struktur menu; dikerjakan bersama matriks otorisasi T-312 atau lebih awal bila disetujui. Sementara ini UI mengikuti A, server mengikuti `04-model-data.md`. (status: menunggu jawaban)
 
 ## Catatan keputusan
 
@@ -190,6 +188,7 @@ Format: `- [tanggal] T-xxx — keputusan — alasan`
 - [2026-09-30] T-114 — Semua temuan geometri berseverity `error` karena FR-MAP-09/kriteria menandai keempatnya merah; T-307 boleh menurunkan "di luar batas" menjadi peringatan bila publish terlalu ketat. Tidak ada batas lantai untuk Area Luar dan gedung tanpa footprint (pemeriksaan dilewati). Kode ganda dicek di antara fitur yang diberikan (di editor: satu lantai; lintas lantai sudah dicegah saat mengisi kode dan oleh indeks unik database); publish (T-307) cukup memberi semua fitur venue. Poligon tidak tertutup praktis tidak bisa masuk dari database (PostGIS dan zod menolak), tetapi tetap diperiksa untuk data impor (T-305).
 - [2026-09-30] T-114 — Di editor, validasi berjalan ulang setiap isi lantai berubah (nilai tertunda `useDeferredValue`), tidak memblokir simpan draft. Fitur bermasalah: isi/garis merah (--danger) lewat `setIssueHighlight` map-core, ikon segitiga merah di daftar fitur (pesan di tooltip dan teks pembaca layar), kotak merah di panel properti, dan ringkasan "● n temuan" di bilah atas yang dikelompokkan per jenis (maks. 20 butir per jenis; membuka daftar 958 butir sempat 681 ms). File task `ValidationOverlay.tsx` ditulis `validation-overlay.tsx` (konvensi kebab-case repo).
 - [2026-09-30] T-114 — Kanvas editor memakai `fadeDuration: 0` (opsi baru `createMap`): tanpa itu layer simbol fasilitas memicu repaint beruntun ±300 ms setiap data berubah. Di WebGL perangkat lunak satu repaint lantai 1.000 fitur ±80–100 ms (validasinya sendiri 11–48 ms); perlu diukur ulang di perangkat dengan GPU.
+- [2026-09-30] T-112 — **Pertanyaan terbuka diputuskan (pemilik: kerjakan sesuai dokumen):** jenis fasilitas hanya diubah Admin dan Super Admin, mengikuti `spec/05-user-flow.md` (sumber kebenaran spesifikasi). Migrasi 0009 mengganti policy insert/update/delete `facility_types` dan policy Storage `public-assets/facility-types/` dari `app.can_edit()` ke `app.can_manage()`; Editor tetap membaca jenis dan menaruh fasilitas. Diuji pgTAP (Admin boleh, Editor/Operator ditolak) dan integrasi (Editor ditolak `forbidden`); `04-model-data.md` diberi catatan.
 - [2026-09-29] T-001 — `agentGuidance: false` di `turbo.json` — Turborepo 2.11 otomatis menulis `AGENTS.md` saat mendeteksi agen; aturan agen sudah ada di `CLAUDE.md`.
 
 ## Riwayat rilis

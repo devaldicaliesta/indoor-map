@@ -2,14 +2,16 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(7);
+select plan(10);
 
 insert into auth.users (id, email) values
   ('e1000000-0000-4000-8000-000000000001', 'ed@facility.test'),
-  ('e1000000-0000-4000-8000-000000000002', 'op@facility.test');
+  ('e1000000-0000-4000-8000-000000000002', 'op@facility.test'),
+  ('e1000000-0000-4000-8000-000000000003', 'ad@facility.test');
 insert into public.profiles (user_id, full_name, email, role) values
   ('e1000000-0000-4000-8000-000000000001', 'ED', 'ed@facility.test', 'editor'),
-  ('e1000000-0000-4000-8000-000000000002', 'OP', 'op@facility.test', 'operator');
+  ('e1000000-0000-4000-8000-000000000002', 'OP', 'op@facility.test', 'operator'),
+  ('e1000000-0000-4000-8000-000000000003', 'AD', 'ad@facility.test', 'admin');
 
 insert into public.venues (id, name) values ('f1000000-0000-4000-8000-000000000001', 'Venue Uji Fasilitas');
 insert into public.facility_types (id, venue_id, name, icon_path) values
@@ -41,16 +43,35 @@ $$;
 
 set local role authenticated;
 
-select pg_temp.as_user('e1000000-0000-4000-8000-000000000001');
+-- Admin: mengelola jenis fasilitas dan ikonnya (05-user-flow: Pengaturan untuk Admin, Super Admin)
+select pg_temp.as_user('e1000000-0000-4000-8000-000000000003');
+select lives_ok(
+  $$ insert into public.facility_types (venue_id, name) values ('f1000000-0000-4000-8000-000000000001', 'ATM') $$,
+  'Admin: menambah jenis fasilitas'
+);
 select lives_ok(
   $$ insert into storage.objects (bucket_id, name) values ('public-assets', 'facility-types/f1000000-0000-4000-8000-000000000001/ikon.png') $$,
-  'Editor: unggah ikon ke public-assets/facility-types'
+  'Admin: unggah ikon ke public-assets/facility-types'
+);
+
+-- Editor: membaca jenis (untuk menaruh fasilitas), tidak mengubahnya
+select pg_temp.as_user('e1000000-0000-4000-8000-000000000001');
+select is(
+  (select count(*)::int from public.facility_types where venue_id = 'f1000000-0000-4000-8000-000000000001'),
+  2,
+  'Editor: melihat jenis fasilitas'
 );
 select throws_ok(
-  $$ insert into storage.objects (bucket_id, name) values ('public-assets', 'venues/f1000000-0000-4000-8000-000000000001/logo.png') $$,
+  $$ insert into public.facility_types (venue_id, name) values ('f1000000-0000-4000-8000-000000000001', 'Liar') $$,
   '42501',
   null,
-  'Editor: tidak bisa mengunggah logo venue'
+  'Editor: tidak bisa menambah jenis fasilitas'
+);
+select throws_ok(
+  $$ insert into storage.objects (bucket_id, name) values ('public-assets', 'facility-types/f1000000-0000-4000-8000-000000000001/liar.png') $$,
+  '42501',
+  null,
+  'Editor: tidak bisa mengunggah ikon fasilitas'
 );
 select is(
   (select count(*)::int from storage.objects where bucket_id = 'public-assets'
