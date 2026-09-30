@@ -20,6 +20,7 @@ export const PICKABLE_LAYERS = [
   LAYER_IDS.points,
   LAYER_IDS.facilities,
   LAYER_IDS.extrusion,
+  LAYER_IDS.extrusionEdges,
 ];
 
 const HIGHLIGHT = {

@@ -4,6 +4,7 @@ import {
   FACILITY_ICON_FALLBACK,
   facilityIconId,
   fitContain,
+  glyphColorOn,
   isOpaque,
 } from '../src/sprites';
 
@@ -29,5 +30,11 @@ describe('sprite fasilitas', () => {
     const withHole = new Uint8ClampedArray([10, 20, 30, 255, 0, 0, 0, 0]);
     expect(isOpaque(opaque)).toBe(true);
     expect(isOpaque(withHole)).toBe(false);
+  });
+
+  it('latar ikon pilihan venue: simbol tinta di latar terang, putih di latar gelap', () => {
+    expect(glyphColorOn('#ffe9a8')).toBe('#111418');
+    expect(glyphColorOn('#1463ff')).toBe('#ffffff');
+    expect(glyphColorOn('#111418')).toBe('#ffffff');
   });
 });

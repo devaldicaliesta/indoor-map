@@ -4,6 +4,7 @@ export {
   focusFeature,
   focusZoom,
   geometryBounds,
+  getCamera,
   prefersReducedMotion,
 } from './camera';
 export {
@@ -21,6 +22,14 @@ export {
   type FeatureEditor,
   type FeatureEditorCallbacks,
 } from './editor';
+export {
+  build3dFeatures,
+  EDGE_WIDTH_M,
+  FLOOR_3D_SOURCE_ID,
+  type Floor3dCollection,
+  resolveHeight,
+  WALL_THICKNESS_M,
+} from './extrude';
 export {
   type CornerIndex,
   type Corners,
@@ -57,6 +66,7 @@ export {
   featureBounds,
   getViewMode,
   setFloorData,
+  setMapDisplay,
   setReferenceShapes,
   setViewMode,
   type ViewMode,
@@ -79,12 +89,21 @@ export {
   type FacilityIconSpec,
   facilityIconId,
   fitContain,
+  glyphColorOn,
   type IconSource,
   isOpaque,
   renderFacilityIcon,
   setFacilityIcons,
 } from './sprites';
-export { buildStyle, buildStyleLayers, FLOOR_SOURCE_ID, LAYER_IDS, type MapDisplay } from './style';
+export {
+  buildStyle,
+  buildStyleLayers,
+  defaultKindColor,
+  FLOOR_SOURCE_ID,
+  LAYER_IDS,
+  type MapDisplay,
+  venueHeights,
+} from './style';
 export {
   boundsCenter,
   positionsOf,

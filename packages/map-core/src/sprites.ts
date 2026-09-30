@@ -54,8 +54,34 @@ export function isOpaque(rgba: Uint8ClampedArray, threshold = 250): boolean {
   return true;
 }
 
-function iconColors(isSafety: boolean) {
-  return isSafety ? FACILITY_ICON_COLORS.safety : FACILITY_ICON_COLORS.normal;
+/** Luminans relatif WCAG dari `#rrggbb`. */
+function luminance(hex: string): number {
+  const channel = (i: number) => {
+    const c = Number.parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5);
+}
+
+/**
+ * Warna simbol di atas latar pilihan venue (FR-VIS-03): --ink atau putih, mana yang
+ * kontrasnya lebih tinggi, agar piktogram tetap terbaca.
+ */
+export function glyphColorOn(background: string): string {
+  const bg = luminance(background);
+  const ink = luminance(FACILITY_ICON_COLORS.normal.glyph);
+  const onInk = (bg + 0.05) / (ink + 0.05);
+  const onWhite = 1.05 / (bg + 0.05);
+  return onInk >= onWhite ? FACILITY_ICON_COLORS.normal.glyph : '#ffffff';
+}
+
+type IconColors = { background: string; ring: string; glyph: string };
+
+/** Keselamatan selalu merah; fasilitas lain memakai latar venue bila diatur. */
+function iconColors(isSafety: boolean, background?: string): IconColors {
+  if (isSafety) return FACILITY_ICON_COLORS.safety;
+  if (!background) return FACILITY_ICON_COLORS.normal;
+  return { background, ring: FACILITY_ICON_COLORS.normal.ring, glyph: glyphColorOn(background) };
 }
 
 function canvas2d(size: number): CanvasRenderingContext2D {
@@ -67,8 +93,7 @@ function canvas2d(size: number): CanvasRenderingContext2D {
   return context;
 }
 
-function drawBadge(ctx: CanvasRenderingContext2D, size: number, isSafety: boolean) {
-  const colors = iconColors(isSafety);
+function drawBadge(ctx: CanvasRenderingContext2D, size: number, colors: IconColors) {
   const ring = 1.5 * PIXEL_RATIO;
   ctx.beginPath();
   ctx.arc(size / 2, size / 2, size / 2 - ring / 2, 0, Math.PI * 2);
@@ -80,10 +105,10 @@ function drawBadge(ctx: CanvasRenderingContext2D, size: number, isSafety: boolea
 }
 
 /** Simbol pengganti untuk jenis tanpa ikon atau ikon yang gagal dimuat: titik di tengah. */
-function drawPlaceholderGlyph(ctx: CanvasRenderingContext2D, size: number, isSafety: boolean) {
+function drawPlaceholderGlyph(ctx: CanvasRenderingContext2D, size: number, colors: IconColors) {
   ctx.beginPath();
   ctx.arc(size / 2, size / 2, size * 0.14, 0, Math.PI * 2);
-  ctx.fillStyle = iconColors(isSafety).glyph;
+  ctx.fillStyle = colors.glyph;
   ctx.fill();
 }
 
@@ -105,7 +130,7 @@ function drawGlyph(
   ctx: CanvasRenderingContext2D,
   size: number,
   image: CanvasImageSource & { naturalWidth: number; naturalHeight: number },
-  isSafety: boolean,
+  colors: IconColors,
 ) {
   const box = Math.round(size * GLYPH_RATIO);
   const glyph = canvas2d(box);
@@ -119,7 +144,7 @@ function drawGlyph(
   );
   if (!isOpaque(pixels.data)) {
     glyph.globalCompositeOperation = 'source-in';
-    glyph.fillStyle = iconColors(isSafety).glyph;
+    glyph.fillStyle = colors.glyph;
     glyph.fillRect(0, 0, box, box);
   }
   const offset = (size - box) / 2;
@@ -130,19 +155,21 @@ function drawGlyph(
 export async function renderFacilityIcon(
   source: IconSource | null,
   isSafety: boolean,
+  background?: string,
 ): Promise<ImageData> {
   const size = FACILITY_ICON_SIZE * PIXEL_RATIO;
+  const colors = iconColors(isSafety, background);
   const ctx = canvas2d(size);
-  drawBadge(ctx, size, isSafety);
+  drawBadge(ctx, size, colors);
   const image = source ? await loadImage(source).catch(() => null) : null;
   try {
-    if (image) drawGlyph(ctx, size, image, isSafety);
-    else drawPlaceholderGlyph(ctx, size, isSafety);
+    if (image) drawGlyph(ctx, size, image, colors);
+    else drawPlaceholderGlyph(ctx, size, colors);
   } catch {
     // Kanvas tercemar (CORS) atau gambar rusak: tetap tampilkan lingkaran dengan titik.
     ctx.clearRect(0, 0, size, size);
-    drawBadge(ctx, size, isSafety);
-    drawPlaceholderGlyph(ctx, size, isSafety);
+    drawBadge(ctx, size, colors);
+    drawPlaceholderGlyph(ctx, size, colors);
   }
   return ctx.getImageData(0, 0, size, size);
 }
@@ -151,8 +178,8 @@ export async function renderFacilityIcon(
 function renderPlaceholderIcon(): ImageData {
   const size = FACILITY_ICON_SIZE * PIXEL_RATIO;
   const ctx = canvas2d(size);
-  drawBadge(ctx, size, false);
-  drawPlaceholderGlyph(ctx, size, false);
+  drawBadge(ctx, size, FACILITY_ICON_COLORS.normal);
+  drawPlaceholderGlyph(ctx, size, FACILITY_ICON_COLORS.normal);
   return ctx.getImageData(0, 0, size, size);
 }
 
@@ -177,10 +204,13 @@ const versions = new WeakMap<MapLibreMap, number>();
 export async function setFacilityIcons(
   map: MapLibreMap,
   specs: readonly FacilityIconSpec[],
+  options: { background?: string | undefined } = {},
 ): Promise<void> {
   const version = (versions.get(map) ?? 0) + 1;
   versions.set(map, version);
-  const images = await Promise.all(specs.map((s) => renderFacilityIcon(s.source, s.isSafety)));
+  const images = await Promise.all(
+    specs.map((s) => renderFacilityIcon(s.source, s.isSafety, options.background)),
+  );
   if (versions.get(map) !== version) return;
   const wanted = new Set<string>();
   specs.forEach((spec, i) => {
