@@ -1,6 +1,6 @@
 import type { FloorFeature, FloorFeatures } from '@indoor/data';
 import { type DrawKind, drawKindsFor, type FeatureShape, type FloorId } from '@indoor/domain';
-import type { EditorTool } from '@indoor/map-core';
+import type { EditorTool, ViewMode } from '@indoor/map-core';
 import { create } from 'zustand';
 import {
   applyPatch,
@@ -29,6 +29,8 @@ export interface EditorState {
   saveError: string | null;
   /** Jenis yang dipakai tiap alat gambar (FR-MAP-01). */
   drawKinds: Record<FeatureShape, DrawKind>;
+  /** FR-VIS-06: 3D hanya untuk memeriksa hasil; menggambar dan menyunting bentuk di 2D. */
+  viewMode: ViewMode;
   /** Fitur yang disorot sementara dari panel daftar (hover/fokus), bukan seleksi. */
   hoveredId: string | null;
   /** Permintaan kamera dari panel daftar; `seq` naik setiap klik agar klik ulang tetap terbang. */
@@ -50,6 +52,7 @@ export interface EditorState {
   /** FR-MAP-08: pilih satu fitur dari daftar dan arahkan peta ke sana. */
   focus(id: string): void;
   setHovered(id: string | null): void;
+  setViewMode(mode: ViewMode): void;
   setSnapEnabled(enabled: boolean): void;
   setTool(tool: EditorTool): void;
   setSaveStatus(status: SaveStatus, error: string | null): void;
@@ -81,6 +84,7 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
   saveStatus: 'idle',
   saveError: null,
   drawKinds: defaultDrawKinds(false),
+  viewMode: '2d',
   hoveredId: null,
   focusRequest: null,
   history: emptyHistory(),
@@ -148,7 +152,15 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     set({ snapEnabled });
   },
   setTool(tool) {
-    set((s) => ({ tool, selectedIds: tool === 'select' ? s.selectedIds : [] }));
+    // Memilih alat gambar di mode 3D kembali ke 2D: menggambar selalu di 2D (FR-VIS-06).
+    set((s) => ({
+      tool,
+      selectedIds: tool === 'select' ? s.selectedIds : [],
+      viewMode: tool === 'select' ? s.viewMode : '2d',
+    }));
+  },
+  setViewMode(viewMode) {
+    set((s) => ({ viewMode, tool: viewMode === '3d' ? 'select' : s.tool }));
   },
   setSaveStatus(saveStatus, saveError) {
     set({ saveStatus, saveError });

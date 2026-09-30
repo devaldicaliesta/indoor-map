@@ -67,4 +67,15 @@ describe('store editor: command dan riwayat', () => {
     expect(useEditorStore.getState().selectedIds).toEqual(['b']);
     expect(useEditorStore.getState().history.past).toHaveLength(1);
   });
+
+  it('3D untuk memeriksa: alat kembali ke Pilih; memilih alat gambar kembali ke 2D', () => {
+    const store = useEditorStore.getState();
+    store.setTool('polygon');
+    store.setViewMode('3d');
+    expect(useEditorStore.getState()).toMatchObject({ viewMode: '3d', tool: 'select' });
+    useEditorStore.getState().setTool('linestring');
+    expect(useEditorStore.getState()).toMatchObject({ viewMode: '2d', tool: 'linestring' });
+    // Perubahan fitur tidak hilang saat berganti mode.
+    expect(useEditorStore.getState().features.a).toBeDefined();
+  });
 });

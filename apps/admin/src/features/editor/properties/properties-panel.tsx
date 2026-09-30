@@ -1,5 +1,6 @@
 import type { FloorFeature } from '@indoor/data';
 import { type DrawKind, drawKindsFor, KIND_SHAPE, type ValidationIssue } from '@indoor/domain';
+import type { MapDisplay } from '@indoor/map-core';
 import {
   Button,
   Label,
@@ -14,6 +15,7 @@ import { singleSelected, useEditorStore } from '../store/editor-store';
 import type { EditorSession } from '../use-editor-session';
 import { CommitInput } from './commit-input';
 import { FacilityFields } from './facility-fields';
+import { HeightField, hasHeight } from './height-field';
 import { MultiSelectionPanel } from './multi-selection-panel';
 import { RotateControl } from './rotate-control';
 import { UnitFields } from './unit-fields';
@@ -94,10 +96,12 @@ export function PropertiesPanel({
   session,
   canEdit,
   issues,
+  display,
 }: {
   session: EditorSession;
   canEdit: boolean;
   issues: ReadonlyMap<string, ValidationIssue[]>;
+  display: MapDisplay;
 }) {
   const feature = useEditorStore(singleSelected);
   const count = useEditorStore((s) => s.selectedIds.length);
@@ -145,6 +149,9 @@ export function PropertiesPanel({
       ) : null}
       {p.kind === 'facility' ? (
         <FacilityFields feature={feature} session={session} canEdit={canEdit} />
+      ) : null}
+      {hasHeight(feature) ? (
+        <HeightField feature={feature} session={session} canEdit={canEdit} display={display} />
       ) : null}
       {canEdit && feature.geometry.type !== 'Point' ? (
         <RotateControl onRotate={(deg) => session.rotateMany([p.id], deg)} />
