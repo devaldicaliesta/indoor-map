@@ -1,6 +1,7 @@
 import type { MapFeatureProperties } from '@indoor/domain';
 import type { FeatureCollection, Geometry } from 'geojson';
 import { type GeoJSONSource, type LngLatLike, Map as MapLibreMap } from 'maplibre-gl';
+import { prefersReducedMotion } from './camera';
 import { PITCH_3D } from './defaults';
 import { handleMissingFacilityIcons } from './sprites';
 import {
@@ -23,12 +24,6 @@ export interface CreateMapOptions {
 }
 
 const MODE_TRANSITION_MS = 300;
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
 
 /** Peta MapLibre dengan style kosong: tidak ada tile server atau font dari internet. */
 export function createMap(container: HTMLElement, options: CreateMapOptions): MapLibreMap {

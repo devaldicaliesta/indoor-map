@@ -27,6 +27,11 @@ const HIGHLIGHT = {
   line: 'floor-selected-line',
   point: 'floor-selected-point',
 } as const;
+const HOVER = {
+  fill: 'floor-hover-fill',
+  line: 'floor-hover-line',
+  point: 'floor-hover-point',
+} as const;
 const PREVIEW_SOURCE = 'floor-drag-preview';
 const PREVIEW = { fill: 'floor-drag-preview-fill', line: 'floor-drag-preview-line' } as const;
 const MIN_BOX_PX = 4;
@@ -77,6 +82,45 @@ export function setSelectionHighlight(map: MapLibreMap, ids: readonly string[]):
   map.setFilter(HIGHLIGHT.fill, ['all', polygon, selected]);
   map.setFilter(HIGHLIGHT.line, ['all', ['!=', ['geometry-type'], 'Point'], selected]);
   map.setFilter(HIGHLIGHT.point, ['all', ['==', ['geometry-type'], 'Point'], selected]);
+}
+
+/**
+ * Sorotan sementara saat kursor/fokus berada di item panel daftar (FR-MAP-08): garis
+ * putus-putus agar beda dari seleksi, dan tidak mengubah seleksi.
+ */
+export function setHoverHighlight(map: MapLibreMap, id: string | null): void {
+  if (!map.getLayer(HOVER.fill)) {
+    map.addLayer({
+      id: HOVER.fill,
+      type: 'fill',
+      source: FLOOR_SOURCE_ID,
+      filter: ['==', ['geometry-type'], 'Polygon'],
+      paint: { 'fill-color': EDIT_COLORS.signal, 'fill-opacity': 0.2 },
+    });
+    map.addLayer({
+      id: HOVER.line,
+      type: 'line',
+      source: FLOOR_SOURCE_ID,
+      filter: ['!=', ['geometry-type'], 'Point'],
+      paint: { 'line-color': EDIT_COLORS.ink, 'line-width': 2, 'line-dasharray': [2, 1] },
+    });
+    map.addLayer({
+      id: HOVER.point,
+      type: 'circle',
+      source: FLOOR_SOURCE_ID,
+      filter: ['==', ['geometry-type'], 'Point'],
+      paint: {
+        'circle-radius': FACILITY_ICON_SIZE / 2 + 3,
+        'circle-opacity': 0,
+        'circle-stroke-color': EDIT_COLORS.ink,
+        'circle-stroke-width': 2,
+      },
+    });
+  }
+  const target: ExpressionSpecification = ['==', ['get', 'id'], id ?? ''];
+  map.setFilter(HOVER.fill, ['all', ['==', ['geometry-type'], 'Polygon'], target]);
+  map.setFilter(HOVER.line, ['all', ['!=', ['geometry-type'], 'Point'], target]);
+  map.setFilter(HOVER.point, ['all', ['==', ['geometry-type'], 'Point'], target]);
 }
 
 export interface SelectionInteractionOptions {
