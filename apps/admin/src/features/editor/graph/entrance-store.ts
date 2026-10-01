@@ -1,5 +1,6 @@
 import type { EntrancePlan, FloorId } from '@indoor/domain';
 import { create } from 'zustand';
+import { useEditorStore } from '../store/editor-store';
 
 interface EntranceState {
   /** Saran titik masuk yang sedang ditinjau, beserta lantai tempat saran itu dihitung. */
@@ -30,6 +31,8 @@ export const useEntranceStore = create<EntranceState>()((set) => ({
     set({ hovered });
   },
   startLinking(linkingId) {
+    // Titik masuk disambung dengan mengklik jalur, jadi edge harus terlihat.
+    useEditorStore.getState().setGraphVisible('edges', true);
     set({ linkingId, linkingMessage: null });
   },
   setLinkingMessage(linkingMessage) {

@@ -1,6 +1,6 @@
 import type { ExpressionSpecification, LayerSpecification } from 'maplibre-gl';
 import { EDIT_COLORS } from '../defaults';
-import { HATCH_IMAGE_IDS } from './graph-hatch';
+import { CLOSED_NODE_DIAMETER, HATCH_IMAGE_IDS } from './graph-hatch';
 
 export const GRAPH_SOURCE_ID = 'nav-graph';
 export const PREVIEW_SOURCE_ID = 'nav-graph-preview';
@@ -99,7 +99,8 @@ export function graphLayers(): LayerSpecification[] {
       source: GRAPH_SOURCE_ID,
       filter: ['all', isNode, ['==', ['get', 'isolated'], true]],
       paint: {
-        'circle-radius': 11,
+        // Di luar lingkaran node tertutup agar kedua tanda tetap terbaca bila berlaku bersamaan.
+        'circle-radius': CLOSED_NODE_DIAMETER / 2 + 2,
         'circle-opacity': 0,
         'circle-stroke-color': GRAPH_STATUS_COLORS.isolated,
         'circle-stroke-width': 2.5,
@@ -114,8 +115,6 @@ export function graphLayers(): LayerSpecification[] {
         'icon-image': HATCH_IMAGE_IDS.node,
         'icon-allow-overlap': true,
         'icon-ignore-placement': true,
-        'icon-rotation-alignment': 'map',
-        'icon-pitch-alignment': 'map',
       },
     },
     {

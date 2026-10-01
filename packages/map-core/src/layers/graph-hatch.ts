@@ -69,7 +69,8 @@ export function hatchDisc(diameter: number): PixelImage {
   return { width: size, height: size, data };
 }
 
-export const CLOSED_NODE_DIAMETER = 18;
+/** Cukup besar agar arsir terlihat di sekeliling node (radius 4 px + garis tepi) di atasnya. */
+export const CLOSED_NODE_DIAMETER = 24;
 
 /** Gambar arsir dibuat sekali per peta, sebelum layer yang memakainya. */
 export function ensureHatchImages(map: MapLibreMap): void {
