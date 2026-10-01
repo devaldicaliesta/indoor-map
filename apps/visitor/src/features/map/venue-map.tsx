@@ -25,11 +25,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '../../app/use-media-query';
 import { DESKTOP_QUERY, MOBILE_HEADER_PX } from '../../app/visitor-shell';
-import { PEEK_HEIGHT_PX } from '../../components/sheet-snap';
+import { PEEK_HEIGHT_PX, snapHeight } from '../../components/sheet-snap';
+import { useBrowseStore } from '../search/browse-store';
 import { BuildingPicker } from './building-picker';
 import { type CameraPadding, type InitialCamera, initialCamera, moveCamera } from './camera';
 import { facilityIconSpecs } from './facility-icons';
 import { LABEL_FONT } from './label-font';
+import { useMapBrowse } from './use-map-browse';
 
 function floorCollection(snapshot: Snapshot, floorIds: readonly string[]): FloorFeatureCollection {
   const visible = new Set(floorIds);
@@ -51,7 +53,8 @@ const CONTROLS_PX = 44;
 
 /**
  * Peta venue dari snapshot: gedung dan lantai default, kamera awal, 2D/3D bila lisensi
- * membukanya, serta nama lokasi dan ikon fasilitas yang saling menyembunyikan saat bertumpuk.
+ * membukanya, nama lokasi dan ikon fasilitas yang saling menyembunyikan saat bertumpuk, serta
+ * sorotan dan ketuk yang terhubung ke panel (`useMapBrowse`).
  */
 export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
   const { t } = useTranslation();
@@ -84,7 +87,23 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
     [snapshot, view.floorId],
   );
   const features = useMemo(() => floorCollection(snapshot, floorIds), [snapshot, floorIds]);
-  const labels = useMemo(() => mapLabels(snapshot, floorIds), [snapshot, floorIds]);
+  const browse = useMapBrowse({
+    map,
+    view,
+    setView,
+    // Di HP target dibingkai di atas bottom sheet setinggi yang sedang dipakai.
+    focusPadding: () =>
+      isDesktop
+        ? padding
+        : {
+            ...padding,
+            bottom: snapHeight(useBrowseStore.getState().sheet, window.innerHeight) + GAP_PX,
+          },
+  });
+  const labels = useMemo(
+    () => mapLabels(snapshot, floorIds, browse.labelIds),
+    [snapshot, floorIds, browse.labelIds],
+  );
   const floors = useMemo(
     () =>
       view.buildingId
@@ -188,6 +207,8 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
               value={view.floorId}
               onChange={(floorId) => setView({ ...view, floorId })}
               label={t('map.floors')}
+              marked={browse.markedFloorIds}
+              markedLabel={t('browse.floorMarked')}
             />
           ) : null}
         </div>

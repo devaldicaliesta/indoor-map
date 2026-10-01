@@ -45,7 +45,12 @@ export function initialCamera(
 export function moveCamera(
   map: MapInstance,
   camera: InitialCamera,
-  options: { animate: boolean; padding: CameraPadding },
+  options: {
+    animate: boolean;
+    padding: CameraPadding;
+    /** Batas zoom saat membingkai; bawaannya lantai kecil tidak diperbesar berlebihan. */
+    maxZoom?: number;
+  },
 ) {
   const duration = options.animate && !prefersReducedMotion() ? 300 : 0;
   if (camera.kind === 'view') {
@@ -56,7 +61,7 @@ export function moveCamera(
       padding: options.padding,
       duration,
       bearing: map.getBearing(),
-      maxZoom: MAX_FIT_ZOOM,
+      maxZoom: options.maxZoom ?? MAX_FIT_ZOOM,
     });
   }
 }

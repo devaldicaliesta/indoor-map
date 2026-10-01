@@ -4,7 +4,13 @@
   },
   "search": {
     "label": "Cari lokasi",
-    "placeholder": "Cari lokasi…"
+    "placeholder": "Cari lokasi…",
+    "resultsTitle": "Hasil pencarian",
+    "results_one": "{{count}} hasil",
+    "results_other": "{{count}} hasil",
+    "more": "Menampilkan {{shown}} hasil teratas. Ketik lebih lengkap untuk mempersempit.",
+    "noResultsTitle": "Tidak ada hasil untuk “{{query}}”",
+    "noResultsDescription": "Periksa ejaan, atau cari dengan kode unit, nama kategori, atau jenis fasilitas."
   },
   "language": {
     "label": "Bahasa",
@@ -47,5 +53,39 @@
     "description": "Peta ini diperbarui setiap kali pengelola gedung menerbitkan versi baru.",
     "version": "Versi peta",
     "publishedAt": "Diterbitkan"
+  },
+  "browse": {
+    "back": "Kembali",
+    "explore": "Kategori dan fasilitas",
+    "directory": "A–Z",
+    "kindCategory": "Kategori",
+    "kindFacility": "Fasilitas",
+    "kindUnit": "Unit",
+    "locationCount_one": "{{count}} lokasi",
+    "locationCount_other": "{{count}} lokasi",
+    "placeCount_one": "{{count}} tempat",
+    "placeCount_other": "{{count}} tempat",
+    "floorMarked": "ada yang disorot"
+  },
+  "location": {
+    "notOnMap": "Belum ditandai di peta.",
+    "photos": "Foto",
+    "photo": "Foto {{name}}, {{index}} dari {{count}}",
+    "closePhoto": "Tutup foto"
+  },
+  "route": {
+    "toHere": "Rute ke sini",
+    "unavailable": "Petunjuk arah belum tersedia di versi ini."
+  },
+  "directory": {
+    "title": "Direktori A–Z",
+    "building": "Gedung",
+    "allBuildings": "Semua gedung",
+    "floor": "Lantai",
+    "allFloors": "Semua lantai",
+    "type": "Tipe",
+    "allTypes": "Semua tipe",
+    "emptyTitle": "Tidak ada lokasi",
+    "emptyDescription": "Tidak ada lokasi yang cocok dengan filter ini. Pilih gedung, lantai, atau tipe lain."
   }
 }

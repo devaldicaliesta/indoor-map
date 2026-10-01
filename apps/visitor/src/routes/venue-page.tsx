@@ -1,5 +1,5 @@
 import { DataError } from '@indoor/data';
-import { type VenueId, VenueIdSchema } from '@indoor/domain';
+import { type Snapshot, type VenueId, VenueIdSchema } from '@indoor/domain';
 import { Button, Skeleton } from '@indoor/ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,10 @@ import { PanelMessage } from '../app/panel-message';
 import { VisitorShell } from '../app/visitor-shell';
 import { useSnapshot } from '../data/loadSnapshot';
 import { VenueMap } from '../features/map/venue-map';
+import { BrowsePanel } from '../features/search/browse-panel';
+import { useBrowseStore } from '../features/search/browse-store';
+import { VenueSearchField } from '../features/search/venue-search-field';
+import { VenueProvider } from '../features/venue/venue-context';
 import { VenueInfo } from '../features/venue/venue-info';
 import { applyVenueLanguage } from '../i18n';
 
@@ -20,6 +24,33 @@ function Unavailable() {
         description={t('venue.unavailableDescription')}
       />
     </VisitorShell>
+  );
+}
+
+/** Peta, pencarian, dan panel jelajah satu venue; keadaan panel dimulai ulang per venue. */
+function VenueBrowser({ snapshot }: { snapshot: Snapshot }) {
+  const sheet = useBrowseStore((state) => state.sheet);
+  const setSheet = useBrowseStore((state) => state.setSheet);
+  const reset = useBrowseStore((state) => state.reset);
+
+  useEffect(() => {
+    reset();
+    return reset;
+  }, [reset]);
+
+  return (
+    <VenueProvider snapshot={snapshot}>
+      <VisitorShell
+        title={snapshot.venue.name}
+        actions={<VenueInfo snapshot={snapshot} />}
+        search={<VenueSearchField />}
+        sheet={{ snap: sheet, onSnapChange: setSheet }}
+        hideMobileTitle
+        map={<VenueMap snapshot={snapshot} />}
+      >
+        <BrowsePanel />
+      </VisitorShell>
+    </VenueProvider>
   );
 }
 
@@ -60,15 +91,7 @@ function VenueView({ venueId }: { venueId: VenueId }) {
     );
   }
 
-  return (
-    <VisitorShell
-      title={snapshot.data.venue.name}
-      actions={<VenueInfo snapshot={snapshot.data} />}
-      map={<VenueMap snapshot={snapshot.data} />}
-    >
-      {null}
-    </VisitorShell>
-  );
+  return <VenueBrowser snapshot={snapshot.data} />;
 }
 
 export function VenuePage() {

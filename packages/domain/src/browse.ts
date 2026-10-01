@@ -109,6 +109,22 @@ export function featureFloorIds(lookup: SnapshotLookup, featureIds: readonly str
   );
 }
 
+/**
+ * Lantai yang diberi penanda di pemilih lantai gedung yang sedang dilihat. Area Luar tidak
+ * punya tombol sendiri; sorotan di sana menandai lantai dasar gedung, tempat Area Luar digambar.
+ */
+export function markedFloorIds(
+  lookup: SnapshotLookup,
+  featureIds: readonly string[],
+  buildingId: string | null,
+): string[] {
+  const floors = featureFloorIds(lookup, featureIds);
+  const outdoor = floors.some((floorId) => lookup.floors.get(floorId)?.isOutdoor);
+  const ground =
+    outdoor && buildingId ? groundFloor(buildingFloors(lookup.snapshot, buildingId)) : undefined;
+  return ground && !floors.includes(ground.id) ? [...floors, ground.id] : floors;
+}
+
 /** Fitur yang ada di lantai yang sedang digambar, untuk membingkai kamera. */
 export function featuresOnFloors(
   lookup: SnapshotLookup,

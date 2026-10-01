@@ -1,9 +1,20 @@
 import { cn, Input } from '@indoor/ui';
 import { SearchIcon } from 'lucide-react';
+import type { KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// Hasil pencarian dibuat di T-119; di sini hanya bentuk dan aksesibilitasnya.
-export function SearchField({ className }: { className?: string }) {
+/** Kolom cari Visitor; tanpa `value` (beranda tanpa venue) kolom tidak terhubung ke pencarian. */
+export function SearchField({
+  className,
+  value,
+  onValueChange,
+  onKeyDown,
+}: {
+  className?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
+  onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
+}) {
   const { t } = useTranslation();
   return (
     <search className={cn('relative block', className)}>
@@ -16,7 +27,13 @@ export function SearchField({ className }: { className?: string }) {
         type="search"
         aria-label={t('search.label')}
         placeholder={t('search.placeholder')}
+        autoComplete="off"
+        spellCheck={false}
+        enterKeyHint="search"
         className="pl-10"
+        {...(value === undefined ? {} : { value })}
+        onChange={(event) => onValueChange?.(event.target.value)}
+        onKeyDown={onKeyDown}
       />
     </search>
   );

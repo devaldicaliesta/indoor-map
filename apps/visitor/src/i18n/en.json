@@ -4,7 +4,13 @@
   },
   "search": {
     "label": "Search locations",
-    "placeholder": "Search places…"
+    "placeholder": "Search places…",
+    "resultsTitle": "Search results",
+    "results_one": "{{count}} result",
+    "results_other": "{{count}} results",
+    "more": "Showing the top {{shown}} results. Type more to narrow them down.",
+    "noResultsTitle": "No results for “{{query}}”",
+    "noResultsDescription": "Check the spelling, or search by unit code, category, or facility type."
   },
   "language": {
     "label": "Language",
@@ -47,5 +53,39 @@
     "description": "This map is updated whenever the building manager publishes a new version.",
     "version": "Map version",
     "publishedAt": "Published"
+  },
+  "browse": {
+    "back": "Back",
+    "explore": "Categories and facilities",
+    "directory": "A–Z",
+    "kindCategory": "Category",
+    "kindFacility": "Facility",
+    "kindUnit": "Unit",
+    "locationCount_one": "{{count}} location",
+    "locationCount_other": "{{count}} locations",
+    "placeCount_one": "{{count}} place",
+    "placeCount_other": "{{count}} places",
+    "floorMarked": "has highlighted places"
+  },
+  "location": {
+    "notOnMap": "Not marked on the map yet.",
+    "photos": "Photos",
+    "photo": "Photo of {{name}}, {{index}} of {{count}}",
+    "closePhoto": "Close photo"
+  },
+  "route": {
+    "toHere": "Directions to here",
+    "unavailable": "Directions are not available in this version yet."
+  },
+  "directory": {
+    "title": "A–Z directory",
+    "building": "Building",
+    "allBuildings": "All buildings",
+    "floor": "Floor",
+    "allFloors": "All floors",
+    "type": "Type",
+    "allTypes": "All types",
+    "emptyTitle": "No locations",
+    "emptyDescription": "No locations match these filters. Choose another building, floor, or type."
   }
 }
