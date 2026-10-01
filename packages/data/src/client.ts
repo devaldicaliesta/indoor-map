@@ -17,8 +17,17 @@ import {
 import { createFeaturesRepository, type FeaturesRepository } from './repositories/features';
 import { createFloorPlansRepository, type FloorPlansRepository } from './repositories/floor-plans';
 import { createFloorsRepository, type FloorsRepository } from './repositories/floors';
+import { createInfoPointsRepository, type InfoPointsRepository } from './repositories/info-points';
+import {
+  createInstructionTemplatesRepository,
+  type InstructionTemplatesRepository,
+} from './repositories/instruction-templates';
 import { createLocationsRepository, type LocationsRepository } from './repositories/locations';
 import { createNavGraphRepository, type NavGraphRepository } from './repositories/nav-graph';
+import {
+  createOriginPointsRepository,
+  type OriginPointsRepository,
+} from './repositories/origin-points';
 import { createProfilesRepository, type ProfilesRepository } from './repositories/profiles';
 import {
   createPublicationsRepository,
@@ -52,8 +61,11 @@ export interface DataClient {
   features: FeaturesRepository;
   floorPlans: FloorPlansRepository;
   floors: FloorsRepository;
+  infoPoints: InfoPointsRepository;
+  instructionTemplates: InstructionTemplatesRepository;
   locations: LocationsRepository;
   navGraph: NavGraphRepository;
+  originPoints: OriginPointsRepository;
   profiles: ProfilesRepository;
   publications: PublicationsRepository;
   snapshots: SnapshotsRepository;
@@ -76,8 +88,11 @@ export function createRepositories(db: Db): DataClient {
     features: createFeaturesRepository(db),
     floorPlans: createFloorPlansRepository(db),
     floors: createFloorsRepository(db),
+    infoPoints: createInfoPointsRepository(db),
+    instructionTemplates: createInstructionTemplatesRepository(db),
     locations: createLocationsRepository(db),
     navGraph: createNavGraphRepository(db),
+    originPoints: createOriginPointsRepository(db),
     profiles,
     publications: createPublicationsRepository(db),
     snapshots: createSnapshotsRepository(db),
