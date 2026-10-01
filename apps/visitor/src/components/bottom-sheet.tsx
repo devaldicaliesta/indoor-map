@@ -5,15 +5,15 @@ import { cycleSnap, nearestSnap, type SheetSnap, snapHeight, stepSnap } from './
 
 const DRAG_THRESHOLD_PX = 4;
 
+/** Tinggi sheet diatur sendiri, atau oleh halaman lewat `snap` dan `onSnapChange`. */
 export function BottomSheet({
   children,
   snap: controlledSnap,
   onSnapChange,
 }: {
   children: ReactNode;
-  /** Tinggi yang diatur dari luar (misalnya penuh saat mencari); tanpa ini sheet mengatur sendiri. */
-  snap?: SheetSnap;
-  onSnapChange?: (snap: SheetSnap) => void;
+  snap?: SheetSnap | undefined;
+  onSnapChange?: ((snap: SheetSnap) => void) | undefined;
 }) {
   const { t } = useTranslation();
   const [ownSnap, setOwnSnap] = useState<SheetSnap>('peek');
@@ -88,10 +88,7 @@ export function BottomSheet({
       >
         <span aria-hidden="true" className="h-1 w-10 rounded-full bg-line" />
       </button>
-      <div
-        data-panel-scroll
-        className="min-h-0 flex-1 overflow-y-auto px-(--panel-padding) pb-(--panel-padding)"
-      >
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-(--panel-padding) pb-(--panel-padding)">
         {children}
       </div>
     </section>

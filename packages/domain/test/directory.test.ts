@@ -1,111 +1,141 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildSnapshot,
-  createSnapshotLookup,
   type DirectoryFilter,
+  directoryFilterOptions,
   directoryGroups,
-  directoryOptions,
-  EMPTY_DIRECTORY_FILTER,
-  OUTDOOR_BUILDING,
-  withDirectoryBuilding,
+  directoryLetter,
+  directoryLocations,
+  indexSnapshot,
+  NO_DIRECTORY_FILTER,
+  OUTDOOR_FILTER,
+  type SnapshotSource,
 } from '../src';
-import { BROWSE_IDS, browseSnapshotSource } from './fixtures/browse-source';
-import { IDS } from './fixtures/snapshot-source';
+import { IDS, sampleSnapshotSource } from './fixtures/snapshot-source';
 
-const snapshot = buildSnapshot(browseSnapshotSource());
-const lookup = createSnapshotLookup(snapshot);
+const OTHER_TYPE = '0a9b3f6e-1c2d-4e5f-8a9b-0c1d2e3f4b01';
+const KIOSK = '0a9b3f6e-1c2d-4e5f-8a9b-0c1d2e3f4b02';
+const KIOSK_UNIT = '0a9b3f6e-1c2d-4e5f-8a9b-0c1d2e3f4b03';
+
+/** Contoh ditambah tipe kedua dan kios di unit Area Luar agar semua filter teruji. */
+function source(): SnapshotSource {
+  const base = sampleSnapshotSource();
+  const outdoor = base.floors.find((f) => f.isOutdoor);
+  return {
+    ...base,
+    locationTypes: [
+      ...base.locationTypes,
+      { id: OTHER_TYPE, name: 'Kios', icon: null, color: null, sortOrder: 1, fields: [] },
+    ],
+    features: [
+      ...base.features,
+      {
+        id: KIOSK_UNIT,
+        floorId: outdoor?.id ?? '',
+        kind: 'unit',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [106.827, -6.1756],
+              [106.82701, -6.1756],
+              [106.82701, -6.17561],
+              [106.827, -6.17561],
+              [106.827, -6.1756],
+            ],
+          ],
+        },
+        name: null,
+        unitCode: 'LUAR-01',
+        unitStatus: 'occupied',
+        height: null,
+        color: null,
+        facilityTypeId: null,
+        subtype: null,
+      },
+    ],
+    locations: [
+      ...base.locations,
+      {
+        id: KIOSK,
+        code: null,
+        name: '24 Jam Kopi',
+        description: null,
+        locationTypeId: OTHER_TYPE,
+        status: 'active',
+        openingDate: null,
+        categoryIds: [],
+        unitIds: [KIOSK_UNIT],
+        primaryUnitId: KIOSK_UNIT,
+        logoPath: null,
+        photoPaths: [],
+        customFields: {},
+      },
+    ],
+  };
+}
+
+const snapshot = buildSnapshot(source());
+const index = indexSnapshot(snapshot);
 const [main, east] = snapshot.buildings;
-const floor = (buildingId: string | undefined, name: string) =>
-  snapshot.floors.find((f) => f.buildingId === buildingId && f.name === name)?.id ?? '';
-
+const mainFloor = (name: string) =>
+  snapshot.floors.find((f) => f.buildingId === main?.id && f.name === name)?.id ?? null;
 const names = (filter: Partial<DirectoryFilter>) =>
-  directoryGroups(lookup, { ...EMPTY_DIRECTORY_FILTER, ...filter }).flatMap((group) =>
-    group.locations.map((location) => location.name),
-  );
+  directoryLocations(snapshot, index, { ...NO_DIRECTORY_FILTER, ...filter }).map((l) => l.name);
 
 describe('direktori A–Z', () => {
-  it('semua lokasi snapshot urut abjad, dikelompokkan per huruf awal', () => {
-    const groups = directoryGroups(lookup, EMPTY_DIRECTORY_FILTER);
-    expect(groups.map((g) => g.letter)).toEqual(['#', 'E', 'L', 'P', 'R']);
-    expect(groups.flatMap((g) => g.locations.map((l) => l.name))).toEqual([
-      '24 Jam Darurat',
-      'Émbung Taman',
-      'Laboratorium',
-      'Pusat Informasi',
+  it('semua lokasi di snapshot berurutan abjad; nonaktif permanen tidak ada', () => {
+    expect(names({})).toEqual(['24 Jam Kopi', 'Laboratorium', 'Radiologi', 'Ruang Tunggu Ümum']);
+  });
+
+  it('filter gedung dan lantai memakai unit lokasi', () => {
+    expect(names({ buildingId: main?.id ?? null })).toEqual(['Radiologi']);
+    expect(names({ buildingId: main?.id ?? null, floorId: mainFloor('GF') })).toEqual([
       'Radiologi',
-      'Ruang Rapat Timur',
+    ]);
+    expect(names({ buildingId: main?.id ?? null, floorId: mainFloor('L1') })).toEqual([]);
+    expect(names({ buildingId: east?.id ?? null })).toEqual([]);
+    expect(names({ buildingId: OUTDOOR_FILTER })).toEqual(['24 Jam Kopi']);
+  });
+
+  it('filter lantai tanpa gedung diabaikan', () => {
+    expect(names({ floorId: mainFloor('L1') })).toHaveLength(4);
+  });
+
+  it('filter tipe, juga bersama filter gedung', () => {
+    expect(names({ locationTypeId: OTHER_TYPE })).toEqual(['24 Jam Kopi']);
+    expect(names({ locationTypeId: IDS.serviceType })).toEqual([
+      'Laboratorium',
+      'Radiologi',
       'Ruang Tunggu Ümum',
     ]);
+    expect(names({ locationTypeId: OTHER_TYPE, buildingId: main?.id ?? null })).toEqual([]);
   });
 
-  it('lokasi nonaktif permanen tidak ada di direktori', () => {
-    expect(names({})).not.toContain('Apotek Lama');
+  it('huruf kelompok tanpa diakritik; angka dan simbol masuk #', () => {
+    expect(directoryLetter('Ümum')).toBe('U');
+    expect(directoryLetter('apotek')).toBe('A');
+    expect(directoryLetter('24 Jam Kopi')).toBe('#');
+    expect(directoryLetter('(Baru) Kafe')).toBe('#');
+    expect(directoryLetter('')).toBe('#');
   });
 
-  it('filter gedung, lantai, dan tipe bekerja sendiri dan bersamaan', () => {
-    expect(names({ building: east?.id ?? null })).toEqual(['Ruang Rapat Timur']);
-    expect(names({ building: main?.id ?? null })).toEqual([
-      '24 Jam Darurat',
-      'Pusat Informasi',
-      'Radiologi',
+  it('kelompok per huruf dengan # di akhir', () => {
+    const groups = directoryGroups(directoryLocations(snapshot, index, NO_DIRECTORY_FILTER));
+    expect(groups.map((g) => [g.letter, g.locations.map((l) => l.name)])).toEqual([
+      ['L', ['Laboratorium']],
+      ['R', ['Radiologi', 'Ruang Tunggu Ümum']],
+      ['#', ['24 Jam Kopi']],
     ]);
-    expect(names({ building: OUTDOOR_BUILDING })).toEqual(['Émbung Taman']);
-    expect(names({ building: main?.id ?? null, floorId: floor(main?.id, 'L1') })).toEqual([
-      'Pusat Informasi',
-    ]);
-    expect(names({ locationTypeId: BROWSE_IDS.roomType })).toEqual(['Ruang Rapat Timur']);
-    expect(names({ building: main?.id ?? null, locationTypeId: BROWSE_IDS.roomType })).toEqual([]);
   });
 
-  it('lokasi tanpa unit hanya tampil tanpa filter gedung/lantai', () => {
-    expect(names({ locationTypeId: IDS.serviceType })).toContain('Laboratorium');
-    expect(names({ building: main?.id ?? null })).not.toContain('Laboratorium');
-  });
-
-  it('mengganti gedung melepas lantai terpilih', () => {
-    const filter = { ...EMPTY_DIRECTORY_FILTER, building: main?.id ?? null, floorId: 'x' };
-    expect(withDirectoryBuilding(filter, east?.id ?? null)).toEqual({
-      ...EMPTY_DIRECTORY_FILTER,
-      building: east?.id,
+  it('pilihan filter hanya gedung, Area Luar, dan tipe yang punya lokasi', () => {
+    expect(directoryFilterOptions(snapshot, index)).toEqual({
+      buildingIds: [main?.id],
+      hasOutdoor: true,
+      locationTypeIds: [IDS.serviceType, OTHER_TYPE],
     });
-  });
-});
-
-describe('pilihan filter direktori', () => {
-  it('gedung dan tipe yang punya lokasi, Area Luar di akhir', () => {
-    const options = directoryOptions(lookup, EMPTY_DIRECTORY_FILTER);
-    expect(options.buildings).toEqual([
-      { id: main?.id, name: 'Gedung Utama' },
-      { id: east?.id, name: 'Gedung Timur' },
-      { id: OUTDOOR_BUILDING, name: 'Area Luar' },
-    ]);
-    expect(options.locationTypes.map((t) => t.name)).toEqual(['Layanan', 'Ruang']);
-    expect(options.floors).toEqual([]);
-  });
-
-  it('lantai gedung terpilih yang punya lokasi, dari atas ke bawah', () => {
-    const options = directoryOptions(lookup, {
-      ...EMPTY_DIRECTORY_FILTER,
-      building: main?.id ?? null,
-    });
-    expect(options.floors).toEqual([
-      { id: floor(main?.id, 'L1'), name: 'L1' },
-      { id: floor(main?.id, 'GF'), name: 'GF' },
-    ]);
-    expect(
-      directoryOptions(lookup, { ...EMPTY_DIRECTORY_FILTER, building: OUTDOOR_BUILDING }).floors,
-    ).toEqual([]);
-  });
-
-  it('venue satu gedung: lantai bisa dipilih tanpa memilih gedung', () => {
-    const source = browseSnapshotSource();
-    const single = buildSnapshot({
-      ...source,
-      buildings: source.buildings.filter((b) => b.id === main?.id),
-      floors: source.floors.filter((f) => f.buildingId !== east?.id),
-      features: source.features.filter((f) => f.floorId !== floor(east?.id, 'GF')),
-    });
-    const options = directoryOptions(createSnapshotLookup(single), EMPTY_DIRECTORY_FILTER);
-    expect(options.floors.map((f) => f.name)).toEqual(['L1', 'GF']);
+    const plain = buildSnapshot(sampleSnapshotSource());
+    expect(directoryFilterOptions(plain, indexSnapshot(plain)).hasOutdoor).toBe(false);
   });
 });

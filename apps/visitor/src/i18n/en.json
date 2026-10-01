@@ -5,12 +5,16 @@
   "search": {
     "label": "Search locations",
     "placeholder": "Search places…",
-    "resultsTitle": "Search results",
-    "results_one": "{{count}} result",
-    "results_other": "{{count}} results",
-    "more": "Showing the top {{shown}} results. Type more to narrow them down.",
-    "noResultsTitle": "No results for “{{query}}”",
-    "noResultsDescription": "Check the spelling, or search by unit code, category, or facility type."
+    "clear": "Clear search",
+    "results": "Search results",
+    "count_one": "{{count}} result",
+    "count_other": "{{count}} results",
+    "emptyTitle": "No results for “{{query}}”",
+    "emptyDescription": "Check the spelling, try a unit code, or browse all places A–Z.",
+    "categoryHit_one": "Category · {{count}} place",
+    "categoryHit_other": "Category · {{count}} places",
+    "facilityTypeHit_one": "Facility · {{count}} spot",
+    "facilityTypeHit_other": "Facility · {{count}} spots"
   },
   "language": {
     "label": "Language",
@@ -27,7 +31,9 @@
     "mode3d": "3D",
     "floors": "Floors",
     "resetView": "Back to the start view",
-    "building": "Building"
+    "building": "Building",
+    "floorHasResults": "has results",
+    "canvas": "Floor map. Arrow keys move the map, + and − zoom in or out."
   },
   "sheet": {
     "handle": "Resize panel",
@@ -54,38 +60,41 @@
     "version": "Map version",
     "publishedAt": "Published"
   },
-  "browse": {
+  "explore": {
+    "chips": "Categories and facilities",
+    "directoryChip": "A–Z",
+    "directoryTitle": "All places A–Z",
+    "openDirectory": "Open the A–Z list",
+    "hint": "Search for a place name or unit code, pick a category, or open the A–Z list.",
+    "closeList": "Close list",
     "back": "Back",
-    "explore": "Categories and facilities",
-    "directory": "A–Z",
-    "kindCategory": "Category",
-    "kindFacility": "Facility",
-    "kindUnit": "Unit",
-    "locationCount_one": "{{count}} location",
-    "locationCount_other": "{{count}} locations",
-    "placeCount_one": "{{count}} place",
-    "placeCount_other": "{{count}} places",
-    "floorMarked": "has highlighted places"
+    "locationCount_one": "{{count}} place",
+    "locationCount_other": "{{count}} places",
+    "facilityCount_one": "{{count}} spot",
+    "facilityCount_other": "{{count}} spots",
+    "filterBuilding": "Filter by building",
+    "filterFloor": "Filter by floor",
+    "filterType": "Filter by type",
+    "allBuildings": "All buildings",
+    "allFloors": "All floors",
+    "allTypes": "All types",
+    "outdoorArea": "Outdoor area",
+    "directoryEmpty": "No places match these filters. Change or clear a filter."
   },
   "location": {
-    "notOnMap": "Not marked on the map yet.",
-    "photos": "Photos",
-    "photo": "Photo of {{name}}, {{index}} of {{count}}",
-    "closePhoto": "Close photo"
+    "route": "Directions to here",
+    "routeUnavailable": "Directions are not available on this map yet.",
+    "notOnMap": "Not on the map yet",
+    "comingSoon": "Opening soon",
+    "comingSoonFrom": "Opening soon · from {{date}}",
+    "temporarilyClosed": "Temporarily closed",
+    "photo": "Photo of {{name}} {{number}}",
+    "yes": "Yes",
+    "no": "No",
+    "missingTitle": "Not found on this map",
+    "missingDescription": "Go back and search again by name or unit code."
   },
-  "route": {
-    "toHere": "Directions to here",
-    "unavailable": "Directions are not available in this version yet."
-  },
-  "directory": {
-    "title": "A–Z directory",
-    "building": "Building",
-    "allBuildings": "All buildings",
-    "floor": "Floor",
-    "allFloors": "All floors",
-    "type": "Type",
-    "allTypes": "All types",
-    "emptyTitle": "No locations",
-    "emptyDescription": "No locations match these filters. Choose another building, floor, or type."
+  "unit": {
+    "label": "Unit"
   }
 }

@@ -51,11 +51,9 @@ export {
 } from './georef-layer';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
 export {
-  HIGHLIGHT_CAP_M,
   HIGHLIGHT_COLORS,
+  highlightFilters,
   highlightLayers,
-  hitAt,
-  LABEL_HIT_PX,
   setHighlight,
 } from './layers/highlight';
 export {
@@ -83,13 +81,20 @@ export {
   type FloorFeatureCollection,
   featureBounds,
   getViewMode,
-  modeVisibility,
   setFloorData,
   setMapDisplay,
+  setMapLabel,
   setReferenceShapes,
   setViewMode,
   type ViewMode,
 } from './map';
+export {
+  createTapInteractions,
+  type MapPick,
+  PICK_TOLERANCE_PX,
+  pickAt,
+  type TapInteractionOptions,
+} from './pick';
 export {
   createSelectionInteractions,
   PICKABLE_LAYERS,
@@ -119,6 +124,7 @@ export {
   buildStyleLayers,
   defaultKindColor,
   FLOOR_SOURCE_ID,
+  HIGHLIGHT_LAYER_IDS,
   LAYER_IDS,
   type MapDisplay,
   venueHeights,

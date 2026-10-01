@@ -45,12 +45,7 @@ export function initialCamera(
 export function moveCamera(
   map: MapInstance,
   camera: InitialCamera,
-  options: {
-    animate: boolean;
-    padding: CameraPadding;
-    /** Batas zoom saat membingkai; bawaannya lantai kecil tidak diperbesar berlebihan. */
-    maxZoom?: number;
-  },
+  options: { animate: boolean; padding: CameraPadding },
 ) {
   const duration = options.animate && !prefersReducedMotion() ? 300 : 0;
   if (camera.kind === 'view') {
@@ -61,10 +56,49 @@ export function moveCamera(
       padding: options.padding,
       duration,
       bearing: map.getBearing(),
-      maxZoom: options.maxZoom ?? MAX_FIT_ZOOM,
+      maxZoom: MAX_FIT_ZOOM,
     });
   }
 }
 
 // Lantai yang sangat kecil tidak diperbesar sampai detail garis pecah.
 const MAX_FIT_ZOOM = 20;
+
+/** Jarak kontrol dan bingkai kamera dari tepi peta. */
+export const MAP_GAP_PX = 12;
+/** Memilih dari daftar tidak memperbesar peta melewati zoom ini, agar sekitarnya tetap terlihat. */
+const FOCUS_MAX_ZOOM = 19;
+
+/**
+ * Kamera ke pilihan pengunjung. `fit` membingkai pilihan di area yang tidak tertutup panel;
+ * `pan` (diketuk di peta) hanya menggeser seperlunya, tanpa mengubah zoom.
+ */
+export function focusCamera(
+  map: MapInstance,
+  bounds: [[number, number], [number, number]],
+  mode: 'fit' | 'pan',
+  padding: CameraPadding,
+) {
+  const duration = prefersReducedMotion() ? 0 : 300;
+  if (mode === 'fit') {
+    map.fitBounds(bounds, {
+      padding,
+      duration,
+      maxZoom: FOCUS_MAX_ZOOM,
+      bearing: map.getBearing(),
+    });
+    return;
+  }
+  const [[minX, minY], [maxX, maxY]] = bounds;
+  const point = map.project([(minX + maxX) / 2, (minY + maxY) / 2]);
+  const { clientWidth: width, clientHeight: height } = map.getCanvas();
+  const inside =
+    point.x >= padding.left &&
+    point.x <= width - padding.right &&
+    point.y >= padding.top &&
+    point.y <= height - padding.bottom;
+  if (inside) return;
+  const x = (padding.left + width - padding.right) / 2;
+  const y = (padding.top + height - padding.bottom) / 2;
+  map.panBy([point.x - x, point.y - y], { duration });
+}

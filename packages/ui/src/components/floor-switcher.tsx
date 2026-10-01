@@ -14,9 +14,9 @@ interface FloorSwitcherProps extends Omit<ComponentProps<'fieldset'>, 'onChange'
   onChange: (floorId: string) => void;
   /** Label akses, misalnya "Lantai". */
   label: string;
-  /** Lantai yang memuat sesuatu yang sedang disorot (hasil, anggota kategori); diberi titik. */
+  /** Lantai yang memuat hasil pilihan pengunjung (misalnya anggota kategori), diberi penanda. */
   marked?: readonly string[];
-  /** Teks pembaca layar untuk lantai bertanda, misalnya "ada yang disorot". Wajib bila `marked` diisi. */
+  /** Teks pembaca layar untuk penanda, misalnya "ada hasil". */
   markedLabel?: string;
 }
 
@@ -49,7 +49,6 @@ function FloorSwitcher({
             key={floor.id}
             type="button"
             aria-pressed={active}
-            data-marked={isMarked || undefined}
             onClick={() => onChange(floor.id)}
             className={cn(
               'relative h-(--control-height) min-w-(--control-height) cursor-pointer border-line border-b px-2 font-bold font-mono last:border-b-0',

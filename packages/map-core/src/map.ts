@@ -103,19 +103,12 @@ export function setMapDisplay(map: MapLibreMap, display: MapDisplay): void {
   refresh3d(map, state);
 }
 
-/** Tampil atau tidaknya layer khusus 2D/3D pada sebuah mode. */
-export function modeVisibility(layerId: string, mode: ViewMode): 'visible' | 'none' {
-  if ((LAYERS_2D_ONLY as readonly string[]).includes(layerId))
-    return mode === '2d' ? 'visible' : 'none';
-  if ((LAYERS_3D_ONLY as readonly string[]).includes(layerId))
-    return mode === '3d' ? 'visible' : 'none';
-  return 'visible';
-}
-
-function applyModeVisibility(map: MapLibreMap, mode: ViewMode) {
-  for (const id of [...LAYERS_2D_ONLY, ...LAYERS_3D_ONLY]) {
-    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', modeVisibility(id, mode));
-  }
+export function applyModeVisibility(map: MapLibreMap, mode: ViewMode) {
+  const show = (id: string, visible: boolean) => {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none');
+  };
+  for (const id of LAYERS_2D_ONLY) show(id, mode === '2d');
+  for (const id of LAYERS_3D_ONLY) show(id, mode === '3d');
 }
 
 /** `keepCamera`: hanya layer dan data yang berganti, kemiringan kamera tidak diubah (kamera tersimpan). */
@@ -133,6 +126,14 @@ export function setViewMode(
     pitch: mode === '3d' ? PITCH_3D : 0,
     duration: prefersReducedMotion() ? 0 : MODE_TRANSITION_MS,
   });
+}
+
+/**
+ * Label aksesibilitas kanvas peta. MapLibre memasang "Map" berbahasa Inggris, jadi aplikasi
+ * mengganti dengan teks dalam bahasa antarmuka (juga saat bahasa diganti).
+ */
+export function setMapLabel(map: MapLibreMap, label: string): void {
+  map.getCanvas().setAttribute('aria-label', label);
 }
 
 export function getViewMode(map: MapLibreMap): ViewMode {

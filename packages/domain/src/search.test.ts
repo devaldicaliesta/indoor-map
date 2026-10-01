@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  matchWord,
+  matchToken,
   normalizeSearchText,
-  prepareSearchEntries,
-  queryWords,
-  scoreWords,
+  prepareSearch,
+  queryTokens,
+  scoreEntry,
   searchEntries,
   searchWords,
   withinOneEdit,
@@ -18,33 +18,32 @@ describe('normalizeSearchText', () => {
   });
 });
 
-describe('kata pencarian', () => {
-  it('tanda baca memisahkan kata dan bentuk tanpa tanda baca ikut disimpan', () => {
-    expect(searchWords('Radiologi RAD-01 gf-a01')).toEqual([
+describe('searchWords', () => {
+  it('tanda baca di tepi dibuang; kode bersambung menyumbang potongan per bagian', () => {
+    expect(searchWords('(radiologi) gu-l1-020, rad.01')).toEqual([
       'radiologi',
-      'rad',
+      'gu-l1-020',
+      'l1-020',
+      '020',
+      'rad.01',
       '01',
-      'rad01',
-      'gf',
-      'a01',
-      'gfa01',
     ]);
-    expect(searchWords(' - ')).toEqual([]);
+    expect(searchWords('  ')).toEqual([]);
   });
 
-  it('kueri dipecah di spasi dan tanda baca', () => {
-    expect(queryWords('  GF-A01  Radio ')).toEqual(['gf', 'a01', 'radio']);
-    expect(queryWords('—')).toEqual([]);
+  it('kata kueri tidak dipecah per bagian', () => {
+    expect(queryTokens('  GU-L1-020, Lab ')).toEqual(['gu-l1-020', 'lab']);
+    expect(queryTokens('— ')).toEqual([]);
   });
 });
 
-describe('jarak edit paling banyak satu', () => {
+describe('withinOneEdit', () => {
   it.each([
     ['radiologi', 'radiologi'],
-    ['radilogi', 'radiologi'],
-    ['radiologii', 'radiologi'],
-    ['radiologu', 'radiologi'],
-    ['radiolgoi', 'radiologi'],
+    ['radilogi', 'radiologi'], // satu huruf hilang
+    ['radiologii', 'radiologi'], // satu huruf lebih
+    ['radiologu', 'radiologi'], // satu huruf salah
+    ['raidologi', 'radiologi'], // dua huruf bersebelahan tertukar
     ['', 'a'],
   ])('%s ≈ %s', (a, b) => {
     expect(withinOneEdit(a, b)).toBe(true);
@@ -52,85 +51,88 @@ describe('jarak edit paling banyak satu', () => {
   });
 
   it.each([
-    ['radlogi', 'radiologi'],
-    ['rdaiolgoi', 'radiologi'],
-    ['radiolxyi', 'radiologi'],
-    ['', 'ab'],
+    ['radlogi', 'radiologi'], // dua huruf hilang
+    ['rodiolagi', 'radiologi'], // dua huruf salah
+    ['ab', 'ba x'],
+    ['abc', 'cab'],
   ])('%s ≠ %s', (a, b) => {
     expect(withinOneEdit(a, b)).toBe(false);
   });
 });
 
-describe('cocok per kata', () => {
-  it('sama persis dan awalan', () => {
-    expect(matchWord('radiologi', 'radiologi')).toBe('exact');
-    expect(matchWord('rad', 'radiologi')).toBe('prefix');
-    expect(matchWord('logi', 'radiologi')).toBeNull();
+describe('matchToken', () => {
+  const words = searchWords('radiologi rad-01 gu-l1-020');
+
+  it('sama persis, awalan, lalu salah ketik ringan', () => {
+    expect(matchToken('radiologi', words)).toBe('exact');
+    expect(matchToken('rad', words)).toBe('prefix');
+    expect(matchToken('020', words)).toBe('exact');
+    expect(matchToken('l1-0', words)).toBe('prefix');
+    expect(matchToken('radilogi', words)).toBe('typo');
+    expect(matchToken('raidologi', words)).toBe('typo');
   });
 
-  it('salah ketik satu huruf untuk kata ≥ 5 huruf, juga selagi mengetik', () => {
-    expect(matchWord('radilogi', 'radiologi')).toBe('typo');
-    expect(matchWord('radilo', 'radiologi')).toBe('typo');
-    expect(matchWord('radiolgoi', 'radiologi')).toBe('typo');
-    expect(matchWord('radiologix', 'radiologi')).toBe('typo');
+  it('awalan yang sedang diketik boleh salah satu huruf mulai 5 huruf', () => {
+    expect(matchToken('radil', words)).toBe('typo');
+    expect(matchToken('radiolgi', words)).toBe('typo');
   });
 
-  it('kata pendek dan kode yang mengandung angka harus persis', () => {
-    expect(matchWord('rdio', 'radio')).toBeNull();
-    expect(matchWord('gfa02', 'gfa01')).toBeNull();
-    expect(matchWord('kantor', 'kantin')).toBeNull();
+  it('kata kueri < 5 huruf tidak ditoleransi salah ketik', () => {
+    expect(matchToken('rid', words)).toBeNull();
+    expect(matchToken('rdio', words)).toBeNull();
+    expect(matchToken('labirin', words)).toBeNull();
+  });
+
+  it('kode dan angka harus tepat: kode unit tidak menemukan unit sebelahnya', () => {
+    expect(matchToken('gu-l1-021', words)).toBeNull();
+    expect(matchToken('rad-02', words)).toBeNull();
+    expect(matchToken('0200', searchWords('1203 020'))).toBeNull();
   });
 });
 
-describe('skor teks', () => {
-  const words = searchWords('Radiologi RAD-01 GF-A01 rontgen');
+describe('scoreEntry dan searchEntries', () => {
+  const entries = [
+    { id: 'rad', text: 'Radiologi RAD-01 GU-L1-020 Rontgen' },
+    { id: 'tunggu', text: 'Ruang Tunggu Ümum' },
+    { id: 'rapat', text: 'Ruang Rapat' },
+    { id: 'radio', text: 'Ruang Radio' },
+    { id: 'toilet', text: 'Toilet' },
+    { id: 'toilet-lobi', text: 'Toilet Lobi' },
+  ];
+  const prepared = prepareSearch(entries);
+  const ids = (query: string) => searchEntries(prepared, query).map((m) => m.entry.id);
 
   it('semua kata kueri harus cocok', () => {
-    expect(scoreWords(['radio', 'rontgen'], words)).not.toBeNull();
-    expect(scoreWords(['radio', 'apotek'], words)).toBeNull();
-    expect(scoreWords([], words)).toBeNull();
+    expect(ids('ruang tunggu')).toEqual(['tunggu']);
+    expect(ids('ruang umum')).toEqual(['tunggu']);
+    expect(ids('ruang')).toEqual(['radio', 'rapat', 'tunggu']);
   });
 
-  it('mencatat salah ketik, frasa utuh, dan kata yang sama persis', () => {
-    expect(scoreWords(['radilogi'], words)).toEqual({ typos: 1, phrase: false, exact: 0 });
-    expect(scoreWords(['rad', '01'], words)).toEqual({ typos: 0, phrase: true, exact: 2 });
-    expect(scoreWords(['rontgen', 'rad'], words)).toEqual({ typos: 0, phrase: false, exact: 2 });
-    expect(scoreWords(['gfa01'], words)).toEqual({ typos: 0, phrase: true, exact: 1 });
-  });
-});
-
-describe('searchEntries', () => {
-  const entries = prepareSearchEntries([
-    { id: 'kardiologi', text: 'kardiologi' },
-    { id: 'radiologi', text: 'radiologi rad-01 gf-a01' },
-    { id: 'radio', text: 'ruang radio' },
-    { id: 'lab', text: 'laboratorium gf-a02' },
-    { id: 'apotik', text: 'apotik' },
-    { id: 'apotek', text: 'apotek' },
-  ]);
-  const ids = (query: string) => searchEntries(entries, query).map((hit) => hit.entry.id);
-
-  it('"radilogi" menemukan Radiologi', () => {
-    expect(ids('radilogi')).toEqual(['radiologi']);
-    expect(ids('RADIOLOGI')).toEqual(['radiologi']);
+  it('"radilogi" menemukan Radiologi; kode unit, kode lokasi, dan alias bisa dicari', () => {
+    expect(ids('radilogi')).toEqual(['rad']);
+    expect(ids('RADIOLOGI')).toEqual(['rad']);
+    expect(ids('gu-l1-020')).toEqual(['rad']);
+    expect(ids('rad-01')).toEqual(['rad']);
+    expect(ids('rontgen')).toEqual(['rad']);
   });
 
-  it('kode lokasi dan kode unit bisa dicari, dengan atau tanpa tanda baca', () => {
-    expect(ids('RAD-01')).toEqual(['radiologi']);
-    expect(ids('rad01')).toEqual(['radiologi']);
-    expect(ids('gf-a0')).toEqual(['radiologi', 'lab']);
-    expect(ids('GF-A02')).toEqual(['lab']);
+  it('nama yang diawali kueri dan nama yang lebih pendek lebih dulu', () => {
+    expect(ids('radio')).toEqual(['rad', 'radio']);
+    expect(ids('toilet')).toEqual(['toilet', 'toilet-lobi']);
   });
 
-  it('tanpa salah ketik lebih dulu, lalu kata yang sama persis; skor sama tetap urut masukan', () => {
-    expect(ids('apotek')).toEqual(['apotek', 'apotik']);
-    expect(ids('apotik')).toEqual(['apotik', 'apotek']);
-    expect(ids('radio')).toEqual(['radio', 'radiologi']);
-    expect(ids('apot')).toEqual(['apotik', 'apotek']);
-  });
-
-  it('kueri kosong atau tanpa huruf/angka tidak menghasilkan apa pun', () => {
+  it('kueri kosong atau tanpa huruf tidak menghasilkan apa pun', () => {
     expect(ids('')).toEqual([]);
-    expect(ids('  -- ')).toEqual([]);
+    expect(ids(' - ')).toEqual([]);
+    expect(scoreEntry([], prepared[0] ?? { text: '', words: [] })).toBeNull();
+  });
+
+  it('skor sama diurutkan dengan pemecah seri dari pemanggil', () => {
+    const tied = prepareSearch([
+      { id: 'b', text: 'lab' },
+      { id: 'a', text: 'lab' },
+    ]);
+    const byId = searchEntries(tied, 'lab', (x, y) => x.id.localeCompare(y.id));
+    expect(byId.map((m) => m.entry.id)).toEqual(['a', 'b']);
   });
 });

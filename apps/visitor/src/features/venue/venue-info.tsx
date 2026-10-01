@@ -10,11 +10,12 @@ import {
 } from '@indoor/ui';
 import { InfoIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { intlLocale } from '../../i18n';
 
 /** Versi peta yang sedang dibuka dan waktu terbitnya, dalam zona waktu venue. */
 export function VenueInfo({ snapshot, className }: { snapshot: Snapshot; className?: string }) {
   const { t, i18n } = useTranslation();
-  const publishedAt = new Intl.DateTimeFormat(i18n.resolvedLanguage === 'en' ? 'en-GB' : 'id-ID', {
+  const publishedAt = new Intl.DateTimeFormat(intlLocale(i18n.resolvedLanguage), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',

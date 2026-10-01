@@ -5,13 +5,13 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { PanelMessage } from '../app/panel-message';
-import { VisitorShell } from '../app/visitor-shell';
+import { useMediaQuery } from '../app/use-media-query';
+import { DESKTOP_QUERY, VisitorShell } from '../app/visitor-shell';
 import { useSnapshot } from '../data/loadSnapshot';
 import { VenueMap } from '../features/map/venue-map';
-import { BrowsePanel } from '../features/search/browse-panel';
-import { useBrowseStore } from '../features/search/browse-store';
-import { VenueSearchField } from '../features/search/venue-search-field';
-import { VenueProvider } from '../features/venue/venue-context';
+import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
+import { DetailBackBar, ExplorePanel } from '../features/search/explore-panel';
+import { VenueSearch } from '../features/search/venue-search';
 import { VenueInfo } from '../features/venue/venue-info';
 import { applyVenueLanguage } from '../i18n';
 
@@ -24,33 +24,6 @@ function Unavailable() {
         description={t('venue.unavailableDescription')}
       />
     </VisitorShell>
-  );
-}
-
-/** Peta, pencarian, dan panel jelajah satu venue; keadaan panel dimulai ulang per venue. */
-function VenueBrowser({ snapshot }: { snapshot: Snapshot }) {
-  const sheet = useBrowseStore((state) => state.sheet);
-  const setSheet = useBrowseStore((state) => state.setSheet);
-  const reset = useBrowseStore((state) => state.reset);
-
-  useEffect(() => {
-    reset();
-    return reset;
-  }, [reset]);
-
-  return (
-    <VenueProvider snapshot={snapshot}>
-      <VisitorShell
-        title={snapshot.venue.name}
-        actions={<VenueInfo snapshot={snapshot} />}
-        search={<VenueSearchField />}
-        sheet={{ snap: sheet, onSnapChange: setSheet }}
-        hideMobileTitle
-        map={<VenueMap snapshot={snapshot} />}
-      >
-        <BrowsePanel />
-      </VisitorShell>
-    </VenueProvider>
   );
 }
 
@@ -91,7 +64,31 @@ function VenueView({ venueId }: { venueId: VenueId }) {
     );
   }
 
-  return <VenueBrowser snapshot={snapshot.data} />;
+  return (
+    <ExploreProvider key={venueId} snapshot={snapshot.data}>
+      <VenueExplorer snapshot={snapshot.data} />
+    </ExploreProvider>
+  );
+}
+
+/** Peta dengan pencarian, chip, daftar, dan detail; semuanya dari snapshot di perangkat. */
+function VenueExplorer({ snapshot }: { snapshot: Snapshot }) {
+  const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const sheetSnap = useExploreStore((s) => s.sheetSnap);
+  const setSheetSnap = useExploreStore((s) => s.setSheetSnap);
+  const hasDetail = useExploreStore((s) => s.detail !== null);
+  return (
+    <VisitorShell
+      title={snapshot.venue.name}
+      actions={<VenueInfo snapshot={snapshot} />}
+      map={<VenueMap snapshot={snapshot} />}
+      search={<VenueSearch />}
+      mobileHeader={hasDetail ? <DetailBackBar /> : undefined}
+      sheet={{ snap: sheetSnap, onSnapChange: setSheetSnap }}
+    >
+      <ExplorePanel desktop={isDesktop} />
+    </VisitorShell>
+  );
 }
 
 export function VenuePage() {
