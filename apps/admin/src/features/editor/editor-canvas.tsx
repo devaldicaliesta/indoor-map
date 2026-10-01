@@ -9,9 +9,11 @@ import {
   type FeatureEditor,
   featureBounds,
   focusFeature,
+  graphElementAt,
   type LngLat,
   type MapDisplay,
   type MapInstance,
+  PICK_TOLERANCE_PX,
   type SnapIndex,
   setFacilityIcons,
   setFloorData,
@@ -25,6 +27,8 @@ import {
 import { type MapControlLabels, MapControls } from '@indoor/ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { facilityIconSpecs } from '../facilities/icons';
+import { EntranceLayer } from './graph/entrance-layer';
+import { useEntranceStore } from './graph/entrance-store';
 import { GraphLayer } from './graph/graph-layer';
 import { graphSnapFeatures } from './graph/graph-views';
 import { ReferenceLayer } from './reference-layer';
@@ -138,6 +142,19 @@ export function EditorCanvas({
         },
         onDrawPath: (coordinates) => sessionRef.current.graph.drawPath(coordinates),
         onPickGraph: (element) => useEditorStore.getState().selectGraph(element),
+        // Menyambung titik masuk manual: klik berikutnya di jalur membuat titik masuknya.
+        interceptClick: (at, point) => {
+          const entrances = useEntranceStore.getState();
+          if (!entrances.linkingId) return false;
+          if (!graphElementAt(instance, point, PICK_TOLERANCE_PX + 2)) {
+            entrances.setLinkingMessage('Klik tepat pada garis jalur.');
+          } else if (sessionRef.current.graph.linkEntrance(entrances.linkingId, at)) {
+            entrances.stopLinking();
+          } else {
+            entrances.setLinkingMessage('Titik masuk tidak bisa dibuat di sini.');
+          }
+          return true;
+        },
         snap: {
           enabled: () => useEditorStore.getState().snapEnabled,
           // Jalur menempel ke node dan edge graf; alat lain ke fitur lantai.
@@ -265,6 +282,7 @@ export function EditorCanvas({
       />
       <ReferenceLayer map={map} floorId={referenceFloorId} />
       <GraphLayer map={map} session={session} canEdit={canEdit} />
+      <EntranceLayer map={map} />
       <ValidationOverlay map={map} featureIds={issueFeatureIds} />
       <MapControls
         className="absolute right-3 bottom-3"

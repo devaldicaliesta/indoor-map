@@ -1,5 +1,6 @@
 import type { EditorTool } from '@indoor/map-core';
 import { useEffect } from 'react';
+import { useEntranceStore } from './graph/entrance-store';
 import { useEditorStore } from './store/editor-store';
 import type { EditorSession } from './use-editor-session';
 
@@ -50,7 +51,9 @@ export function useEditorShortcuts(session: EditorSession, canEdit: boolean) {
       }
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key === 'Escape') {
-        if (store.tool !== 'select') store.setTool('select');
+        const entrances = useEntranceStore.getState();
+        if (entrances.linkingId) entrances.stopLinking();
+        else if (store.tool !== 'select') store.setTool('select');
         else store.select(null);
         return;
       }

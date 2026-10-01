@@ -73,9 +73,9 @@ export function useEditorPersistence(venueId: VenueId, floor: Floor | undefined)
   );
 
   const commit = useCallback(
-    (patch: FeaturePatch) => {
-      useEditorStore.getState().commit(patch);
-      persist({ features: patch, nodes: [], edges: [] }, 'do');
+    (patch: FeaturePatch, graph?: GraphPatch) => {
+      useEditorStore.getState().commit(patch, graph);
+      persist({ features: patch, nodes: graph?.nodes ?? [], edges: graph?.edges ?? [] }, 'do');
     },
     [persist],
   );

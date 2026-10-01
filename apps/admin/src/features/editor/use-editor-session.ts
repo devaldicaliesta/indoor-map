@@ -11,6 +11,7 @@ import {
   type MapFeatureProperties,
   nextUnitCode,
   normalizeUnitCode,
+  removeEntrancesOf,
   type VenueId,
 } from '@indoor/domain';
 import { boundsCenter, type LngLat, rotateGeometry, translateGeometry } from '@indoor/map-core';
@@ -47,16 +48,20 @@ export function useEditorSession(
   const { loaded, error, commit, commitGraph, undo, redo } = useEditorPersistence(venueId, floor);
   const graph = useGraphActions(floorId, commitGraph);
 
-  /** Perubahan untuk beberapa fitur yang ada; fitur yang tidak ditemukan dilewati. */
+  /**
+   * Perubahan untuk beberapa fitur yang ada; fitur yang tidak ditemukan dilewati. Fitur yang
+   * dihapus ikut menghapus titik masuknya di graf dalam langkah undo yang sama.
+   */
   const changeEach = useCallback(
     (ids: readonly string[], fn: (feature: FloorFeature) => FloorFeature | null) => {
-      const features = useEditorStore.getState().features;
+      const { features, graph } = useEditorStore.getState();
       const patch: Change<FloorFeature>[] = [];
       for (const id of ids) {
         const before = features[id];
         if (before) patch.push({ id, before, after: fn(before) });
       }
-      commit(patch);
+      const removed = patch.flatMap((change) => (change.after ? [] : [change.id]));
+      commit(patch, removed.length ? removeEntrancesOf(graph, removed) : undefined);
     },
     [commit],
   );

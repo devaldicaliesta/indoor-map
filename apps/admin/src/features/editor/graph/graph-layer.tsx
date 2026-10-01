@@ -7,6 +7,7 @@ import {
 import { useEffect, useRef } from 'react';
 import { useEditorStore } from '../store/editor-store';
 import type { EditorSession } from '../use-editor-session';
+import { useEntranceStore } from './entrance-store';
 import { graphViews, neighbourPositions } from './graph-views';
 
 /**
@@ -44,7 +45,8 @@ export function GraphLayer({
     const interactions = createGraphInteractions(map, {
       enabled: () => {
         const s = useEditorStore.getState();
-        return canEditRef.current && s.tool === 'select' && s.viewMode === '2d';
+        const linking = useEntranceStore.getState().linkingId !== null;
+        return canEditRef.current && s.tool === 'select' && s.viewMode === '2d' && !linking;
       },
       dragStart: (id) => {
         const s = useEditorStore.getState();

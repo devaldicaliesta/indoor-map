@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@indoor/ui';
+import { EntranceField } from '../graph/entrance-field';
 import { GraphProperties } from '../graph/graph-properties';
 import { drawKindLabel, drawKindValue, FEATURE_KIND_LABELS } from '../labels';
 import { singleSelected, useEditorStore } from '../store/editor-store';
@@ -150,6 +151,9 @@ export function PropertiesPanel({
       ) : null}
       {p.kind === 'facility' ? (
         <FacilityFields feature={feature} session={session} canEdit={canEdit} />
+      ) : null}
+      {p.kind === 'unit' || p.kind === 'facility' ? (
+        <EntranceField featureId={p.id} canEdit={canEdit} />
       ) : null}
       {hasHeight(feature) ? (
         <HeightField feature={feature} session={session} canEdit={canEdit} display={display} />
