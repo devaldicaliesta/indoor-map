@@ -33,6 +33,7 @@ packages/map-core wrapper MapLibre: style, layer 2D/3D, georeferensi, kamera
 packages/data     satu-satunya pintu ke Supabase (repository)
 packages/ui       komponen shadcn yang sudah dikustom + design token
 supabase/         migrations (SQL murni), functions (Edge Functions)
+e2e/              test E2E Playwright (alur utama), satu konfigurasi untuk Admin dan Visitor
 docs/             playbook, dibaca per kebutuhan task
 ```
 
@@ -44,6 +45,7 @@ pnpm dev              jalankan semua app
 pnpm check            typecheck + lint + test (wajib hijau sebelum PR)
 pnpm test             test saja
 pnpm test:integration test yang butuh Supabase lokal berjalan (RLS lewat repository)
+pnpm test:e2e         test E2E Playwright (butuh Supabase lokal dan pnpm db:reset)
 supabase start        Supabase lokal (butuh Docker)
 supabase db reset     terapkan ulang semua migrasi + seed (tanpa Super Admin)
 pnpm db:reset         sama, plus Super Admin lokal admin@local.test (password dari .env.local)
@@ -67,9 +69,13 @@ pnpm db:types         generate tipe TS dari skema ke packages/data
 - Fungsi kecil dengan nama jelas. File di atas ±300 baris dipecah.
 - Tidak menambah dependency tanpa menuliskan alasannya di deskripsi PR.
 - Tidak ada data dummy di kode produksi; data contoh hanya di `supabase/seed.sql` atau fixture test.
-- Komentar hanya untuk menjelaskan *mengapa*, bukan mengulang *apa*.
+- Komentar hanya untuk menjelaskan *mengapa*, bukan mengulang *apa*. Tanpa tag kebutuhan seperti `(FR-MAP-09)`; nomor task hanya untuk menunjuk pekerjaan lanjutan ("dibuat di T-119").
 - Teks UI Admin dalam Bahasa Indonesia. Teks Visitor lewat i18next (ID/EN), tidak di-hardcode.
 - Nama commit: `T-xxx: ringkasan singkat` (misalnya `T-201: A* dengan heuristik jarak`).
+
+## Workflow AI
+
+Agent, command `/ecc-*`, dan skill di `.claude/` diadaptasi dari everything-claude-code (WorldFlowAI); isi dan alurnya di `.claude/WORLDFLOWAI.md`. Bila berbeda, aturan di file ini yang berlaku.
 
 ## Kapan berhenti dan bertanya
 

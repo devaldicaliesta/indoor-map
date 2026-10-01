@@ -29,13 +29,18 @@ export function ModuleRoute({
   return children(access);
 }
 
+// Modul yang berlaku untuk seluruh instalasi, bukan per venue.
+const INSTALLATION_MODULES: ReadonlySet<AdminModule> = new Set(['users', 'license']);
+
 export function ModulePage({
   module,
   access,
+  actions,
   children,
 }: {
   module: AdminModule;
   access: ModuleAccess;
+  actions?: ReactNode;
   children: ReactNode;
 }) {
   const { venue } = useSelectedVenue();
@@ -43,8 +48,11 @@ export function ModulePage({
     <div className="grid gap-4 p-(--panel-padding)">
       <div className="flex items-baseline gap-3">
         <h1 className="font-bold text-xl">{MODULE_NAV[module].label}</h1>
-        {venue ? <span className="text-ink-muted">{venue.name}</span> : null}
+        {venue && !INSTALLATION_MODULES.has(module) ? (
+          <span className="text-ink-muted">{venue.name}</span>
+        ) : null}
         {access === 'read' ? <Badge>Mode baca</Badge> : null}
+        {actions ? <div className="ml-auto flex gap-2">{actions}</div> : null}
       </div>
       {children}
     </div>

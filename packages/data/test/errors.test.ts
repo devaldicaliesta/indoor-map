@@ -35,6 +35,14 @@ describe('toDataError', () => {
     expect(error.message).toBe('Anda tidak memiliki izin untuk tindakan ini.');
   });
 
+  it('kode proyek IMxxx menampilkan pesan dari server', () => {
+    const error = toDataError(
+      postgrestError('IM409', 'Tidak bisa mengubah satu-satunya Super Admin aktif.'),
+    );
+    expect(error.kind).toBe('conflict');
+    expect(error.message).toBe('Tidak bisa mengubah satu-satunya Super Admin aktif.');
+  });
+
   it('menyimpan error asli sebagai cause', () => {
     const original = postgrestError('23505');
     expect(toDataError(original).cause).toBe(original);
@@ -43,6 +51,16 @@ describe('toDataError', () => {
   it('kegagalan fetch menjadi network', () => {
     expect(toDataError(new TypeError('Failed to fetch')).kind).toBe('network');
     expect(toDataError({ code: '', message: 'TypeError: fetch failed' }).kind).toBe('network');
+  });
+
+  it('status HTTP dari Storage dipetakan (RLS Storage, ukuran berkas)', () => {
+    expect(
+      toDataError({ statusCode: '403', message: 'new row violates row-level security policy' })
+        .kind,
+    ).toBe('forbidden');
+    const tooLarge = toDataError({ statusCode: '413', message: 'Payload too large' });
+    expect(tooLarge.kind).toBe('invalid');
+    expect(tooLarge.message).toContain('5 MB');
   });
 
   it('error yang tidak dikenal menjadi unknown', () => {

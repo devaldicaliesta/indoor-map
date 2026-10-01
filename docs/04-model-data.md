@@ -768,3 +768,4 @@ create policy audit_events_read on public.audit_events for select to authenticat
 - **Kuota lisensi** ditambahkan sebagai fungsi `app.assert_quota(kind)` di migrasi R4 (T-404) dan dipanggil dari trigger insert `venues`, `buildings`, `floors`, `info_points`.
 - **`device_tokens`** (F2) belum dibuat.
 - Kolom `failed_login_count` dan `locked_until` dipakai T-008 untuk NFR-SEC-02.
+- **Hak ubah `facility_types`** dipindah dari konten Editor (`app.can_edit()`, blok RLS 0001 di atas) ke Admin dan Super Admin (`app.can_manage()`) oleh migrasi 0009, sesuai menu Pengaturan di `spec/05-user-flow.md`. Editor tetap membaca jenis fasilitas dan menaruh fasilitas di peta. Ikon unggahan di `public-assets/facility-types/` mengikuti hak yang sama.

@@ -12,6 +12,7 @@
     "check": "turbo run typecheck lint test",
     "test": "turbo run test",
     "test:integration": "turbo run test:integration",
+    "test:e2e": "turbo run test:e2e",
     "lint": "biome check .",
     "format": "biome format --write .",
     "db:reset": "node scripts/db-reset.mjs",

@@ -1452,7 +1452,53 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      delete_connector: { Args: { p_id: string }; Returns: undefined };
+      publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
+      publish_begin: {
+        Args: { p_venue_id: string };
+        Returns: {
+          publication_id: string;
+          published_at: string;
+          version: number;
+        }[];
+      };
+      publish_commit: { Args: { p_publication_id: string }; Returns: undefined };
+      save_connector: {
+        Args: {
+          p_direction?: Database['public']['Enums']['escalator_direction'];
+          p_floor_ids: string[];
+          p_id: string;
+          p_is_accessible: boolean;
+          p_kind: Database['public']['Enums']['connector_kind'];
+          p_lat: number;
+          p_lng: number;
+          p_name: string;
+          p_venue_id: string;
+        };
+        Returns: {
+          floor_id: string;
+          node_id: string;
+        }[];
+      };
+      save_location: {
+        Args: {
+          p_category_ids: string[];
+          p_code?: string;
+          p_description?: string;
+          p_id: string;
+          p_location_type_id: string;
+          p_logo_path?: string;
+          p_name: string;
+          p_photo_paths: string[];
+          p_primary_unit_id?: string;
+          p_unit_ids: string[];
+          p_venue_id: string;
+        };
+        Returns: string;
+      };
+      set_smtp_password: { Args: { p_password: string }; Returns: undefined };
+      smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
+      smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };
     };
     Enums: {
       app_role: 'super_admin' | 'admin' | 'editor' | 'operator' | 'viewer';

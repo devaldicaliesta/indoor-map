@@ -1,0 +1,2491 @@
+{
+  "venue": {
+    "id": "675a7e25-4413-5cd3-93db-4d1ede832633",
+    "name": "Venue Contoh",
+    "center": [106.8274, -6.1754]
+  },
+  "buildings": [
+    {
+      "id": "b331a645-5b92-5ebc-a199-b6d5bebff21c",
+      "name": "Gedung Utama",
+      "code": "GU"
+    },
+    {
+      "id": "c9c4c406-b3e7-57d1-a32b-f134e05b9939",
+      "name": "Gedung Timur",
+      "code": "GT"
+    }
+  ],
+  "floors": [
+    {
+      "id": "3908ab48-69ae-55d7-a988-082518e95391",
+      "buildingId": null,
+      "name": "Area Luar",
+      "level": 0,
+      "isOutdoor": true
+    },
+    {
+      "id": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+      "buildingId": "b331a645-5b92-5ebc-a199-b6d5bebff21c",
+      "name": "GF",
+      "level": 0,
+      "isOutdoor": false
+    },
+    {
+      "id": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+      "buildingId": "b331a645-5b92-5ebc-a199-b6d5bebff21c",
+      "name": "L1",
+      "level": 1,
+      "isOutdoor": false
+    },
+    {
+      "id": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+      "buildingId": "b331a645-5b92-5ebc-a199-b6d5bebff21c",
+      "name": "L2",
+      "level": 2,
+      "isOutdoor": false
+    },
+    {
+      "id": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+      "buildingId": "c9c4c406-b3e7-57d1-a32b-f134e05b9939",
+      "name": "GF",
+      "level": 0,
+      "isOutdoor": false
+    }
+  ],
+  "features": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "id": "84a1d8b6-bbf7-5895-800f-e65ab9cc5e04",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8276, -6.17535],
+              [106.828, -6.17535],
+              [106.828, -6.17545],
+              [106.8276, -6.17545],
+              [106.8276, -6.17535]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "84a1d8b6-bbf7-5895-800f-e65ab9cc5e04",
+          "kind": "outdoor_area",
+          "floorId": "3908ab48-69ae-55d7-a988-082518e95391",
+          "name": "Jalan penghubung"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "625d03f4-0da8-572c-a5d1-73206baede32",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268, -6.1752447],
+              [106.8275951, -6.1752447],
+              [106.8275951, -6.175317],
+              [106.8268, -6.175317],
+              [106.8268, -6.1752447]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "625d03f4-0da8-572c-a5d1-73206baede32",
+          "kind": "corridor",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "name": "Koridor utama"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "fe95ce3f-e79e-599e-b0eb-2fbbb0e7bd67",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268, -6.1751],
+              [106.8268904, -6.1751],
+              [106.8268904, -6.1752447],
+              [106.8268, -6.1752447],
+              [106.8268, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "fe95ce3f-e79e-599e-b0eb-2fbbb0e7bd67",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-A01",
+          "unitStatus": "occupied",
+          "name": "GF-A01"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "30615b86-6334-597f-ab40-dddd319d1fd5",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8268452, -6.1752447]
+        },
+        "properties": {
+          "id": "30615b86-6334-597f-ab40-dddd319d1fd5",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "d2b33c00-97d5-5c6e-91ea-de1c7eff1569",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268, -6.175317],
+              [106.8268904, -6.175317],
+              [106.8268904, -6.1754617],
+              [106.8268, -6.1754617],
+              [106.8268, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "d2b33c00-97d5-5c6e-91ea-de1c7eff1569",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-B01",
+          "unitStatus": "occupied",
+          "name": "GF-B01"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "b969813e-5382-5f82-92ed-ef2c3f40c555",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8268452, -6.175317]
+        },
+        "properties": {
+          "id": "b969813e-5382-5f82-92ed-ef2c3f40c555",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "fe130fdf-6718-5279-996c-2b8c7a64ea28",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268904, -6.1751],
+              [106.8269807, -6.1751],
+              [106.8269807, -6.1752447],
+              [106.8268904, -6.1752447],
+              [106.8268904, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "fe130fdf-6718-5279-996c-2b8c7a64ea28",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-A02",
+          "unitStatus": "occupied",
+          "name": "GF-A02"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "54aa73b3-215c-5d47-bb1e-eabe3edd7a1d",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8269355, -6.1752447]
+        },
+        "properties": {
+          "id": "54aa73b3-215c-5d47-bb1e-eabe3edd7a1d",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "d35eecb2-53b9-5a1d-85c4-87d7501755c1",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268904, -6.175317],
+              [106.8269807, -6.175317],
+              [106.8269807, -6.1754617],
+              [106.8268904, -6.1754617],
+              [106.8268904, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "d35eecb2-53b9-5a1d-85c4-87d7501755c1",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-B02",
+          "unitStatus": "occupied",
+          "name": "GF-B02"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "dc8f08f7-fcd5-58d3-9994-d76c973adf76",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8269355, -6.175317]
+        },
+        "properties": {
+          "id": "dc8f08f7-fcd5-58d3-9994-d76c973adf76",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "82277373-9e72-5784-bcc5-bc5a5af9453d",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8269807, -6.1751],
+              [106.8270711, -6.1751],
+              [106.8270711, -6.1752447],
+              [106.8269807, -6.1752447],
+              [106.8269807, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "82277373-9e72-5784-bcc5-bc5a5af9453d",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-A03",
+          "unitStatus": "occupied",
+          "name": "GF-A03"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "1825dfa5-af4b-5384-accd-6374c1008fe3",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8270259, -6.1752447]
+        },
+        "properties": {
+          "id": "1825dfa5-af4b-5384-accd-6374c1008fe3",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "7a582870-1d33-557e-8b36-7144cba11b0a",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8269807, -6.175317],
+              [106.8270711, -6.175317],
+              [106.8270711, -6.1754617],
+              [106.8269807, -6.1754617],
+              [106.8269807, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "7a582870-1d33-557e-8b36-7144cba11b0a",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-B03",
+          "unitStatus": "occupied",
+          "name": "GF-B03"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "d601c5ce-0389-5f8f-8d85-9a22d81447e4",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8270259, -6.175317]
+        },
+        "properties": {
+          "id": "d601c5ce-0389-5f8f-8d85-9a22d81447e4",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "e927d879-945e-5748-b7d9-84abdc7aad5e",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8270711, -6.1751],
+              [106.8271614, -6.1751],
+              [106.8271614, -6.1752447],
+              [106.8270711, -6.1752447],
+              [106.8270711, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "e927d879-945e-5748-b7d9-84abdc7aad5e",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-A04",
+          "unitStatus": "occupied",
+          "name": "GF-A04"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "5bb75fbf-5060-5bad-9e62-bcc0767a1d2a",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8271162, -6.1752447]
+        },
+        "properties": {
+          "id": "5bb75fbf-5060-5bad-9e62-bcc0767a1d2a",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "e9dcb98a-aabf-5993-83f6-286719d9742b",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8270711, -6.175317],
+              [106.8271614, -6.175317],
+              [106.8271614, -6.1754617],
+              [106.8270711, -6.1754617],
+              [106.8270711, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "e9dcb98a-aabf-5993-83f6-286719d9742b",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-B04",
+          "unitStatus": "occupied",
+          "name": "GF-B04"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "21140a4f-c0b7-583e-82ba-4125f63182f0",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8271162, -6.175317]
+        },
+        "properties": {
+          "id": "21140a4f-c0b7-583e-82ba-4125f63182f0",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "7c02ffc5-845a-51a3-92fc-c6b36eac1b49",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8271614, -6.1751],
+              [106.8272518, -6.1751],
+              [106.8272518, -6.1752447],
+              [106.8271614, -6.1752447],
+              [106.8271614, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "7c02ffc5-845a-51a3-92fc-c6b36eac1b49",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-A05",
+          "unitStatus": "occupied",
+          "name": "GF-A05"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "23efb3db-a07c-5b1f-b028-d3750a91fc82",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272066, -6.1752447]
+        },
+        "properties": {
+          "id": "23efb3db-a07c-5b1f-b028-d3750a91fc82",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "7dbe434f-3597-568e-a4f5-ead1d17ce52f",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8271614, -6.175317],
+              [106.8272518, -6.175317],
+              [106.8272518, -6.1754617],
+              [106.8271614, -6.1754617],
+              [106.8271614, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "7dbe434f-3597-568e-a4f5-ead1d17ce52f",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-B05",
+          "unitStatus": "occupied",
+          "name": "GF-B05"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "885c2e81-a065-53ad-9e9d-f95d8d59e8d2",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272066, -6.175317]
+        },
+        "properties": {
+          "id": "885c2e81-a065-53ad-9e9d-f95d8d59e8d2",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "75be63f1-ab32-5a34-8ba1-65f2912f3bfd",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8272518, -6.1751],
+              [106.8273421, -6.1751],
+              [106.8273421, -6.1752447],
+              [106.8272518, -6.1752447],
+              [106.8272518, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "75be63f1-ab32-5a34-8ba1-65f2912f3bfd",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-A06",
+          "unitStatus": "occupied",
+          "name": "GF-A06"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "f83c54f7-4ecd-5656-8f7f-af8568aed138",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272969, -6.1752447]
+        },
+        "properties": {
+          "id": "f83c54f7-4ecd-5656-8f7f-af8568aed138",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "2aef826f-6198-5837-9ea6-e6dda3279139",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8272518, -6.175317],
+              [106.8273421, -6.175317],
+              [106.8273421, -6.1754617],
+              [106.8272518, -6.1754617],
+              [106.8272518, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "2aef826f-6198-5837-9ea6-e6dda3279139",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-B06",
+          "unitStatus": "occupied",
+          "name": "GF-B06"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "d0ec9e62-711b-59e4-9d81-c00a124140a3",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272969, -6.175317]
+        },
+        "properties": {
+          "id": "d0ec9e62-711b-59e4-9d81-c00a124140a3",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "99964f6b-8f01-5dd1-850a-4ce895d9c6e6",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8273421, -6.1751],
+              [106.8274325, -6.1751],
+              [106.8274325, -6.1752447],
+              [106.8273421, -6.1752447],
+              [106.8273421, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "99964f6b-8f01-5dd1-850a-4ce895d9c6e6",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-A07",
+          "unitStatus": "vacant",
+          "name": "GF-A07"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "9d14f9ca-7881-5e1c-b10c-a352d69ebccc",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8273873, -6.1752447]
+        },
+        "properties": {
+          "id": "9d14f9ca-7881-5e1c-b10c-a352d69ebccc",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "4e7acabd-8295-5de0-aa1d-3a27545537e5",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8273421, -6.175317],
+              [106.8274325, -6.175317],
+              [106.8274325, -6.1754617],
+              [106.8273421, -6.1754617],
+              [106.8273421, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "4e7acabd-8295-5de0-aa1d-3a27545537e5",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-B07",
+          "unitStatus": "occupied",
+          "name": "GF-B07"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "7decc3be-c897-58bd-973b-d085dc18c7da",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8273873, -6.175317]
+        },
+        "properties": {
+          "id": "7decc3be-c897-58bd-973b-d085dc18c7da",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "90749785-1a01-5d91-a6e1-c74c0b258617",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8274325, -6.1751],
+              [106.8275228, -6.1751],
+              [106.8275228, -6.1752447],
+              [106.8274325, -6.1752447],
+              [106.8274325, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "90749785-1a01-5d91-a6e1-c74c0b258617",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-A08",
+          "unitStatus": "occupied",
+          "name": "GF-A08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "9b06889f-f9d8-58b9-bfac-d521ff7b539e",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8274776, -6.1752447]
+        },
+        "properties": {
+          "id": "9b06889f-f9d8-58b9-bfac-d521ff7b539e",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "f26618d9-1444-5d41-a7ba-4502cf8fcfbf",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8274325, -6.175317],
+              [106.8275228, -6.175317],
+              [106.8275228, -6.1754617],
+              [106.8274325, -6.1754617],
+              [106.8274325, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "f26618d9-1444-5d41-a7ba-4502cf8fcfbf",
+          "kind": "unit",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "unitCode": "GF-B08",
+          "unitStatus": "vacant",
+          "name": "GF-B08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "9e8a4027-cf8d-5bc1-8b1b-1c049b20820e",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8274776, -6.175317]
+        },
+        "properties": {
+          "id": "9e8a4027-cf8d-5bc1-8b1b-1c049b20820e",
+          "kind": "door",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "9a3f3b91-ecbc-5791-92fc-319732b63eab",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8275228, -6.1751],
+              [106.8275951, -6.1751],
+              [106.8275951, -6.1751723],
+              [106.8275228, -6.1751723],
+              [106.8275228, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "9a3f3b91-ecbc-5791-92fc-319732b63eab",
+          "kind": "stairs",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "name": "Tangga Barat"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "b042cb4a-81b8-5073-9dc7-7d5c67b18947",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8275228, -6.1751723],
+              [106.8275951, -6.1751723],
+              [106.8275951, -6.1752447],
+              [106.8275228, -6.1752447],
+              [106.8275228, -6.1751723]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "b042cb4a-81b8-5073-9dc7-7d5c67b18947",
+          "kind": "elevator",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "name": "Lift 1"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "f41fe410-2bcd-5a83-8562-85b3eb562a49",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8275228, -6.175317],
+              [106.827559, -6.175317],
+              [106.827559, -6.1754617],
+              [106.8275228, -6.1754617],
+              [106.8275228, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "f41fe410-2bcd-5a83-8562-85b3eb562a49",
+          "kind": "escalator",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "name": "Eskalator naik"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "f0428034-1b12-5abb-a82a-9c75b89f7231",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827559, -6.175317],
+              [106.8275951, -6.175317],
+              [106.8275951, -6.1754617],
+              [106.827559, -6.1754617],
+              [106.827559, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "f0428034-1b12-5abb-a82a-9c75b89f7231",
+          "kind": "escalator",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "name": "Eskalator turun"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "23eb5b83-7fef-55c7-a777-d38065893f09",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [106.8268, -6.1751],
+            [106.8275951, -6.1751],
+            [106.8275951, -6.1754617],
+            [106.8268, -6.1754617],
+            [106.8268, -6.1751]
+          ]
+        },
+        "properties": {
+          "id": "23eb5b83-7fef-55c7-a777-d38065893f09",
+          "kind": "wall",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "594241dc-435a-59f4-b722-0bf380661fbc",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8271614, -6.1752809]
+        },
+        "properties": {
+          "id": "594241dc-435a-59f4-b722-0bf380661fbc",
+          "kind": "facility",
+          "floorId": "599dad1f-3e11-54f4-bf79-a222b96e5e6f",
+          "name": "Toilet"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "65a3e818-aa35-5033-822d-2d21a22f28aa",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268, -6.1752447],
+              [106.8275951, -6.1752447],
+              [106.8275951, -6.175317],
+              [106.8268, -6.175317],
+              [106.8268, -6.1752447]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "65a3e818-aa35-5033-822d-2d21a22f28aa",
+          "kind": "corridor",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "name": "Koridor utama"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "12c0bb4a-e5a7-5f4a-a834-fccd27443414",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268, -6.1751],
+              [106.8268904, -6.1751],
+              [106.8268904, -6.1752447],
+              [106.8268, -6.1752447],
+              [106.8268, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "12c0bb4a-e5a7-5f4a-a834-fccd27443414",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-A01",
+          "unitStatus": "occupied",
+          "name": "L1-A01"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "8f6379f3-d1f2-5d7b-9c61-a64dfa6e732b",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8268452, -6.1752447]
+        },
+        "properties": {
+          "id": "8f6379f3-d1f2-5d7b-9c61-a64dfa6e732b",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "a5ff89de-6ec5-5ca9-b8c0-a1eb570d4cb6",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268, -6.175317],
+              [106.8268904, -6.175317],
+              [106.8268904, -6.1754617],
+              [106.8268, -6.1754617],
+              [106.8268, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "a5ff89de-6ec5-5ca9-b8c0-a1eb570d4cb6",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-B01",
+          "unitStatus": "occupied",
+          "name": "L1-B01"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "62a3cb7d-fafc-58aa-9786-247bf019ccb4",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8268452, -6.175317]
+        },
+        "properties": {
+          "id": "62a3cb7d-fafc-58aa-9786-247bf019ccb4",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "246ac873-2db6-5f3f-8669-4bb410f899a8",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268904, -6.1751],
+              [106.8269807, -6.1751],
+              [106.8269807, -6.1752447],
+              [106.8268904, -6.1752447],
+              [106.8268904, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "246ac873-2db6-5f3f-8669-4bb410f899a8",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-A02",
+          "unitStatus": "occupied",
+          "name": "L1-A02"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "5ff80d39-c6d5-541d-9495-eb32ef4a1241",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8269355, -6.1752447]
+        },
+        "properties": {
+          "id": "5ff80d39-c6d5-541d-9495-eb32ef4a1241",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "ac5ca051-79b5-5ede-a5fc-7e38153b58de",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268904, -6.175317],
+              [106.8269807, -6.175317],
+              [106.8269807, -6.1754617],
+              [106.8268904, -6.1754617],
+              [106.8268904, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "ac5ca051-79b5-5ede-a5fc-7e38153b58de",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-B02",
+          "unitStatus": "occupied",
+          "name": "L1-B02"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "9c3e656b-5c5b-5394-b274-4024bad6fa8b",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8269355, -6.175317]
+        },
+        "properties": {
+          "id": "9c3e656b-5c5b-5394-b274-4024bad6fa8b",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "8d82762a-5be6-5bed-b2c1-2f03b047edce",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8269807, -6.1751],
+              [106.8270711, -6.1751],
+              [106.8270711, -6.1752447],
+              [106.8269807, -6.1752447],
+              [106.8269807, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "8d82762a-5be6-5bed-b2c1-2f03b047edce",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-A03",
+          "unitStatus": "occupied",
+          "name": "L1-A03"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "2efb31a7-6ac2-574c-9bc3-4445c0bfc522",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8270259, -6.1752447]
+        },
+        "properties": {
+          "id": "2efb31a7-6ac2-574c-9bc3-4445c0bfc522",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "2e6e6c64-cd99-5cb0-9670-8bfb32a6e76a",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8269807, -6.175317],
+              [106.8270711, -6.175317],
+              [106.8270711, -6.1754617],
+              [106.8269807, -6.1754617],
+              [106.8269807, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "2e6e6c64-cd99-5cb0-9670-8bfb32a6e76a",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-B03",
+          "unitStatus": "occupied",
+          "name": "L1-B03"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "95e64777-7d05-5a24-85b6-51205bbda0e8",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8270259, -6.175317]
+        },
+        "properties": {
+          "id": "95e64777-7d05-5a24-85b6-51205bbda0e8",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "f23c3541-3119-5e35-93be-87b69f3498a4",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8270711, -6.1751],
+              [106.8271614, -6.1751],
+              [106.8271614, -6.1752447],
+              [106.8270711, -6.1752447],
+              [106.8270711, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "f23c3541-3119-5e35-93be-87b69f3498a4",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-A04",
+          "unitStatus": "occupied",
+          "name": "L1-A04"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "b9463f00-ef13-514d-9570-0b1b68beb133",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8271162, -6.1752447]
+        },
+        "properties": {
+          "id": "b9463f00-ef13-514d-9570-0b1b68beb133",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "15deaf60-2e09-5612-b923-9492c8f530e5",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8270711, -6.175317],
+              [106.8271614, -6.175317],
+              [106.8271614, -6.1754617],
+              [106.8270711, -6.1754617],
+              [106.8270711, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "15deaf60-2e09-5612-b923-9492c8f530e5",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-B04",
+          "unitStatus": "occupied",
+          "name": "L1-B04"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "9343e723-ba77-556a-a8a5-eb493c21e7ee",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8271162, -6.175317]
+        },
+        "properties": {
+          "id": "9343e723-ba77-556a-a8a5-eb493c21e7ee",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "536d09a4-c433-5b15-af5b-bc83c0d7d139",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8271614, -6.1751],
+              [106.8272518, -6.1751],
+              [106.8272518, -6.1752447],
+              [106.8271614, -6.1752447],
+              [106.8271614, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "536d09a4-c433-5b15-af5b-bc83c0d7d139",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-A05",
+          "unitStatus": "occupied",
+          "name": "L1-A05"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "11628177-7611-5dc7-8a5c-97a4f8e6a5a1",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272066, -6.1752447]
+        },
+        "properties": {
+          "id": "11628177-7611-5dc7-8a5c-97a4f8e6a5a1",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "ddec8c23-6d2b-56d5-901b-88a9cf25aa89",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8271614, -6.175317],
+              [106.8272518, -6.175317],
+              [106.8272518, -6.1754617],
+              [106.8271614, -6.1754617],
+              [106.8271614, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "ddec8c23-6d2b-56d5-901b-88a9cf25aa89",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-B05",
+          "unitStatus": "occupied",
+          "name": "L1-B05"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "af4ccef9-45c1-517c-afce-383d3decea08",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272066, -6.175317]
+        },
+        "properties": {
+          "id": "af4ccef9-45c1-517c-afce-383d3decea08",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "455d015e-bc9b-5a95-834d-2abadd4a230f",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8272518, -6.1751],
+              [106.8273421, -6.1751],
+              [106.8273421, -6.1752447],
+              [106.8272518, -6.1752447],
+              [106.8272518, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "455d015e-bc9b-5a95-834d-2abadd4a230f",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-A06",
+          "unitStatus": "occupied",
+          "name": "L1-A06"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "659f91e4-3f2a-5315-adfa-b658458ea608",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272969, -6.1752447]
+        },
+        "properties": {
+          "id": "659f91e4-3f2a-5315-adfa-b658458ea608",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "5b055e2a-104e-5b91-9898-03957ab622f1",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8272518, -6.175317],
+              [106.8273421, -6.175317],
+              [106.8273421, -6.1754617],
+              [106.8272518, -6.1754617],
+              [106.8272518, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "5b055e2a-104e-5b91-9898-03957ab622f1",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-B06",
+          "unitStatus": "occupied",
+          "name": "L1-B06"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "a297ead2-5094-538d-af0c-7447b4194f68",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272969, -6.175317]
+        },
+        "properties": {
+          "id": "a297ead2-5094-538d-af0c-7447b4194f68",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "48b7c072-87ae-5459-a29e-d15368b2756e",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8273421, -6.1751],
+              [106.8274325, -6.1751],
+              [106.8274325, -6.1752447],
+              [106.8273421, -6.1752447],
+              [106.8273421, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "48b7c072-87ae-5459-a29e-d15368b2756e",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-A07",
+          "unitStatus": "vacant",
+          "name": "L1-A07"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "0e51989a-ab15-51e7-9d95-beaea75b3824",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8273873, -6.1752447]
+        },
+        "properties": {
+          "id": "0e51989a-ab15-51e7-9d95-beaea75b3824",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "b9295b75-0854-5988-a788-115eb698801f",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8273421, -6.175317],
+              [106.8274325, -6.175317],
+              [106.8274325, -6.1754617],
+              [106.8273421, -6.1754617],
+              [106.8273421, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "b9295b75-0854-5988-a788-115eb698801f",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-B07",
+          "unitStatus": "occupied",
+          "name": "L1-B07"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "f3f893ab-4147-5d28-8fe5-4ba21875c476",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8273873, -6.175317]
+        },
+        "properties": {
+          "id": "f3f893ab-4147-5d28-8fe5-4ba21875c476",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "97919c55-e29a-5b1d-b450-abf2211f66fb",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8274325, -6.1751],
+              [106.8275228, -6.1751],
+              [106.8275228, -6.1752447],
+              [106.8274325, -6.1752447],
+              [106.8274325, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "97919c55-e29a-5b1d-b450-abf2211f66fb",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-A08",
+          "unitStatus": "occupied",
+          "name": "L1-A08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "aff46947-4521-55e7-ab16-04a9c0d656c6",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8274776, -6.1752447]
+        },
+        "properties": {
+          "id": "aff46947-4521-55e7-ab16-04a9c0d656c6",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "3723425c-6fe0-5e3f-93d8-667f3587e050",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8274325, -6.175317],
+              [106.8275228, -6.175317],
+              [106.8275228, -6.1754617],
+              [106.8274325, -6.1754617],
+              [106.8274325, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "3723425c-6fe0-5e3f-93d8-667f3587e050",
+          "kind": "unit",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "unitCode": "L1-B08",
+          "unitStatus": "vacant",
+          "name": "L1-B08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "cf76eeee-0549-542d-aae6-2f6771b5519c",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8274776, -6.175317]
+        },
+        "properties": {
+          "id": "cf76eeee-0549-542d-aae6-2f6771b5519c",
+          "kind": "door",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "d427bc19-1402-5814-bc31-48d8d1fe2a7d",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8275228, -6.1751],
+              [106.8275951, -6.1751],
+              [106.8275951, -6.1751723],
+              [106.8275228, -6.1751723],
+              [106.8275228, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "d427bc19-1402-5814-bc31-48d8d1fe2a7d",
+          "kind": "stairs",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "name": "Tangga Barat"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "ba3ee36a-68cd-566b-931b-dd616dfcab6c",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8275228, -6.1751723],
+              [106.8275951, -6.1751723],
+              [106.8275951, -6.1752447],
+              [106.8275228, -6.1752447],
+              [106.8275228, -6.1751723]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "ba3ee36a-68cd-566b-931b-dd616dfcab6c",
+          "kind": "elevator",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "name": "Lift 1"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "da51d28f-962d-5a9b-a554-91e3f51f4b62",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8275228, -6.175317],
+              [106.827559, -6.175317],
+              [106.827559, -6.1754617],
+              [106.8275228, -6.1754617],
+              [106.8275228, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "da51d28f-962d-5a9b-a554-91e3f51f4b62",
+          "kind": "escalator",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "name": "Eskalator naik"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "35eaa904-40aa-5583-bf5a-0b774bc2a4f6",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827559, -6.175317],
+              [106.8275951, -6.175317],
+              [106.8275951, -6.1754617],
+              [106.827559, -6.1754617],
+              [106.827559, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "35eaa904-40aa-5583-bf5a-0b774bc2a4f6",
+          "kind": "escalator",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "name": "Eskalator turun"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "9993a1ea-aaf1-5ad6-ac40-a3b056ca4e6c",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [106.8268, -6.1751],
+            [106.8275951, -6.1751],
+            [106.8275951, -6.1754617],
+            [106.8268, -6.1754617],
+            [106.8268, -6.1751]
+          ]
+        },
+        "properties": {
+          "id": "9993a1ea-aaf1-5ad6-ac40-a3b056ca4e6c",
+          "kind": "wall",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "1a47b375-04d2-539d-a4dd-412745dd1301",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8271614, -6.1752809]
+        },
+        "properties": {
+          "id": "1a47b375-04d2-539d-a4dd-412745dd1301",
+          "kind": "facility",
+          "floorId": "61e61416-da88-5c57-ada4-e74e76d6cb74",
+          "name": "Musala"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "f45f9bf3-4713-5793-b0c2-67c4f41d2f52",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268, -6.1752447],
+              [106.8275951, -6.1752447],
+              [106.8275951, -6.175317],
+              [106.8268, -6.175317],
+              [106.8268, -6.1752447]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "f45f9bf3-4713-5793-b0c2-67c4f41d2f52",
+          "kind": "corridor",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "name": "Koridor utama"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "b77d9d59-8f61-5eff-b3b7-1e6232a9a421",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268, -6.1751],
+              [106.8268904, -6.1751],
+              [106.8268904, -6.1752447],
+              [106.8268, -6.1752447],
+              [106.8268, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "b77d9d59-8f61-5eff-b3b7-1e6232a9a421",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-A01",
+          "unitStatus": "occupied",
+          "name": "L2-A01"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "131c7fcb-d628-5677-afdd-9b0de667911d",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8268452, -6.1752447]
+        },
+        "properties": {
+          "id": "131c7fcb-d628-5677-afdd-9b0de667911d",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "f93da3c3-be19-581b-992b-f9c7404f1e3e",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268, -6.175317],
+              [106.8268904, -6.175317],
+              [106.8268904, -6.1754617],
+              [106.8268, -6.1754617],
+              [106.8268, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "f93da3c3-be19-581b-992b-f9c7404f1e3e",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-B01",
+          "unitStatus": "occupied",
+          "name": "L2-B01"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "a6a3bdc9-ff62-5838-9df1-71c953ecc23f",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8268452, -6.175317]
+        },
+        "properties": {
+          "id": "a6a3bdc9-ff62-5838-9df1-71c953ecc23f",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "34310fd4-3dad-5ae1-b529-49dab82670fe",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268904, -6.1751],
+              [106.8269807, -6.1751],
+              [106.8269807, -6.1752447],
+              [106.8268904, -6.1752447],
+              [106.8268904, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "34310fd4-3dad-5ae1-b529-49dab82670fe",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-A02",
+          "unitStatus": "occupied",
+          "name": "L2-A02"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "0d961074-08a5-5392-be79-480a6ae7cb92",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8269355, -6.1752447]
+        },
+        "properties": {
+          "id": "0d961074-08a5-5392-be79-480a6ae7cb92",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "3e105a04-8af0-5eff-9e29-1fa71743bcf5",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8268904, -6.175317],
+              [106.8269807, -6.175317],
+              [106.8269807, -6.1754617],
+              [106.8268904, -6.1754617],
+              [106.8268904, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "3e105a04-8af0-5eff-9e29-1fa71743bcf5",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-B02",
+          "unitStatus": "occupied",
+          "name": "L2-B02"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "28c2c2f2-50a1-5789-a041-f24a66c66bc4",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8269355, -6.175317]
+        },
+        "properties": {
+          "id": "28c2c2f2-50a1-5789-a041-f24a66c66bc4",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "db2345a5-0dc3-5552-aefb-7f5782dcca97",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8269807, -6.1751],
+              [106.8270711, -6.1751],
+              [106.8270711, -6.1752447],
+              [106.8269807, -6.1752447],
+              [106.8269807, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "db2345a5-0dc3-5552-aefb-7f5782dcca97",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-A03",
+          "unitStatus": "occupied",
+          "name": "L2-A03"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "7f0c8087-ce9e-50dc-a50b-32a40aa71013",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8270259, -6.1752447]
+        },
+        "properties": {
+          "id": "7f0c8087-ce9e-50dc-a50b-32a40aa71013",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "bf887c5a-e756-5435-8c5c-e1c6b52ccdfd",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8269807, -6.175317],
+              [106.8270711, -6.175317],
+              [106.8270711, -6.1754617],
+              [106.8269807, -6.1754617],
+              [106.8269807, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "bf887c5a-e756-5435-8c5c-e1c6b52ccdfd",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-B03",
+          "unitStatus": "occupied",
+          "name": "L2-B03"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "2b2bf86c-c685-5209-bbc0-2e1c1a068afb",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8270259, -6.175317]
+        },
+        "properties": {
+          "id": "2b2bf86c-c685-5209-bbc0-2e1c1a068afb",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "5aa0a6b2-87b2-532c-90b9-e36a1b96d973",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8270711, -6.1751],
+              [106.8271614, -6.1751],
+              [106.8271614, -6.1752447],
+              [106.8270711, -6.1752447],
+              [106.8270711, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "5aa0a6b2-87b2-532c-90b9-e36a1b96d973",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-A04",
+          "unitStatus": "occupied",
+          "name": "L2-A04"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "da1fff66-c9bd-5b0d-af23-149436980d0a",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8271162, -6.1752447]
+        },
+        "properties": {
+          "id": "da1fff66-c9bd-5b0d-af23-149436980d0a",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "0ac9c45e-0820-500e-93e8-275e65c78175",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8270711, -6.175317],
+              [106.8271614, -6.175317],
+              [106.8271614, -6.1754617],
+              [106.8270711, -6.1754617],
+              [106.8270711, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "0ac9c45e-0820-500e-93e8-275e65c78175",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-B04",
+          "unitStatus": "occupied",
+          "name": "L2-B04"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "20b45e7d-01b5-5f75-8238-e4c4c066a3fa",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8271162, -6.175317]
+        },
+        "properties": {
+          "id": "20b45e7d-01b5-5f75-8238-e4c4c066a3fa",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "6fc0d8ef-515f-549e-b3a1-956639d76937",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8271614, -6.1751],
+              [106.8272518, -6.1751],
+              [106.8272518, -6.1752447],
+              [106.8271614, -6.1752447],
+              [106.8271614, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "6fc0d8ef-515f-549e-b3a1-956639d76937",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-A05",
+          "unitStatus": "occupied",
+          "name": "L2-A05"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "9ed6ff9a-f75d-57d3-8e19-ff6653c6a93d",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272066, -6.1752447]
+        },
+        "properties": {
+          "id": "9ed6ff9a-f75d-57d3-8e19-ff6653c6a93d",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "d4630d6f-a1bb-529e-8d9f-b3af67e8fd1f",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8271614, -6.175317],
+              [106.8272518, -6.175317],
+              [106.8272518, -6.1754617],
+              [106.8271614, -6.1754617],
+              [106.8271614, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "d4630d6f-a1bb-529e-8d9f-b3af67e8fd1f",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-B05",
+          "unitStatus": "occupied",
+          "name": "L2-B05"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "02d114c8-7817-53e4-a250-31dfca84030d",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272066, -6.175317]
+        },
+        "properties": {
+          "id": "02d114c8-7817-53e4-a250-31dfca84030d",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "d84408ae-ce64-5ce5-b5f0-8fbd9f13595d",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8272518, -6.1751],
+              [106.8273421, -6.1751],
+              [106.8273421, -6.1752447],
+              [106.8272518, -6.1752447],
+              [106.8272518, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "d84408ae-ce64-5ce5-b5f0-8fbd9f13595d",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-A06",
+          "unitStatus": "occupied",
+          "name": "L2-A06"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "2a515c6f-f537-59bd-93e4-5a04a01eca8a",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272969, -6.1752447]
+        },
+        "properties": {
+          "id": "2a515c6f-f537-59bd-93e4-5a04a01eca8a",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "5f6a28ea-fb6e-5f7f-a5c9-1702582f7983",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8272518, -6.175317],
+              [106.8273421, -6.175317],
+              [106.8273421, -6.1754617],
+              [106.8272518, -6.1754617],
+              [106.8272518, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "5f6a28ea-fb6e-5f7f-a5c9-1702582f7983",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-B06",
+          "unitStatus": "occupied",
+          "name": "L2-B06"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "2b60c855-38ff-5b09-a81d-54abaf9ef759",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8272969, -6.175317]
+        },
+        "properties": {
+          "id": "2b60c855-38ff-5b09-a81d-54abaf9ef759",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "d05269db-9603-5bf7-b83b-ccc3f5b55a1f",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8273421, -6.1751],
+              [106.8274325, -6.1751],
+              [106.8274325, -6.1752447],
+              [106.8273421, -6.1752447],
+              [106.8273421, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "d05269db-9603-5bf7-b83b-ccc3f5b55a1f",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-A07",
+          "unitStatus": "vacant",
+          "name": "L2-A07"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "bbdd8aa2-9f7f-524f-9424-bc00e3f8c736",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8273873, -6.1752447]
+        },
+        "properties": {
+          "id": "bbdd8aa2-9f7f-524f-9424-bc00e3f8c736",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "695c8b42-8ea6-59e8-93db-e58920d57543",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8273421, -6.175317],
+              [106.8274325, -6.175317],
+              [106.8274325, -6.1754617],
+              [106.8273421, -6.1754617],
+              [106.8273421, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "695c8b42-8ea6-59e8-93db-e58920d57543",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-B07",
+          "unitStatus": "occupied",
+          "name": "L2-B07"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "a612b9e4-9e49-510b-88e6-c14fda2b1422",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8273873, -6.175317]
+        },
+        "properties": {
+          "id": "a612b9e4-9e49-510b-88e6-c14fda2b1422",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "907526a9-a17c-57fc-aed9-67c9724eea5e",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8274325, -6.1751],
+              [106.8275228, -6.1751],
+              [106.8275228, -6.1752447],
+              [106.8274325, -6.1752447],
+              [106.8274325, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "907526a9-a17c-57fc-aed9-67c9724eea5e",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-A08",
+          "unitStatus": "occupied",
+          "name": "L2-A08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "e2e0d84c-bc4e-567a-8592-805337fd8ccd",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8274776, -6.1752447]
+        },
+        "properties": {
+          "id": "e2e0d84c-bc4e-567a-8592-805337fd8ccd",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "8ab300bb-0cdf-5c1c-950b-7bba99eea14c",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8274325, -6.175317],
+              [106.8275228, -6.175317],
+              [106.8275228, -6.1754617],
+              [106.8274325, -6.1754617],
+              [106.8274325, -6.175317]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "8ab300bb-0cdf-5c1c-950b-7bba99eea14c",
+          "kind": "unit",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "unitCode": "L2-B08",
+          "unitStatus": "vacant",
+          "name": "L2-B08"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "562836ad-feac-51e0-a1bb-98dc5f5bb190",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8274776, -6.175317]
+        },
+        "properties": {
+          "id": "562836ad-feac-51e0-a1bb-98dc5f5bb190",
+          "kind": "door",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "ffd564ce-487c-50f9-ad18-ef4d268144c8",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8275228, -6.1751],
+              [106.8275951, -6.1751],
+              [106.8275951, -6.1751723],
+              [106.8275228, -6.1751723],
+              [106.8275228, -6.1751]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "ffd564ce-487c-50f9-ad18-ef4d268144c8",
+          "kind": "stairs",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "name": "Tangga Barat"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "a4b62dad-30a9-5ac5-8ee5-58202312673e",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8275228, -6.1751723],
+              [106.8275951, -6.1751723],
+              [106.8275951, -6.1752447],
+              [106.8275228, -6.1752447],
+              [106.8275228, -6.1751723]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "a4b62dad-30a9-5ac5-8ee5-58202312673e",
+          "kind": "non_walkable",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "name": "Ruang servis"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "a9d66835-6a90-553f-8d37-456f2564332a",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [106.8268, -6.1751],
+            [106.8275951, -6.1751],
+            [106.8275951, -6.1754617],
+            [106.8268, -6.1754617],
+            [106.8268, -6.1751]
+          ]
+        },
+        "properties": {
+          "id": "a9d66835-6a90-553f-8d37-456f2564332a",
+          "kind": "wall",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "34a77af4-f6a3-5ee6-80a6-afb5aa2875d1",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.8271614, -6.1752809]
+        },
+        "properties": {
+          "id": "34a77af4-f6a3-5ee6-80a6-afb5aa2875d1",
+          "kind": "facility",
+          "floorId": "6cfb6831-4c53-5fce-beee-f1fe0009b023",
+          "name": "Toilet"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "b1eef6ad-525d-5252-8467-bf4c52bb33f8",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.828, -6.1752904],
+              [106.8283614, -6.1752904],
+              [106.8283614, -6.1753266],
+              [106.828, -6.1753266],
+              [106.828, -6.1752904]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "b1eef6ad-525d-5252-8467-bf4c52bb33f8",
+          "kind": "corridor",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "name": "Koridor"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "89de2e22-8df5-5db4-9266-44f01316f576",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.828, -6.1752],
+              [106.8280904, -6.1752],
+              [106.8280904, -6.1752904],
+              [106.828, -6.1752904],
+              [106.828, -6.1752]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "89de2e22-8df5-5db4-9266-44f01316f576",
+          "kind": "unit",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "unitCode": "GT-A01",
+          "unitStatus": "occupied",
+          "name": "GT-A01"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "7e93f371-94e2-54a0-be09-e89db8062db9",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.828, -6.1753266],
+              [106.8280904, -6.1753266],
+              [106.8280904, -6.175417],
+              [106.828, -6.175417],
+              [106.828, -6.1753266]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "7e93f371-94e2-54a0-be09-e89db8062db9",
+          "kind": "unit",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "unitCode": "GT-B01",
+          "unitStatus": "occupied",
+          "name": "GT-B01"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "ba9e0bd9-640a-5223-a269-59bae114003a",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8280904, -6.1752],
+              [106.8281807, -6.1752],
+              [106.8281807, -6.1752904],
+              [106.8280904, -6.1752904],
+              [106.8280904, -6.1752]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "ba9e0bd9-640a-5223-a269-59bae114003a",
+          "kind": "unit",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "unitCode": "GT-A02",
+          "unitStatus": "occupied",
+          "name": "GT-A02"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "44c6ca78-7a59-5f3b-996d-16bc7fcd5fa7",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8280904, -6.1753266],
+              [106.8281807, -6.1753266],
+              [106.8281807, -6.175417],
+              [106.8280904, -6.175417],
+              [106.8280904, -6.1753266]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "44c6ca78-7a59-5f3b-996d-16bc7fcd5fa7",
+          "kind": "unit",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "unitCode": "GT-B02",
+          "unitStatus": "occupied",
+          "name": "GT-B02"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "58255f11-c6c9-5c98-a024-dd6e0e58c172",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8281807, -6.1752],
+              [106.8282711, -6.1752],
+              [106.8282711, -6.1752904],
+              [106.8281807, -6.1752904],
+              [106.8281807, -6.1752]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "58255f11-c6c9-5c98-a024-dd6e0e58c172",
+          "kind": "unit",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "unitCode": "GT-A03",
+          "unitStatus": "occupied",
+          "name": "GT-A03"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "91bccea6-9817-5d8c-a71b-42fb9be171b1",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8281807, -6.1753266],
+              [106.8282711, -6.1753266],
+              [106.8282711, -6.175417],
+              [106.8281807, -6.175417],
+              [106.8281807, -6.1753266]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "91bccea6-9817-5d8c-a71b-42fb9be171b1",
+          "kind": "unit",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "unitCode": "GT-B03",
+          "unitStatus": "occupied",
+          "name": "GT-B03"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "c2f691a2-32d6-5ef8-9a10-38cf842728f5",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8282711, -6.1752],
+              [106.8283614, -6.1752],
+              [106.8283614, -6.1752904],
+              [106.8282711, -6.1752904],
+              [106.8282711, -6.1752]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "c2f691a2-32d6-5ef8-9a10-38cf842728f5",
+          "kind": "unit",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "unitCode": "GT-A04",
+          "unitStatus": "occupied",
+          "name": "GT-A04"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "ad486d98-d518-5322-bf59-a04d032b9e94",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8282711, -6.1753266],
+              [106.8283614, -6.1753266],
+              [106.8283614, -6.175417],
+              [106.8282711, -6.175417],
+              [106.8282711, -6.1753266]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "ad486d98-d518-5322-bf59-a04d032b9e94",
+          "kind": "unit",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "unitCode": "GT-B04",
+          "unitStatus": "occupied",
+          "name": "GT-B04"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "59d4a5ef-8f65-5f10-8643-7cdd9726ef7d",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.828, -6.1753085]
+        },
+        "properties": {
+          "id": "59d4a5ef-8f65-5f10-8643-7cdd9726ef7d",
+          "kind": "exit",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325",
+          "name": "Pintu Barat"
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "2b7ca2b9-5feb-5139-bff5-439f95b6cd8c",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [106.828, -6.1752],
+            [106.8283614, -6.1752],
+            [106.8283614, -6.175417],
+            [106.828, -6.175417],
+            [106.828, -6.1752]
+          ]
+        },
+        "properties": {
+          "id": "2b7ca2b9-5feb-5139-bff5-439f95b6cd8c",
+          "kind": "wall",
+          "floorId": "ddef9ac5-f199-5f21-aa63-6d72bfc4c325"
+        }
+      }
+    ]
+  }
+}
