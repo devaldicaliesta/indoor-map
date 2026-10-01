@@ -1,4 +1,11 @@
-import { graphElementAt, type LngLat, type MapInstance, PICK_TOLERANCE_PX } from '@indoor/map-core';
+import type { ClosureTarget, Connector } from '@indoor/domain';
+import {
+  graphElementAt,
+  type LngLat,
+  type MapInstance,
+  PICK_TOLERANCE_PX,
+  pickAt,
+} from '@indoor/map-core';
 import { useEntranceStore } from './graph/entrance-store';
 import { useEditorStore } from './store/editor-store';
 import { useTestRouteStore } from './test-route/test-route-store';
@@ -31,4 +38,23 @@ export function interceptCanvasClick(
     entrances.setLinkingMessage('Titik masuk tidak bisa dibuat di sini.');
   }
   return true;
+}
+
+/**
+ * Sasaran penutupan di titik layar: edge jalur, node pemberhentian konektor (menutup konektornya),
+ * atau fitur lantai. Node jalur biasa tidak bisa ditutup sendiri, jadi fitur di bawahnya dipakai.
+ */
+export function closureTargetAt(
+  map: MapInstance,
+  point: { x: number; y: number },
+  connectors: readonly Pick<Connector, 'id' | 'stops'>[],
+): ClosureTarget | null {
+  const element = graphElementAt(map, point, PICK_TOLERANCE_PX);
+  if (element?.kind === 'edge') return { kind: 'edge', id: element.id };
+  if (element?.kind === 'node') {
+    const connector = connectors.find((c) => c.stops.some((s) => s.nodeId === element.id));
+    if (connector) return { kind: 'connector', id: connector.id };
+  }
+  const pick = pickAt(map, point);
+  return pick?.layer === 'floor' ? { kind: 'feature', id: pick.id } : null;
 }

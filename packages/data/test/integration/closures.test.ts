@@ -1,5 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { addPath, applyGraphPatch, type GraphPatch, type NavGraph } from '@indoor/domain';
+import {
+  addPath,
+  applyGraphPatch,
+  type GraphPatch,
+  type NavGraph,
+  type VenueId,
+} from '@indoor/domain';
 import { createClient } from '@supabase/supabase-js';
 import { afterAll, describe, expect, it } from 'vitest';
 import { createRepositories } from '../../src/client';
@@ -32,7 +38,7 @@ describe.runIf(url && anonKey && serviceKey)('graf venue dan penutupan (Supabase
     for (const id of userIds) await service.auth.admin.deleteUser(id);
   });
 
-  async function signIn(role: 'admin' | 'editor' | 'viewer') {
+  async function signIn(role: 'admin' | 'editor' | 'viewer' | 'operator') {
     const email = `${role}-${suffix}-${userIds.length}@closures.test`;
     const created = await service.auth.admin.createUser({
       email,
@@ -111,5 +117,43 @@ describe.runIf(url && anonKey && serviceKey)('graf venue dan penutupan (Supabase
       'berlaku',
       'tanpa akhir',
     ]);
+  });
+
+  it('Operator membuat, memperpanjang, dan mengakhiri penutupan, tetapi tidak bisa mengubah fitur', async () => {
+    const vid = venueId as VenueId;
+    const operator = await signIn('operator');
+    const [edgeId = ''] = Object.keys((await operator.navGraph.listByVenue(vid)).edges);
+    const start = new Date(Date.now() - HOUR).toISOString();
+    const created = await operator.closures.create(vid, {
+      target: { kind: 'edge', id: edgeId },
+      reason: 'Lantai basah',
+      startsAt: start,
+      endsAt: new Date(Date.now() + HOUR).toISOString(),
+    });
+    expect(created).toMatchObject({ edgeId, reason: 'Lantai basah', featureId: null });
+
+    expect((await operator.closures.setEndsAt(created.id, null)).endsAt).toBeNull();
+    const ended = await operator.closures.setEndsAt(created.id, new Date().toISOString());
+    const now = new Date(Date.now() + 1000);
+    expect((await operator.closures.listCurrent(vid, now)).map((c) => c.id)).not.toContain(
+      ended.id,
+    );
+
+    const scheduled = await operator.closures.create(vid, {
+      target: { kind: 'edge', id: edgeId },
+      reason: 'Perbaikan',
+      startsAt: new Date(Date.now() + 2 * HOUR).toISOString(),
+      endsAt: null,
+    });
+    await operator.closures.remove(scheduled.id);
+
+    // RLS: penghapusan edge oleh Operator tidak mengenai baris apa pun, jadi edge tetap ada.
+    await operator.navGraph.apply(vid, {
+      saveNodes: [],
+      removeNodeIds: [],
+      saveEdges: [],
+      removeEdgeIds: [edgeId],
+    });
+    expect(Object.keys((await operator.navGraph.listByVenue(vid)).edges)).toContain(edgeId);
   });
 });

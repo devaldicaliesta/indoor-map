@@ -16,6 +16,7 @@ import { useRole } from '../../app/auth/can';
 import { data } from '../../app/data-client';
 import { ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
+import { ClosureDialog } from '../closures/closure-dialog';
 import { useFloorPlans } from '../floor-plans/queries';
 import { useDisplaySettings } from '../settings/display/queries';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
@@ -117,7 +118,15 @@ function useActivePlan(floorId: FloorId | null): PlanBackground | null {
     : null;
 }
 
-function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
+function Editor({
+  venueId,
+  canEdit,
+  canManageClosures,
+}: {
+  venueId: VenueId;
+  canEdit: boolean;
+  canManageClosures: boolean;
+}) {
   const selection = useFloorSelection(venueId);
   useStepFloor(selection);
   const { floor, building } = selection;
@@ -204,6 +213,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
               facilityTypes={session.facilityTypes}
               issueFeatureIds={validation.featureIds}
               display={display}
+              canManageClosures={canManageClosures}
               onCursor={setCursor}
             />
           )}
@@ -222,6 +232,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
       </div>
       <StatusBar cursor={cursor} canEdit={canEdit} />
       {canEdit ? <ConnectorDialog venueId={venueId} floor={floor} /> : null}
+      {canManageClosures ? <ClosureDialog venueId={venueId} /> : null}
     </div>
   );
 }
@@ -237,6 +248,7 @@ export function EditorPage() {
             key={venue.id}
             venueId={venue.id}
             canEdit={role !== null && can(role, 'map.edit')}
+            canManageClosures={role !== null && can(role, 'closure.manage')}
           />
         ) : (
           <div className="p-6">
