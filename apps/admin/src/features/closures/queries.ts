@@ -5,9 +5,16 @@ import { useMemo } from 'react';
 import { data } from '../../app/data-client';
 import { useConnectors, useVenueFloors } from '../editor/connectors/queries';
 import { closuresKey } from '../editor/graph/graph-queries';
+import { editorQueues } from '../editor/session-helpers';
 import type { ClosurePlaces } from './closure-model';
 
 export { useCurrentClosures } from '../editor/graph/graph-queries';
+
+/**
+ * Elemen yang baru digambar di editor (klik kanan "Tutup sementara") harus sudah tersimpan
+ * sebelum dibaca atau dirujuk penutupan; di luar editor antreannya kosong.
+ */
+const flushEditor = () => Promise.all(editorQueues().map((queue) => queue.flush()));
 
 /**
  * Jaringan tersimpan venue untuk nama sasaran dan dampak penutupan. Penutupan berlaku tanpa
@@ -18,11 +25,17 @@ export function useClosureNetwork(venueId: VenueId) {
   const connectors = useConnectors(venueId).data;
   const graph = useQuery({
     queryKey: ['closure-network', 'graph', venueId],
-    queryFn: () => data.navGraph.listByVenue(venueId),
+    queryFn: async () => {
+      await flushEditor();
+      return data.navGraph.listByVenue(venueId);
+    },
   }).data;
   const features = useQuery({
     queryKey: ['closure-network', 'features', venueId],
-    queryFn: () => data.features.listByVenue(venueId),
+    queryFn: async () => {
+      await flushEditor();
+      return data.features.listByVenue(venueId);
+    },
   }).data;
   return useMemo(() => {
     if (!places || !connectors || !graph || !features) return null;
@@ -51,7 +64,10 @@ export function useClosureMutations(venueId: VenueId) {
   const onSettled = () => queryClient.invalidateQueries({ queryKey: closuresKey(venueId) });
   return {
     create: useMutation({
-      mutationFn: (input: ClosureInput) => data.closures.create(venueId, input),
+      mutationFn: async (input: ClosureInput) => {
+        await flushEditor();
+        return data.closures.create(venueId, input);
+      },
       onSettled,
     }),
     setEndsAt: useMutation({

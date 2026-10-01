@@ -46,6 +46,17 @@ export function pickAt(map: MapLibreMap, point: { x: number; y: number }): MapPi
   return id ? { layer: 'floor', id } : null;
 }
 
+/**
+ * Fitur lantai teratas di titik layar, termasuk koridor dan Area Luar yang tidak bisa diketuk
+ * pengunjung. Dipakai Admin untuk memilih area yang ditutup sementara.
+ */
+export function floorFeatureAt(map: MapLibreMap, point: { x: number; y: number }): string | null {
+  const layers = [...FLOOR_PICK_LAYERS, LAYER_IDS.flat].filter((id) => map.getLayer(id));
+  if (!layers.length) return null;
+  const [hit] = map.queryRenderedFeatures([point.x, point.y], { layers });
+  return idOf(hit?.properties);
+}
+
 export interface TapInteractionOptions {
   /** Sasaran yang membuka sesuatu; kursor berubah menjadi penunjuk di atasnya. */
   isTarget(pick: MapPick): boolean;

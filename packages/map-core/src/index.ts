@@ -137,6 +137,7 @@ export {
 } from './map';
 export {
   createTapInteractions,
+  floorFeatureAt,
   type MapPick,
   PICK_TOLERANCE_PX,
   pickAt,
