@@ -40,9 +40,13 @@ describe('label peta', () => {
     expect(radiology[0]).toMatchObject({ name: 'Radiologi', priority: LABEL_PRIORITY.location });
   });
 
-  it('lokasi terpilih mendapat prioritas tertinggi', () => {
-    const labels = mapLabels(snapshot, floors, IDS.radiology);
+  it('lokasi dan fasilitas yang disorot mendapat prioritas tertinggi', () => {
+    const allFloors = snapshot.floors.map((f) => f.id);
+    const labels = mapLabels(snapshot, allFloors, [IDS.radiology, safetyId ?? '']);
     expect(labels.find((l) => l.id === IDS.radiology)?.priority).toBe(LABEL_PRIORITY.selected);
+    expect(labels.find((l) => l.id === safetyId)?.priority).toBe(LABEL_PRIORITY.selected);
+    const others = labels.filter((l) => l.id !== IDS.radiology && l.id !== safetyId);
+    expect(others.every((l) => l.priority !== LABEL_PRIORITY.selected)).toBe(true);
   });
 
   it('fasilitas keselamatan didahulukan dari lokasi dan fasilitas lain', () => {
