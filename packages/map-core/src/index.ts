@@ -51,6 +51,14 @@ export {
 } from './georef-layer';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
 export {
+  HIGHLIGHT_CAP_M,
+  HIGHLIGHT_COLORS,
+  highlightLayers,
+  hitAt,
+  LABEL_HIT_PX,
+  setHighlight,
+} from './layers/highlight';
+export {
   LABEL_LAYER_ID,
   LABEL_SOURCE_ID,
   type LabelFont,
@@ -75,6 +83,7 @@ export {
   type FloorFeatureCollection,
   featureBounds,
   getViewMode,
+  modeVisibility,
   setFloorData,
   setMapDisplay,
   setReferenceShapes,

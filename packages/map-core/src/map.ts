@@ -103,11 +103,19 @@ export function setMapDisplay(map: MapLibreMap, display: MapDisplay): void {
   refresh3d(map, state);
 }
 
+/** Tampil atau tidaknya layer khusus 2D/3D pada sebuah mode. */
+export function modeVisibility(layerId: string, mode: ViewMode): 'visible' | 'none' {
+  if ((LAYERS_2D_ONLY as readonly string[]).includes(layerId))
+    return mode === '2d' ? 'visible' : 'none';
+  if ((LAYERS_3D_ONLY as readonly string[]).includes(layerId))
+    return mode === '3d' ? 'visible' : 'none';
+  return 'visible';
+}
+
 function applyModeVisibility(map: MapLibreMap, mode: ViewMode) {
-  for (const id of LAYERS_2D_ONLY)
-    map.setLayoutProperty(id, 'visibility', mode === '2d' ? 'visible' : 'none');
-  for (const id of LAYERS_3D_ONLY)
-    map.setLayoutProperty(id, 'visibility', mode === '3d' ? 'visible' : 'none');
+  for (const id of [...LAYERS_2D_ONLY, ...LAYERS_3D_ONLY]) {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', modeVisibility(id, mode));
+  }
 }
 
 /** `keepCamera`: hanya layer dan data yang berganti, kemiringan kamera tidak diubah (kamera tersimpan). */
