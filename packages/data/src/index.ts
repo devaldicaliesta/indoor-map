@@ -10,6 +10,7 @@ export { DataError, type DataErrorKind } from './errors';
 export type { AuditRepository } from './repositories/audit';
 export type { BuildingsRepository, OutdoorLayer } from './repositories/buildings';
 export type { CategoriesRepository, CategoryWithUsage } from './repositories/categories';
+export type { ConnectorInput, ConnectorsRepository } from './repositories/connectors';
 export type { DisplaySettingsRepository } from './repositories/display-settings';
 export type {
   FacilityTypesRepository,

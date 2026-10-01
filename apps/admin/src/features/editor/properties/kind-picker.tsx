@@ -20,11 +20,12 @@ export function KindPicker({
   const drawKinds = useEditorStore((s) => s.drawKinds);
   const setDrawKind = useEditorStore((s) => s.setDrawKind);
   if (tool === 'select') return null;
-  if (tool === 'path') {
+  if (tool === 'path' || tool === 'connector') {
     return (
       <p className="absolute top-3 left-3 max-w-[calc(100%-1.5rem)] rounded-md bg-surface px-3 py-2 text-sm shadow-(--shadow-float)">
-        Jalur pengunjung: klik titik demi titik, klik dua kali untuk selesai. Ujung yang menyentuh
-        jalur lain dan persimpangan otomatis tersambung.
+        {tool === 'path'
+          ? 'Jalur pengunjung: klik titik demi titik, klik dua kali untuk selesai. Ujung yang menyentuh jalur lain dan persimpangan otomatis tersambung.'
+          : 'Konektor: klik posisi lift, eskalator, tangga, atau pintu gedung, lalu pilih lantai yang dihubungkan.'}
       </p>
     );
   }

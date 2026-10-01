@@ -20,7 +20,7 @@ import { closestOnSegment, type Px, SNAP_TOLERANCE_PX, snapPoint } from './snap'
 import type { BBox, SnapCandidates } from './snap-index';
 import { roundCoordinate, roundGeometry } from './transform';
 
-export type EditorTool = 'select' | 'polygon' | 'linestring' | 'point' | 'path';
+export type EditorTool = 'select' | 'polygon' | 'linestring' | 'point' | 'path' | 'connector';
 
 export interface EditableFeature {
   id: string;
@@ -36,6 +36,8 @@ export interface FeatureEditorCallbacks {
   onPick(id: string | null, additive: boolean): void;
   /** Garis jalur selesai digambar dengan alat jalur (titik-titiknya berurutan). */
   onDrawPath?(coordinates: LngLat[]): void;
+  /** Posisi konektor baru diklik dengan alat konektor. */
+  onPlaceConnector?(at: LngLat): void;
   /** Klik pada node atau edge graf di alat pilih; didahulukan dari fitur di bawahnya. */
   onPickGraph?(element: GraphElement): void;
   /**
@@ -220,6 +222,7 @@ export function createFeatureEditor(
       new TerraDrawLineStringMode({ styles: styles.linestring, snapping }),
       new TerraDrawLineStringMode({ modeName: 'path', styles: styles.path, snapping }),
       new TerraDrawPointMode({ styles: styles.point }),
+      new TerraDrawPointMode({ modeName: 'connector', styles: styles.point }),
       new TerraDrawSelectMode({
         styles: styles.select,
         // Hapus dan pintasan lain lewat store editor, bukan langsung di terra-draw.
@@ -251,6 +254,8 @@ export function createFeatureEditor(
       terra.removeFeatures([id]);
       if (context.mode === 'path' && geometry.type === 'LineString') {
         callbacks.onDrawPath?.(geometry.coordinates as LngLat[]);
+      } else if (context.mode === 'connector' && geometry.type === 'Point') {
+        callbacks.onPlaceConnector?.(geometry.coordinates as LngLat);
       } else callbacks.onDraw(geometry);
     } else if (id === editing) {
       callbacks.onEdit(String(id), geometry);
