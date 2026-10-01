@@ -118,22 +118,20 @@ export function GraphLegend({ status }: { status: GraphStatus }) {
           onChange={(checked) => setVisible('edges', checked)}
         />
       </div>
-      {open ? (
-        <ul id={listId} className="grid gap-1.5 border-line border-t pt-2">
-          {ITEMS.map(({ style, label, hint }) => (
-            <li key={style} className="flex items-center gap-2" title={hint}>
-              <Swatch style={style} />
-              <span>{label}</span>
-              {style === 'isolated' && isolated > 0 ? (
-                <span className="ml-auto font-mono text-ink-muted text-xs tabular-nums">
-                  {count.format(isolated)}
-                  <span className="sr-only"> node di lantai ini</span>
-                </span>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <ul id={listId} hidden={!open} className="grid gap-1.5 border-line border-t pt-2">
+        {ITEMS.map(({ style, label, hint }) => (
+          <li key={style} className="flex items-center gap-2" title={hint}>
+            <Swatch style={style} />
+            <span>{label}</span>
+            {style === 'isolated' && isolated > 0 ? (
+              <span className="ml-auto font-mono text-ink-muted text-xs tabular-nums">
+                {count.format(isolated)}
+                <span className="sr-only"> node di lantai ini</span>
+              </span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

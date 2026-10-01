@@ -51,12 +51,11 @@ function syncStop(previousNodeId: string | null, nodeId: string | null, position
  */
 export function useConnectorMutations(venueId: VenueId) {
   const queryClient = useQueryClient();
-  // Pemberhentian di lantai lain berubah di server, jadi graf venue ikut dimuat ulang.
-  const invalidate = () =>
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: connectorsKey(venueId) }),
-      queryClient.invalidateQueries({ queryKey: venueGraphKey(venueId) }),
-    ]);
+  const invalidate = () => {
+    // Pemberhentian di lantai lain berubah di server; graf venue dimuat ulang tanpa ditunggu dialog.
+    void queryClient.invalidateQueries({ queryKey: venueGraphKey(venueId) });
+    return queryClient.invalidateQueries({ queryKey: connectorsKey(venueId) });
+  };
   const stopOn = (stops: readonly { floorId: string; nodeId: string }[]) =>
     stops.find((s) => s.floorId === useEditorStore.getState().floorId)?.nodeId ?? null;
 
