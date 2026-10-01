@@ -47,7 +47,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-116 | Lokasi dasar, kategori, tautan unit | T-109 | review | Tab Lokasi (cari, filter kategori/gedung/lantai bersamaan, penanda belum tertaut, 50 per halaman) dan Kategori (ikon, urutan); formulir dengan tautan unit (ketik kode atau pilih di peta), logo, dan foto; tautan dari panel unit di editor. Migrasi 0010; 24 pgTAP, integrasi, dan browser |
 | T-117 | Snapshot minimal | T-115, T-116 | review | Format `Snapshot` + builder + skema zod di domain (137 test), Edge Function `publish` + fungsi SQL pesanan versi (migrasi 0011; 28 pgTAP, 3 integrasi), tombol "Terbitkan (dev)", Visitor memuat snapshot dengan cache service worker dan info versi. Venue contoh 53 KB (8 KB gzip); 2.000 fitur + 1.200 lokasi 1,48 MB (121 KB gzip) |
 | T-118 | Visitor: peta, gedung, lantai | T-117, T-011 | review | Peta snapshot di `/v/:venueId`: gedung/lantai/kamera/mode default, Area Luar di lantai dasar, pemilih gedung + `FloorSwitcher`, zoom/putar/utara/tampilan awal, 2D/3D hanya bila `3d` aktif; nama lokasi dan ikon fasilitas dalam satu layer label berprioritas (font Atkinson via `font-faces`, tanpa server glyph). Diuji di browser 360 px dan desktop dengan venue demo 2 gedung/5 lantai/127 fitur |
-| T-119 | Visitor: cari, kategori, detail, A–Z | T-118 | siap | |
+| T-119 | Visitor: cari, kategori, detail, A–Z | T-118 | dikerjakan | |
 | T-120 | Visitor: bahasa ID/EN | T-119 | menunggu | |
 
 ## R2 · Navigasi (`12-R2-navigasi.md`)
