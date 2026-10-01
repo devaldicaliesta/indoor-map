@@ -4,6 +4,7 @@ import {
   type ExploreTarget,
   NO_DIRECTORY_FILTER,
 } from '@indoor/domain';
+import type { RoutePlace } from '@indoor/routing';
 import { createStore } from 'zustand';
 import type { SheetSnap } from '../../components/sheet-snap';
 
@@ -19,6 +20,12 @@ export type ExploreList =
  */
 export type FocusMode = 'fit' | 'pan';
 
+/**
+ * Menentukan titik asal: `choose` = cari tempat lalu "Saya di sini" (atau beralih ke ketuk peta),
+ * `tap` = ketukan peta berikutnya menjadi titik asal.
+ */
+export type OriginMode = 'off' | 'choose' | 'tap';
+
 export interface ExploreState {
   /** Kueri setelah jeda ketik; kosong berarti tidak sedang mencari. */
   query: string;
@@ -29,6 +36,13 @@ export interface ExploreState {
   sheetSnap: SheetSnap;
   /** Naik setiap kali pengunjung memilih sesuatu, agar kamera bergerak sekali per pilihan. */
   focus: { seq: number; mode: FocusMode };
+  /** Titik asal rute; dari QR (`?o=`), "Saya di sini", atau ketuk peta. */
+  origin: RoutePlace | null;
+  /** Naik setiap titik asal berganti, agar peta berpusat di sana sekali. */
+  originSeq: number;
+  originMode: OriginMode;
+  /** Tujuan "Rute ke sini"; panel rute tampil bila titik asal sudah ada. */
+  destination: ExploreTarget | null;
 
   search(query: string): void;
   /** Membuka daftar dan mengosongkan pencarian (hasil cari berupa kategori atau jenis fasilitas). */
@@ -40,6 +54,14 @@ export interface ExploreState {
   closeDetail(): void;
   setDirectoryFilter(filter: DirectoryFilter): void;
   setSheetSnap(snap: SheetSnap): void;
+  /** "Rute ke sini": tanpa titik asal, pengunjung diminta menentukannya lebih dulu. */
+  requestRoute(target: ExploreTarget): void;
+  /** Ganti titik asal dari panel rute atau penanda "Anda di sini". */
+  chooseOrigin(): void;
+  tapOrigin(): void;
+  setOrigin(place: RoutePlace): void;
+  cancelOrigin(): void;
+  closeRoute(): void;
 }
 
 const INITIAL = {
@@ -49,15 +71,19 @@ const INITIAL = {
   directoryFilter: NO_DIRECTORY_FILTER,
   sheetSnap: 'peek' as SheetSnap,
   focus: { seq: 0, mode: 'fit' as FocusMode },
+  originSeq: 0,
+  originMode: 'off' as OriginMode,
+  destination: null,
 };
 
 const sameList = (a: ExploreList | null, b: ExploreList) =>
   a?.kind === b.kind && (a.kind === 'directory' || (b.kind !== 'directory' && a.id === b.id));
 
 /** Satu store per venue yang dibuka (dibuat ExploreProvider), jadi pilihan tidak terbawa ke venue lain. */
-export const createExploreStore = () =>
+export const createExploreStore = (origin: RoutePlace | null = null) =>
   createStore<ExploreState>()((set, get) => ({
     ...INITIAL,
+    origin,
 
     search: (query) =>
       set((s) => ({
@@ -93,6 +119,46 @@ export const createExploreStore = () =>
 
     setDirectoryFilter: (directoryFilter) => set({ directoryFilter }),
     setSheetSnap: (sheetSnap) => set({ sheetSnap }),
+
+    requestRoute: (destination) =>
+      set((s) =>
+        s.origin
+          ? { destination, originMode: 'off', detail: null, sheetSnap: 'half' }
+          : {
+              destination,
+              originMode: 'choose',
+              detail: null,
+              query: '',
+              list: null,
+              sheetSnap: 'half',
+            },
+      ),
+
+    chooseOrigin: () =>
+      set({ originMode: 'choose', detail: null, query: '', list: null, sheetSnap: 'half' }),
+
+    tapOrigin: () => set({ originMode: 'tap', detail: null, sheetSnap: 'peek' }),
+
+    setOrigin: (origin) =>
+      set((s) => ({
+        origin,
+        originSeq: s.originSeq + 1,
+        originMode: 'off',
+        detail: null,
+        query: '',
+        list: null,
+        sheetSnap: s.destination ? 'half' : 'peek',
+      })),
+
+    cancelOrigin: () =>
+      set((s) => ({
+        originMode: 'off',
+        // Tanpa titik asal, permintaan rute yang menunggunya ikut batal.
+        destination: s.origin ? s.destination : null,
+        sheetSnap: s.origin && s.destination ? 'half' : 'peek',
+      })),
+
+    closeRoute: () => set({ destination: null, sheetSnap: 'peek' }),
   }));
 
 /** Yang disorot di peta: detail yang terbuka, atau daftar kategori/jenis fasilitas saat tidak mencari. */

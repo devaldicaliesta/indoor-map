@@ -13,7 +13,8 @@ import { ROUTE_COLOR } from './route';
 export interface OriginMarker {
   id: string;
   position: LngLat;
-  headingDeg: number;
+  /** `null` bila arah hadap tidak diketahui (titik asal dipilih pengunjung): tanpa garis arah. */
+  headingDeg: number | null;
   selected: boolean;
 }
 
@@ -35,19 +36,20 @@ function ahead([lng, lat]: LngLat, headingDeg: number, meters: number): LngLat {
 export function originCollection(markers: readonly OriginMarker[]): FeatureCollection {
   const features: Feature[] = markers.flatMap((marker): Feature[] => {
     const properties = { id: marker.id, selected: marker.selected };
+    const point: Feature = {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: marker.position },
+      properties,
+    };
+    if (marker.headingDeg === null) return [point];
+    const tip = ahead(marker.position, marker.headingDeg, HEADING_LENGTH_M);
     return [
       {
         type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            marker.position,
-            ahead(marker.position, marker.headingDeg, HEADING_LENGTH_M),
-          ],
-        },
+        geometry: { type: 'LineString', coordinates: [marker.position, tip] },
         properties,
       },
-      { type: 'Feature', geometry: { type: 'Point', coordinates: marker.position }, properties },
+      point,
     ];
   });
   return { type: 'FeatureCollection', features };

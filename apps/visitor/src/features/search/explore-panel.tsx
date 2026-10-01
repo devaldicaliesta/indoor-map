@@ -4,6 +4,7 @@ import { ArrowLeftIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { FacilityDetail, UnitDetail } from '../location/feature-details';
 import { LocationProfile } from '../location/location-profile';
+import { OriginChooser, OriginRow, OriginTapHint, RoutePanel } from '../origin/origin-panels';
 import { Directory } from './directory';
 import { ExploreChips } from './explore-chips';
 import { useExplore, useExploreStore } from './explore-context';
@@ -69,11 +70,28 @@ function ListContent({ hint }: { hint: boolean }) {
 }
 
 /**
- * Isi panel kiri (desktop) dan bottom sheet (HP): detail yang terbuka, hasil cari, atau chip
- * dengan daftar yang dipilih. Detail memakai seluruh panel (chip venue bisa lebih dari satu
- * baris); tombol kembali ada di atas detail di desktop dan di header di HP.
+ * Isi panel kiri (desktop) dan bottom sheet (HP): panel rute, petunjuk menentukan titik asal, atau
+ * panel jelajah dengan baris "Anda di sini".
  */
 export function ExplorePanel({ desktop }: { desktop: boolean }) {
+  const originMode = useExploreStore((s) => s.originMode);
+  const routing = useExploreStore((s) => s.destination !== null && s.origin !== null);
+  if (originMode === 'tap') return <OriginTapHint />;
+  if (routing && originMode === 'off') return <RoutePanel />;
+  return (
+    <div className="grid gap-3">
+      {originMode === 'choose' ? <OriginChooser /> : <OriginRow />}
+      <ExploreContent desktop={desktop} />
+    </div>
+  );
+}
+
+/**
+ * Detail yang terbuka, hasil cari, atau chip dengan daftar yang dipilih. Detail memakai seluruh
+ * panel (chip venue bisa lebih dari satu baris); tombol kembali ada di atas detail di desktop dan
+ * di header di HP.
+ */
+function ExploreContent({ desktop }: { desktop: boolean }) {
   const detail = useExploreStore((s) => s.detail);
   const query = useExploreStore((s) => s.query);
   if (detail) {
