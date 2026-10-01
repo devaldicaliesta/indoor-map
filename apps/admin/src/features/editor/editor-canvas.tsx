@@ -1,5 +1,5 @@
 import type { FloorFeatures } from '@indoor/data';
-import type { FacilityType, FloorId } from '@indoor/domain';
+import type { FacilityType, FloorId, VenueId } from '@indoor/domain';
 import {
   buildSnapIndex,
   type Corners,
@@ -31,6 +31,8 @@ import { useConnectorDialog } from './connectors/connector-dialog-store';
 import { EntranceLayer } from './graph/entrance-layer';
 import { useEntranceStore } from './graph/entrance-store';
 import { GraphLayer } from './graph/graph-layer';
+import { GraphLegend } from './graph/graph-legend';
+import { useGraphStatus } from './graph/graph-status';
 import { graphSnapFeatures } from './graph/graph-views';
 import { ReferenceLayer } from './reference-layer';
 import { featureList, singleSelected, useEditorStore } from './store/editor-store';
@@ -60,6 +62,7 @@ function toCollection(features: ReturnType<typeof featureList>): FloorFeatures {
 
 /** Kanvas editor: fitur lantai (layer style), denah latar, lantai acuan, dan lapisan sunting. */
 export function EditorCanvas({
+  venueId,
   session,
   canEdit,
   plan,
@@ -70,6 +73,7 @@ export function EditorCanvas({
   display,
   onCursor,
 }: {
+  venueId: VenueId;
   session: EditorSession;
   facilityTypes: readonly FacilityType[];
   issueFeatureIds: readonly string[];
@@ -103,6 +107,7 @@ export function EditorCanvas({
   const onCursorRef = useRef(onCursor);
   onCursorRef.current = onCursor;
   const initialCenter = useRef(center ?? FALLBACK_CENTER);
+  const graphStatus = useGraphStatus(venueId);
 
   useEffect(() => {
     if (!container.current) return;
@@ -283,7 +288,7 @@ export function EditorCanvas({
         data-ready={map && session.ready ? 'true' : 'false'}
       />
       <ReferenceLayer map={map} floorId={referenceFloorId} />
-      <GraphLayer map={map} session={session} canEdit={canEdit} />
+      <GraphLayer map={map} session={session} canEdit={canEdit} status={graphStatus} />
       <EntranceLayer map={map} />
       <ValidationOverlay map={map} featureIds={issueFeatureIds} />
       <MapControls
@@ -296,11 +301,14 @@ export function EditorCanvas({
         onZoomOut={() => map?.zoomOut()}
         onResetNorth={() => map?.easeTo({ bearing: 0 })}
       />
-      {viewMode === '3d' ? (
-        <p className="absolute bottom-3 left-3 rounded-sm bg-surface px-3 py-1.5 text-sm shadow-(--shadow-float)">
-          Mode 3D untuk memeriksa hasil. Pilih alat gambar untuk kembali ke 2D.
-        </p>
-      ) : null}
+      <div className="pointer-events-none absolute bottom-3 left-3 flex flex-col items-start gap-2 *:pointer-events-auto">
+        {viewMode === '3d' ? (
+          <p className="rounded-sm bg-surface px-3 py-1.5 text-sm shadow-(--shadow-float)">
+            Mode 3D untuk memeriksa hasil. Pilih alat gambar untuk kembali ke 2D.
+          </p>
+        ) : null}
+        <GraphLegend status={graphStatus} />
+      </div>
     </>
   );
 }

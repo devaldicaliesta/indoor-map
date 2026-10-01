@@ -1,12 +1,24 @@
 import type { NavGraph, NavNodeRole } from '@indoor/domain';
 import type { GraphEdgeView, GraphNodeView, LngLat } from '@indoor/map-core';
+import type { GraphStatus } from './graph-status';
+
+const NO_STATUS: GraphStatus = {
+  isolated: new Set(),
+  closedNodes: new Set(),
+  closedEdges: new Set(),
+};
 
 /** Node dan edge graf dalam bentuk yang digambar map-core; edge tanpa node dilewati. */
-export function graphViews(graph: NavGraph): { nodes: GraphNodeView[]; edges: GraphEdgeView[] } {
+export function graphViews(
+  graph: NavGraph,
+  status: GraphStatus = NO_STATUS,
+): { nodes: GraphNodeView[]; edges: GraphEdgeView[] } {
   const nodes = Object.values(graph.nodes).map((node) => ({
     id: node.id,
     coordinates: node.coordinates as LngLat,
     role: node.role,
+    closed: status.closedNodes.has(node.id),
+    isolated: status.isolated.has(node.id),
   }));
   const edges = Object.values(graph.edges).flatMap((edge) => {
     const from = graph.nodes[edge.from];
@@ -18,6 +30,7 @@ export function graphViews(graph: NavGraph): { nodes: GraphNodeView[]; edges: Gr
             from: from.coordinates as LngLat,
             to: to.coordinates as LngLat,
             accessible: edge.accessible,
+            closed: status.closedEdges.has(edge.id),
           },
         ]
       : [];

@@ -1,5 +1,11 @@
 export { ARC_ACCESSIBLE, ARC_CONNECTOR, nodeDistanceM } from './arcs';
 export { aStar, type Goal, type SearchOptions, type SearchResult, type Seed } from './astar';
+export {
+  type ClosedElements,
+  type ClosedElementsOptions,
+  type ClosureFeature,
+  closedElements,
+} from './closed-elements';
 export { connectorAllows, connectorArcs } from './connectors';
 export {
   BUILDING_DOOR_M,

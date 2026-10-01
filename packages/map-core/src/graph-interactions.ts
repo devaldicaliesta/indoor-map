@@ -1,6 +1,7 @@
 import type { MapLayerMouseEvent, Map as MapLibreMap, MapMouseEvent } from 'maplibre-gl';
 import type { LngLat } from './georef';
-import { GRAPH_LAYER_IDS, setGraphPreview } from './layers/graph';
+import { setGraphPreview } from './layers/graph';
+import { GRAPH_LAYER_IDS } from './layers/graph-style';
 import { SNAP_TOLERANCE_PX } from './snap';
 
 /** Geseran kurang dari ini dianggap klik, bukan memindah node. */

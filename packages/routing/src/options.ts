@@ -50,7 +50,11 @@ function insideRing(ring: readonly (readonly number[])[], x: number, y: number):
   return inside;
 }
 
-function insidePolygon(rings: readonly (readonly (readonly number[])[])[], x: number, y: number) {
+export function insidePolygon(
+  rings: readonly (readonly (readonly number[])[])[],
+  x: number,
+  y: number,
+): boolean {
   const [outer, ...holes] = rings;
   return Boolean(outer && insideRing(outer, x, y)) && !holes.some((hole) => insideRing(hole, x, y));
 }
