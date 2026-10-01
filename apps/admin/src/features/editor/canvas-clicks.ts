@@ -1,10 +1,10 @@
 import type { ClosureTarget, Connector } from '@indoor/domain';
 import {
+  floorFeatureAt,
   graphElementAt,
   type LngLat,
   type MapInstance,
   PICK_TOLERANCE_PX,
-  pickAt,
 } from '@indoor/map-core';
 import { useEntranceStore } from './graph/entrance-store';
 import { useEditorStore } from './store/editor-store';
@@ -55,6 +55,6 @@ export function closureTargetAt(
     const connector = connectors.find((c) => c.stops.some((s) => s.nodeId === element.id));
     if (connector) return { kind: 'connector', id: connector.id };
   }
-  const pick = pickAt(map, point);
-  return pick?.layer === 'floor' ? { kind: 'feature', id: pick.id } : null;
+  const featureId = floorFeatureAt(map, point);
+  return featureId ? { kind: 'feature', id: featureId } : null;
 }

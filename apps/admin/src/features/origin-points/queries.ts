@@ -8,6 +8,7 @@ import {
 } from '@indoor/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { data } from '../../app/data-client';
+import { editorQueues } from '../editor/session-helpers';
 
 export const originPointsKey = (venueId: VenueId) => ['origin-points', venueId] as const;
 
@@ -60,6 +61,8 @@ export function useSaveOriginPoint(venueId: VenueId) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (draft: OriginPointDraft): Promise<OriginPoint> => {
+      // Jalur yang baru digambar di editor harus tersimpan dulu agar titik menempel ke graf terbaru.
+      await Promise.all(editorQueues().map((queue) => queue.flush()));
       const graph = await data.navGraph.listByVenue(venueId);
       const snap = snapOriginPoint(graph, draft.floorId, draft.position, () => crypto.randomUUID());
       if (!snap) {

@@ -116,5 +116,10 @@ describe('unknownPlaceholders', () => {
     expect(unknownPlaceholders('turn_left', 'Belok kiri {distance} m')).toEqual(['distance']);
     expect(unknownPlaceholders('arrive', 'Tiba di {tujuan} {} {tujuan}')).toEqual(['tujuan', '']);
     expect(unknownPlaceholders('start', 'Mulai tanpa placeholder')).toEqual([]);
+    // Spasi atau tanda lain di dalam kurung tidak diganti instructionText, jadi ikut ditolak.
+    expect(unknownPlaceholders('elevator_up', 'Naik ke { floor } {lantai-2}')).toEqual([
+      ' floor ',
+      'lantai-2',
+    ]);
   });
 });

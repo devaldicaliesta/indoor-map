@@ -246,12 +246,14 @@ export function instructionText(step: RouteStep, context: InstructionContext): s
 
 /**
  * Placeholder di `template` yang tidak dikenal atau tidak tersedia untuk `action`, tanpa
- * duplikat dan sesuai urutan kemunculan. Halaman Instruksi menolak teks yang punya temuan.
+ * duplikat dan sesuai urutan kemunculan. Isi kurung apa pun dihitung (termasuk `{ floor }` dan
+ * `{}`), karena `instructionText` hanya mengganti nama yang tepat dan sisanya tampil apa adanya.
+ * Halaman Instruksi menolak teks yang punya temuan.
  */
 export function unknownPlaceholders(action: InstructionAction, template: string): string[] {
   const allowed = new Set<string>(instructionPlaceholders(action));
   const found = new Set<string>();
-  for (const [, name = ''] of template.matchAll(/\{(\w*)\}/g)) {
+  for (const [, name = ''] of template.matchAll(/\{([^{}]*)\}/g)) {
     if (!allowed.has(name)) found.add(name);
   }
   return [...found];

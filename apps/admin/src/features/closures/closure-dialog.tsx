@@ -1,4 +1,9 @@
-import { type ClosureTarget, type VenueId, validateClosureInput } from '@indoor/domain';
+import {
+  type Closure,
+  type ClosureTarget,
+  type VenueId,
+  validateClosureInput,
+} from '@indoor/domain';
 import { closureImpact } from '@indoor/routing';
 import {
   Button,
@@ -24,6 +29,9 @@ import {
   useVenueTimezone,
 } from './queries';
 
+/** Array tetap agar dampak tidak dihitung ulang setiap render selama penutupan belum dimuat. */
+const NO_CLOSURES: readonly Closure[] = [];
+
 function ClosureForm({
   venueId,
   timezone,
@@ -36,7 +44,7 @@ function ClosureForm({
   onDone: () => void;
 }) {
   const network = useClosureNetwork(venueId);
-  const existing = useCurrentClosures(venueId).data ?? [];
+  const existing = useCurrentClosures(venueId).data ?? NO_CLOSURES;
   const { create } = useClosureMutations(venueId);
   const [reason, setReason] = useState('');
   const [starts, setStarts] = useState(() => toVenueInput(new Date().toISOString(), timezone));
