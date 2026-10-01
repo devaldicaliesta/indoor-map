@@ -13,6 +13,16 @@ export { directCost, type ResolvedEnd, resolveEnd, type Snap, snapToEdge } from 
 export { findRoute } from './find-route';
 export { type BuildGraphOptions, buildGraph, type RouteArea, type RouteGraph } from './graph';
 export {
+  INSTRUCTION_PLACEHOLDERS,
+  type InstructionContext,
+  type InstructionPlaceholder,
+  instructionPlaceholders,
+  instructionText,
+  type RouteStep,
+  roundStepDistance,
+  routeSteps,
+} from './instructions';
+export {
   activeClosures,
   closedFeatureNodes,
   closuresOnRoute,
