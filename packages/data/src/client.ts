@@ -4,6 +4,7 @@ import type { Database } from './database.types';
 import { type AuditRepository, createAuditRepository } from './repositories/audit';
 import { type BuildingsRepository, createBuildingsRepository } from './repositories/buildings';
 import { type CategoriesRepository, createCategoriesRepository } from './repositories/categories';
+import { type ConnectorsRepository, createConnectorsRepository } from './repositories/connectors';
 import {
   createDisplaySettingsRepository,
   type DisplaySettingsRepository,
@@ -43,6 +44,7 @@ export interface DataClient {
   auth: AuthRepository;
   buildings: BuildingsRepository;
   categories: CategoriesRepository;
+  connectors: ConnectorsRepository;
   displaySettings: DisplaySettingsRepository;
   facilityTypes: FacilityTypesRepository;
   features: FeaturesRepository;
@@ -65,6 +67,7 @@ export function createRepositories(db: Db): DataClient {
     auth: createAuthRepository(db, profiles),
     buildings: createBuildingsRepository(db),
     categories: createCategoriesRepository(db),
+    connectors: createConnectorsRepository(db),
     displaySettings: createDisplaySettingsRepository(db),
     facilityTypes: createFacilityTypesRepository(db),
     features: createFeaturesRepository(db),

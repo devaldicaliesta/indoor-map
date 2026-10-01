@@ -11,6 +11,7 @@ export const TOOL_SHORTCUTS: Record<EditorTool, string> = {
   linestring: 'L',
   point: 'T',
   path: 'J',
+  connector: 'K',
 };
 
 const TOOL_BY_KEY = Object.fromEntries(
@@ -33,7 +34,7 @@ export const UNDO_SHORTCUT = /Mac|iPhone|iPad/.test(globalThis.navigator?.platfo
   : { undo: 'Ctrl+Z', redo: 'Ctrl+Shift+Z' };
 
 /**
- * Delete, Esc, V (pilih), P (poligon), L (garis), T (titik), J (jalur),
+ * Delete, Esc, V (pilih), P (poligon), L (garis), T (titik), J (jalur), K (konektor),
  * Ctrl/Cmd+Z (undo), Ctrl/Cmd+Shift+Z atau Ctrl+Y (redo).
  */
 export function useEditorShortcuts(session: EditorSession, canEdit: boolean) {

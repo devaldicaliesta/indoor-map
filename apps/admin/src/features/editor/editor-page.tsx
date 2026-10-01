@@ -20,6 +20,7 @@ import { useFloorPlans } from '../floor-plans/queries';
 import { useDisplaySettings } from '../settings/display/queries';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
 import { useFloors } from '../venues/floors/queries';
+import { ConnectorDialog } from './connectors/connector-dialog';
 import { EditorCanvas, type PlanBackground } from './editor-canvas';
 import { EditorSidebar } from './editor-sidebar';
 import { EditorToolbar } from './editor-toolbar';
@@ -201,6 +202,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
         </aside>
       </div>
       <StatusBar cursor={cursor} canEdit={canEdit} />
+      {canEdit ? <ConnectorDialog venueId={venueId} floor={floor} /> : null}
     </div>
   );
 }

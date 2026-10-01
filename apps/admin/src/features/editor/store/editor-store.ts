@@ -73,6 +73,12 @@ export interface EditorState {
   commit(patch: FeaturePatch, graph?: GraphPatch): void;
   /** Menjalankan satu aksi pada graf jalur dan mencatatnya di riwayat yang sama. */
   commitGraph(patch: GraphPatch): void;
+  /**
+   * Menerapkan perubahan graf yang sudah disimpan langsung ke server (pemberhentian konektor),
+   * tanpa riwayat. Bila ada yang terhapus, riwayat dikosongkan agar undo tidak menghidupkan lagi
+   * edge ke node yang sudah tidak ada di server.
+   */
+  syncGraph(patch: GraphPatch): void;
   /** Membatalkan/mengulang satu aksi; mengembalikan patch dan arahnya untuk disimpan. */
   undo(): { patch: EditorPatch; direction: Direction } | null;
   redo(): { patch: EditorPatch; direction: Direction } | null;
@@ -173,6 +179,12 @@ export const useEditorStore = create<EditorState>()((set, get) => {
     },
     commitGraph(patch) {
       apply({ features: [], nodes: patch.nodes, edges: patch.edges });
+    },
+    syncGraph(patch) {
+      const editorPatch = { features: [], nodes: patch.nodes, edges: patch.edges };
+      if (isEmpty(editorPatch)) return;
+      const removes = [...patch.nodes, ...patch.edges].some((change) => change.after === null);
+      set((s) => withPatch(s, editorPatch, 'do', removes ? emptyHistory() : s.history));
     },
     undo() {
       const step = undo(get().history);

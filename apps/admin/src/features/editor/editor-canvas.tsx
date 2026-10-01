@@ -27,6 +27,7 @@ import {
 import { type MapControlLabels, MapControls } from '@indoor/ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { facilityIconSpecs } from '../facilities/icons';
+import { useConnectorDialog } from './connectors/connector-dialog-store';
 import { EntranceLayer } from './graph/entrance-layer';
 import { useEntranceStore } from './graph/entrance-store';
 import { GraphLayer } from './graph/graph-layer';
@@ -141,6 +142,7 @@ export function EditorCanvas({
           else if (!additive) store.select(id);
         },
         onDrawPath: (coordinates) => sessionRef.current.graph.drawPath(coordinates),
+        onPlaceConnector: (at) => useConnectorDialog.getState().openNew(at),
         onPickGraph: (element) => useEditorStore.getState().selectGraph(element),
         // Menyambung titik masuk manual: klik berikutnya di jalur membuat titik masuknya.
         interceptClick: (at, point) => {

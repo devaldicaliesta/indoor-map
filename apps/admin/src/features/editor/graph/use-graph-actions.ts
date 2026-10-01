@@ -9,6 +9,7 @@ import {
   type Position,
   removeEdge as removeGraphEdge,
   removeNode as removeGraphNode,
+  setEdgeAccessible as setGraphEdgeAccessible,
   splitEdge as splitGraphEdge,
 } from '@indoor/domain';
 import { useMemo } from 'react';
@@ -47,6 +48,9 @@ export function useGraphActions(floorId: FloorId | null, commit: (patch: GraphPa
         const created = patch?.nodes.find((change) => change.before === null);
         if (created) useEditorStore.getState().selectGraph({ kind: 'node', id: created.id });
         return true;
+      },
+      setEdgeAccessible(id: string, accessible: boolean) {
+        apply(setGraphEdgeAccessible(currentGraph(), id, accessible));
       },
       /** Menyetujui saran titik masuk (satu atau sekaligus) sebagai satu langkah undo. */
       approveEntrances(suggestions: readonly EntranceSuggestion[]) {

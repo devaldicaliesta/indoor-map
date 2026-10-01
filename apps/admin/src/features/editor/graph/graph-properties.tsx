@@ -1,5 +1,6 @@
 import type { NavNodeRole } from '@indoor/domain';
 import { Button } from '@indoor/ui';
+import { ConnectorPanel } from '../connectors/connector-panel';
 import { useEditorStore } from '../store/editor-store';
 import type { EditorSession } from '../use-editor-session';
 import { NODE_ROLE_LABELS } from './graph-views';
@@ -46,12 +47,22 @@ export function GraphProperties({
         className="grid min-w-0 content-start gap-4 p-(--panel-padding)"
       >
         <h2 className="font-bold text-lg">Edge jalur</h2>
-        <Facts
-          rows={[
-            ['Panjang', meters(edge.lengthM)],
-            ['Aksesibel', edge.accessible ? 'Ya' : 'Tidak'],
-          ]}
-        />
+        <Facts rows={[['Panjang', meters(edge.lengthM)]]} />
+        <label className="flex cursor-pointer items-start gap-2">
+          <input
+            type="checkbox"
+            className="mt-0.5 size-4 accent-ink"
+            checked={edge.accessible}
+            disabled={!canEdit}
+            onChange={(e) => session.graph.setEdgeAccessible(edge.id, e.target.checked)}
+          />
+          <span>
+            <span className="font-bold">Bisa dilalui kursi roda</span>
+            <span className="block text-ink-muted text-sm">
+              Matikan untuk jalur bertangga, terlalu sempit, atau terlalu curam.
+            </span>
+          </span>
+        </label>
         {canEdit ? (
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => session.graph.splitEdge(edge.id)}>Pisah di tengah</Button>
@@ -107,6 +118,7 @@ export function GraphProperties({
           )}
         </>
       ) : null}
+      {node.role === 'connector' ? <ConnectorPanel node={node} canEdit={canEdit} /> : null}
     </section>
   );
 }

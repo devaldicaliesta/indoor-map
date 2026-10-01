@@ -1,17 +1,23 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import {
   buildSnapshot,
+  type ConnectorKind,
   type DisplayMode,
+  type EscalatorDirection,
   type FeatureKind,
   INSTRUCTION_ACTIONS,
   type LanguageCode,
   type LocationStatus,
+  type NavNodeRole,
   type OutdoorSubtype,
   parseSnapshot,
+  type SnapshotConnectorKind,
   type SnapshotDisplayMode,
+  type SnapshotEscalatorDirection,
   type SnapshotFeatureKind,
   type SnapshotLanguage,
   type SnapshotLocationStatus,
+  type SnapshotNodeRole,
   type SnapshotOutdoorSubtype,
   SnapshotSchema,
   type SnapshotSource,
@@ -247,5 +253,8 @@ describe('tipe snapshot sama dengan enum domain', () => {
     expectTypeOf<SnapshotLocationStatus>().toEqualTypeOf<
       Exclude<LocationStatus, 'inactive_permanent'>
     >();
+    expectTypeOf<SnapshotConnectorKind>().toEqualTypeOf<ConnectorKind>();
+    expectTypeOf<SnapshotEscalatorDirection>().toEqualTypeOf<EscalatorDirection>();
+    expectTypeOf<SnapshotNodeRole>().toEqualTypeOf<NavNodeRole>();
   });
 });

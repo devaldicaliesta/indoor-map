@@ -1,6 +1,7 @@
 import type { EditorTool } from '@indoor/map-core';
 import { cn, Tooltip, TooltipContent, TooltipTrigger } from '@indoor/ui';
 import {
+  ArrowUpDownIcon,
   MapPinIcon,
   MousePointer2Icon,
   PentagonIcon,
@@ -39,6 +40,12 @@ const TOOLS: { tool: EditorTool; label: string; hint: string; Icon: ComponentTyp
     label: 'Jalur',
     hint: 'Graf jalur pengunjung. Klik titik demi titik, klik dua kali untuk selesai',
     Icon: WaypointsIcon,
+  },
+  {
+    tool: 'connector',
+    label: 'Konektor',
+    hint: 'Lift, eskalator, tangga, pintu gedung. Klik posisinya',
+    Icon: ArrowUpDownIcon,
   },
 ];
 
