@@ -7,6 +7,7 @@ import {
   Redo2Icon,
   SplineIcon,
   Undo2Icon,
+  WaypointsIcon,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useEditorStore } from './store/editor-store';
@@ -33,6 +34,12 @@ const TOOLS: { tool: EditorTool; label: string; hint: string; Icon: ComponentTyp
     Icon: SplineIcon,
   },
   { tool: 'point', label: 'Titik', hint: 'Pintu, fasilitas. Klik satu kali', Icon: MapPinIcon },
+  {
+    tool: 'path',
+    label: 'Jalur',
+    hint: 'Graf jalur pengunjung. Klik titik demi titik, klik dua kali untuk selesai',
+    Icon: WaypointsIcon,
+  },
 ];
 
 const buttonClass =

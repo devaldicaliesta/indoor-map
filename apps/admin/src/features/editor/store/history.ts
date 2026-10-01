@@ -13,15 +13,16 @@ export interface Change<T> {
 }
 export type Patch<T> = readonly Change<T>[];
 
-export interface History<T> {
-  past: Patch<T>[];
-  future: Patch<T>[];
+/** Riwayat patch editor; isi patch tidak dibaca di sini sehingga satu aksi bisa memuat beberapa koleksi. */
+export interface History<P> {
+  past: P[];
+  future: P[];
 }
 
 /** Minimal 50 langkah per sesi; disimpan 100 agar ada kelonggaran. */
 export const HISTORY_LIMIT = 100;
 
-export const emptyHistory = <T>(): History<T> => ({ past: [], future: [] });
+export const emptyHistory = <P>(): History<P> => ({ past: [], future: [] });
 
 export type Direction = 'do' | 'undo';
 
@@ -45,13 +46,12 @@ export function applyPatch<T>(
   return next;
 }
 
-export function record<T>(history: History<T>, patch: Patch<T>): History<T> {
-  if (patch.length === 0) return history;
+export function record<P>(history: History<P>, patch: P): History<P> {
   const past = [...history.past, patch];
   return { past: past.slice(-HISTORY_LIMIT), future: [] };
 }
 
-export function undo<T>(history: History<T>): { history: History<T>; patch: Patch<T> } | null {
+export function undo<P>(history: History<P>): { history: History<P>; patch: P } | null {
   const patch = history.past.at(-1);
   if (!patch) return null;
   return {
@@ -60,7 +60,7 @@ export function undo<T>(history: History<T>): { history: History<T>; patch: Patc
   };
 }
 
-export function redo<T>(history: History<T>): { history: History<T>; patch: Patch<T> } | null {
+export function redo<P>(history: History<P>): { history: History<P>; patch: P } | null {
   const patch = history.future.at(-1);
   if (!patch) return null;
   return {

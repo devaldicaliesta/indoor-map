@@ -25,6 +25,8 @@ import {
 import { type MapControlLabels, MapControls } from '@indoor/ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { facilityIconSpecs } from '../facilities/icons';
+import { GraphLayer } from './graph/graph-layer';
+import { graphSnapFeatures } from './graph/graph-views';
 import { ReferenceLayer } from './reference-layer';
 import { featureList, singleSelected, useEditorStore } from './store/editor-store';
 import type { EditorSession } from './use-editor-session';
@@ -82,6 +84,8 @@ export function EditorCanvas({
   const selectedIds = useEditorStore((s) => s.selectedIds);
   const selected = useEditorStore(singleSelected);
   const snapIndex = useRef<SnapIndex>(buildSnapIndex([]));
+  const graphSnapIndex = useRef<SnapIndex>(buildSnapIndex([]));
+  const graph = useEditorStore((s) => s.graph);
   const canEditRef = useRef(canEdit);
   canEditRef.current = canEdit;
   const tool = useEditorStore((s) => s.tool);
@@ -132,9 +136,16 @@ export function EditorCanvas({
           if (additive && id) store.toggleSelect(id);
           else if (!additive) store.select(id);
         },
+        onDrawPath: (coordinates) => sessionRef.current.graph.drawPath(coordinates),
+        onPickGraph: (element) => useEditorStore.getState().selectGraph(element),
         snap: {
           enabled: () => useEditorStore.getState().snapEnabled,
-          candidates: (bbox, excludeId) => snapIndex.current.query(bbox, excludeId),
+          // Jalur menempel ke node dan edge graf; alat lain ke fitur lantai.
+          candidates: (bbox, excludeId) =>
+            (useEditorStore.getState().tool === 'path' ? graphSnapIndex : snapIndex).current.query(
+              bbox,
+              excludeId,
+            ),
         },
       });
       selection = createSelectionInteractions(instance, {
@@ -165,6 +176,10 @@ export function EditorCanvas({
     snapIndex.current = buildSnapIndex(list);
     if (map) setFloorData(map, toCollection(list));
   }, [map, features]);
+
+  useEffect(() => {
+    graphSnapIndex.current = buildSnapIndex(graphSnapFeatures(graph));
+  }, [graph]);
 
   // Kamera diarahkan ke isi lantai setiap kali lantai berganti.
   const framedFloor = useRef<string | null>(null);
@@ -249,6 +264,7 @@ export function EditorCanvas({
         data-ready={map && session.ready ? 'true' : 'false'}
       />
       <ReferenceLayer map={map} floorId={referenceFloorId} />
+      <GraphLayer map={map} session={session} canEdit={canEdit} />
       <ValidationOverlay map={map} featureIds={issueFeatureIds} />
       <MapControls
         className="absolute right-3 bottom-3"
