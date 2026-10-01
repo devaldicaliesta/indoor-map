@@ -27,8 +27,8 @@ export function useSelectedVenue() {
 
   // Pilihan tersimpan bisa sudah dihapus; jatuhkan ke venue pertama yang ada.
   useEffect(() => {
-    if (venue && venue.id !== venueId) setVenueId(venue.id);
-  }, [venue, venueId, setVenueId]);
+    if (!venues.isFetching && venue && venue.id !== venueId) setVenueId(venue.id);
+  }, [venues.isFetching, venue, venueId, setVenueId]);
 
   return { venues: list, venue, setVenueId, isLoading: venues.isLoading, error: venues.error };
 }

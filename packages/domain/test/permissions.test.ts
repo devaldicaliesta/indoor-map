@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ADMIN_MODULES, APP_ROLES, moduleAccess, visibleModules } from '../src';
+import { ADMIN_ACTIONS, ADMIN_MODULES, APP_ROLES, can, moduleAccess, visibleModules } from '../src';
 
 const menuOf = (role: (typeof APP_ROLES)[number]) =>
   visibleModules(role)
@@ -43,5 +43,38 @@ describe('visibleModules', () => {
 
   it('menu berbeda untuk kelima role', () => {
     expect(new Set(APP_ROLES.map(menuOf)).size).toBe(5);
+  });
+});
+
+describe('can', () => {
+  it('Editor tidak bisa publish, rollback, kelola pengguna, atau lisensi (FR-AUTH-04)', () => {
+    for (const action of [
+      'publish.publish',
+      'publish.rollback',
+      'user.manage',
+      'license.manage',
+    ] as const) {
+      expect(can('editor', action)).toBe(false);
+    }
+    expect(can('editor', 'publish.validate')).toBe(true);
+  });
+
+  it('Operator hanya mengelola penutupan', () => {
+    expect(ADMIN_ACTIONS.filter((action) => can('operator', action))).toEqual(['closure.manage']);
+  });
+
+  it('Viewer tidak punya aksi ubah apa pun', () => {
+    expect(ADMIN_ACTIONS.filter((action) => can('viewer', action))).toEqual([]);
+  });
+
+  it('Super Admin boleh semua aksi', () => {
+    expect(ADMIN_ACTIONS.every((action) => can('super_admin', action))).toBe(true);
+  });
+
+  it('aksi ubah konsisten dengan akses modul', () => {
+    for (const role of APP_ROLES) {
+      expect(can(role, 'venue.edit')).toBe(moduleAccess(role, 'venues') === 'edit');
+      expect(can(role, 'closure.manage')).toBe(moduleAccess(role, 'closures') === 'edit');
+    }
   });
 });

@@ -94,3 +94,27 @@ where id = '20000000-0000-4000-8000-000000000001';
 update public.venues
 set default_building_id = '20000000-0000-4000-8000-000000000001'
 where id = '10000000-0000-4000-8000-000000000001';
+
+-- ---------------------------------------------------------------------
+-- Jenis fasilitas contoh dengan piktogram bawaan (T-112). Venue sungguhan
+-- mendapat jenis bawaan dari template tipe venue (T-302).
+-- ---------------------------------------------------------------------
+insert into public.facility_types (venue_id, name, icon_path, is_safety, sort_order) values
+  ('10000000-0000-4000-8000-000000000001', 'Toilet Pria', 'builtin:toilet-male', false, 0),
+  ('10000000-0000-4000-8000-000000000001', 'Toilet Wanita', 'builtin:toilet-female', false, 0),
+  ('10000000-0000-4000-8000-000000000001', 'Toilet Difabel', 'builtin:toilet-accessible', false, 0),
+  ('10000000-0000-4000-8000-000000000001', 'Musala', 'builtin:prayer-room', false, 0),
+  ('10000000-0000-4000-8000-000000000001', 'ATM', 'builtin:atm', false, 0),
+  ('10000000-0000-4000-8000-000000000001', 'Informasi', 'builtin:information', false, 0),
+  ('10000000-0000-4000-8000-000000000001', 'APAR', 'builtin:fire-extinguisher', true, 1),
+  ('10000000-0000-4000-8000-000000000001', 'Titik Kumpul', 'builtin:assembly-point', true, 1);
+
+-- ---------------------------------------------------------------------
+-- SMTP lokal ke Mailpit (T-010): email Auth (reset password, undangan) dikirim
+-- Edge Function auth-email memakai SMTP Pengaturan Sistem; lihat di http://127.0.0.1:54324.
+-- Nama host adalah kontainer Mailpit di jaringan Docker Supabase lokal (project_id indoor-map).
+-- ---------------------------------------------------------------------
+update public.system_settings
+set smtp_host = 'supabase_inbucket_indoor-map',
+    smtp_port = 1025,
+    smtp_from = 'Indoor Map <noreply@local.test>';

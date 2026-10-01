@@ -3,8 +3,10 @@ export * from './components/button';
 export * from './components/dialog';
 export * from './components/dropdown-menu';
 export * from './components/empty-state';
+export * from './components/floor-switcher';
 export * from './components/input';
 export * from './components/label';
+export * from './components/map-controls';
 export * from './components/select';
 export * from './components/sheet';
 export * from './components/skeleton';
@@ -21,3 +23,5 @@ export {
   WCAG_AA_UI,
 } from './lib/contrast';
 export { cn } from './lib/utils';
+export { Pictogram, pictogramSvg } from './pictograms/pictogram';
+export { PICTOGRAM_SHAPES, type PictogramPart } from './pictograms/shapes';

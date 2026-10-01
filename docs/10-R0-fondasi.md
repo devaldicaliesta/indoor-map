@@ -165,6 +165,8 @@
 
 ### T-009 · Kelola pengguna dan otorisasi per role
 
+> Dipecah: **T-009a** = langkah 3 (peta aksi `can()` di `packages/domain/src/permissions.ts`) dan langkah 4 (pgTAP per role) — selesai. **T-009b** = langkah 1, 2, 3 (hook `useRole()` dan `<Can>` di Admin), dan 5, serta semua kriteria yang tersisa.
+
 - **Untuk:** FR-AUTH-03, FR-AUTH-04, NFR-SEC-03
 - **Bergantung pada:** T-008
 - **Langkah:**

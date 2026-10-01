@@ -1,0 +1,376 @@
+{
+  "description": "Satu lantai dengan setiap kasus validasi geometri T-114. Koordinat dibuat dari meter di sekitar titik acuan; footprint 40 × 20 m.",
+  "boundary": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [106.8272, -6.1754],
+        [106.827561828, -6.1754],
+        [106.827561828, -6.175220136],
+        [106.8272, -6.175220136],
+        [106.8272, -6.1754]
+      ]
+    ]
+  },
+  "features": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "id": "unit-a",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8272, -6.1754],
+              [106.827290457, -6.1754],
+              [106.827290457, -6.175310068],
+              [106.8272, -6.175310068],
+              [106.8272, -6.1754]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-a",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-001"
+        },
+        "note": "unit sah"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-b",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827290457, -6.1754],
+              [106.827380914, -6.1754],
+              [106.827380914, -6.175310068],
+              [106.827290457, -6.175310068],
+              [106.827290457, -6.1754]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-b",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-002"
+        },
+        "note": "bersebelahan dengan A (berbagi tepi, tidak tumpang tindih)"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-c",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827362822, -6.1754],
+              [106.827453279, -6.1754],
+              [106.827453279, -6.175310068],
+              [106.827362822, -6.175310068],
+              [106.827362822, -6.1754]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-c",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-003"
+        },
+        "note": "tumpang tindih 20 m² dengan B"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-d",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827457802, -6.1754],
+              [106.827516599, -6.1754],
+              [106.827516599, -6.175310068],
+              [106.827457802, -6.175310068],
+              [106.827457802, -6.1754]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-d",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-004"
+        },
+        "note": "tidak menyentuh C"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-e",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827516237, -6.1754],
+              [106.827561828, -6.1754],
+              [106.827561828, -6.175310068],
+              [106.827516237, -6.175310068],
+              [106.827516237, -6.1754]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-e",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-005"
+        },
+        "note": "tumpang tindih 0,4 m² dengan D (di bawah toleransi)"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-f",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.8272, -6.175310068],
+              [106.827290457, -6.175310068],
+              [106.827290457, -6.175265102],
+              [106.827245228, -6.175265102],
+              [106.827245228, -6.175220136],
+              [106.8272, -6.175220136],
+              [106.8272, -6.175310068]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-f",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-006"
+        },
+        "note": "unit cekung berbentuk L"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-g",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827254274, -6.175256109],
+              [106.827281411, -6.175256109],
+              [106.827281411, -6.175229129],
+              [106.827254274, -6.175229129],
+              [106.827254274, -6.175256109]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-g",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-007"
+        },
+        "note": "di ceruk unit F: kotak batas beririsan, bentuk tidak"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-h",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827308548, -6.175292082],
+              [106.827344731, -6.175292082],
+              [106.827344731, -6.175256109],
+              [106.827308548, -6.175256109],
+              [106.827308548, -6.175292082]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-h",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "gu-gf-001",
+          "name": "Gudang"
+        },
+        "note": "kode sama dengan A (beda huruf besar/kecil)"
+      },
+      {
+        "type": "Feature",
+        "id": "corridor-bowtie",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827380914, -6.175292082],
+              [106.827435188, -6.175238122],
+              [106.827435188, -6.175292082],
+              [106.827380914, -6.175238122],
+              [106.827380914, -6.175292082]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "corridor-bowtie",
+          "kind": "corridor",
+          "floorId": "floor-validasi"
+        },
+        "note": "poligon memotong diri (dasi kupu-kupu)"
+      },
+      {
+        "type": "Feature",
+        "id": "area-open",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827471371, -6.175292082],
+              [106.827507554, -6.175292082],
+              [106.827507554, -6.175256109],
+              [106.827471371, -6.175256109]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "area-open",
+          "kind": "non_walkable",
+          "floorId": "floor-validasi"
+        },
+        "note": "cincin tidak tertutup"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-i",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827579919, -6.1754],
+              [106.827616102, -6.1754],
+              [106.827616102, -6.175364027],
+              [106.827579919, -6.175364027],
+              [106.827579919, -6.1754]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-i",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-009"
+        },
+        "note": "seluruhnya di luar footprint"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-j",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827525645, -6.175292082],
+              [106.827598011, -6.175292082],
+              [106.827598011, -6.175256109],
+              [106.827525645, -6.175256109],
+              [106.827525645, -6.175292082]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-j",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-010"
+        },
+        "note": "16 m² di luar footprint"
+      },
+      {
+        "type": "Feature",
+        "id": "unit-k",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [106.827344731, -6.175292082],
+              [106.827381818, -6.175292082],
+              [106.827381818, -6.175256109],
+              [106.827344731, -6.175256109],
+              [106.827344731, -6.175292082]
+            ]
+          ]
+        },
+        "properties": {
+          "id": "unit-k",
+          "kind": "unit",
+          "floorId": "floor-validasi",
+          "unitCode": "GU-GF-011"
+        },
+        "note": "menempel H dan lewat 0,1 m ke koridor (bukan unit)"
+      },
+      {
+        "type": "Feature",
+        "id": "wall-edge",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [[106.8272, -6.1754], [106.827561828, -6.1754]]
+        },
+        "properties": {
+          "id": "wall-edge",
+          "kind": "wall",
+          "floorId": "floor-validasi"
+        },
+        "note": "dinding luar tepat di tepi footprint"
+      },
+      {
+        "type": "Feature",
+        "id": "wall-out",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [[106.827543736, -6.175238122], [106.827607056, -6.175238122]]
+        },
+        "properties": {
+          "id": "wall-out",
+          "kind": "wall",
+          "floorId": "floor-validasi"
+        },
+        "note": "dinding keluar footprint"
+      },
+      {
+        "type": "Feature",
+        "id": "door-edge",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.827561828, -6.175355034]
+        },
+        "properties": {
+          "id": "door-edge",
+          "kind": "door",
+          "floorId": "floor-validasi"
+        },
+        "note": "pintu di tepi footprint"
+      },
+      {
+        "type": "Feature",
+        "id": "facility-out",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [106.827652285, -6.175310068]
+        },
+        "properties": {
+          "id": "facility-out",
+          "kind": "facility",
+          "floorId": "floor-validasi",
+          "name": "ATM luar"
+        },
+        "note": "fasilitas di luar footprint"
+      }
+    ]
+  }
+}

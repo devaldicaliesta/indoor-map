@@ -77,9 +77,10 @@ describe.runIf(url && anonKey && serviceKey)('RLS lewat repository (Supabase lok
     }
   });
 
-  it('Viewer bisa membaca pengaturan sistem', async () => {
-    const settings = await user('viewer').data.systemSettings.get();
+  it('hanya Super Admin yang bisa membaca pengaturan sistem (T-010)', async () => {
+    const settings = await user('super_admin').data.systemSettings.get();
     expect(settings.defaultLanguage).toBe('id');
+    await expectDataError(user('viewer').data.systemSettings.get(), 'forbidden');
   });
 
   it('update yang dilarang RLS (0 baris) menjadi forbidden', async () => {

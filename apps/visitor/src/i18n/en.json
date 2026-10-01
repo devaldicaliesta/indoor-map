@@ -1,0 +1,100 @@
+{
+  "app": {
+    "name": "Indoor Map"
+  },
+  "search": {
+    "label": "Search locations",
+    "placeholder": "Search places…",
+    "clear": "Clear search",
+    "results": "Search results",
+    "count_one": "{{count}} result",
+    "count_other": "{{count}} results",
+    "emptyTitle": "No results for “{{query}}”",
+    "emptyDescription": "Check the spelling, try a unit code, or browse all places A–Z.",
+    "categoryHit_one": "Category · {{count}} place",
+    "categoryHit_other": "Category · {{count}} places",
+    "facilityTypeHit_one": "Facility · {{count}} spot",
+    "facilityTypeHit_other": "Facility · {{count}} spots"
+  },
+  "language": {
+    "label": "Language",
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "map": {
+    "label": "Map",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "resetNorth": "Reset to north",
+    "viewMode": "View mode",
+    "mode2d": "2D",
+    "mode3d": "3D",
+    "floors": "Floors",
+    "resetView": "Back to the start view",
+    "building": "Building",
+    "floorHasResults": "has results",
+    "canvas": "Floor map. Arrow keys move the map, + and − zoom in or out."
+  },
+  "sheet": {
+    "handle": "Resize panel",
+    "hint": "Press the up or down arrow to resize the panel"
+  },
+  "home": {
+    "title": "Open a venue map",
+    "description": "Scan a starting-point QR code in the building, or open the venue link from the building management."
+  },
+  "venue": {
+    "unavailableTitle": "Map not available yet",
+    "unavailableDescription": "This venue has not published its map yet. Ask the nearest staff member for directions.",
+    "loadFailedTitle": "The map could not be loaded",
+    "loadFailedDescription": "Check your internet connection, then try again.",
+    "retry": "Try again"
+  },
+  "infoPoint": {
+    "title": "Info Point {{code}}"
+  },
+  "info": {
+    "open": "Map information",
+    "close": "Close",
+    "description": "This map is updated whenever the building manager publishes a new version.",
+    "version": "Map version",
+    "publishedAt": "Published"
+  },
+  "explore": {
+    "chips": "Categories and facilities",
+    "directoryChip": "A–Z",
+    "directoryTitle": "All places A–Z",
+    "openDirectory": "Open the A–Z list",
+    "hint": "Search for a place name or unit code, pick a category, or open the A–Z list.",
+    "closeList": "Close list",
+    "back": "Back",
+    "locationCount_one": "{{count}} place",
+    "locationCount_other": "{{count}} places",
+    "facilityCount_one": "{{count}} spot",
+    "facilityCount_other": "{{count}} spots",
+    "filterBuilding": "Filter by building",
+    "filterFloor": "Filter by floor",
+    "filterType": "Filter by type",
+    "allBuildings": "All buildings",
+    "allFloors": "All floors",
+    "allTypes": "All types",
+    "outdoorArea": "Outdoor area",
+    "directoryEmpty": "No places match these filters. Change or clear a filter."
+  },
+  "location": {
+    "route": "Directions to here",
+    "routeUnavailable": "Directions are not available on this map yet.",
+    "notOnMap": "Not on the map yet",
+    "comingSoon": "Opening soon",
+    "comingSoonFrom": "Opening soon · from {{date}}",
+    "temporarilyClosed": "Temporarily closed",
+    "photo": "Photo of {{name}} {{number}}",
+    "yes": "Yes",
+    "no": "No",
+    "missingTitle": "Not found on this map",
+    "missingDescription": "Go back and search again by name or unit code."
+  },
+  "unit": {
+    "label": "Unit"
+  }
+}

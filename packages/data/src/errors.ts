@@ -59,6 +59,24 @@ function readString(value: unknown, key: string): string | null {
   return typeof field === 'string' ? field : null;
 }
 
+// Error Storage/Edge membawa status HTTP, bukan kode Postgres.
+const HTTP_RULES: Record<number, CodeRule> = {
+  400: { kind: 'invalid' },
+  401: { kind: 'forbidden', message: 'Sesi Anda berakhir. Silakan masuk lagi.' },
+  403: { kind: 'forbidden' },
+  404: { kind: 'not_found' },
+  409: { kind: 'conflict' },
+  413: { kind: 'invalid', message: 'Berkas terlalu besar. Maksimal 5 MB per gambar.' },
+  415: { kind: 'invalid', message: 'Tipe berkas tidak didukung.' },
+};
+
+function readHttpStatus(error: unknown): number | null {
+  if (typeof error !== 'object' || error === null) return null;
+  const { statusCode, status } = error as { statusCode?: unknown; status?: unknown };
+  const value = Number(statusCode ?? status);
+  return Number.isInteger(value) && value >= 400 ? value : null;
+}
+
 function isNetworkFailure(error: unknown): boolean {
   if (error instanceof TypeError) {
     return true;
@@ -73,12 +91,29 @@ export function toDataError(error: unknown): DataError {
     return error;
   }
   const code = readString(error, 'code');
+  // SQLSTATE 'IMxxx' = aturan proyek yang dilempar fungsi SQL; pesannya untuk pengguna.
+  if (code && /^IM\d{3}$/.test(code)) {
+    return new DataError('conflict', {
+      message: readString(error, 'message') ?? undefined,
+      code,
+      cause: error,
+    });
+  }
   const rule = code ? CODE_RULES[code] : undefined;
   if (code && rule) {
     return new DataError(rule.kind, { message: rule.message, code, cause: error });
   }
   if (isNetworkFailure(error)) {
     return new DataError('network', { code, cause: error });
+  }
+  const status = readHttpStatus(error);
+  const httpRule = status ? HTTP_RULES[status] : undefined;
+  if (status && httpRule) {
+    return new DataError(httpRule.kind, {
+      message: httpRule.message,
+      code: String(status),
+      cause: error,
+    });
   }
   return new DataError('unknown', { code, cause: error });
 }

@@ -1,0 +1,12 @@
+/* CSS MapLibre untuk kanvas dan kontrol bawaan; diimpor app setelah styles @indoor/ui. */
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+/* Kotak seleksi editor (Shift+tarik): garis putus-putus tinta di atas sorotan sinyal. */
+.indoor-selection-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  border: 1.5px dashed var(--ink, #111418);
+  background: color-mix(in srgb, var(--signal, #ffc20e) 18%, transparent);
+}
