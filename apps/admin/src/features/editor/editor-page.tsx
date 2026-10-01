@@ -10,7 +10,7 @@ import {
 import type { LngLat, MapDisplay } from '@indoor/map-core';
 import { EmptyState, Skeleton } from '@indoor/ui';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useRole } from '../../app/auth/can';
 import { data } from '../../app/data-client';
@@ -29,6 +29,7 @@ import { KindPicker } from './properties/kind-picker';
 import { PropertiesPanel } from './properties/properties-panel';
 import { ReferenceFloorPicker } from './reference-layer';
 import { StatusBar } from './status-bar';
+import { useTestRouteStore } from './test-route/test-route-store';
 import { useEditorSession } from './use-editor-session';
 import { useEditorShortcuts } from './use-editor-shortcuts';
 import { useFloorValidation } from './use-floor-validation';
@@ -84,7 +85,22 @@ function useFloorSelection(venueId: VenueId) {
     loading: buildings.isPending || venue.isPending || (building ? floors.isPending : false),
     setBuilding: (value: string) => setParams({ building: value }),
     setFloor: (id: FloorId) => setParams({ building: buildingValue, floor: id }),
+    /** Lantai di gedung mana pun; `null` = lapisan Area Luar. */
+    goTo: (id: string, buildingId: string | null) =>
+      setParams({ building: buildingId ?? OUTDOOR, floor: id }),
   };
+}
+
+/** Langkah uji rute di lantai lain memindah editor ke lantai itu, sekali per permintaan. */
+function useStepFloor(selection: ReturnType<typeof useFloorSelection>) {
+  const focus = useTestRouteStore((s) => s.focus);
+  const handled = useRef(focus?.seq ?? 0);
+  const currentFloorId = selection.floor?.id;
+  useEffect(() => {
+    if (!focus || handled.current === focus.seq) return;
+    handled.current = focus.seq;
+    if (focus.floorId !== currentFloorId) selection.goTo(focus.floorId, focus.buildingId);
+  }, [focus, currentFloorId, selection]);
 }
 
 function useActivePlan(floorId: FloorId | null): PlanBackground | null {
@@ -103,6 +119,7 @@ function useActivePlan(floorId: FloorId | null): PlanBackground | null {
 
 function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
   const selection = useFloorSelection(venueId);
+  useStepFloor(selection);
   const { floor, building } = selection;
   const session = useEditorSession(venueId, floor, building);
   useEditorShortcuts(session, canEdit);
@@ -163,6 +180,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
         </aside>
         <aside className="min-h-0 overflow-hidden border-line border-r">
           <EditorSidebar
+            venueId={venueId}
             floorName={floor.name}
             facilityTypes={session.facilityTypes}
             issues={validation.byFeature}
