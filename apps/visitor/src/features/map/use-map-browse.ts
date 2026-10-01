@@ -13,6 +13,7 @@ import {
   featureBounds,
   hitAt,
   type MapInstance,
+  prefersReducedMotion,
   setHighlight,
 } from '@indoor/map-core';
 import { useEffect, useMemo, useRef } from 'react';
@@ -23,6 +24,9 @@ import { type CameraPadding, moveCamera } from './camera';
 const NO_HIGHLIGHT: BrowseHighlight = { featureIds: [], labelIds: [] };
 
 type Point = { x: number; y: number };
+
+/** Jarak titik yang diketuk dari tepi atas bottom sheet setelah peta digeser. */
+const REVEAL_MARGIN_PX = 48;
 
 /**
  * Peta mengikuti panel: yang sedang dibuka disorot (lantainya diberi penanda), mengetuk unit
@@ -70,7 +74,14 @@ export function useMapBrowse({
     };
     const onClick = (event: { point: Point }) => {
       const target = targetAt(event.point);
-      if (target) openFromMap(target);
+      if (!target) return;
+      openFromMap(target);
+      // Bottom sheet HP naik setengah layar; yang diketuk digeser ke atasnya agar tetap terlihat.
+      const limit =
+        map.getContainer().clientHeight - latest.current.focusPadding().bottom - REVEAL_MARGIN_PX;
+      if (event.point.y > limit) {
+        map.panBy([0, event.point.y - limit], { duration: prefersReducedMotion() ? 0 : 300 });
+      }
     };
     const onMove = (event: { point: Point }) => {
       map.getCanvas().style.cursor = targetAt(event.point) ? 'pointer' : '';
