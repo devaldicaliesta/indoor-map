@@ -29,7 +29,11 @@ export function saveQueue() {
 let sharedGraphQueue: GraphSaveQueue | null = null;
 export function graphSaveQueue() {
   sharedGraphQueue ??= new GraphSaveQueue({
-    run: (venueId, changes) => data.navGraph.apply(venueId, changes),
+    run: async (venueId, changes) => {
+      // Titik masuk merujuk fitur; unit yang baru digambar harus tersimpan lebih dulu.
+      if (changes.saveNodes.some((node) => node.featureId)) await saveQueue().flush();
+      await data.navGraph.apply(venueId, changes);
+    },
     onStatus: (status, error) =>
       useEditorStore.getState().setSaveStatus('graph', status, error?.message ?? null),
   });

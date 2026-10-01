@@ -66,8 +66,11 @@ export interface EditorState {
   setDrawKind(shape: FeatureShape, kind: DrawKind): void;
   /** Riwayat undo/redo lantai ini; tidak disimpan ke database. */
   history: History<EditorPatch>;
-  /** Menjalankan satu aksi pada fitur (buat/ubah/hapus/massal) dan mencatatnya di riwayat. */
-  commit(patch: FeaturePatch): void;
+  /**
+   * Menjalankan satu aksi pada fitur (buat/ubah/hapus/massal) dan mencatatnya di riwayat; `graph`
+   * untuk perubahan graf yang menyertainya (misalnya titik masuk unit yang dihapus).
+   */
+  commit(patch: FeaturePatch, graph?: GraphPatch): void;
   /** Menjalankan satu aksi pada graf jalur dan mencatatnya di riwayat yang sama. */
   commitGraph(patch: GraphPatch): void;
   /** Membatalkan/mengulang satu aksi; mengembalikan patch dan arahnya untuk disimpan. */
@@ -165,8 +168,8 @@ export const useEditorStore = create<EditorState>()((set, get) => {
     setDrawKind(shape, kind) {
       set((s) => ({ drawKinds: { ...s.drawKinds, [shape]: kind } }));
     },
-    commit(features) {
-      apply({ features, nodes: [], edges: [] });
+    commit(features, graph) {
+      apply({ features, nodes: graph?.nodes ?? [], edges: graph?.edges ?? [] });
     },
     commitGraph(patch) {
       apply({ features: [], nodes: patch.nodes, edges: patch.edges });

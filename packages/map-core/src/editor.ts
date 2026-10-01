@@ -38,6 +38,11 @@ export interface FeatureEditorCallbacks {
   onDrawPath?(coordinates: LngLat[]): void;
   /** Klik pada node atau edge graf di alat pilih; didahulukan dari fitur di bawahnya. */
   onPickGraph?(element: GraphElement): void;
+  /**
+   * Klik di alat pilih yang lebih dulu ditangani alat lain (misalnya menyambung titik masuk ke
+   * jalur); `true` = klik itu sudah dipakai sehingga seleksi tidak berubah.
+   */
+  interceptClick?(at: LngLat, point: { x: number; y: number }): boolean;
   /** `enabled` false = snapping dimatikan di bilah status. */
   snap: {
     enabled(): boolean;
@@ -254,6 +259,7 @@ export function createFeatureEditor(
 
   function onClick(e: MapMouseEvent) {
     if (tool !== 'select') return;
+    if (callbacks.interceptClick?.([e.lngLat.lng, e.lngLat.lat], e.point)) return;
     const onHandle = terra
       .getFeaturesAtPointerEvent(e.originalEvent, { ignoreSelectFeatures: false })
       .some((f) => f.id === editing || f.properties.selectionPoint || f.properties.midPoint);

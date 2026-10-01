@@ -1,7 +1,10 @@
 import {
   addPath,
+  applyEntrances,
+  type EntranceSuggestion,
   type FloorId,
   type GraphPatch,
+  linkEntrance as linkGraphEntrance,
   moveNode as moveGraphNode,
   type Position,
   removeEdge as removeGraphEdge,
@@ -44,6 +47,16 @@ export function useGraphActions(floorId: FloorId | null, commit: (patch: GraphPa
         const created = patch?.nodes.find((change) => change.before === null);
         if (created) useEditorStore.getState().selectGraph({ kind: 'node', id: created.id });
         return true;
+      },
+      /** Menyetujui saran titik masuk (satu atau sekaligus) sebagai satu langkah undo. */
+      approveEntrances(suggestions: readonly EntranceSuggestion[]) {
+        if (floorId) apply(applyEntrances(currentGraph(), floorId, suggestions, newId));
+      },
+      /** Titik masuk manual dari unit/fasilitas ke titik jalur `at`; `false` bila tidak bisa. */
+      linkEntrance(featureId: string, at: Position) {
+        const feature = useEditorStore.getState().features[featureId];
+        if (!floorId || !feature) return false;
+        return apply(linkGraphEntrance(currentGraph(), floorId, feature, at, newId));
       },
       /** Hapus node atau edge terpilih; `false` bila node itu tidak boleh dihapus. */
       removeSelected() {

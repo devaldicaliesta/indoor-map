@@ -61,11 +61,13 @@ export {
   type GraphEdgeView,
   type GraphElement,
   type GraphNodeView,
+  type GraphSuggestionView,
   graphCollection,
   graphElementAt,
   setGraphData,
   setGraphPreview,
   setGraphSelection,
+  setGraphSuggestions,
 } from './layers/graph';
 export {
   HIGHLIGHT_COLORS,

@@ -21,9 +21,9 @@ import { useDisplaySettings } from '../settings/display/queries';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
 import { useFloors } from '../venues/floors/queries';
 import { EditorCanvas, type PlanBackground } from './editor-canvas';
+import { EditorSidebar } from './editor-sidebar';
 import { EditorToolbar } from './editor-toolbar';
 import { EditorTopbar, OUTDOOR } from './editor-topbar';
-import { FeatureList } from './feature-list';
 import { KindPicker } from './properties/kind-picker';
 import { PropertiesPanel } from './properties/properties-panel';
 import { ReferenceFloorPicker } from './reference-layer';
@@ -161,10 +161,12 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
           <EditorToolbar canEdit={canEdit} session={session} />
         </aside>
         <aside className="min-h-0 overflow-hidden border-line border-r">
-          <FeatureList
+          <EditorSidebar
             floorName={floor.name}
             facilityTypes={session.facilityTypes}
             issues={validation.byFeature}
+            session={session}
+            canEdit={canEdit}
           />
         </aside>
         <div className="relative min-h-0">

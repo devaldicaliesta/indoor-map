@@ -10,6 +10,7 @@ import type { LngLat } from '../georef';
 
 export const GRAPH_SOURCE_ID = 'nav-graph';
 const PREVIEW_SOURCE_ID = 'nav-graph-preview';
+const SUGGESTION_SOURCE_ID = 'nav-graph-suggestions';
 
 export const GRAPH_LAYER_IDS = {
   edgesSelected: 'nav-graph-edges-selected',
@@ -18,6 +19,8 @@ export const GRAPH_LAYER_IDS = {
   nodesSelected: 'nav-graph-nodes-selected',
   previewEdges: 'nav-graph-preview-edges',
   previewNodes: 'nav-graph-preview-nodes',
+  suggestionLinks: 'nav-graph-suggestion-links',
+  suggestionPoints: 'nav-graph-suggestion-points',
 } as const;
 
 /** Layer graf yang bisa diklik, urut prioritas: node lebih dulu dari edge. */
@@ -37,6 +40,13 @@ export interface GraphEdgeView {
 }
 
 export type GraphElement = { kind: 'node' | 'edge'; id: string };
+
+/** Saran sambungan (misalnya titik masuk): dari titik baru ke titik di jalur. */
+export interface GraphSuggestionView {
+  from: LngLat;
+  to: LngLat;
+  active: boolean;
+}
 
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] };
 const isNode: ExpressionSpecification = ['==', ['get', 'element'], 'node'];
@@ -129,6 +139,29 @@ function graphLayers(): LayerSpecification[] {
         'circle-stroke-width': 2,
       },
     },
+    {
+      id: GRAPH_LAYER_IDS.suggestionLinks,
+      type: 'line',
+      source: SUGGESTION_SOURCE_ID,
+      filter: isEdge,
+      paint: {
+        'line-color': ink,
+        'line-width': ['case', ['get', 'active'], 3, 1.5],
+        'line-dasharray': [2, 1],
+      },
+    },
+    {
+      id: GRAPH_LAYER_IDS.suggestionPoints,
+      type: 'circle',
+      source: SUGGESTION_SOURCE_ID,
+      filter: isNode,
+      paint: {
+        'circle-radius': ['case', ['get', 'active'], 7, 4],
+        'circle-color': signal,
+        'circle-stroke-color': ink,
+        'circle-stroke-width': 1.5,
+      },
+    },
   ];
 }
 
@@ -140,6 +173,7 @@ function ensureGraphLayers(map: MapLibreMap): void {
   if (map.getSource(GRAPH_SOURCE_ID)) return;
   map.addSource(GRAPH_SOURCE_ID, { type: 'geojson', data: EMPTY });
   map.addSource(PREVIEW_SOURCE_ID, { type: 'geojson', data: EMPTY });
+  map.addSource(SUGGESTION_SOURCE_ID, { type: 'geojson', data: EMPTY });
   const before = map.getStyle().layers.find((layer) => layer.id.startsWith('td-'))?.id;
   for (const layer of graphLayers()) map.addLayer(layer, before);
 }
@@ -169,6 +203,29 @@ export function setGraphPreview(
 ): void {
   ensureGraphLayers(map);
   map.getSource<GeoJSONSource>(PREVIEW_SOURCE_ID)?.setData(graphCollection(nodes, edges));
+}
+
+/** Saran sambungan di peta; saran aktif (disorot dari daftar) digambar lebih tebal. */
+export function setGraphSuggestions(
+  map: MapLibreMap,
+  suggestions: readonly GraphSuggestionView[],
+): void {
+  ensureGraphLayers(map);
+  const features = suggestions.flatMap((s): Feature[] => [
+    {
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: [s.from, s.to] },
+      properties: { element: 'edge', active: s.active },
+    },
+    {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: s.from },
+      properties: { element: 'node', active: s.active },
+    },
+  ]);
+  map
+    .getSource<GeoJSONSource>(SUGGESTION_SOURCE_ID)
+    ?.setData({ type: 'FeatureCollection', features });
 }
 
 /** Node atau edge graf di bawah titik layar (node didahulukan), atau `null`. */
