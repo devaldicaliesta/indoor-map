@@ -1,4 +1,3 @@
-import { cn } from '@indoor/ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BottomSheet } from '../components/bottom-sheet';
@@ -25,22 +24,19 @@ function Brand({ name }: { name: string }) {
   return (
     <div className="flex min-w-0 items-center gap-2">
       <span aria-hidden="true" className="size-4 shrink-0 rounded-sm bg-signal ring-1 ring-ink" />
-      <h1 className="truncate font-bold text-base">{name}</h1>
+      <h1 className="truncate font-bold">{name}</h1>
     </div>
   );
 }
 
-/**
- * Kerangka Visitor: panel kiri di desktop, peta penuh + bottom sheet di HP. Wadah gulir panel
- * ditandai `data-panel-scroll` agar layar panel yang baru bisa mulai dari atas.
- */
+/** Kerangka Visitor: panel kiri di desktop, peta penuh + bottom sheet di HP. */
 export function VisitorShell({
   title,
   actions,
   map,
   search,
+  mobileHeader,
   sheet,
-  hideMobileTitle = false,
   children,
 }: {
   title?: string;
@@ -48,21 +44,17 @@ export function VisitorShell({
   actions?: ReactNode;
   /** Peta venue; tanpa ini area peta kosong (beranda, venue yang belum terbit). */
   map?: ReactNode;
-  /** Kolom cari yang terhubung ke pencarian venue; tanpa ini kolom tampil sebagai bentuknya saja. */
+  /** Kolom cari yang berfungsi; tanpa ini kolom cari hanya bentuk. */
   search?: ReactNode;
-  /** Tinggi bottom sheet HP yang diatur dari luar. */
+  /** Pengganti kolom cari di header HP, misalnya tombol kembali dari detail. */
+  mobileHeader?: ReactNode;
+  /** Tinggi sheet HP yang dikendalikan halaman; tanpa ini sheet mengatur dirinya sendiri. */
   sheet?: { snap: SheetSnap; onSnapChange: (snap: SheetSnap) => void };
-  /**
-   * Nama di sheet HP hanya untuk pembaca layar, agar isi sheet (chip kategori) terlihat saat
-   * sheet setinggi intip; nama venue tetap ada di dialog info.
-   */
-  hideMobileTitle?: boolean;
   children: ReactNode;
 }) {
   const { t } = useTranslation();
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const name = title ?? t('app.name');
-  const searchField = search ?? <SearchField />;
 
   if (isDesktop) {
     return (
@@ -75,11 +67,8 @@ export function VisitorShell({
               <LanguagePicker />
             </div>
           </header>
-          {searchField}
-          {/* Ruang 12 px di sisi wadah gulir agar sorotan fokus baris daftar tidak terpotong. */}
-          <div data-panel-scroll className="-mx-3 min-h-0 flex-1 overflow-y-auto px-3 py-1">
-            {children}
-          </div>
+          {search ?? <SearchField />}
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
         </aside>
         <main className="min-w-0">
           <MapArea>{map}</MapArea>
@@ -94,13 +83,16 @@ export function VisitorShell({
         <MapArea>{map}</MapArea>
       </main>
       <header className="absolute inset-x-0 top-0 z-20 flex gap-2 p-3">
-        <div className="min-w-0 flex-1 rounded-sm shadow-float">{searchField}</div>
+        {mobileHeader ?? (
+          <div className="min-w-0 flex-1 rounded-sm shadow-float">{search ?? <SearchField />}</div>
+        )}
         {actions ? <div className="shrink-0 rounded-sm shadow-float">{actions}</div> : null}
         <LanguagePicker className="shadow-float" />
       </header>
-      <BottomSheet {...(sheet ? { snap: sheet.snap, onSnapChange: sheet.onSnapChange } : {})}>
+      <BottomSheet snap={sheet?.snap} onSnapChange={sheet?.onSnapChange}>
         <div className="grid gap-3 pt-1">
-          <h1 className={cn('font-bold text-lg', hideMobileTitle && 'sr-only')}>{name}</h1>
+          {/* Halaman dengan kolom cari memakai sheet untuk chip dan hasil; nama venue tetap dibacakan. */}
+          <h1 className={search ? 'sr-only' : 'font-bold text-lg'}>{name}</h1>
           {children}
         </div>
       </BottomSheet>

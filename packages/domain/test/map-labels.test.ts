@@ -40,13 +40,17 @@ describe('label peta', () => {
     expect(radiology[0]).toMatchObject({ name: 'Radiologi', priority: LABEL_PRIORITY.location });
   });
 
-  it('lokasi dan fasilitas yang disorot mendapat prioritas tertinggi', () => {
-    const allFloors = snapshot.floors.map((f) => f.id);
-    const labels = mapLabels(snapshot, allFloors, [IDS.radiology, safetyId ?? '']);
+  it('lokasi terpilih mendapat prioritas tertinggi', () => {
+    const labels = mapLabels(snapshot, floors, [IDS.radiology]);
     expect(labels.find((l) => l.id === IDS.radiology)?.priority).toBe(LABEL_PRIORITY.selected);
-    expect(labels.find((l) => l.id === safetyId)?.priority).toBe(LABEL_PRIORITY.selected);
-    const others = labels.filter((l) => l.id !== IDS.radiology && l.id !== safetyId);
-    expect(others.every((l) => l.priority !== LABEL_PRIORITY.selected)).toBe(true);
+  });
+
+  it('fasilitas yang dipilih (misalnya lewat chip jenis fasilitas) mengalahkan keselamatan', () => {
+    const all = snapshot.floors.map((f) => f.id);
+    const other = mapLabels(snapshot, all).find((l) => l.kind === 'facility' && l.id !== safetyId);
+    const labels = mapLabels(snapshot, all, new Set([other?.id ?? '']));
+    expect(labels.find((l) => l.id === other?.id)?.priority).toBe(LABEL_PRIORITY.selected);
+    expect(labels.find((l) => l.id === safetyId)?.priority).toBe(LABEL_PRIORITY.safety);
   });
 
   it('fasilitas keselamatan didahulukan dari lokasi dan fasilitas lain', () => {

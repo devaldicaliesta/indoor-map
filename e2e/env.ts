@@ -21,4 +21,5 @@ export const env = {
   /** Password semua akun seed (supabase/seed.sql lewat `pnpm db:reset`). */
   password: required('SEED_ADMIN_PASSWORD'),
   adminUrl: process.env.E2E_ADMIN_URL ?? 'http://localhost:5173',
+  visitorUrl: process.env.E2E_VISITOR_URL ?? 'http://localhost:5174',
 };

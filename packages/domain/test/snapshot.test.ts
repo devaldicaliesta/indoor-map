@@ -128,7 +128,7 @@ describe('buildSnapshot', () => {
       type: 'Point',
       coordinates: [106.8271235, -6.1759877],
     });
-    expect(snapshot.originPoints[0]?.coordinates).toEqual([106.8271235, -6.1751235]);
+    expect(snapshot.originPoints[0]?.coordinates).toEqual([106.8268, -6.1752809]);
   });
 
   it('properti fitur hanya yang dipakai Visitor dan sesuai jenisnya', () => {

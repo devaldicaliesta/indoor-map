@@ -31,6 +31,25 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'visitor',
+      testMatch: 'visitor/**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: env.visitorUrl,
+        // HP terkecil yang didukung Visitor.
+        viewport: { width: 360, height: 740 },
+        isMobile: true,
+        hasTouch: true,
+        launchOptions: {
+          args: [
+            '--use-angle=swiftshader',
+            '--enable-unsafe-swiftshader',
+            '--ignore-gpu-blocklist',
+          ],
+        },
+      },
+    },
+    {
       name: 'admin',
       testMatch: 'admin/**/*.spec.ts',
       use: {
@@ -48,10 +67,18 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: 'pnpm --filter @indoor/admin dev',
-    url: env.adminUrl,
-    reuseExistingServer: !CI,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: 'pnpm --filter @indoor/admin dev',
+      url: env.adminUrl,
+      reuseExistingServer: !CI,
+      timeout: 120_000,
+    },
+    {
+      command: 'pnpm --filter @indoor/visitor dev',
+      url: env.visitorUrl,
+      reuseExistingServer: !CI,
+      timeout: 120_000,
+    },
+  ],
 });

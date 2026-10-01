@@ -5,12 +5,16 @@
   "search": {
     "label": "Cari lokasi",
     "placeholder": "Cari lokasi…",
-    "resultsTitle": "Hasil pencarian",
-    "results_one": "{{count}} hasil",
-    "results_other": "{{count}} hasil",
-    "more": "Menampilkan {{shown}} hasil teratas. Ketik lebih lengkap untuk mempersempit.",
-    "noResultsTitle": "Tidak ada hasil untuk “{{query}}”",
-    "noResultsDescription": "Periksa ejaan, atau cari dengan kode unit, nama kategori, atau jenis fasilitas."
+    "clear": "Hapus pencarian",
+    "results": "Hasil pencarian",
+    "count_one": "{{count}} hasil",
+    "count_other": "{{count}} hasil",
+    "emptyTitle": "Tidak ada hasil untuk “{{query}}”",
+    "emptyDescription": "Periksa ejaan, coba kode unit, atau telusuri semua lokasi A–Z.",
+    "categoryHit_one": "Kategori · {{count}} lokasi",
+    "categoryHit_other": "Kategori · {{count}} lokasi",
+    "facilityTypeHit_one": "Fasilitas · {{count}} tempat",
+    "facilityTypeHit_other": "Fasilitas · {{count}} tempat"
   },
   "language": {
     "label": "Bahasa",
@@ -27,7 +31,9 @@
     "mode3d": "3D",
     "floors": "Lantai",
     "resetView": "Kembali ke tampilan awal",
-    "building": "Gedung"
+    "building": "Gedung",
+    "floorHasResults": "ada hasil",
+    "canvas": "Peta lantai. Tombol panah menggeser peta, + dan − memperbesar atau memperkecil."
   },
   "sheet": {
     "handle": "Ubah tinggi panel",
@@ -54,38 +60,41 @@
     "version": "Versi peta",
     "publishedAt": "Diterbitkan"
   },
-  "browse": {
+  "explore": {
+    "chips": "Kategori dan fasilitas",
+    "directoryChip": "A–Z",
+    "directoryTitle": "Semua lokasi A–Z",
+    "openDirectory": "Buka daftar A–Z",
+    "hint": "Cari nama lokasi atau kode unit, pilih kategori, atau buka daftar A–Z.",
+    "closeList": "Tutup daftar",
     "back": "Kembali",
-    "explore": "Kategori dan fasilitas",
-    "directory": "A–Z",
-    "kindCategory": "Kategori",
-    "kindFacility": "Fasilitas",
-    "kindUnit": "Unit",
     "locationCount_one": "{{count}} lokasi",
     "locationCount_other": "{{count}} lokasi",
-    "placeCount_one": "{{count}} tempat",
-    "placeCount_other": "{{count}} tempat",
-    "floorMarked": "ada yang disorot"
+    "facilityCount_one": "{{count}} tempat",
+    "facilityCount_other": "{{count}} tempat",
+    "filterBuilding": "Saring gedung",
+    "filterFloor": "Saring lantai",
+    "filterType": "Saring tipe",
+    "allBuildings": "Semua gedung",
+    "allFloors": "Semua lantai",
+    "allTypes": "Semua tipe",
+    "outdoorArea": "Area Luar",
+    "directoryEmpty": "Tidak ada lokasi dengan filter ini. Ubah atau hapus filter."
   },
   "location": {
-    "notOnMap": "Belum ditandai di peta.",
-    "photos": "Foto",
-    "photo": "Foto {{name}}, {{index}} dari {{count}}",
-    "closePhoto": "Tutup foto"
+    "route": "Rute ke sini",
+    "routeUnavailable": "Petunjuk rute belum tersedia di peta ini.",
+    "notOnMap": "Belum ada di peta",
+    "comingSoon": "Segera buka",
+    "comingSoonFrom": "Segera buka · mulai {{date}}",
+    "temporarilyClosed": "Tutup sementara",
+    "photo": "Foto {{name}} {{number}}",
+    "yes": "Ya",
+    "no": "Tidak",
+    "missingTitle": "Tidak ditemukan di peta ini",
+    "missingDescription": "Kembali lalu cari lagi dengan nama atau kode unit."
   },
-  "route": {
-    "toHere": "Rute ke sini",
-    "unavailable": "Petunjuk arah belum tersedia di versi ini."
-  },
-  "directory": {
-    "title": "Direktori A–Z",
-    "building": "Gedung",
-    "allBuildings": "Semua gedung",
-    "floor": "Lantai",
-    "allFloors": "Semua lantai",
-    "type": "Tipe",
-    "allTypes": "Semua tipe",
-    "emptyTitle": "Tidak ada lokasi",
-    "emptyDescription": "Tidak ada lokasi yang cocok dengan filter ini. Pilih gedung, lantai, atau tipe lain."
+  "unit": {
+    "label": "Unit"
   }
 }

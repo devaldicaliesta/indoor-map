@@ -1,5 +1,12 @@
 import { createDataClient, type DataClient } from '@indoor/data';
-import type { AppRole, Building, Floor, Polygon, Venue } from '@indoor/domain';
+import {
+  type AppRole,
+  type Building,
+  FeatureIdSchema,
+  type Floor,
+  type Polygon,
+  type Venue,
+} from '@indoor/domain';
 import { test as base, expect } from '@playwright/test';
 import { ACCOUNTS } from './accounts';
 import { env } from './env';
@@ -27,11 +34,38 @@ const FOOTPRINT: Polygon = {
   ],
 };
 
+/** Persegi unit di sebelah barat (dx < 0) atau timur (dx > 0) pusat gedung uji, ±22 × 22 m. */
+function unitSquare(dx: number): Polygon {
+  const [x, y] = [TEST_CENTER[0] + dx, TEST_CENTER[1]];
+  const h = 0.0001;
+  return {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [x - h, y + h],
+        [x + h, y + h],
+        [x + h, y - h],
+        [x - h, y - h],
+        [x - h, y + h],
+      ],
+    ],
+  };
+}
+
+export interface PublishedVenue extends TestVenue {
+  /** Unit UJI-GF-001, ditempati lokasi Radiologi (RAD-01) berkategori Pemeriksaan. */
+  radiologyUnitId: string;
+  /** Unit UJI-GF-002 tanpa lokasi. */
+  vacantUnitId: string;
+}
+
 interface Fixtures {
   /** Klien data sebagai Super Admin untuk menyiapkan dan memeriksa data uji. */
   superAdmin: DataClient;
   /** Venue uji milik satu test (gedung UJI dengan lantai GF); dihapus setelah test selesai. */
   testVenue: TestVenue;
+  /** Venue uji dengan dua unit dan satu lokasi yang sudah diterbitkan untuk Visitor. */
+  publishedVenue: PublishedVenue;
   /** Masuk ke Admin lewat halaman login sebagai role tertentu. */
   loginAs: (role: AppRole) => Promise<void>;
 }
@@ -67,6 +101,44 @@ export const test = base.extend<Fixtures>({
     } finally {
       await superAdmin.venues.remove(venue.id);
     }
+  },
+
+  publishedVenue: async ({ superAdmin, testVenue }, use) => {
+    const { venue, floor } = testVenue;
+    const unit = (id: string, code: string, dx: number) =>
+      superAdmin.features.save(venue.id, {
+        type: 'Feature',
+        id,
+        geometry: unitSquare(dx),
+        properties: { id, kind: 'unit', floorId: floor.id, unitCode: code, unitStatus: 'occupied' },
+      });
+    const radiologyUnitId = FeatureIdSchema.parse(crypto.randomUUID());
+    const vacantUnitId = FeatureIdSchema.parse(crypto.randomUUID());
+    await unit(radiologyUnitId, 'UJI-GF-001', -0.0001);
+    await unit(vacantUnitId, 'UJI-GF-002', 0.0001);
+    const [type] = await superAdmin.categories.listTypes(venue.id);
+    if (!type) throw new Error('Venue uji tidak punya tipe lokasi bawaan.');
+    const category = await superAdmin.categories.create(venue.id, type.id, {
+      name: 'Pemeriksaan',
+      icon: null,
+      sortOrder: 0,
+    });
+    await superAdmin.locations.save(
+      venue.id,
+      type.id,
+      null,
+      {
+        code: 'RAD-01',
+        name: 'Radiologi',
+        description: 'Rontgen dan CT scan.',
+        categoryIds: [category.id],
+        unitIds: [radiologyUnitId],
+        primaryUnitId: radiologyUnitId,
+      },
+      { keepPhotoPaths: [], newPhotos: [] },
+    );
+    await superAdmin.publications.publish(venue.id);
+    await use({ ...testVenue, radiologyUnitId, vacantUnitId });
   },
 
   loginAs: async ({ page }, use) => {
