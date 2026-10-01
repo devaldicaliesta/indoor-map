@@ -1,15 +1,17 @@
 import {
   createSnapshotSearch,
   type ExploreChip,
+  type ExploreTarget,
   exploreChips,
   indexSnapshot,
   type Snapshot,
   type SnapshotIndex,
   type SnapshotSearch,
 } from '@indoor/domain';
-import type { RoutePlace } from '@indoor/routing';
+import { buildRouteGraph, type RouteGraph, type RoutePlace, type RoutePlan } from '@indoor/routing';
 import { createContext, type ReactNode, use, useMemo, useState } from 'react';
 import { type StoreApi, useStore } from 'zustand';
+import { visitorRoute } from '../route/route-model';
 import { createExploreStore, type ExploreState } from './explore-store';
 
 export interface ExploreData {
@@ -18,6 +20,24 @@ export interface ExploreData {
   search: SnapshotSearch;
   chips: ExploreChip[];
   store: StoreApi<ExploreState>;
+  /**
+   * Rute untuk asal, tujuan, dan mode; graf dibangun saat rute pertama diminta dan hasil terakhir
+   * diingat, sehingga panel dan peta memakai hitungan yang sama.
+   */
+  route(origin: RoutePlace, destination: ExploreTarget, accessible: boolean): RoutePlan;
+}
+
+function routeCache(snapshot: Snapshot): ExploreData['route'] {
+  let graph: RouteGraph | null = null;
+  let last: { key: unknown[]; plan: RoutePlan } | null = null;
+  return (origin, destination, accessible) => {
+    const key = [origin, destination, accessible];
+    if (last && key.every((part, i) => part === last?.key[i])) return last.plan;
+    graph ??= buildRouteGraph(snapshot);
+    const plan = visitorRoute(graph, snapshot, origin, destination, accessible);
+    last = { key, plan };
+    return plan;
+  };
 }
 
 const ExploreContext = createContext<ExploreData | null>(null);
@@ -44,6 +64,7 @@ export function ExploreProvider({
       search: createSnapshotSearch(snapshot),
       chips: exploreChips(snapshot),
       store,
+      route: routeCache(snapshot),
     }),
     [snapshot, store],
   );

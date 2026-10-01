@@ -83,7 +83,6 @@
   },
   "location": {
     "route": "Directions to here",
-    "routeUnavailable": "Directions are not available on this map yet.",
     "notOnMap": "Not on the map yet",
     "comingSoon": "Opening soon",
     "comingSoonFrom": "Opening soon · from {{date}}",
@@ -112,6 +111,20 @@
     "title": "Route",
     "from": "From",
     "to": "To",
-    "close": "Close route"
+    "close": "Close route",
+    "swap": "Swap start and destination",
+    "accessible": "Accessible route (wheelchair)",
+    "distance": "{{distance}} m",
+    "floors": "Floors on the route",
+    "steps": "Route steps",
+    "stepOf": "Step {{current}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next",
+    "allSteps": "All steps",
+    "failNoPath": "There is no route from your starting point to this destination.",
+    "failAccessible": "There is no accessible route to this destination. Turn off “Accessible route” to see other routes.",
+    "failClosed": "The route to this destination is temporarily closed.",
+    "failOrigin": "Your starting point is not connected to a path. Change the starting point.",
+    "failDestination": "This destination is not connected to a path yet."
   }
 }

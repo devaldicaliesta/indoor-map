@@ -69,6 +69,8 @@ export function useOriginMap({
   useEffect(() => {
     if (!map || !current || centered.current === originSeq) return;
     centered.current = originSeq;
+    // Dengan tujuan, kamera membingkai rute baru (useRouteMap), bukan hanya titik asal.
+    if (store.getState().destination) return;
     const { view: shown, setView: apply, padding: edges, isDesktop: desktop } = latest.current;
     // Di HP tepi bawah = tinggi sheet setelah titik asal dipilih, agar penanda tidak tertutup.
     const sheet = store.getState().sheetSnap;
@@ -80,7 +82,9 @@ export function useOriginMap({
       zoom: Math.max(map.getZoom(), ORIGIN_ZOOM),
       // Arah hadap QR diputar ke atas layar, agar "depan" pemindai sama dengan depan di peta.
       ...(current.headingDeg === null ? {} : { bearing: current.headingDeg }),
-      padding: { ...edges, bottom },
+      // `offset`, bukan `padding`: padding easeTo menetap di peta dan ikut dijumlahkan pada setiap
+      // fitBounds berikutnya, sampai pilihan dan rute tidak bisa dibingkai lagi.
+      offset: [(edges.left - edges.right) / 2, (edges.top - bottom) / 2],
       duration: prefersReducedMotion() ? 0 : 300,
     });
   }, [map, current, originSeq, index, store]);

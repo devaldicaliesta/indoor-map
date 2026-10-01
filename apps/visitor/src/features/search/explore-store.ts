@@ -43,6 +43,12 @@ export interface ExploreState {
   originMode: OriginMode;
   /** Tujuan "Rute ke sini"; panel rute tampil bila titik asal sudah ada. */
   destination: ExploreTarget | null;
+  /** Rute kursi roda: hanya jalur dan konektor yang aksesibel. */
+  accessible: boolean;
+  /** Langkah yang sedang dilihat di mode langkah; `null` = daftar langkah. */
+  activeStep: number | null;
+  /** Naik setiap rute baru dihitung untuk asal/tujuan/mode baru, agar kamera membingkainya sekali. */
+  routeSeq: number;
 
   search(query: string): void;
   /** Membuka daftar dan mengosongkan pencarian (hasil cari berupa kategori atau jenis fasilitas). */
@@ -62,6 +68,10 @@ export interface ExploreState {
   setOrigin(place: RoutePlace): void;
   cancelOrigin(): void;
   closeRoute(): void;
+  setAccessible(accessible: boolean): void;
+  /** Tukar asal dan tujuan; hanya untuk asal berupa tempat (bukan QR atau titik di peta). */
+  swap(origin: RoutePlace, destination: ExploreTarget): void;
+  showStep(step: number | null): void;
 }
 
 const INITIAL = {
@@ -74,6 +84,9 @@ const INITIAL = {
   originSeq: 0,
   originMode: 'off' as OriginMode,
   destination: null,
+  accessible: false,
+  activeStep: null,
+  routeSeq: 0,
 };
 
 const sameList = (a: ExploreList | null, b: ExploreList) =>
@@ -123,7 +136,17 @@ export const createExploreStore = (origin: RoutePlace | null = null) =>
     requestRoute: (destination) =>
       set((s) =>
         s.origin
-          ? { destination, originMode: 'off', detail: null, sheetSnap: 'half' }
+          ? {
+              destination,
+              originMode: 'off',
+              detail: null,
+              // Sorotan daftar atau hasil cari sebelumnya tidak ikut tampil di atas rute.
+              query: '',
+              list: null,
+              sheetSnap: 'half',
+              activeStep: null,
+              routeSeq: s.routeSeq + 1,
+            }
           : {
               destination,
               originMode: 'choose',
@@ -148,6 +171,8 @@ export const createExploreStore = (origin: RoutePlace | null = null) =>
         query: '',
         list: null,
         sheetSnap: s.destination ? 'half' : 'peek',
+        activeStep: null,
+        routeSeq: s.routeSeq + 1,
       })),
 
     cancelOrigin: () =>
@@ -158,7 +183,21 @@ export const createExploreStore = (origin: RoutePlace | null = null) =>
         sheetSnap: s.origin && s.destination ? 'half' : 'peek',
       })),
 
-    closeRoute: () => set({ destination: null, sheetSnap: 'peek' }),
+    closeRoute: () => set({ destination: null, activeStep: null, sheetSnap: 'peek' }),
+
+    setAccessible: (accessible) =>
+      set((s) => ({ accessible, activeStep: null, routeSeq: s.routeSeq + 1 })),
+
+    swap: (origin, destination) =>
+      set((s) => ({
+        origin,
+        destination,
+        originSeq: s.originSeq + 1,
+        activeStep: null,
+        routeSeq: s.routeSeq + 1,
+      })),
+
+    showStep: (activeStep) => set({ activeStep }),
   }));
 
 /** Yang disorot di peta: detail yang terbuka, atau daftar kategori/jenis fasilitas saat tidak mencari. */

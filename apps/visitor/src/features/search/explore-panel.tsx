@@ -1,24 +1,17 @@
-import type { ExploreTarget, SnapshotIndex } from '@indoor/domain';
+import type { ExploreTarget } from '@indoor/domain';
 import { Button } from '@indoor/ui';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { FacilityDetail, UnitDetail } from '../location/feature-details';
 import { LocationProfile } from '../location/location-profile';
-import { OriginChooser, OriginRow, OriginTapHint, RoutePanel } from '../origin/origin-panels';
+import { OriginChooser, OriginRow, OriginTapHint } from '../origin/origin-panels';
+import { RoutePanel } from '../route/route-panel';
+import { detailTitle } from './detail-title';
 import { Directory } from './directory';
 import { ExploreChips } from './explore-chips';
 import { useExplore, useExploreStore } from './explore-context';
 import { CategoryList, FacilityTypeList } from './member-lists';
 import { SearchResults } from './search-results';
-
-/** Judul singkat detail untuk tombol kembali di header HP. */
-export function detailTitle(index: SnapshotIndex, detail: ExploreTarget): string {
-  if (detail.kind === 'location') return index.locations.get(detail.id)?.name ?? '';
-  const feature = index.features.get(detail.id);
-  if (detail.kind === 'unit') return feature?.properties.unitCode ?? '';
-  const typeId = feature?.properties.facilityTypeId;
-  return feature?.properties.name ?? (typeId ? index.facilityTypes.get(typeId)?.name : '') ?? '';
-}
 
 function Detail({ detail }: { detail: ExploreTarget }) {
   if (detail.kind === 'location') return <LocationProfile id={detail.id} />;

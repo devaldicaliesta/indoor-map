@@ -83,7 +83,6 @@
   },
   "location": {
     "route": "Rute ke sini",
-    "routeUnavailable": "Petunjuk rute belum tersedia di peta ini.",
     "notOnMap": "Belum ada di peta",
     "comingSoon": "Segera buka",
     "comingSoonFrom": "Segera buka · mulai {{date}}",
@@ -112,6 +111,20 @@
     "title": "Rute",
     "from": "Dari",
     "to": "Ke",
-    "close": "Tutup rute"
+    "close": "Tutup rute",
+    "swap": "Tukar asal dan tujuan",
+    "accessible": "Rute aksesibel (kursi roda)",
+    "distance": "{{distance}} m",
+    "floors": "Lantai yang dilewati",
+    "steps": "Langkah rute",
+    "stepOf": "Langkah {{current}} dari {{total}}",
+    "previous": "Sebelumnya",
+    "next": "Berikutnya",
+    "allSteps": "Semua langkah",
+    "failNoPath": "Tidak ada rute dari titik asal ke tujuan ini.",
+    "failAccessible": "Tidak ada rute aksesibel ke tujuan ini. Matikan “Rute aksesibel” untuk melihat rute lain.",
+    "failClosed": "Rute ke tujuan ini tertutup sementara.",
+    "failOrigin": "Titik asal tidak terhubung ke jalur. Ganti titik asal.",
+    "failDestination": "Tujuan ini belum terhubung ke jalur."
   }
 }
