@@ -14,27 +14,27 @@ import {
   type VenueId,
 } from '@indoor/domain';
 import { boundsCenter, type LngLat, rotateGeometry, translateGeometry } from '@indoor/map-core';
-import { useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { data } from '../../app/data-client';
 import { useFacilityTypes } from '../facilities/queries';
+import { useGraphActions } from './graph/use-graph-actions';
 import {
+  editorQueues,
   type PropertiesPatch,
   pickFacilityTypeId,
   SHAPE_OF,
-  saveQueue,
   UNIT_CODE_MESSAGES,
   unitCodePrefix,
   unitCodesOf,
 } from './session-helpers';
-import { type FeaturePatch, featureList, useEditorStore } from './store/editor-store';
+import { featureList, useEditorStore } from './store/editor-store';
+import type { Change } from './store/history';
+import { useEditorPersistence } from './use-editor-persistence';
 
 const NO_FACILITY_TYPES: FacilityType[] = [];
 
-import { type Change, type Direction, valueAfter } from './store/history';
-
 /**
- * Menghubungkan store editor dengan database untuk satu lantai: memuat fitur,
+ * Menghubungkan store editor dengan database untuk satu lantai: memuat fitur dan graf jalur,
  * lalu setiap perubahan masuk antrean simpan (debounce ±800 ms).
  */
 export function useEditorSession(
@@ -44,67 +44,8 @@ export function useEditorSession(
 ) {
   const floorId = floor?.id ?? null;
   const facilityTypes = useFacilityTypes(venueId).data ?? NO_FACILITY_TYPES;
-  const loaded = useEditorStore((s) => s.floorId === floorId && floorId !== null);
-  const query = useQuery({
-    queryKey: ['features', floorId],
-    queryFn: async () => {
-      // Tulis yang tertunda lebih dulu agar yang dimuat adalah draft terbaru.
-      await saveQueue().flush();
-      return data.features.listByFloor(floorId as NonNullable<typeof floorId>);
-    },
-    enabled: floorId !== null,
-    // Store adalah sumber kebenaran selama menyunting; jangan timpa dengan data server.
-    staleTime: Number.POSITIVE_INFINITY,
-    gcTime: 0,
-    refetchOnWindowFocus: false,
-  });
-
-  useEffect(() => {
-    if (floorId && query.data && !loaded) {
-      useEditorStore.getState().load(floorId, query.data, floor?.isOutdoor ?? false);
-    }
-  }, [floorId, query.data, loaded, floor?.isOutdoor]);
-
-  useEffect(() => {
-    const warn = (event: BeforeUnloadEvent) => {
-      if (saveQueue().hasUnsaved()) event.preventDefault();
-    };
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, []);
-
-  /** Satu aksi editor: diterapkan ke store, dicatat di riwayat, lalu tiap fitur masuk antrean simpan. */
-  const persist = useCallback(
-    (patch: FeaturePatch, direction: Direction) => {
-      for (const change of patch) {
-        const value = valueAfter(change, direction);
-        saveQueue().enqueue(
-          change.id,
-          value ? { type: 'save', value: { venueId, feature: value } } : { type: 'remove' },
-        );
-      }
-    },
-    [venueId],
-  );
-
-  const commit = useCallback(
-    (patch: FeaturePatch) => {
-      useEditorStore.getState().commit(patch);
-      persist(patch, 'do');
-    },
-    [persist],
-  );
-
-  /** Undo/redo ikut memicu simpan otomatis. */
-  const undo = useCallback(() => {
-    const step = useEditorStore.getState().undo();
-    if (step) persist(step.patch, step.direction);
-  }, [persist]);
-
-  const redo = useCallback(() => {
-    const step = useEditorStore.getState().redo();
-    if (step) persist(step.patch, step.direction);
-  }, [persist]);
+  const { loaded, error, commit, commitGraph, undo, redo } = useEditorPersistence(venueId, floor);
+  const graph = useGraphActions(floorId, commitGraph);
 
   /** Perubahan untuk beberapa fitur yang ada; fitur yang tidak ditemukan dilewati. */
   const changeEach = useCallback(
@@ -254,7 +195,7 @@ export function useEditorSession(
   return useMemo(
     () => ({
       ready: loaded,
-      error: query.error,
+      error,
       isOutdoor: floor?.isOutdoor ?? false,
       facilityTypes,
       draw,
@@ -268,11 +209,14 @@ export function useEditorSession(
       rotateMany,
       undo,
       redo,
-      retry: () => saveQueue().retry(),
+      graph,
+      retry: () => {
+        for (const queue of editorQueues()) queue.retry();
+      },
     }),
     [
       loaded,
-      query.error,
+      error,
       floor?.isOutdoor,
       facilityTypes,
       draw,
@@ -281,6 +225,7 @@ export function useEditorSession(
       changeKind,
       setUnitCode,
       remove,
+      graph,
     ],
   );
 }

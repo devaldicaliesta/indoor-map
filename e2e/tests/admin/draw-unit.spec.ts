@@ -66,7 +66,7 @@ test.describe('Gambar unit', () => {
     await editor.goto();
 
     await expect(editor.tool('Pilih')).toBeEnabled();
-    for (const name of ['Poligon', 'Garis', 'Titik'] as const) {
+    for (const name of ['Poligon', 'Garis', 'Titik', 'Jalur'] as const) {
       await expect(editor.tool(name)).toBeDisabled();
     }
   });

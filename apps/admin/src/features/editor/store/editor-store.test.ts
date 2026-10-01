@@ -1,7 +1,7 @@
 import type { FloorFeature } from '@indoor/data';
-import type { FloorId } from '@indoor/domain';
+import { addPath, type FloorId, type NavGraph } from '@indoor/domain';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { useEditorStore } from './editor-store';
+import { combinedSave, useEditorStore } from './editor-store';
 
 const floorId = '30000000-0000-4000-8000-000000000001' as FloorId;
 const unit = (id: string, x: number): FloorFeature => ({
@@ -77,5 +77,73 @@ describe('store editor: command dan riwayat', () => {
     expect(useEditorStore.getState()).toMatchObject({ viewMode: '2d', tool: 'linestring' });
     // Perubahan fitur tidak hilang saat berganti mode.
     expect(useEditorStore.getState().features.a).toBeDefined();
+  });
+});
+
+describe('store editor: graf jalur', () => {
+  const empty: NavGraph = { nodes: {}, edges: {} };
+  let n = 0;
+  const newId = () => `g${++n}`;
+  const line = (graph: NavGraph, from: [number, number], to: [number, number]) =>
+    addPath(graph, [from, to], { floorId, newId });
+
+  beforeEach(() => {
+    useEditorStore
+      .getState()
+      .load(floorId, { type: 'FeatureCollection', features: [unit('a', 1)] }, false, empty);
+  });
+
+  it('aksi graf dan fitur berbagi satu riwayat undo/redo', () => {
+    const store = useEditorStore.getState();
+    store.commit([{ id: 'b', before: null, after: unit('b', 2) }]);
+    store.commitGraph(line(empty, [106.8, -6.17], [106.8003, -6.17]));
+    const drawn = useEditorStore.getState().graph;
+    expect(Object.keys(drawn.edges)).toHaveLength(1);
+
+    const undone = useEditorStore.getState().undo();
+    expect(undone?.patch.edges).toHaveLength(1);
+    expect(useEditorStore.getState().graph).toEqual(empty);
+    expect(useEditorStore.getState().features.b).toBeDefined();
+    useEditorStore.getState().undo();
+    expect(useEditorStore.getState().features.b).toBeUndefined();
+    useEditorStore.getState().redo();
+    useEditorStore.getState().redo();
+    expect(useEditorStore.getState().graph).toEqual(drawn);
+  });
+
+  it('seleksi graf dan seleksi fitur saling menggantikan; elemen yang hilang lepas dari seleksi', () => {
+    const store = useEditorStore.getState();
+    store.commitGraph(line(empty, [106.8, -6.17], [106.8003, -6.17]));
+    const [edgeId] = Object.keys(useEditorStore.getState().graph.edges);
+    store.select('a');
+    store.selectGraph({ kind: 'edge', id: edgeId ?? '' });
+    expect(useEditorStore.getState()).toMatchObject({
+      selectedIds: [],
+      graphSelection: { id: edgeId },
+    });
+    useEditorStore.getState().undo();
+    expect(useEditorStore.getState().graphSelection).toBeNull();
+    useEditorStore.getState().select('a');
+    expect(useEditorStore.getState().graphSelection).toBeNull();
+    useEditorStore.getState().setTool('path');
+    expect(useEditorStore.getState().selectedIds).toEqual([]);
+  });
+
+  it('aksi kosong tidak masuk riwayat', () => {
+    const store = useEditorStore.getState();
+    store.commit([]);
+    store.commitGraph({ nodes: [], edges: [] });
+    expect(useEditorStore.getState().history.past).toEqual([]);
+  });
+
+  it('status simpan gabungan: galat lebih dulu, lalu menyimpan, lalu tersimpan', () => {
+    const store = useEditorStore.getState();
+    store.setSaveStatus('features', 'saved', null);
+    store.setSaveStatus('graph', 'saving', null);
+    expect(combinedSave(useEditorStore.getState()).status).toBe('saving');
+    store.setSaveStatus('graph', 'error', 'jaringan');
+    expect(combinedSave(useEditorStore.getState())).toEqual({ status: 'error', error: 'jaringan' });
+    store.setSaveStatus('graph', 'saved', null);
+    expect(combinedSave(useEditorStore.getState()).status).toBe('saved');
   });
 });

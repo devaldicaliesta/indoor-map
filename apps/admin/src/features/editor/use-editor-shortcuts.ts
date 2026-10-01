@@ -9,6 +9,7 @@ export const TOOL_SHORTCUTS: Record<EditorTool, string> = {
   polygon: 'P',
   linestring: 'L',
   point: 'T',
+  path: 'J',
 };
 
 const TOOL_BY_KEY = Object.fromEntries(
@@ -31,7 +32,7 @@ export const UNDO_SHORTCUT = /Mac|iPhone|iPad/.test(globalThis.navigator?.platfo
   : { undo: 'Ctrl+Z', redo: 'Ctrl+Shift+Z' };
 
 /**
- * Delete, Esc, V (pilih), P (poligon), L (garis), T (titik),
+ * Delete, Esc, V (pilih), P (poligon), L (garis), T (titik), J (jalur),
  * Ctrl/Cmd+Z (undo), Ctrl/Cmd+Shift+Z atau Ctrl+Y (redo).
  */
 export function useEditorShortcuts(session: EditorSession, canEdit: boolean) {
@@ -55,6 +56,11 @@ export function useEditorShortcuts(session: EditorSession, canEdit: boolean) {
       }
       if (!canEdit) return;
       if (event.key === 'Delete' || event.key === 'Backspace') {
+        if (store.graphSelection) {
+          event.preventDefault();
+          session.graph.removeSelected();
+          return;
+        }
         if (store.selectedIds.length === 0) return;
         event.preventDefault();
         session.removeMany(store.selectedIds);

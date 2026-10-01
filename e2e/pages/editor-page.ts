@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
-export type EditorTool = 'Pilih' | 'Poligon' | 'Garis' | 'Titik';
+export type EditorTool = 'Pilih' | 'Poligon' | 'Garis' | 'Titik' | 'Jalur';
 
 export class EditorPage {
   readonly canvas: Locator;

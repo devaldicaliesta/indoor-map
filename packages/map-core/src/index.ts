@@ -49,7 +49,24 @@ export {
   type Georeferencer,
   type GeoreferencerOptions,
 } from './georef-layer';
+export {
+  createGraphInteractions,
+  type GraphInteractionOptions,
+  type GraphNodeDrag,
+} from './graph-interactions';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
+export {
+  GRAPH_LAYER_IDS,
+  GRAPH_PICK_LAYERS,
+  type GraphEdgeView,
+  type GraphElement,
+  type GraphNodeView,
+  graphCollection,
+  graphElementAt,
+  setGraphData,
+  setGraphPreview,
+  setGraphSelection,
+} from './layers/graph';
 export {
   HIGHLIGHT_COLORS,
   highlightFilters,

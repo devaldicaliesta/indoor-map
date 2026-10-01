@@ -9,13 +9,12 @@ import {
   SelectValue,
   StatusDot,
 } from '@indoor/ui';
-import { useEditorStore } from './store/editor-store';
+import { combinedSave, useEditorStore } from './store/editor-store';
 
 export const OUTDOOR = 'outdoor';
 
 function SaveIndicator({ onRetry }: { onRetry: () => void }) {
-  const status = useEditorStore((s) => s.saveStatus);
-  const error = useEditorStore((s) => s.saveError);
+  const { status, error } = useEditorStore(combinedSave);
   if (status === 'error') {
     return (
       <Button

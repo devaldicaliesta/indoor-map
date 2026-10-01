@@ -14,12 +14,13 @@ import {
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 import { COORDINATE_DECIMALS, EDIT_COLORS } from './defaults';
 import type { LngLat } from './georef';
+import { type GraphElement, graphElementAt } from './layers/graph';
 import { PICKABLE_LAYERS } from './selection';
 import { closestOnSegment, type Px, SNAP_TOLERANCE_PX, snapPoint } from './snap';
 import type { BBox, SnapCandidates } from './snap-index';
 import { roundCoordinate, roundGeometry } from './transform';
 
-export type EditorTool = 'select' | 'polygon' | 'linestring' | 'point';
+export type EditorTool = 'select' | 'polygon' | 'linestring' | 'point' | 'path';
 
 export interface EditableFeature {
   id: string;
@@ -33,6 +34,10 @@ export interface FeatureEditorCallbacks {
   onEdit(id: string, geometry: Geometry): void;
   /** Klik pada fitur lantai di alat pilih; `null` bila klik di ruang kosong. Shift = tambah/kurangi. */
   onPick(id: string | null, additive: boolean): void;
+  /** Garis jalur selesai digambar dengan alat jalur (titik-titiknya berurutan). */
+  onDrawPath?(coordinates: LngLat[]): void;
+  /** Klik pada node atau edge graf di alat pilih; didahulukan dari fitur di bawahnya. */
+  onPickGraph?(element: GraphElement): void;
   /** `enabled` false = snapping dimatikan di bilah status. */
   snap: {
     enabled(): boolean;
@@ -68,6 +73,7 @@ function drawStyles() {
       closingPointOutlineColor: ink,
     },
     linestring: { lineStringColor: ink, lineStringWidth: 3, closingPointColor: signal },
+    path: { lineStringColor: ink, lineStringWidth: 2, closingPointColor: signal },
     point: { pointColor: signal, pointWidth: 6, pointOutlineColor: ink, pointOutlineWidth: 2 },
     select: {
       selectedPolygonColor: signal,
@@ -207,6 +213,7 @@ export function createFeatureEditor(
         snapping,
       }),
       new TerraDrawLineStringMode({ styles: styles.linestring, snapping }),
+      new TerraDrawLineStringMode({ modeName: 'path', styles: styles.path, snapping }),
       new TerraDrawPointMode({ styles: styles.point }),
       new TerraDrawSelectMode({
         styles: styles.select,
@@ -237,7 +244,9 @@ export function createFeatureEditor(
     if (context.action === 'draw') {
       // Fitur baru pindah ke store; terra-draw siap menggambar berikutnya.
       terra.removeFeatures([id]);
-      callbacks.onDraw(geometry);
+      if (context.mode === 'path' && geometry.type === 'LineString') {
+        callbacks.onDrawPath?.(geometry.coordinates as LngLat[]);
+      } else callbacks.onDraw(geometry);
     } else if (id === editing) {
       callbacks.onEdit(String(id), geometry);
     }
@@ -253,11 +262,19 @@ export function createFeatureEditor(
       const { x, y } = map.project(c);
       return [x, y];
     };
+    if (onHandle && !e.originalEvent.shiftKey) return;
+    const graph = callbacks.onPickGraph
+      ? graphElementAt(map, e.point, PICK_TOLERANCE_PX + 2)
+      : null;
+    if (graph) {
+      callbacks.onPickGraph?.(graph);
+      return;
+    }
     // Klik di dalam fitur yang sedang disunting tidak membatalkan seleksi (kecuali Shift).
     const onEdited =
       editedGeometry !== null &&
       hitsGeometry(editedGeometry, [e.point.x, e.point.y], toPx, PICK_TOLERANCE_PX + 2);
-    if ((onHandle || onEdited) && !e.originalEvent.shiftKey) return;
+    if (onEdited && !e.originalEvent.shiftKey) return;
     const { x, y } = e.point;
     const hits = map.queryRenderedFeatures(
       [

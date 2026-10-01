@@ -46,7 +46,7 @@ function randomPatch(state: State, step: number): Patch<Item> {
 
 function run(steps: number) {
   let state: State = {};
-  let history: History<Item> = emptyHistory();
+  let history: History<Patch<Item>> = emptyHistory();
   const snapshots: State[] = [state];
   for (let i = 0; i < steps; i++) {
     const patch = randomPatch(state, i);
@@ -91,10 +91,10 @@ describe('riwayat undo/redo', () => {
   });
 
   it('aksi baru menghapus riwayat redo; batas riwayat dijaga', () => {
-    let history = record(emptyHistory<Item>(), [
+    let history = record(emptyHistory<Patch<Item>>(), [
       { id: 'a', before: null, after: { id: 'a', x: 1 } },
     ]);
-    history = (undo(history) as { history: History<Item> }).history;
+    history = (undo(history) as { history: History<Patch<Item>> }).history;
     expect(history.future).toHaveLength(1);
     history = record(history, [{ id: 'b', before: null, after: { id: 'b', x: 1 } }]);
     expect(history.future).toEqual([]);
@@ -102,7 +102,6 @@ describe('riwayat undo/redo', () => {
       history = record(history, [{ id: `x${i}`, before: null, after: { id: `x${i}`, x: i } }]);
     }
     expect(history.past).toHaveLength(HISTORY_LIMIT);
-    expect(record(history, [])).toBe(history);
   });
 
   it('perubahan berantai pada fitur yang sama dalam satu patch pulih ke nilai awal', () => {

@@ -8,6 +8,7 @@ import type {
   VenueId,
 } from '@indoor/domain';
 import { data } from '../../app/data-client';
+import { GraphSaveQueue } from './graph/graph-save-queue';
 import { type EditorState, featureList, useEditorStore } from './store/editor-store';
 import { SaveQueue } from './store/save-queue';
 
@@ -20,10 +21,23 @@ export function saveQueue() {
         ? data.features.save(op.value.venueId, op.value.feature)
         : data.features.remove(id),
     onStatus: (status, error) =>
-      useEditorStore.getState().setSaveStatus(status, error?.message ?? null),
+      useEditorStore.getState().setSaveStatus('features', status, error?.message ?? null),
   });
   return sharedQueue;
 }
+
+let sharedGraphQueue: GraphSaveQueue | null = null;
+export function graphSaveQueue() {
+  sharedGraphQueue ??= new GraphSaveQueue({
+    run: (venueId, changes) => data.navGraph.apply(venueId, changes),
+    onStatus: (status, error) =>
+      useEditorStore.getState().setSaveStatus('graph', status, error?.message ?? null),
+  });
+  return sharedGraphQueue;
+}
+
+/** Semua antrean simpan editor (fitur dan graf). */
+export const editorQueues = () => [saveQueue(), graphSaveQueue()];
 
 export function unitCodePrefix(floor: Floor, building: Building | undefined) {
   return building ? `${building.code}-${floor.name}` : floor.name.toUpperCase();

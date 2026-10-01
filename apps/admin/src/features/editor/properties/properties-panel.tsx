@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@indoor/ui';
+import { GraphProperties } from '../graph/graph-properties';
 import { drawKindLabel, drawKindValue, FEATURE_KIND_LABELS } from '../labels';
 import { singleSelected, useEditorStore } from '../store/editor-store';
 import type { EditorSession } from '../use-editor-session';
@@ -103,12 +104,14 @@ export function PropertiesPanel({
 }) {
   const feature = useEditorStore(singleSelected);
   const count = useEditorStore((s) => s.selectedIds.length);
+  const graphSelected = useEditorStore((s) => s.graphSelection !== null);
+  if (graphSelected) return <GraphProperties session={session} canEdit={canEdit} />;
   if (count > 1) return <MultiSelectionPanel session={session} canEdit={canEdit} />;
   if (!feature) {
     return (
       <p className="p-(--panel-padding) text-ink-muted text-sm">
-        Pilih fitur di peta atau di daftar untuk melihat propertinya. Shift+klik atau Shift+tarik
-        untuk memilih beberapa fitur.
+        Pilih fitur, node, atau edge jalur di peta atau di daftar untuk melihat propertinya.
+        Shift+klik atau Shift+tarik untuk memilih beberapa fitur.
       </p>
     );
   }

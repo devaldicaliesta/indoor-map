@@ -23,12 +23,14 @@ function SnapToggle() {
 export function StatusBar({ cursor, canEdit }: { cursor: LngLat | null; canEdit: boolean }) {
   const total = useEditorStore((s) => Object.keys(s.features).length);
   const selected = useEditorStore((s) => s.selectedIds.length);
+  const edges = useEditorStore((s) => Object.keys(s.graph.edges).length);
   return (
     <footer className="flex items-center gap-4 border-line border-t px-3 py-1 font-mono text-ink-muted text-xs tabular-nums">
       {canEdit ? <SnapToggle /> : null}
       <span>
         {count.format(total)} fitur{selected > 1 ? ` · ${selected} dipilih` : ''}
       </span>
+      <span>{count.format(edges)} edge jalur</span>
       <span>
         <span className="sr-only">Koordinat kursor </span>
         {cursor ? `${cursor[1].toFixed(6)}, ${cursor[0].toFixed(6)}` : '—'}

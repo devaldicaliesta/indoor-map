@@ -20,6 +20,14 @@ export function KindPicker({
   const drawKinds = useEditorStore((s) => s.drawKinds);
   const setDrawKind = useEditorStore((s) => s.setDrawKind);
   if (tool === 'select') return null;
+  if (tool === 'path') {
+    return (
+      <p className="absolute top-3 left-3 max-w-[calc(100%-1.5rem)] rounded-md bg-surface px-3 py-2 text-sm shadow-(--shadow-float)">
+        Jalur pengunjung: klik titik demi titik, klik dua kali untuk selesai. Ujung yang menyentuh
+        jalur lain dan persimpangan otomatis tersambung.
+      </p>
+    );
+  }
   const shape: FeatureShape = tool;
   const options = drawKindsFor(shape, isOutdoor);
   const current = drawKinds[shape];
