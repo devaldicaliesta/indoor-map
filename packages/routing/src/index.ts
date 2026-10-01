@@ -27,6 +27,7 @@ export {
   type RouteStep,
   roundStepDistance,
   routeSteps,
+  unknownPlaceholders,
 } from './instructions';
 export {
   activeClosures,

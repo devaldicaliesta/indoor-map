@@ -243,3 +243,16 @@ export function instructionText(step: RouteStep, context: InstructionContext): s
   );
   return template.replace(/\{(\w+)\}/g, (match, name: string) => values.get(name) ?? match);
 }
+
+/**
+ * Placeholder di `template` yang tidak dikenal atau tidak tersedia untuk `action`, tanpa
+ * duplikat dan sesuai urutan kemunculan. Halaman Instruksi menolak teks yang punya temuan.
+ */
+export function unknownPlaceholders(action: InstructionAction, template: string): string[] {
+  const allowed = new Set<string>(instructionPlaceholders(action));
+  const found = new Set<string>();
+  for (const [, name = ''] of template.matchAll(/\{(\w*)\}/g)) {
+    if (!allowed.has(name)) found.add(name);
+  }
+  return [...found];
+}

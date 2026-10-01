@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R2 Navigasi (R1 menunggu review)
-**Task berikutnya:** T-210
+**Task berikutnya:** T-211
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -64,7 +64,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-207 | Editor konektor dan aksesibilitas | T-205 | review | Alat Konektor (K) + dialog (lift: lantai dilayani; eskalator: lantai lain + arah; tangga: lantai terbawah–teratas; pintu gedung: lantai ↔ Area Luar), node konektor di setiap lantai pada posisi yang sama lewat RPC `save_connector`/`delete_connector` (migrasi 0012, 22 pgTAP), panel konektor (ubah/hapus), sakelar "bisa dilalui kursi roda" per edge (undo) dan per konektor (bawaan: lift dan pintu gedung). Eskalator tanpa arah ditolak di domain, RPC, dan constraint. Diuji integrasi dan browser |
 | T-208 | Tampilan graf | T-207 | review | Sakelar Node/Edge dan legenda kecil (bisa diciutkan) di kiri bawah kanvas; edge tidak aksesibel putus-putus, edge tertutup merah di atas pita arsir, node tertutup di atas lingkaran berarsir, node terisolasi bercincin --warn dengan jumlah per lantai di legenda. Terisolasi dihitung atas seluruh venue lewat konektor (`isolatedNodeIds` + `summarizeComponents`: 1,1 ms per edit untuk venue 20.000 node), tertutup lewat `closedElements` (routing, sama dengan `restrictionsFor`). Data: `navGraph.listByVenue`, `closures.listCurrent` (baca saja). Diuji unit, integrasi, E2E (13 lulus), dan browser sebagai Super Admin dan Viewer |
 | T-209 | Test route | T-204, T-207 | review | Tab "Uji rute" di panel kiri editor: asal/tujuan (lokasi, unit, fasilitas, QR titik asal, Info Point, atau klik peta), mode kursi roda, jarak + langkah ID/EN dengan chip lantai, langkah memindah editor ke lantai/gedungnya; alasan gagal yang menyebut lantai, konektor, atau penutupan ("Lantai L2 Gedung Utama tidak terhubung lift yang aksesibel."). Draft = graf/fitur lantai lain dari server + lantai yang disunting dari store. `routeDataFromDraft` + `planRoute` + `routeGap` (routing), lapisan rute map-core. 7 skenario wajib: draft = snapshot (`route-plan.test.ts`) dan diuji browser |
-| T-210 | Template instruksi | T-204 | siap | |
+| T-210 | Template instruksi | T-204 | review | Pengaturan → Instruksi: tabel 15 aksi (ID/EN, placeholder per aksi, contoh kalimat di bawah isian lewat `instructionText` yang sama), ID wajib, placeholder tidak dikenal/tidak tersedia untuk aksinya ditolak (`unknownPlaceholders` di routing), tanpa hapus aksi (upsert). Simpan membatalkan kunci query test route sehingga teks baru langsung dipakai. Test integrasi `instruction-templates.test.ts` ditulis tetapi belum dijalankan (tanpa Docker di sesi ini) |
 | T-211 | Penutupan dan role Operator | T-203, T-208 | siap | |
 | T-212 | QR titik asal | T-205 | siap | |
 | T-214 | Visitor: titik asal | T-213, T-118 | menunggu | |
