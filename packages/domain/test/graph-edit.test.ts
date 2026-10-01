@@ -254,7 +254,9 @@ describe('moveNode dan mergeNodes', () => {
     expect(moved.nodes.c).toBeDefined();
   });
 
-  it('graf tetap terhubung setelah pindah dan gabung acak', () => {
+  // 300 langkah acak, masing-masing dicek keterhubungannya: di runner CI yang menjalankan semua
+  // paket bersamaan bisa mendekati batas bawaan Vitest (5 detik), padahal di lokal < 1 detik.
+  it('graf tetap terhubung setelah pindah dan gabung acak', { timeout: 30_000 }, () => {
     let seed = 7;
     const random = () => {
       seed = (seed * 16807) % 2147483647;
