@@ -1453,6 +1453,7 @@ export type Database = {
     };
     Functions: {
       delete_connector: { Args: { p_id: string }; Returns: undefined };
+      public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {
         Args: { p_venue_id: string };

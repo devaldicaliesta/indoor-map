@@ -100,6 +100,12 @@ export {
 } from './layers/labels';
 export { MUTED_LAYER_IDS, mutedLayers, setMutedFeatures } from './layers/muted';
 export {
+  ORIGIN_LAYER_IDS,
+  type OriginMarker,
+  originCollection,
+  setOriginMarkers,
+} from './layers/origin';
+export {
   REFERENCE_LAYER_IDS,
   REFERENCE_OPACITY,
   type ReferenceFloor,
