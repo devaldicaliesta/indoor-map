@@ -2,6 +2,7 @@ import type { EditorTool } from '@indoor/map-core';
 import { useEffect } from 'react';
 import { useEntranceStore } from './graph/entrance-store';
 import { useEditorStore } from './store/editor-store';
+import { useTestRouteStore } from './test-route/test-route-store';
 import type { EditorSession } from './use-editor-session';
 
 /** Pintasan alat; juga ditampilkan di tooltip toolbar. */
@@ -53,7 +54,9 @@ export function useEditorShortcuts(session: EditorSession, canEdit: boolean) {
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key === 'Escape') {
         const entrances = useEntranceStore.getState();
-        if (entrances.linkingId) entrances.stopLinking();
+        const route = useTestRouteStore.getState();
+        if (route.picking) route.stopPicking();
+        else if (entrances.linkingId) entrances.stopLinking();
         else if (store.tool !== 'select') store.setTool('select');
         else store.select(null);
         return;

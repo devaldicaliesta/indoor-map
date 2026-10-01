@@ -38,10 +38,21 @@ export {
   restrictionsFor,
 } from './options';
 export {
+  buildRouteGraph,
+  type RouteData,
+  type RouteDraft,
+  routeDataFromDraft,
+} from './route-data';
+export { type FloorRoute, routeOnFloor } from './route-floor';
+export { type RouteGap, routeGap } from './route-gap';
+export { planRoute, type RoutePlan, type RoutePlanFailureReason } from './route-plan';
+export {
   featureTarget,
   infoPointTarget,
   locationTarget,
   originPointTarget,
+  placeTarget,
+  type RoutePlace,
   routeEndTarget,
 } from './targets';
 export type {
