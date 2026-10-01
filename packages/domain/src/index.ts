@@ -2,7 +2,7 @@ export * from './area';
 export * from './audit';
 export * from './auth';
 export * from './building';
-export type * from './closure';
+export * from './closure';
 export * from './connector';
 export * from './deep-link';
 export * from './directory';

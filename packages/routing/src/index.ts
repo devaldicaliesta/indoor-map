@@ -6,6 +6,7 @@ export {
   type ClosureFeature,
   closedElements,
 } from './closed-elements';
+export { type ClosureImpact, closureImpact } from './closure-impact';
 export { connectorAllows, connectorArcs } from './connectors';
 export {
   BUILDING_DOOR_M,
