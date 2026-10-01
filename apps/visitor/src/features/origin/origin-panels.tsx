@@ -2,7 +2,6 @@ import { Button } from '@indoor/ui';
 import { MapPinIcon, NavigationIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useExplore, useExploreStore } from '../search/explore-context';
-import { detailTitle } from '../search/explore-panel';
 import { originView } from './origin-model';
 
 /** Nama titik asal untuk panel: nama tempat, atau "Titik di peta". */
@@ -69,36 +68,5 @@ export function OriginRow() {
         {t('origin.change')}
       </Button>
     </div>
-  );
-}
-
-/**
- * Panel rute: dari (bisa diganti) dan ke. Garis rute, langkah, dan mode aksesibel ditambahkan di
- * T-215.
- */
-export function RoutePanel() {
-  const { t } = useTranslation();
-  const { index } = useExplore();
-  const destination = useExploreStore((s) => s.destination);
-  const chooseOrigin = useExploreStore((s) => s.chooseOrigin);
-  const closeRoute = useExploreStore((s) => s.closeRoute);
-  const from = useOriginName();
-  if (!destination) return null;
-  return (
-    <section className="grid gap-3" aria-label={t('route.title')}>
-      <dl className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2">
-        <dt className="text-ink-muted">{t('route.from')}</dt>
-        <dd className="min-w-0 truncate font-bold">{from}</dd>
-        <Button size="sm" variant="ghost" onClick={chooseOrigin}>
-          {t('origin.change')}
-        </Button>
-        <dt className="text-ink-muted">{t('route.to')}</dt>
-        <dd className="col-span-2 min-w-0 truncate font-bold">{detailTitle(index, destination)}</dd>
-      </dl>
-      <p className="text-ink-muted text-sm">{t('location.routeUnavailable')}</p>
-      <Button variant="ghost" className="justify-self-start" onClick={closeRoute}>
-        {t('route.close')}
-      </Button>
-    </section>
   );
 }

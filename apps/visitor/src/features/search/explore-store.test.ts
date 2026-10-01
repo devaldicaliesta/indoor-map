@@ -116,3 +116,31 @@ describe('titik asal', () => {
     expect(fresh.getState()).toMatchObject({ destination: null, originMode: 'off' });
   });
 });
+
+describe('rute', () => {
+  it('mode aksesibel dan rute baru kembali ke daftar langkah dan membingkai ulang', () => {
+    const store = createExploreStore({ kind: 'origin_point', code: '3fa9c1d2e4b5' });
+    store.getState().requestRoute(location);
+    const seq = store.getState().routeSeq;
+    store.getState().showStep(2);
+    store.getState().setAccessible(true);
+    expect(store.getState()).toMatchObject({
+      accessible: true,
+      activeStep: null,
+      routeSeq: seq + 1,
+    });
+    store.getState().showStep(1);
+    store.getState().closeRoute();
+    expect(store.getState()).toMatchObject({ destination: null, activeStep: null });
+  });
+
+  it('tukar asal dan tujuan', () => {
+    const store = createExploreStore({ kind: 'location', locationId: 'l1' });
+    store.getState().requestRoute({ kind: 'unit', id: 'u2' });
+    store.getState().swap({ kind: 'feature', featureId: 'u2' }, location);
+    expect(store.getState()).toMatchObject({
+      origin: { kind: 'feature', featureId: 'u2' },
+      destination: location,
+    });
+  });
+});
