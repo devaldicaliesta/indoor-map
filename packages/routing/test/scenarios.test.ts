@@ -7,13 +7,16 @@ import {
   type ConnectorLeg,
   findRoute,
   infoPointTarget,
+  instructionText,
   locationTarget,
   originPointTarget,
   type RouteClosure,
   type RouteLeg,
   type RoutePoint,
   type RouteResult,
+  routeSteps,
 } from '../src';
+import { DEFAULT_TEMPLATES } from './fixtures/instruction-templates';
 import { referenceCost } from './helpers';
 
 /** Snapshot dan graf rute venue contoh, dengan poligon fitur untuk penutupan area. */
@@ -66,6 +69,14 @@ describe('skenario uji rute wajib (venue contoh)', () => {
     expect(connectorsOf(up).map((leg) => leg.connectorId)).toEqual([connectors.escalatorUp]);
     const down = findRoute(graph, entrance('L1-B07'), entrance('GF-B07'));
     expect(connectorsOf(down).map((leg) => leg.connectorId)).toEqual([connectors.escalatorDown]);
+    const escalatorSteps = (result: RouteResult) =>
+      result.ok
+        ? routeSteps(result, snapshot.floors).filter((step) => step.action.startsWith('escalator'))
+        : [];
+    expect(escalatorSteps(up)).toMatchObject([{ action: 'escalator_up', floorId: FLOORS.guL1 }]);
+    expect(escalatorSteps(down)).toMatchObject([
+      { action: 'escalator_down', floorId: FLOORS.guGf },
+    ]);
 
     const codes = ['GF-A01', 'GF-B04', 'L1-A02', 'L1-B08', 'L2-A05'];
     for (const a of codes) {
@@ -97,6 +108,49 @@ describe('skenario uji rute wajib (venue contoh)', () => {
     // Tanpa mode aksesibel jalan pintas bertangga di Area Luar yang dipakai (lebih pendek).
     const outdoor = result.legs[2];
     expect(outdoor?.kind === 'walk' && outdoor.nodeIds).toEqual([GRAPH.guDoorOut, GRAPH.gtDoorOut]);
+
+    const steps = routeSteps(result, snapshot.floors);
+    const texts = (language: 'id' | 'en') =>
+      steps.map((step) =>
+        instructionText(step, {
+          templates: DEFAULT_TEMPLATES,
+          language,
+          floors: snapshot.floors,
+          buildings: snapshot.buildings,
+          origin: 'GF-A02',
+          destination: 'GT-B03',
+        }),
+      );
+    expect(texts('id')).toMatchInlineSnapshot(`
+      [
+        "Mulai dari GF-A02",
+        "Jalan lurus 5 m",
+        "Belok kiri",
+        "Jalan lurus 75 m",
+        "Keluar dari Gedung Utama",
+        "Jalan lurus 45 m",
+        "Masuk ke Gedung Timur",
+        "Jalan lurus 25 m",
+        "Belok kanan",
+        "Jalan lurus 5 m",
+        "Tiba di GT-B03",
+      ]
+    `);
+    expect(texts('en')).toMatchInlineSnapshot(`
+      [
+        "Start at GF-A02",
+        "Go straight for 5 m",
+        "Turn left",
+        "Go straight for 75 m",
+        "Exit Gedung Utama",
+        "Go straight for 45 m",
+        "Enter Gedung Timur",
+        "Go straight for 25 m",
+        "Turn right",
+        "Go straight for 5 m",
+        "Arrive at GT-B03",
+      ]
+    `);
   });
 
   it('5. lift yang tidak melayani L2 tidak pernah dipakai untuk rute ke/dari L2', () => {
