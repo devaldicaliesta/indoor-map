@@ -7,6 +7,7 @@ import {
   type SnapshotIndex,
   type SnapshotSearch,
 } from '@indoor/domain';
+import type { RoutePlace } from '@indoor/routing';
 import { createContext, type ReactNode, use, useMemo, useState } from 'react';
 import { type StoreApi, useStore } from 'zustand';
 import { createExploreStore, type ExploreState } from './explore-store';
@@ -27,12 +28,15 @@ const ExploreContext = createContext<ExploreData | null>(null);
  */
 export function ExploreProvider({
   snapshot,
+  initialOrigin = null,
   children,
 }: {
   snapshot: Snapshot;
+  /** Titik asal dari URL QR; hanya dibaca saat provider dibuat. */
+  initialOrigin?: RoutePlace | null;
   children: ReactNode;
 }) {
-  const [store] = useState(createExploreStore);
+  const [store] = useState(() => createExploreStore(initialOrigin));
   const value = useMemo(
     () => ({
       snapshot,

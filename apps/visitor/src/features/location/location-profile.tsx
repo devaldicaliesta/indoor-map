@@ -98,7 +98,7 @@ export function LocationProfile({ id }: { id: string }) {
       </header>
       <Places places={locationPlaces(index, location)} />
       <LocationStatus location={location} />
-      <RouteAction />
+      <RouteAction target={{ kind: 'location', id: location.id }} />
       {location.description ? <p className="whitespace-pre-line">{location.description}</p> : null}
       {location.photoPaths.length ? (
         <ul className="-mx-(--panel-padding) flex gap-2 overflow-x-auto px-(--panel-padding)">

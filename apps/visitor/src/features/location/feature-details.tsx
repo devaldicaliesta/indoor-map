@@ -30,7 +30,7 @@ export function UnitDetail({ id }: { id: string }) {
           {[t('unit.label'), placeText(featurePlace(index, id))].filter(Boolean).join(' · ')}
         </p>
       </header>
-      <RouteAction />
+      <RouteAction target={{ kind: 'unit', id }} />
     </article>
   );
 }
@@ -57,7 +57,7 @@ export function FacilityDetail({ id }: { id: string }) {
           </p>
         </div>
       </header>
-      <RouteAction />
+      <RouteAction target={{ kind: 'facility', id }} />
     </article>
   );
 }

@@ -96,5 +96,22 @@
   },
   "unit": {
     "label": "Unit"
+  },
+  "origin": {
+    "youAreHere": "You are here",
+    "mapPoint": "Point on the map",
+    "here": "I'm here",
+    "change": "Change",
+    "cancel": "Cancel",
+    "chooseTitle": "Where are you now?",
+    "chooseHint": "Search for the place you are at, open it, then choose “I'm here”. Or tap your position on the map.",
+    "tapMap": "Tap the map",
+    "tapHint": "Tap your position on the map."
+  },
+  "route": {
+    "title": "Route",
+    "from": "From",
+    "to": "To",
+    "close": "Close route"
   }
 }

@@ -96,5 +96,22 @@
   },
   "unit": {
     "label": "Unit"
+  },
+  "origin": {
+    "youAreHere": "Anda di sini",
+    "mapPoint": "Titik di peta",
+    "here": "Saya di sini",
+    "change": "Ganti",
+    "cancel": "Batal",
+    "chooseTitle": "Anda sedang di mana?",
+    "chooseHint": "Cari tempat Anda berada, buka, lalu pilih “Saya di sini”. Atau ketuk posisi Anda di peta.",
+    "tapMap": "Ketuk di peta",
+    "tapHint": "Ketuk posisi Anda di peta."
+  },
+  "route": {
+    "title": "Rute",
+    "from": "Dari",
+    "to": "Ke",
+    "close": "Tutup rute"
   }
 }

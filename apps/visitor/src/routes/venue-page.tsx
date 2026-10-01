@@ -3,12 +3,13 @@ import { type Snapshot, type VenueId, VenueIdSchema } from '@indoor/domain';
 import { Button, Skeleton } from '@indoor/ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { PanelMessage } from '../app/panel-message';
 import { useMediaQuery } from '../app/use-media-query';
 import { DESKTOP_QUERY, VisitorShell } from '../app/visitor-shell';
 import { useSnapshot } from '../data/loadSnapshot';
 import { VenueMap } from '../features/map/venue-map';
+import { originFromUrl } from '../features/origin/origin-model';
 import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
 import { DetailBackBar, ExplorePanel } from '../features/search/explore-panel';
 import { VenueSearch } from '../features/search/venue-search';
@@ -30,6 +31,7 @@ function Unavailable() {
 function VenueView({ venueId }: { venueId: VenueId }) {
   const { t } = useTranslation();
   const snapshot = useSnapshot(venueId);
+  const location = useLocation();
   const defaultLanguage = snapshot.data?.venue.defaultLanguage;
 
   useEffect(() => {
@@ -65,7 +67,11 @@ function VenueView({ venueId }: { venueId: VenueId }) {
   }
 
   return (
-    <ExploreProvider key={venueId} snapshot={snapshot.data}>
+    <ExploreProvider
+      key={venueId}
+      snapshot={snapshot.data}
+      initialOrigin={originFromUrl(snapshot.data, `${location.pathname}${location.search}`)}
+    >
       <VenueExplorer snapshot={snapshot.data} />
     </ExploreProvider>
   );

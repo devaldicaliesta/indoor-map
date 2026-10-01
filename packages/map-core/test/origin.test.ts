@@ -16,3 +16,12 @@ describe('penanda titik asal', () => {
     expect(features[1]?.properties).toEqual({ id: 'o', selected: true });
   });
 });
+
+describe('penanda tanpa arah hadap', () => {
+  it('hanya titik', () => {
+    const { features } = originCollection([
+      { id: 'o', position: [106.8, -6.1], headingDeg: null, selected: true },
+    ]);
+    expect(features.map((f) => f.geometry.type)).toEqual(['Point']);
+  });
+});

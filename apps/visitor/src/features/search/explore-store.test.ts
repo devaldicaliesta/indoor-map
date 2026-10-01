@@ -65,3 +65,54 @@ describe('store panel Visitor', () => {
     expect(selectionOf({ detail: null, query: '', list: { kind: 'directory' } })).toBeNull();
   });
 });
+
+describe('titik asal', () => {
+  const qr = { kind: 'origin_point', code: '3fa9c1d2e4b5' } as const;
+
+  it('Rute ke sini tanpa titik asal meminta titik asal lebih dulu', () => {
+    const store = createExploreStore();
+    store.getState().openDetail(location);
+    store.getState().requestRoute(location);
+    expect(store.getState()).toMatchObject({
+      destination: location,
+      originMode: 'choose',
+      detail: null,
+    });
+    store.getState().setOrigin({ kind: 'feature', featureId: 'u1' });
+    expect(store.getState()).toMatchObject({
+      origin: { kind: 'feature', featureId: 'u1' },
+      originMode: 'off',
+      destination: location,
+      originSeq: 1,
+    });
+  });
+
+  it('dari QR titik asal sudah ada: Rute ke sini langsung ke panel rute', () => {
+    const store = createExploreStore(qr);
+    store.getState().requestRoute(location);
+    expect(store.getState()).toMatchObject({
+      origin: qr,
+      originMode: 'off',
+      destination: location,
+    });
+  });
+
+  it('titik asal bisa diganti; ketuk peta; batal tanpa titik asal membatalkan rute', () => {
+    const store = createExploreStore(qr);
+    store.getState().requestRoute(location);
+    store.getState().chooseOrigin();
+    store.getState().tapOrigin();
+    expect(store.getState().originMode).toBe('tap');
+    store.getState().cancelOrigin();
+    expect(store.getState()).toMatchObject({
+      origin: qr,
+      destination: location,
+      originMode: 'off',
+    });
+
+    const fresh = createExploreStore();
+    fresh.getState().requestRoute(location);
+    fresh.getState().cancelOrigin();
+    expect(fresh.getState()).toMatchObject({ destination: null, originMode: 'off' });
+  });
+});

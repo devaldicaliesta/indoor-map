@@ -117,9 +117,14 @@ export function useExploreMap({
     if (!map) return;
     const taps = createTapInteractions(map, {
       isTarget: (pick) => targetOfPick(index, pick) !== null,
-      onTap: (pick) => {
-        const target = pick ? targetOfPick(index, pick) : null;
+      onTap: (pick, at) => {
         const state = store.getState();
+        const floorId = latest.current.view.floorId;
+        if (state.originMode === 'tap') {
+          if (floorId) state.setOrigin({ kind: 'point', lng: at[0], lat: at[1], floorId });
+          return;
+        }
+        const target = pick ? targetOfPick(index, pick) : null;
         if (target) state.openDetail(target, 'pan');
         else if (state.detail) state.closeDetail();
       },
