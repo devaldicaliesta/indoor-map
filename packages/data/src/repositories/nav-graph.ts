@@ -30,6 +30,8 @@ export interface NavGraphChanges {
 export interface NavGraphRepository {
   /** Node dan edge draft satu lantai. */
   listByFloor(floorId: FloorId): Promise<NavGraph>;
+  /** Node dan edge draft semua lantai venue, termasuk Area Luar. */
+  listByVenue(venueId: VenueId): Promise<NavGraph>;
   /**
    * Menyimpan perubahan graf. Urutannya menjaga kunci asing dan pasangan node unik per edge:
    * hapus edge, simpan node, simpan edge, lalu hapus node. Mengirim ulang perubahan yang sama
@@ -82,31 +84,34 @@ export function createNavGraphRepository(db: Db): NavGraphRepository {
     }
   }
 
+  async function list(column: 'floor_id' | 'venue_id', value: string): Promise<NavGraph> {
+    const [nodes, edges] = await Promise.all([
+      fetchAllPages((from, to) =>
+        db
+          .from('nav_nodes')
+          .select('id, floor_id, geom, role, feature_id')
+          .eq(column, value)
+          .order('id')
+          .range(from, to),
+      ),
+      fetchAllPages((from, to) =>
+        db
+          .from('nav_edges')
+          .select('id, floor_id, from_node_id, to_node_id, length_m, is_accessible')
+          .eq(column, value)
+          .order('id')
+          .range(from, to),
+      ),
+    ]);
+    return {
+      nodes: Object.fromEntries(nodes.map((row) => [row.id, mapNodeRow(row)])),
+      edges: Object.fromEntries(edges.map((row) => [row.id, mapEdgeRow(row)])),
+    };
+  }
+
   return {
-    async listByFloor(floorId) {
-      const [nodes, edges] = await Promise.all([
-        fetchAllPages((from, to) =>
-          db
-            .from('nav_nodes')
-            .select('id, floor_id, geom, role, feature_id')
-            .eq('floor_id', floorId)
-            .order('id')
-            .range(from, to),
-        ),
-        fetchAllPages((from, to) =>
-          db
-            .from('nav_edges')
-            .select('id, floor_id, from_node_id, to_node_id, length_m, is_accessible')
-            .eq('floor_id', floorId)
-            .order('id')
-            .range(from, to),
-        ),
-      ]);
-      return {
-        nodes: Object.fromEntries(nodes.map((row) => [row.id, mapNodeRow(row)])),
-        edges: Object.fromEntries(edges.map((row) => [row.id, mapEdgeRow(row)])),
-      };
-    },
+    listByFloor: (floorId) => list('floor_id', floorId),
+    listByVenue: (venueId) => list('venue_id', venueId),
 
     async apply(venueId, changes) {
       await remove('nav_edges', changes.removeEdgeIds);

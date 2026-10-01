@@ -16,6 +16,7 @@ export * from './feature-draft';
 export * from './floor';
 export * from './floor-plan';
 export * from './geometry';
+export * from './graph-connectivity';
 export * from './graph-edit';
 export * from './ids';
 export * from './image';
