@@ -83,6 +83,8 @@ export type FloorFeature = Feature<Geometry, MapFeatureProperties>;
 export interface FeaturesRepository {
   /** Semua fitur draft satu lantai sebagai GeoJSON siap tampil. */
   listByFloor(floorId: FloorId): Promise<FloorFeatures>;
+  /** Semua fitur draft venue, termasuk Area Luar (uji rute di editor). */
+  listByVenue(venueId: VenueId): Promise<FloorFeatures>;
   /**
    * Menyimpan fitur ke draft (buat atau timpa berdasarkan id dari klien). Luas unit
    * dihitung dari geometri. Tidak menyentuh snapshot publish.
@@ -126,13 +128,16 @@ export function toFeatureColumns(venueId: VenueId, feature: FloorFeature) {
 }
 
 export function createFeaturesRepository(db: Db): FeaturesRepository {
+  async function list(column: 'floor_id' | 'venue_id', value: string): Promise<FloorFeatures> {
+    const rows = await fetchAllPages((from, to) =>
+      db.from('features').select(COLUMNS).eq(column, value).order('id').range(from, to),
+    );
+    return { type: 'FeatureCollection', features: rows.map(mapFeatureRow) };
+  }
+
   return {
-    async listByFloor(floorId) {
-      const rows = await fetchAllPages((from, to) =>
-        db.from('features').select(COLUMNS).eq('floor_id', floorId).order('id').range(from, to),
-      );
-      return { type: 'FeatureCollection', features: rows.map(mapFeatureRow) };
-    },
+    listByFloor: (floorId) => list('floor_id', floorId),
+    listByVenue: (venueId) => list('venue_id', venueId),
 
     async save(venueId, feature) {
       const { error } = await db
