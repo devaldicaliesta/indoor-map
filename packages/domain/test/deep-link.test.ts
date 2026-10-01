@@ -47,7 +47,9 @@ function combinations<T>(items: readonly T[]): T[][] {
 }
 
 describe('deep link', () => {
-  it('decode(encode(x)) = x untuk semua kombinasi parameter', () => {
+  // 8.192 kombinasi: di runner CI yang menjalankan semua paket bersamaan bisa mendekati batas
+  // bawaan Vitest (5 detik).
+  it('decode(encode(x)) = x untuk semua kombinasi parameter', { timeout: 30_000 }, () => {
     const all = combinations(parts);
     expect(all.length).toBe(2 ** parts.length);
     for (const combination of all) {
