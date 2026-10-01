@@ -129,6 +129,30 @@ describe('store editor: graf jalur', () => {
     expect(useEditorStore.getState().selectedIds).toEqual([]);
   });
 
+  it('menyembunyikan node melepas node terpilih; alat Jalur dan Konektor menampilkan graf lagi', () => {
+    const store = useEditorStore.getState();
+    store.commitGraph(line(empty, [106.8, -6.17], [106.8003, -6.17]));
+    const [nodeId = ''] = Object.keys(useEditorStore.getState().graph.nodes);
+    store.selectGraph({ kind: 'node', id: nodeId });
+    store.setGraphVisible('edges', false);
+    expect(useEditorStore.getState().graphSelection).toEqual({ kind: 'node', id: nodeId });
+    store.setGraphVisible('nodes', false);
+    expect(useEditorStore.getState()).toMatchObject({
+      graphSelection: null,
+      graphVisibility: { nodes: false, edges: false },
+    });
+    // Sakelar tetap saat lantai dimuat ulang.
+    store.load(floorId, { type: 'FeatureCollection', features: [] }, false, empty);
+    expect(useEditorStore.getState().graphVisibility).toEqual({ nodes: false, edges: false });
+    store.setTool('polygon');
+    expect(useEditorStore.getState().graphVisibility.nodes).toBe(false);
+    store.setTool('connector');
+    expect(useEditorStore.getState().graphVisibility).toEqual({ nodes: true, edges: true });
+    store.setGraphVisible('edges', false);
+    store.setTool('path');
+    expect(useEditorStore.getState().graphVisibility.edges).toBe(true);
+  });
+
   it('aksi kosong tidak masuk riwayat', () => {
     const store = useEditorStore.getState();
     store.commit([]);

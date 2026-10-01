@@ -1,7 +1,7 @@
 import type { FeatureCollection } from 'geojson';
 import type { LayerSpecification, Map as MapLibreMap } from 'maplibre-gl';
 import { describe, expect, it } from 'vitest';
-import { graphCollection, setGraphVisibility } from '../src/layers/graph';
+import { graphCollection, graphElementAt, setGraphVisibility } from '../src/layers/graph';
 import {
   HATCH_IMAGE_IDS,
   HATCH_PIXEL_RATIO,
@@ -147,5 +147,25 @@ describe('setGraphVisibility', () => {
     expect(images).toEqual(new Set(Object.values(HATCH_IMAGE_IDS)));
     for (const id of GRAPH_VISIBILITY_GROUPS.nodes) expect(visibility.get(id)).toBe('none');
     for (const id of GRAPH_VISIBILITY_GROUPS.edges) expect(visibility.get(id)).toBe('visible');
+  });
+});
+
+describe('graphElementAt', () => {
+  it('layer yang disembunyikan tidak ikut dicari walau source belum selesai dimuat ulang', () => {
+    const queried: string[][] = [];
+    const hidden = new Set<string>(GRAPH_VISIBILITY_GROUPS.edges);
+    const fake = {
+      getLayer: () => ({}),
+      getLayoutProperty: (id: string) => (hidden.has(id) ? 'none' : 'visible'),
+      queryRenderedFeatures: (_box: unknown, options: { layers: string[] }) => {
+        queried.push(options.layers);
+        return [];
+      },
+    } as unknown as MapLibreMap;
+    expect(graphElementAt(fake, { x: 10, y: 10 }, 4)).toBeNull();
+    expect(queried).toEqual([[GRAPH_LAYER_IDS.nodes]]);
+    for (const id of GRAPH_VISIBILITY_GROUPS.nodes) hidden.add(id);
+    expect(graphElementAt(fake, { x: 10, y: 10 }, 4)).toBeNull();
+    expect(queried).toHaveLength(1);
   });
 });

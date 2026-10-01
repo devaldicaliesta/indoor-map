@@ -158,7 +158,10 @@ export function graphElementAt(
   point: { x: number; y: number },
   tolerancePx: number,
 ): GraphElement | null {
-  const layers = GRAPH_PICK_LAYERS.filter((layer) => map.getLayer(layer));
+  // Layer yang baru disembunyikan masih bisa terkena query sampai source selesai dimuat ulang.
+  const layers = GRAPH_PICK_LAYERS.filter(
+    (layer) => map.getLayer(layer) && map.getLayoutProperty(layer, 'visibility') !== 'none',
+  );
   if (!layers.length) return null;
   const hits = map.queryRenderedFeatures(
     [

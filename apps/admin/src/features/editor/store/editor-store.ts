@@ -9,7 +9,7 @@ import {
   type NavGraph,
   type NavNode,
 } from '@indoor/domain';
-import type { EditorTool, GraphElement, ViewMode } from '@indoor/map-core';
+import type { EditorTool, GraphElement, GraphVisibility, ViewMode } from '@indoor/map-core';
 import { create } from 'zustand';
 import {
   applyPatch,
@@ -40,6 +40,9 @@ interface SaveState {
 
 const EMPTY_GRAPH: NavGraph = { nodes: {}, edges: {} };
 const IDLE: SaveState = { status: 'idle', error: null };
+const GRAPH_SHOWN: GraphVisibility = { nodes: true, edges: true };
+/** Alat yang bekerja pada graf; memilihnya menampilkan node dan edge yang disembunyikan. */
+const GRAPH_TOOLS: readonly EditorTool[] = ['path', 'connector'];
 
 export interface EditorState {
   floorId: FloorId | null;
@@ -51,6 +54,8 @@ export interface EditorState {
   selectedIds: string[];
   /** Node atau edge graf terpilih; tidak pernah bersamaan dengan seleksi fitur. */
   graphSelection: GraphElement | null;
+  /** Sakelar tampil node dan edge graf; tetap berlaku saat berganti lantai. */
+  graphVisibility: GraphVisibility;
   snapEnabled: boolean;
   tool: EditorTool;
   saves: Record<SaveSource, SaveState>;
@@ -87,6 +92,8 @@ export interface EditorState {
   toggleSelect(id: string): void;
   selectMany(ids: string[]): void;
   selectGraph(element: GraphElement | null): void;
+  /** Menyembunyikan node atau edge ikut melepas seleksi graf jenis itu. */
+  setGraphVisible(kind: keyof GraphVisibility, visible: boolean): void;
   focus(id: string): void;
   setHovered(id: string | null): void;
   setViewMode(mode: ViewMode): void;
@@ -146,6 +153,7 @@ export const useEditorStore = create<EditorState>()((set, get) => {
     graph: EMPTY_GRAPH,
     selectedIds: [],
     graphSelection: null,
+    graphVisibility: GRAPH_SHOWN,
     snapEnabled: true,
     tool: 'select',
     saves: { features: IDLE, graph: IDLE },
@@ -215,6 +223,15 @@ export const useEditorStore = create<EditorState>()((set, get) => {
     selectGraph(graphSelection) {
       set({ graphSelection, selectedIds: [] });
     },
+    setGraphVisible(kind, visible) {
+      set((s) => ({
+        graphVisibility: { ...s.graphVisibility, [kind]: visible },
+        graphSelection:
+          !visible && s.graphSelection?.kind === (kind === 'nodes' ? 'node' : 'edge')
+            ? null
+            : s.graphSelection,
+      }));
+    },
     focus(id) {
       if (!get().features[id]) return;
       // Memilih dari daftar berarti ingin melihat/menyunting fitur itu: kembali ke alat pilih.
@@ -238,6 +255,7 @@ export const useEditorStore = create<EditorState>()((set, get) => {
         selectedIds: tool === 'select' ? s.selectedIds : [],
         graphSelection: tool === 'select' ? s.graphSelection : null,
         viewMode: tool === 'select' ? s.viewMode : '2d',
+        graphVisibility: GRAPH_TOOLS.includes(tool) ? GRAPH_SHOWN : s.graphVisibility,
       }));
     },
     setViewMode(viewMode) {

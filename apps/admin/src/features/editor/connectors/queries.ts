@@ -2,6 +2,7 @@ import type { ConnectorInput } from '@indoor/data';
 import type { Connector, GraphChange, NavEdge, NavNode, Position, VenueId } from '@indoor/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { data } from '../../../app/data-client';
+import { venueGraphKey } from '../graph/graph-queries';
 import { graphSaveQueue } from '../session-helpers';
 import { useEditorStore } from '../store/editor-store';
 
@@ -50,7 +51,12 @@ function syncStop(previousNodeId: string | null, nodeId: string | null, position
  */
 export function useConnectorMutations(venueId: VenueId) {
   const queryClient = useQueryClient();
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: connectorsKey(venueId) });
+  // Pemberhentian di lantai lain berubah di server, jadi graf venue ikut dimuat ulang.
+  const invalidate = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: connectorsKey(venueId) }),
+      queryClient.invalidateQueries({ queryKey: venueGraphKey(venueId) }),
+    ]);
   const stopOn = (stops: readonly { floorId: string; nodeId: string }[]) =>
     stops.find((s) => s.floorId === useEditorStore.getState().floorId)?.nodeId ?? null;
 
