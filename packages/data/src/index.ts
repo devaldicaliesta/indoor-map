@@ -29,8 +29,11 @@ export {
   floorPlanProblemMessage,
 } from './repositories/floor-plans';
 export type { FloorsRepository } from './repositories/floors';
+export type { InfoPointsRepository } from './repositories/info-points';
+export type { InstructionTemplatesRepository } from './repositories/instruction-templates';
 export type { LocationImages, LocationsRepository } from './repositories/locations';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
+export type { OriginPointsRepository } from './repositories/origin-points';
 export type { ProfilesRepository } from './repositories/profiles';
 export type {
   ActivePublication,

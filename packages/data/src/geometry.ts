@@ -1,4 +1,4 @@
-import { type Geometry, GeometrySchema } from '@indoor/domain';
+import { type Geometry, GeometrySchema, type Position } from '@indoor/domain';
 import { DataError } from './errors';
 
 /**
@@ -18,6 +18,15 @@ export function geometryFromColumn(value: unknown): Geometry {
     });
   }
   return parsed.data;
+}
+
+/** Kolom `geometry(Point)` sebagai posisi `[bujur, lintang]`. */
+export function positionFromColumn(value: unknown): Position {
+  const geometry = geometryFromColumn(value);
+  if (geometry.type !== 'Point') {
+    throw new DataError('invalid', { message: 'Geometri dari database harus berupa titik.' });
+  }
+  return geometry.coordinates;
 }
 
 export function nullableGeometryFromColumn(value: unknown): Geometry | null {

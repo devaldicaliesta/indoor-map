@@ -1,10 +1,25 @@
-import { labelPoint, type RouteEnd, type Snapshot, type SnapshotFeature } from '@indoor/domain';
+import { labelPoint, type RouteEnd, type SnapshotFeature } from '@indoor/domain';
+import type { RouteData } from './route-data';
 import type { RoutePoint } from './types';
 
-type SnapshotParts = Pick<Snapshot, 'graph' | 'features' | 'locations'>;
+type FeatureParts = Pick<RouteData, 'graph' | 'features'>;
+type LocationParts = Pick<RouteData, 'graph' | 'features' | 'locations'>;
+
+/**
+ * Asal atau tujuan yang dipilih: unit atau fasilitas, lokasi, QR titik asal (kode publik),
+ * Info Point (kodenya), atau titik bebas di peta.
+ */
+export type RoutePlace =
+  | { kind: 'feature'; featureId: string }
+  | { kind: 'location'; locationId: string }
+  | { kind: 'origin_point'; code: string }
+  | { kind: 'info_point'; code: string }
+  | { kind: 'point'; lng: number; lat: number; floorId: string };
 
 /** Titik wakil fitur tanpa titik masuk: titik fasilitas, atau titik terdalam poligon unit. */
-function representativePoint(feature: SnapshotFeature): RoutePoint | null {
+function representativePoint(
+  feature: Pick<SnapshotFeature, 'geometry' | 'properties'>,
+): RoutePoint | null {
   const { geometry } = feature;
   const floorId = feature.properties.floorId;
   let position: readonly number[] | null = null;
@@ -23,7 +38,7 @@ function representativePoint(feature: SnapshotFeature): RoutePoint | null {
  * ditempelkan ke jalur terdekat; `null` bila fitur tidak ada.
  */
 export function featureTarget(
-  snapshot: Pick<Snapshot, 'graph' | 'features'>,
+  snapshot: FeatureParts,
   featureIds: readonly string[],
 ): RoutePoint | null {
   const wanted = new Set(featureIds);
@@ -40,7 +55,7 @@ export function featureTarget(
 }
 
 /** Tujuan berupa lokasi: titik masuk semua unit yang ditempatinya (unit utama lebih dulu). */
-export function locationTarget(snapshot: SnapshotParts, locationId: string): RoutePoint | null {
+export function locationTarget(snapshot: LocationParts, locationId: string): RoutePoint | null {
   const location = snapshot.locations.find((l) => l.id === locationId);
   if (!location) return null;
   const units = [
@@ -52,7 +67,7 @@ export function locationTarget(snapshot: SnapshotParts, locationId: string): Rou
 
 /** Asal dari QR titik asal (kode publik): node-nya, atau titiknya bila belum menempel ke jalur. */
 export function originPointTarget(
-  snapshot: Pick<Snapshot, 'originPoints'>,
+  snapshot: Pick<RouteData, 'originPoints'>,
   code: string,
 ): RoutePoint | null {
   const origin = snapshot.originPoints.find((o) => o.code === code);
@@ -64,7 +79,7 @@ export function originPointTarget(
 
 /** Asal dari posisi Info Point (kodenya). */
 export function infoPointTarget(
-  snapshot: Pick<Snapshot, 'infoPoints'>,
+  snapshot: Pick<RouteData, 'infoPoints'>,
   code: string,
 ): RoutePoint | null {
   const infoPoint = snapshot.infoPoints.find((p) => p.code === code);
@@ -75,8 +90,24 @@ export function infoPointTarget(
 }
 
 /** Ujung rute dari deep link (`from`/`to`): lokasi, atau titik bebas di lantai. */
-export function routeEndTarget(snapshot: SnapshotParts, end: RouteEnd): RoutePoint | null {
+export function routeEndTarget(snapshot: LocationParts, end: RouteEnd): RoutePoint | null {
   return end.kind === 'location'
     ? locationTarget(snapshot, end.locationId)
     : { kind: 'point', lng: end.lng, lat: end.lat, floorId: end.floorId };
+}
+
+/** Ujung rute dari tempat yang dipilih; `null` bila tempat itu tidak ada di data. */
+export function placeTarget(data: RouteData, place: RoutePlace): RoutePoint | null {
+  switch (place.kind) {
+    case 'feature':
+      return featureTarget(data, [place.featureId]);
+    case 'location':
+      return locationTarget(data, place.locationId);
+    case 'origin_point':
+      return originPointTarget(data, place.code);
+    case 'info_point':
+      return infoPointTarget(data, place.code);
+    case 'point':
+      return { kind: 'point', lng: place.lng, lat: place.lat, floorId: place.floorId };
+  }
 }
