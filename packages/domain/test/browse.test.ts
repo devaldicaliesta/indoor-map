@@ -8,6 +8,7 @@ import {
   floorView,
   hitTarget,
   locationUnitIds,
+  markedFloorIds,
   targetHighlight,
   targetTitle,
   targetView,
@@ -152,6 +153,19 @@ describe('sorotan dan judul', () => {
     const toilet = createSnapshotLookup(unnamed).typeFacilities.get(IDS.toiletType)?.[0]?.id;
     expect(targetTitle(createSnapshotLookup(unnamed), { kind: 'facility', id: toilet ?? '' })).toBe(
       'Toilet',
+    );
+  });
+
+  it('sorotan di Area Luar menandai lantai dasar gedung yang sedang dilihat', () => {
+    const pond = locationUnitIds(lookup, BROWSE_IDS.pond);
+    expect(markedFloorIds(lookup, pond, east?.id ?? null)).toEqual([
+      outdoor,
+      floor(east?.id, 'GF'),
+    ]);
+    expect(markedFloorIds(lookup, pond, null)).toEqual([outdoor]);
+    const infoDesk = locationUnitIds(lookup, BROWSE_IDS.infoDesk);
+    expect(markedFloorIds(lookup, infoDesk, main?.id ?? null)).toEqual(
+      featureFloorIds(lookup, infoDesk),
     );
   });
 
