@@ -107,6 +107,14 @@ export {
   setReferenceFloor,
   VERTICAL_CONNECTOR_KINDS,
 } from './layers/reference';
+export {
+  ROUTE_COLOR,
+  ROUTE_LAYER_IDS,
+  type RouteView,
+  routeCollection,
+  routeLayers,
+  setRoute,
+} from './layers/route';
 export { ISSUE_COLOR, ISSUE_LAYER_IDS, setIssueHighlight } from './layers/validation';
 export {
   type CreateMapOptions,
