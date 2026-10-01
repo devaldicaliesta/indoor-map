@@ -1,35 +1,28 @@
 import type { Feature, FeatureCollection } from 'geojson';
-import type {
-  ExpressionSpecification,
-  GeoJSONSource,
-  LayerSpecification,
-  Map as MapLibreMap,
-} from 'maplibre-gl';
-import { EDIT_COLORS } from '../defaults';
+import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 import type { LngLat } from '../georef';
-
-export const GRAPH_SOURCE_ID = 'nav-graph';
-const PREVIEW_SOURCE_ID = 'nav-graph-preview';
-const SUGGESTION_SOURCE_ID = 'nav-graph-suggestions';
-
-export const GRAPH_LAYER_IDS = {
-  edgesSelected: 'nav-graph-edges-selected',
-  edges: 'nav-graph-edges',
-  nodes: 'nav-graph-nodes',
-  nodesSelected: 'nav-graph-nodes-selected',
-  previewEdges: 'nav-graph-preview-edges',
-  previewNodes: 'nav-graph-preview-nodes',
-  suggestionLinks: 'nav-graph-suggestion-links',
-  suggestionPoints: 'nav-graph-suggestion-points',
-} as const;
-
-/** Layer graf yang bisa diklik, urut prioritas: node lebih dulu dari edge. */
-export const GRAPH_PICK_LAYERS = [GRAPH_LAYER_IDS.nodes, GRAPH_LAYER_IDS.edges] as const;
+import { ensureHatchImages } from './graph-hatch';
+import {
+  GRAPH_LAYER_IDS,
+  GRAPH_PICK_LAYERS,
+  GRAPH_SOURCE_ID,
+  GRAPH_VISIBILITY_GROUPS,
+  type GraphVisibility,
+  graphLayers,
+  isEdge,
+  isNode,
+  PREVIEW_SOURCE_ID,
+  SUGGESTION_SOURCE_ID,
+} from './graph-style';
 
 export interface GraphNodeView {
   id: string;
   coordinates: LngLat;
   role: string;
+  /** Tidak bisa dilewati karena penutupan yang sedang berlaku. */
+  closed?: boolean;
+  /** Tidak terhubung ke komponen terbesar graf venue. */
+  isolated?: boolean;
 }
 
 export interface GraphEdgeView {
@@ -37,6 +30,7 @@ export interface GraphEdgeView {
   from: LngLat;
   to: LngLat;
   accessible: boolean;
+  closed?: boolean;
 }
 
 export type GraphElement = { kind: 'node' | 'edge'; id: string };
@@ -49,8 +43,6 @@ export interface GraphSuggestionView {
 }
 
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] };
-const isNode: ExpressionSpecification = ['==', ['get', 'element'], 'node'];
-const isEdge: ExpressionSpecification = ['==', ['get', 'element'], 'edge'];
 
 /** Node dan edge sebagai GeoJSON; properti `element` membedakan keduanya untuk layer dan klik. */
 export function graphCollection(
@@ -62,107 +54,29 @@ export function graphCollection(
       (edge): Feature => ({
         type: 'Feature',
         geometry: { type: 'LineString', coordinates: [edge.from, edge.to] },
-        properties: { id: edge.id, element: 'edge', accessible: edge.accessible },
+        properties: {
+          id: edge.id,
+          element: 'edge',
+          accessible: edge.accessible,
+          closed: edge.closed ?? false,
+        },
       }),
     ),
     ...nodes.map(
       (node): Feature => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: node.coordinates },
-        properties: { id: node.id, element: 'node', role: node.role },
+        properties: {
+          id: node.id,
+          element: 'node',
+          role: node.role,
+          closed: node.closed ?? false,
+          isolated: node.isolated ?? false,
+        },
       }),
     ),
   ];
   return { type: 'FeatureCollection', features };
-}
-
-function graphLayers(): LayerSpecification[] {
-  const { signal, ink, paper } = EDIT_COLORS;
-  return [
-    {
-      id: GRAPH_LAYER_IDS.edgesSelected,
-      type: 'line',
-      source: GRAPH_SOURCE_ID,
-      filter: ['all', isEdge, ['==', ['get', 'id'], '']],
-      layout: { 'line-cap': 'round' },
-      paint: { 'line-color': signal, 'line-width': 8 },
-    },
-    {
-      id: GRAPH_LAYER_IDS.edges,
-      type: 'line',
-      source: GRAPH_SOURCE_ID,
-      filter: isEdge,
-      layout: { 'line-cap': 'round' },
-      paint: { 'line-color': ink, 'line-width': 2 },
-    },
-    {
-      id: GRAPH_LAYER_IDS.nodes,
-      type: 'circle',
-      source: GRAPH_SOURCE_ID,
-      filter: isNode,
-      paint: {
-        // Node jalur putih; titik masuk dan node berperan lain diisi agar mudah dibedakan.
-        'circle-radius': 4,
-        'circle-color': ['match', ['get', 'role'], 'path', paper, 'entrance', signal, ink],
-        'circle-stroke-color': ink,
-        'circle-stroke-width': 1.5,
-      },
-    },
-    {
-      id: GRAPH_LAYER_IDS.nodesSelected,
-      type: 'circle',
-      source: GRAPH_SOURCE_ID,
-      filter: ['all', isNode, ['==', ['get', 'id'], '']],
-      paint: {
-        'circle-radius': 6,
-        'circle-color': signal,
-        'circle-stroke-color': ink,
-        'circle-stroke-width': 2,
-      },
-    },
-    {
-      id: GRAPH_LAYER_IDS.previewEdges,
-      type: 'line',
-      source: PREVIEW_SOURCE_ID,
-      filter: isEdge,
-      paint: { 'line-color': ink, 'line-width': 2, 'line-dasharray': [2, 1] },
-    },
-    {
-      id: GRAPH_LAYER_IDS.previewNodes,
-      type: 'circle',
-      source: PREVIEW_SOURCE_ID,
-      filter: isNode,
-      paint: {
-        'circle-radius': 6,
-        'circle-color': signal,
-        'circle-stroke-color': ink,
-        'circle-stroke-width': 2,
-      },
-    },
-    {
-      id: GRAPH_LAYER_IDS.suggestionLinks,
-      type: 'line',
-      source: SUGGESTION_SOURCE_ID,
-      filter: isEdge,
-      paint: {
-        'line-color': ink,
-        'line-width': ['case', ['get', 'active'], 3, 1.5],
-        'line-dasharray': [2, 1],
-      },
-    },
-    {
-      id: GRAPH_LAYER_IDS.suggestionPoints,
-      type: 'circle',
-      source: SUGGESTION_SOURCE_ID,
-      filter: isNode,
-      paint: {
-        'circle-radius': ['case', ['get', 'active'], 7, 4],
-        'circle-color': signal,
-        'circle-stroke-color': ink,
-        'circle-stroke-width': 1.5,
-      },
-    },
-  ];
 }
 
 /**
@@ -171,6 +85,7 @@ function graphLayers(): LayerSpecification[] {
  */
 function ensureGraphLayers(map: MapLibreMap): void {
   if (map.getSource(GRAPH_SOURCE_ID)) return;
+  ensureHatchImages(map);
   map.addSource(GRAPH_SOURCE_ID, { type: 'geojson', data: EMPTY });
   map.addSource(PREVIEW_SOURCE_ID, { type: 'geojson', data: EMPTY });
   map.addSource(SUGGESTION_SOURCE_ID, { type: 'geojson', data: EMPTY });
@@ -185,6 +100,15 @@ export function setGraphData(
 ): void {
   ensureGraphLayers(map);
   map.getSource<GeoJSONSource>(GRAPH_SOURCE_ID)?.setData(graphCollection(nodes, edges));
+}
+
+/** Sakelar tampil/sembunyi node dan edge; elemen yang disembunyikan juga tidak bisa diklik. */
+export function setGraphVisibility(map: MapLibreMap, visibility: GraphVisibility): void {
+  ensureGraphLayers(map);
+  for (const kind of ['nodes', 'edges'] as const) {
+    const value = visibility[kind] ? 'visible' : 'none';
+    for (const id of GRAPH_VISIBILITY_GROUPS[kind]) map.setLayoutProperty(id, 'visibility', value);
+  }
 }
 
 /** Sorotan node atau edge terpilih. */
@@ -234,7 +158,10 @@ export function graphElementAt(
   point: { x: number; y: number },
   tolerancePx: number,
 ): GraphElement | null {
-  const layers = GRAPH_PICK_LAYERS.filter((layer) => map.getLayer(layer));
+  // Layer yang baru disembunyikan masih bisa terkena query sampai source selesai dimuat ulang.
+  const layers = GRAPH_PICK_LAYERS.filter(
+    (layer) => map.getLayer(layer) && map.getLayoutProperty(layer, 'visibility') !== 'none',
+  );
   if (!layers.length) return null;
   const hits = map.queryRenderedFeatures(
     [

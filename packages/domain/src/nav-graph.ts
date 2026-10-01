@@ -35,29 +35,3 @@ export interface NavGraph {
 export function edgeLengthM(a: Position, b: Position): number {
   return Math.round(haversineM(a[0], a[1], b[0], b[1]) * 100) / 100;
 }
-
-/** Komponen terhubung graf: id node per komponen, terbesar lebih dulu. */
-export function graphComponents(graph: NavGraph): string[][] {
-  const neighbours = new Map<string, string[]>();
-  for (const id of Object.keys(graph.nodes)) neighbours.set(id, []);
-  for (const edge of Object.values(graph.edges)) {
-    neighbours.get(edge.from)?.push(edge.to);
-    neighbours.get(edge.to)?.push(edge.from);
-  }
-  const seen = new Set<string>();
-  const components: string[][] = [];
-  for (const start of neighbours.keys()) {
-    if (seen.has(start)) continue;
-    seen.add(start);
-    const component = [start];
-    for (let i = 0; i < component.length; i++) {
-      for (const next of neighbours.get(component[i] ?? '') ?? []) {
-        if (seen.has(next) || !neighbours.has(next)) continue;
-        seen.add(next);
-        component.push(next);
-      }
-    }
-    components.push(component);
-  }
-  return components.sort((a, b) => b.length - a.length);
-}

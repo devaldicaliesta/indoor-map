@@ -177,6 +177,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
             </div>
           ) : (
             <EditorCanvas
+              venueId={venueId}
               session={session}
               canEdit={canEdit}
               plan={plan}
