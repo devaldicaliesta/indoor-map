@@ -56,8 +56,6 @@ export {
 } from './graph-interactions';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
 export {
-  GRAPH_LAYER_IDS,
-  GRAPH_PICK_LAYERS,
   type GraphEdgeView,
   type GraphElement,
   type GraphNodeView,
@@ -68,7 +66,23 @@ export {
   setGraphPreview,
   setGraphSelection,
   setGraphSuggestions,
+  setGraphVisibility,
 } from './layers/graph';
+export {
+  CLOSED_NODE_DIAMETER,
+  HATCH_IMAGE_IDS,
+  hatchDisc,
+  hatchTile,
+  type PixelImage,
+} from './layers/graph-hatch';
+export {
+  GRAPH_LAYER_IDS,
+  GRAPH_PICK_LAYERS,
+  GRAPH_STATUS_COLORS,
+  GRAPH_VISIBILITY_GROUPS,
+  type GraphVisibility,
+  graphLayers,
+} from './layers/graph-style';
 export {
   HIGHLIGHT_COLORS,
   highlightFilters,
