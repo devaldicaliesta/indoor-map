@@ -16,6 +16,7 @@ import { createFeaturesRepository, type FeaturesRepository } from './repositorie
 import { createFloorPlansRepository, type FloorPlansRepository } from './repositories/floor-plans';
 import { createFloorsRepository, type FloorsRepository } from './repositories/floors';
 import { createLocationsRepository, type LocationsRepository } from './repositories/locations';
+import { createNavGraphRepository, type NavGraphRepository } from './repositories/nav-graph';
 import { createProfilesRepository, type ProfilesRepository } from './repositories/profiles';
 import {
   createPublicationsRepository,
@@ -48,6 +49,7 @@ export interface DataClient {
   floorPlans: FloorPlansRepository;
   floors: FloorsRepository;
   locations: LocationsRepository;
+  navGraph: NavGraphRepository;
   profiles: ProfilesRepository;
   publications: PublicationsRepository;
   snapshots: SnapshotsRepository;
@@ -69,6 +71,7 @@ export function createRepositories(db: Db): DataClient {
     floorPlans: createFloorPlansRepository(db),
     floors: createFloorsRepository(db),
     locations: createLocationsRepository(db),
+    navGraph: createNavGraphRepository(db),
     profiles,
     publications: createPublicationsRepository(db),
     snapshots: createSnapshotsRepository(db),

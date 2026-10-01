@@ -28,6 +28,7 @@ export {
 } from './repositories/floor-plans';
 export type { FloorsRepository } from './repositories/floors';
 export type { LocationImages, LocationsRepository } from './repositories/locations';
+export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
 export type { ProfilesRepository } from './repositories/profiles';
 export type {
   ActivePublication,
