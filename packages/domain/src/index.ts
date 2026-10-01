@@ -6,6 +6,7 @@ export * from './deep-link';
 export * from './directory';
 export * from './display-settings';
 export * from './distance';
+export * from './entrances';
 export * from './explore';
 export * from './facility';
 export * from './feature';
