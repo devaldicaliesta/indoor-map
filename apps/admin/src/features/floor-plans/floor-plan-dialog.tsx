@@ -1,7 +1,6 @@
 import { floorPlanProblemMessage } from '@indoor/data';
 import { checkFloorPlanFile, type Floor } from '@indoor/domain';
 import {
-  Badge,
   Button,
   Dialog,
   DialogContent,
@@ -9,7 +8,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  EmptyState,
   Input,
   Select,
   SelectContent,
@@ -24,21 +22,16 @@ import { Link } from 'react-router';
 import { Can } from '../../app/auth/can';
 import { Field } from '../../app/components/field';
 import { FormNotice } from '../auth/auth-layout';
+import { ActivePlan, PlanPreview } from './active-plan';
+import { CadLayers } from './cad-layers';
 import { FloorPlanHistory } from './floor-plan-history';
 import { openPdf, type PdfDocument } from './pdf';
-import { type FloorPlanVersion, useFloorPlans, useUploadFloorPlan } from './queries';
+import { useFloorPlans, useUploadFloorPlan } from './queries';
+import { useCadFile } from './use-cad-file';
 
 type Picked =
   | { kind: 'image'; file: File; previewUrl: string }
   | { kind: 'pdf'; file: File; doc: PdfDocument; page: number; previewUrl: string | null };
-
-function PlanPreview({ url, label }: { url: string; label: string }) {
-  return (
-    <div className="h-72 overflow-hidden rounded-md border border-line bg-canvas p-2">
-      <img src={url} alt={label} className="size-full object-contain" />
-    </div>
-  );
-}
 
 /** Memilih berkas; PDF dibuka dan halaman terpilih dirender ke PNG sebelum diunggah. */
 function usePickedFile() {
@@ -46,6 +39,7 @@ function usePickedFile() {
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const raster = useRef<Blob | null>(null);
+  const cad = useCadFile(setProblem);
 
   const previewUrl = picked?.previewUrl ?? null;
   const doc = picked?.kind === 'pdf' ? picked.doc : null;
@@ -74,10 +68,15 @@ function usePickedFile() {
     setProblem(null);
     raster.current = null;
     setPicked(null);
+    cad.clear();
     if (!file) return;
     const check = checkFloorPlanFile(file);
     if (!check.ok) {
       setProblem(floorPlanProblemMessage(check.problem));
+      return;
+    }
+    if (check.format === 'dxf') {
+      await cad.open(file);
       return;
     }
     if (check.format !== 'pdf') {
@@ -102,7 +101,7 @@ function usePickedFile() {
     );
   }
 
-  return { picked, problem, busy, raster, pick, selectPage };
+  return { picked, cad, problem, busy: busy || cad.busy, raster, pick, selectPage };
 }
 
 function UploadForm({
@@ -115,9 +114,27 @@ function UploadForm({
   onCancel: () => void;
 }) {
   const upload = useUploadFloorPlan(floor.id);
-  const { picked, problem, busy, raster, pick, selectPage } = usePickedFile();
+  const { picked, cad, problem, busy, raster, pick, selectPage } = usePickedFile();
+  const draft = cad.draft;
 
   function submit() {
+    if (draft?.raster) {
+      upload.mutate(
+        {
+          source: draft.file,
+          raster: draft.raster,
+          cadLayers: draft.layers,
+          naturalWidthM: draft.naturalWidthM,
+        },
+        {
+          onSuccess: () => {
+            toast.success(`Denah lantai ${floor.name} diperbarui`);
+            onDone();
+          },
+        },
+      );
+      return;
+    }
     if (!picked) return;
     const input =
       picked.kind === 'pdf' && raster.current
@@ -136,7 +153,7 @@ function UploadForm({
       <Field
         id="floor-plan-file"
         label="Berkas denah"
-        hint="PNG, JPG, atau PDF, maksimal 50 MB. Denah lama tetap tersimpan di riwayat."
+        hint="PNG, JPG, PDF, atau DXF, maksimal 50 MB. DWG: simpan dulu sebagai DXF atau PDF. Denah lama tetap tersimpan di riwayat."
         error={problem ?? undefined}
       >
         <Input
@@ -167,7 +184,19 @@ function UploadForm({
           </Select>
         </Field>
       ) : null}
+      {draft ? (
+        <CadLayers
+          inspection={draft.inspection}
+          selected={draft.layers}
+          widthM={draft.naturalWidthM}
+          disabled={upload.isPending}
+          onChange={cad.setLayers}
+        />
+      ) : null}
       {busy ? <Skeleton className="h-72" /> : null}
+      {!busy && draft?.previewUrl ? (
+        <PlanPreview url={draft.previewUrl} label={`Pratinjau ${draft.file.name}`} />
+      ) : null}
       {!busy && picked?.previewUrl ? (
         <PlanPreview url={picked.previewUrl} label={`Pratinjau ${picked.file.name}`} />
       ) : null}
@@ -176,33 +205,14 @@ function UploadForm({
         <Button onClick={onCancel} disabled={upload.isPending}>
           Batal
         </Button>
-        <Button variant="primary" disabled={!picked || busy || upload.isPending} onClick={submit}>
+        <Button
+          variant="primary"
+          disabled={!(picked || draft?.raster) || busy || upload.isPending}
+          onClick={submit}
+        >
           {upload.isPending ? 'Mengunggah…' : 'Jadikan denah aktif'}
         </Button>
       </DialogFooter>
-    </div>
-  );
-}
-
-function ActivePlan({ plan }: { plan: FloorPlanVersion | undefined }) {
-  if (!plan) {
-    return (
-      <EmptyState
-        title="Belum ada denah"
-        description="Unggah denah lantai sebagai acuan menggambar peta."
-      />
-    );
-  }
-  return (
-    <div className="grid gap-2">
-      <div className="flex items-center gap-2">
-        <Badge variant="signal">Aktif</Badge>
-        <span className="font-mono text-ink-muted text-sm uppercase">
-          {plan.sourceFormat}
-          {plan.pdfPage ? ` · halaman ${plan.pdfPage}` : ''}
-        </span>
-      </div>
-      <PlanPreview url={plan.imageUrl} label="Denah aktif" />
     </div>
   );
 }

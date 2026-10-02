@@ -18,6 +18,7 @@ import {
 } from '@indoor/map-core';
 import { useEffect, useMemo, useRef } from 'react';
 import { snapHeight } from '../../components/sheet-snap';
+import { tapFloorId } from '../origin/origin-model';
 import { useExplore, useExploreStore } from '../search/explore-context';
 import { type ExploreState, selectionOf } from '../search/explore-store';
 import { type CameraPadding, focusCamera, MAP_GAP_PX } from './camera';
@@ -108,6 +109,8 @@ export function useExploreMap({
       const bottom = desktop ? base.bottom : snapHeight(sheet, window.innerHeight) + MAP_GAP_PX;
       focusCamera(map, bounds, state.focus.mode, { ...base, bottom });
     }
+    // Pilihan dari tautan bagikan sudah ada sebelum peta siap; dibingkai sekali di sini.
+    if (store.getState().focus.seq > 0) focus(store.getState());
     return store.subscribe((state, previous) => {
       if (state.focus.seq !== previous.focus.seq) focus(state);
     });
@@ -117,15 +120,23 @@ export function useExploreMap({
     if (!map) return;
     const taps = createTapInteractions(map, {
       isTarget: (pick) => targetOfPick(index, pick) !== null,
-      onTap: (pick) => {
-        const target = pick ? targetOfPick(index, pick) : null;
+      onTap: (pick, at) => {
         const state = store.getState();
+        const floorId = latest.current.view.floorId;
+        if (state.originMode === 'tap') {
+          if (floorId) {
+            const tapped = tapFloorId(snapshot, floorId, at);
+            state.setOrigin({ kind: 'point', lng: at[0], lat: at[1], floorId: tapped });
+          }
+          return;
+        }
+        const target = pick ? targetOfPick(index, pick) : null;
         if (target) state.openDetail(target, 'pan');
         else if (state.detail) state.closeDetail();
       },
     });
     return () => taps.destroy();
-  }, [map, index, store]);
+  }, [map, snapshot, index, store]);
 
   const markedFloors = useMemo(
     () =>

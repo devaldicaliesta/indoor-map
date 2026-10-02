@@ -9,7 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-signal text-ink hover:bg-signal-soft',
+        primary: 'bg-signal text-on-signal hover:bg-signal-soft hover:text-ink',
         secondary: 'border border-line bg-surface text-ink hover:bg-canvas',
         ghost: 'text-ink hover:bg-canvas',
         danger: 'bg-danger text-on-strong hover:bg-danger/90',

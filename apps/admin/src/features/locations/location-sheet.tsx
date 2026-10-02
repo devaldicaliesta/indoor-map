@@ -2,17 +2,31 @@ import type { CategoryWithUsage } from '@indoor/data';
 import {
   type CategoryId,
   checkLocationInput,
+  checkOpeningHours,
+  customFieldInput,
+  EMPTY_OPENING_HOURS,
   type FeatureId,
+  keepFieldsOf,
   LOCATION_DESCRIPTION_MAX,
   type Location,
   type LocationInputProblems,
+  type LocationStatus,
+  type LocationType,
   type LocationTypeId,
+  type OpeningHours,
+  parseCustomFieldInputs,
+  unitsLeftEmpty,
   type VenueId,
   type VenueUnit,
 } from '@indoor/domain';
 import {
   Button,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Sheet,
   SheetContent,
   SheetDescription,
@@ -23,9 +37,11 @@ import {
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
 import { Field } from '../../app/components/field';
+import { AliasField, useAliasDraft } from '../aliases/alias-field';
 import { FormNotice } from '../auth/auth-layout';
-import { FacilityIconPreview } from '../facilities/facility-icon-preview';
-import { iconSource } from '../facilities/icons';
+import { CategoryChecklist } from './category-checklist';
+import { CustomFieldInputs, type FieldDraft } from './custom-field-inputs';
+import { HoursEditor } from './hours-editor';
 import { codeMessage, NAME_MESSAGES } from './labels';
 import {
   type ImagesDraft,
@@ -33,60 +49,16 @@ import {
   LocationImagesField,
   toLocationImages,
 } from './location-images';
-import { useSaveLocation } from './queries';
+import { uploadFieldImage, useSaveLocation } from './queries';
+import { StatusField } from './status-field';
+import { TypeChoice, useTypeChoice } from './type-choice';
 import { UnitLinks, type UnitSelection } from './unit-links';
 import { UnitMapPicker } from './unit-map-picker';
-
-function CategoryChecklist({
-  categories,
-  value,
-  disabled,
-  onChange,
-}: {
-  categories: readonly CategoryWithUsage[];
-  value: readonly CategoryId[];
-  disabled: boolean;
-  onChange: (value: CategoryId[]) => void;
-}) {
-  return (
-    <fieldset className="grid gap-1" disabled={disabled}>
-      <legend className="mb-1 font-bold">Kategori</legend>
-      {categories.length === 0 ? (
-        <p className="text-ink-muted text-sm">Belum ada kategori. Tambahkan di tab Kategori.</p>
-      ) : (
-        <div className="grid max-h-48 grid-cols-2 gap-1 overflow-y-auto rounded-md border border-line p-2">
-          {categories.map((category) => (
-            <label key={category.id} className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                className="size-4 accent-ink"
-                checked={value.includes(category.id)}
-                onChange={(e) =>
-                  onChange(
-                    e.target.checked
-                      ? [...value, category.id]
-                      : value.filter((id) => id !== category.id),
-                  )
-                }
-              />
-              <FacilityIconPreview
-                source={iconSource(category.icon)}
-                isSafety={false}
-                scale={0.75}
-              />
-              <span className="truncate">{category.name}</span>
-            </label>
-          ))}
-        </div>
-      )}
-    </fieldset>
-  );
-}
 
 /** Formulir tambah/ubah lokasi; Viewer melihatnya dalam mode baca. */
 export function LocationSheet({
   venueId,
-  typeId,
+  types,
   location,
   initialUnitId,
   readOnly,
@@ -97,7 +69,8 @@ export function LocationSheet({
   onClose,
 }: {
   venueId: VenueId;
-  typeId: LocationTypeId;
+  /** Tipe lokasi venue; formulir menampilkan field kustom tipe yang dipilih. */
+  types: readonly LocationType[];
   location: Location | null;
   initialUnitId: FeatureId | null;
   readOnly: boolean;
@@ -108,10 +81,17 @@ export function LocationSheet({
   onClose: () => void;
 }) {
   const save = useSaveLocation(venueId);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const choice = useTypeChoice(types, location, categories, () => setFieldErrors({}));
+  const { type, typeId, draft, setDraft, categoryIds, setCategoryIds } = choice;
+  const [uploading, setUploading] = useState(false);
+  const [status, setStatus] = useState<LocationStatus>(location?.status ?? 'active');
+  const [openingDate, setOpeningDate] = useState(location?.openingDate ?? '');
+  const [hours, setHours] = useState<OpeningHours>(location?.hours ?? EMPTY_OPENING_HOURS);
+  const [detailErrors, setDetailErrors] = useState<{ date?: string; hours?: string }>({});
   const [code, setCode] = useState(location?.code ?? '');
   const [name, setName] = useState(location?.name ?? '');
   const [description, setDescription] = useState(location?.description ?? '');
-  const [categoryIds, setCategoryIds] = useState<CategoryId[]>(location?.categoryIds ?? []);
   const [selection, setSelection] = useState<UnitSelection>(() => {
     const unitIds =
       location?.units.map((u) => u.featureId) ?? (initialUnitId ? [initialUnitId] : []);
@@ -123,16 +103,47 @@ export function LocationSheet({
   );
   const [problems, setProblems] = useState<LocationInputProblems>({});
   const [picking, setPicking] = useState(false);
-  const busy = save.isPending;
+  const aliases = useAliasDraft(venueId, 'location', location?.id ?? null, name);
+  const busy = save.isPending || uploading;
+  const typeCategories = categories.filter((c) => c.locationTypeId === typeId);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!type) return;
     const found = checkLocationInput({ code, name, description }, locations, location?.id ?? null);
     setProblems(found);
-    if (Object.keys(found).length > 0) return;
+    // Berkas gambar yang belum diunggah dihitung terisi untuk pemeriksaan wajib.
+    const inputs = { ...draft.inputs };
+    for (const key of Object.keys(draft.files)) inputs[key] = 'berkas-baru';
+    const parsed = parseCustomFieldInputs(type.fields, inputs);
+    setFieldErrors(parsed.errors);
+    const details: { date?: string; hours?: string } = {};
+    if (status === 'coming_soon' && !openingDate) details.date = 'Isi tanggal buka.';
+    if (checkOpeningHours(hours).length > 0) details.hours = 'Isi jam dengan format JJ:MM.';
+    setDetailErrors(details);
+    if (
+      Object.keys(found).length > 0 ||
+      Object.keys(parsed.errors).length > 0 ||
+      Object.keys(details).length > 0 ||
+      aliases.error
+    ) {
+      return;
+    }
+    const customFields = { ...parsed.values };
+    try {
+      setUploading(true);
+      for (const [key, file] of Object.entries(draft.files)) {
+        customFields[key] = await uploadFieldImage(venueId, file);
+      }
+    } catch (error) {
+      setFieldErrors({ upload: error instanceof Error ? error.message : 'Gambar gagal diunggah.' });
+      return;
+    } finally {
+      setUploading(false);
+    }
     save.mutate(
       {
-        typeId,
+        typeId: type.id,
         id: location?.id ?? null,
         input: {
           code,
@@ -141,11 +152,23 @@ export function LocationSheet({
           categoryIds,
           unitIds: selection.unitIds,
           primaryUnitId: selection.primaryUnitId,
+          customFields,
+          status,
+          openingDate: status === 'coming_soon' ? openingDate : null,
+          hours,
         },
         images: toLocationImages(images, location?.logoPath ?? null),
       },
       {
-        onSuccess: () => {
+        onSuccess: async (savedId) => {
+          try {
+            await aliases.save(savedId);
+          } catch (error) {
+            setFieldErrors({
+              upload: `Lokasi tersimpan, tetapi alias tidak: ${error instanceof Error ? error.message : 'galat'}`,
+            });
+            return;
+          }
           toast.success(location ? 'Lokasi disimpan' : 'Lokasi ditambahkan', {
             description: name.trim(),
           });
@@ -163,10 +186,11 @@ export function LocationSheet({
             {readOnly ? location?.name : location ? `Ubah ${location.name}` : 'Tambah lokasi'}
           </SheetTitle>
           <SheetDescription>
-            Tipe: Lokasi. Tipe lain dan field kustom menyusul di pengaturan tipe lokasi.
+            Field tambahan mengikuti tipe lokasi; atur tipe dan field-nya di tab Tipe lokasi.
           </SheetDescription>
         </SheetHeader>
-        <form className="grid gap-4" onSubmit={submit} noValidate>
+        <form className="grid gap-4" onSubmit={(e) => void submit(e)} noValidate>
+          <TypeChoice choice={choice} types={types} disabled={readOnly || busy} />
           <div className="grid grid-cols-[12rem_1fr] gap-3">
             <Field
               id="location-code"
@@ -198,7 +222,7 @@ export function LocationSheet({
             </Field>
           </div>
           <CategoryChecklist
-            categories={categories}
+            categories={typeCategories}
             value={categoryIds}
             disabled={readOnly || busy}
             onChange={setCategoryIds}
@@ -217,6 +241,30 @@ export function LocationSheet({
               className="w-full rounded-sm border border-ink-muted bg-surface px-3 py-2 text-ink disabled:cursor-not-allowed disabled:opacity-50"
             />
           </Field>
+          <AliasField id="location-aliases" draft={aliases} disabled={readOnly || busy} />
+          <CustomFieldInputs
+            fields={type?.fields ?? []}
+            draft={draft}
+            errors={fieldErrors}
+            disabled={readOnly || busy}
+            onChange={setDraft}
+          />
+          {fieldErrors.upload ? <FormNotice tone="error">{fieldErrors.upload}</FormNotice> : null}
+          <StatusField
+            status={status}
+            openingDate={openingDate}
+            emptiedUnits={unitsLeftEmpty(location?.id ?? null, selection.unitIds, units)}
+            dateError={detailErrors.date}
+            disabled={readOnly || busy}
+            onStatus={setStatus}
+            onOpeningDate={setOpeningDate}
+          />
+          <HoursEditor
+            hours={hours}
+            error={detailErrors.hours}
+            disabled={readOnly || busy}
+            onChange={setHours}
+          />
           <UnitLinks
             units={units}
             selfId={location?.id ?? null}

@@ -15,7 +15,8 @@ export interface GraphStatus {
 const NONE: ReadonlySet<string> = new Set();
 const NOTHING_CLOSED = { nodeIds: NONE, edgeIds: NONE };
 
-function useNow(intervalMs: number): number {
+/** Waktu sekarang yang diperbarui tiap `intervalMs`, untuk penutupan yang mulai atau berakhir. */
+export function useNow(intervalMs: number): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), intervalMs);
@@ -25,7 +26,7 @@ function useNow(intervalMs: number): number {
 }
 
 /** Graf venue tanpa lantai yang sedang disunting; lantai itu dibaca dari store. */
-function otherFloors(venue: NavGraph, floorId: string): NavGraph {
+export function otherFloors(venue: NavGraph, floorId: string): NavGraph {
   const keep = <T extends { floorId: string }>(items: Readonly<Record<string, T>>) =>
     Object.fromEntries(Object.entries(items).filter(([, item]) => item.floorId !== floorId));
   return { nodes: keep(venue.nodes), edges: keep(venue.edges) };

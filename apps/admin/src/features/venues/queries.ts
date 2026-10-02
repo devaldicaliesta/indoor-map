@@ -9,7 +9,7 @@ export function useVenuesDetailed() {
   return useQuery({ queryKey: detailedKey, queryFn: () => data.venues.listDetailed() });
 }
 
-function useInvalidateVenues() {
+export function useInvalidateVenues() {
   const queryClient = useQueryClient();
   return () =>
     Promise.all([

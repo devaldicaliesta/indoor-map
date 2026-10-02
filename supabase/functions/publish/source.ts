@@ -1,5 +1,6 @@
 // Membaca draft venue dan memetakannya ke masukan builder snapshot. Hanya kolom yang
 // dibutuhkan yang diminta; builder tetap menyaring ulang field yang boleh terbit.
+import { type OpeningHoursRow, openingHoursFromRows } from '../../../packages/domain/src/hours.ts';
 import type {
   SnapshotGeometry,
   SnapshotLanguage,
@@ -89,6 +90,7 @@ function toLocation(r: Row): SourceLocation {
     logoPath: strOrNull(r.logo_path),
     photoPaths: Array.isArray(r.photo_paths) ? r.photo_paths.map(str) : [],
     customFields: (r.custom_fields ?? {}) as Record<string, unknown>,
+    hours: openingHoursFromRows(rows(r.opening_hours) as unknown as OpeningHoursRow[]),
   };
 }
 
@@ -134,7 +136,7 @@ export async function readSource(
     ),
     rest.select<Row>(
       'display_settings',
-      `select=default_mode,heights,colors,camera&${byVenue}&order=venue_id`,
+      `select=default_mode,heights,colors,camera,branding&${byVenue}&order=venue_id`,
     ),
     defaultLanguage(),
     rest.select<Row>(
@@ -159,7 +161,7 @@ export async function readSource(
     ),
     rest.select<Row>(
       'locations',
-      `select=id,code,name,description,location_type_id,status,opening_date,logo_path,photo_paths,custom_fields,location_categories(category_id),location_units(feature_id,is_primary)&${byVenue}&status=neq.inactive_permanent&order=id`,
+      `select=id,code,name,description,location_type_id,status,opening_date,logo_path,photo_paths,custom_fields,location_categories(category_id),location_units(feature_id,is_primary),opening_hours(weekday,special_date,opens_at,closes_at,is_closed)&${byVenue}&status=neq.inactive_permanent&order=id`,
     ),
     rest.select<Row>(
       'search_aliases',
@@ -217,6 +219,7 @@ export async function readSource(
           heights: settings.heights,
           colors: settings.colors,
           camera: settings.camera,
+          branding: settings.branding,
         }
       : null,
     buildings: buildings.map((b) => ({

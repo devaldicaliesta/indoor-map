@@ -4,6 +4,7 @@ import {
   FeatureIdSchema,
   FloorIdSchema,
   holdsUnits,
+  type ImportWrite,
   LOCATION_STATUSES,
   type Location,
   type LocationId,
@@ -15,19 +16,25 @@ import {
   LocationTypeIdSchema,
   type LocationUnit,
   MAX_IMAGE_BYTES,
+  type OpeningHours,
+  type OpeningHoursRow,
+  openingHoursFromRows,
+  type SnapshotFieldValue,
   UNIT_STATUSES,
   type UnitStatus,
   type VenueId,
   VenueIdSchema,
   type VenueUnit,
 } from '@indoor/domain';
-import type { Database } from '../database.types';
+import type { Database, Json } from '../database.types';
 import { DataError, toDataError } from '../errors';
 import { zeroRowsError } from '../mutations';
 import { fetchAllPages } from '../pagination';
 import type { Db } from '../supabase';
 
 const ASSETS_BUCKET = 'public-assets';
+/** Baris per panggilan `import_locations` (satu transaksi). */
+export const IMPORT_BATCH = 200;
 /** Sama dengan tipe yang diizinkan bucket `public-assets` (migrasi 0005). */
 const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/png': 'png',
@@ -35,7 +42,8 @@ const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/webp': 'webp',
 };
 
-const COLUMNS = `id, venue_id, location_type_id, code, name, description, logo_path, photo_paths, status,
+const COLUMNS = `id, venue_id, location_type_id, code, name, description, logo_path, photo_paths, status, custom_fields, opening_date,
+  opening_hours(weekday, special_date, opens_at, closes_at, is_closed),
   location_categories(category_id),
   location_units(feature_id, is_primary, features(unit_code, floor_id, floors(name, building_id, buildings!floors_building_same_venue(name))))`;
 
@@ -56,6 +64,9 @@ export interface LocationRow {
   logo_path: string | null;
   photo_paths: string[];
   status: string;
+  custom_fields: unknown;
+  opening_date: string | null;
+  opening_hours: OpeningHoursRow[];
   location_categories: { category_id: string }[];
   location_units: {
     feature_id: string;
@@ -96,7 +107,59 @@ export function mapLocationRow(row: LocationRow): Location {
     status: statusOf(row.status),
     categoryIds: row.location_categories.map((c) => CategoryIdSchema.parse(c.category_id)),
     units,
+    customFields: customFieldsOf(row.custom_fields),
+    openingDate: row.opening_date,
+    hours: openingHoursFromRows(row.opening_hours),
   };
+}
+
+/** Jadwal menjadi baris untuk `save_location`; tanggal khusus tanpa rentang = tutup. */
+export function hoursToRows(hours: OpeningHours): OpeningHoursRow[] {
+  const rows: OpeningHoursRow[] = [];
+  hours.weekly.forEach((spans, i) => {
+    for (const span of spans) {
+      rows.push({
+        weekday: i + 1,
+        special_date: null,
+        opens_at: span.opens,
+        closes_at: span.closes,
+        is_closed: false,
+      });
+    }
+  });
+  for (const [date, spans] of Object.entries(hours.special)) {
+    if (spans.length === 0) {
+      rows.push({
+        weekday: null,
+        special_date: date,
+        opens_at: null,
+        closes_at: null,
+        is_closed: true,
+      });
+    }
+    for (const span of spans) {
+      rows.push({
+        weekday: null,
+        special_date: date,
+        opens_at: span.opens,
+        closes_at: span.closes,
+        is_closed: false,
+      });
+    }
+  }
+  return rows;
+}
+
+/** Nilai field kustom yang bentuknya dikenal; isi jsonb lain diabaikan. */
+export function customFieldsOf(value: unknown): Record<string, SnapshotFieldValue> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const out: Record<string, SnapshotFieldValue> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (typeof item === 'string' || typeof item === 'boolean') out[key] = item;
+    else if (typeof item === 'number' && Number.isFinite(item)) out[key] = item;
+    else if (Array.isArray(item) && item.every((x) => typeof x === 'string')) out[key] = item;
+  }
+  return out;
 }
 
 type SaveArgs = Database['public']['Functions']['save_location']['Args'];
@@ -123,6 +186,10 @@ export function toSaveLocationArgs(
   if (code) args.p_code = code;
   if (description) args.p_description = description;
   if (images.logoPath) args.p_logo_path = images.logoPath;
+  args.p_custom_fields = input.customFields;
+  args.p_status = input.status;
+  if (input.status === 'coming_soon' && input.openingDate) args.p_opening_date = input.openingDate;
+  args.p_hours = hoursToRows(input.hours) as unknown as Json;
   if (input.primaryUnitId && input.unitIds.includes(input.primaryUnitId)) {
     args.p_primary_unit_id = input.primaryUnitId;
   }
@@ -190,6 +257,19 @@ export interface LocationsRepository {
   /** Lokasi yang ditautkan ke satu unit (panel properti unit di editor). */
   forUnit(featureId: string): Promise<LocationRef[]>;
   imageUrl(path: string): string;
+  /**
+   * Menulis baris import yang sudah divalidasi, per batch 200 baris (satu transaksi per batch).
+   * `onProgress` dipanggil dengan jumlah baris yang sudah tersimpan. Bila satu batch gagal, batch
+   * sebelumnya tetap tersimpan dan galatnya menyebut baris pertama batch itu.
+   */
+  importRows(
+    venueId: VenueId,
+    typeId: LocationTypeId,
+    rows: readonly ImportWrite[],
+    onProgress?: (saved: number) => void,
+  ): Promise<number>;
+  /** Gambar untuk field kustom berjenis gambar; path-nya disimpan sebagai nilai field. */
+  uploadFieldImage(venueId: VenueId, file: Blob): Promise<string>;
 }
 
 export function createLocationsRepository(db: Db): LocationsRepository {
@@ -278,6 +358,26 @@ export function createLocationsRepository(db: Db): LocationsRepository {
         await removeFiles(uploaded);
         throw toDataError(error);
       }
+    },
+
+    async importRows(venueId, typeId, rows, onProgress) {
+      let saved = 0;
+      for (let start = 0; start < rows.length; start += IMPORT_BATCH) {
+        const batch = rows.slice(start, start + IMPORT_BATCH);
+        const { data, error } = await db.rpc('import_locations', {
+          p_venue_id: venueId,
+          p_location_type_id: typeId,
+          p_rows: batch as unknown as Json,
+        });
+        if (error) throw toDataError(error);
+        saved += data ?? batch.length;
+        onProgress?.(saved);
+      }
+      return saved;
+    },
+
+    uploadFieldImage(venueId, file) {
+      return upload(venueId, `field-${globalThis.crypto.randomUUID()}`, file);
     },
 
     async remove(id) {

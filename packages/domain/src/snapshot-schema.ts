@@ -17,9 +17,17 @@ import {
   type Snapshot,
 } from './snapshot';
 
+const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+const SpanSchema = z.object({ opens: time, closes: time });
+const HoursSchema = z.object({
+  weekly: z.array(z.array(SpanSchema)).length(7),
+  special: z.record(z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.array(SpanSchema)),
+});
+
 const id = z.string().min(1);
 const text = z.string();
 const nullableText = z.string().nullable();
+const hexColor = z.string().regex(/^#[0-9a-f]{6}$/);
 const byKind = <T extends z.ZodType>(value: T) =>
   z.partialRecord(z.enum(SNAPSHOT_FEATURE_KINDS), value);
 
@@ -38,6 +46,13 @@ const VenueSchema = z.object({
     heights: byKind(z.number().min(0)),
     colors: byKind(text),
   }),
+  branding: z.exactOptional(
+    z.object({
+      displayName: nullableText,
+      primaryColor: hexColor.nullable(),
+      routeColor: hexColor.nullable(),
+    }),
+  ),
 });
 
 const BuildingSchema = z.object({
@@ -104,6 +119,7 @@ const LocationSchema = z.object({
   logoPath: nullableText,
   photoPaths: z.array(text),
   fields: z.record(text, z.union([text, z.number(), z.boolean(), z.array(text)])),
+  hours: HoursSchema.nullable(),
 });
 
 const GraphSchema = z.object({

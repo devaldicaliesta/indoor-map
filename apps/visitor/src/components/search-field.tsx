@@ -9,12 +9,15 @@ import { useTranslation } from 'react-i18next';
  */
 export function SearchField({
   className,
+  placeholder,
   value,
   onValueChange,
   onKeyDown,
   controls,
 }: {
   className?: string | undefined;
+  /** Bawaan "Cari lokasi…"; halaman venue menyebut nama venue. */
+  placeholder?: string | undefined;
   value?: string;
   onValueChange?: (value: string) => void;
   onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
@@ -33,7 +36,7 @@ export function SearchField({
         type="search"
         aria-label={t('search.label')}
         aria-controls={controls}
-        placeholder={t('search.placeholder')}
+        placeholder={placeholder ?? t('search.placeholder')}
         className="pr-11 pl-10 [&::-webkit-search-cancel-button]:hidden"
         value={value}
         onChange={onValueChange ? (e) => onValueChange(e.target.value) : undefined}

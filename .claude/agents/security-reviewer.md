@@ -13,6 +13,8 @@ git diff --name-only main...HEAD
 git grep -nE "(service_role|SERVICE_ROLE|sk_live|BEGIN (RSA|OPENSSH) PRIVATE KEY|password\s*=)" -- ':!*.md'
 git grep -n "dangerouslySetInnerHTML"
 pnpm audit --prod
+git log -p | grep -inE "password\s*=|service_role|secret|private key" | head   # rahasia di riwayat git
+pip-audit -r services/cad-converter/requirements.txt                          # dependency Python
 ```
 
 ## Daftar periksa
@@ -25,7 +27,20 @@ pnpm audit --prod
 6. **Masukan**: divalidasi di domain (zod) dan ditegakkan lagi oleh constraint/trigger database.
 7. **Snapshot publik**: tanpa email, data pribadi, atau pengaturan server.
 8. **Klien**: tidak ada cookie atau request pihak ketiga di Visitor; unggahan gambar dikonversi atau diperiksa sebelum ditampilkan.
-9. **Dependency**: paket baru dari sumber tepercaya dengan lisensi permisif; `pnpm-lock.yaml` ikut di-commit.
+9. **Dependency**: paket baru dari sumber tepercaya dengan lisensi permisif; `pnpm-lock.yaml` ikut di-commit; tanpa celah tinggi/kritis di `pnpm audit` dan `pip-audit`.
+10. **CORS dan CSRF**: layanan pendamping (`services/cad-converter`) hanya mengizinkan origin Admin; aksi ubah memakai token Bearer, bukan cookie.
+11. **Transport dan header**: HTTPS di paket instalasi; header CSP, `X-Content-Type-Options`, `frame-ancestors` (dicek di T-411/T-412).
+12. **Batas pemakaian**: ukuran unggahan dibatasi di klien, bucket, dan layanan; aksi berat (publish, impor, konversi) tidak bisa membuat server macet.
+13. **Log dan pesan error**: tanpa password, token, atau data pribadi di log/Catatan; pesan ke pengguna tidak membocorkan SQL, stack trace, atau nama tabel.
+14. **Data di URL**: token, email, atau data pribadi tidak pernah di query string (kecuali tautan reset dari Supabase Auth).
+
+## Kategori OWASP Top 10 yang dicek
+
+Injeksi (SQL lewat string, RPC), autentikasi rusak (brute force, sesi), paparan data sensitif (snapshot, log), XXE/berkas berbahaya (SVG, DXF, XLSX), kontrol akses rusak (RLS, IDOR lintas venue), salah konfigurasi (bucket, CORS, header), XSS, deserialisasi tidak aman (JSON snapshot/import), komponen rentan (audit), log dan pemantauan kurang (Catatan). Sebutkan nomor CWE bila relevan (mis. CWE-79 XSS, CWE-89 SQLi, CWE-639 IDOR, CWE-22 path traversal).
+
+## Kapan wajib ditinjau
+
+Selalu untuk: endpoint/Edge Function baru, autentikasi, masukan pengguna, query/fungsi SQL, unggahan berkas, dependency baru, layanan pendamping. Segera untuk: insiden, CVE yang diketahui, rilis besar.
 
 ## Format laporan
 
@@ -35,4 +50,7 @@ File: path:baris
 Dampak: siapa bisa melakukan apa
 Perbaikan: langkah konkret (policy, fungsi, atau kode)
 Bukti: test pgTAP/integrasi yang perlu ditambahkan
+Referensi: OWASP/CWE
 ```
+
+Awali laporan dengan ringkasan jumlah temuan per tingkat dan tingkat risiko keseluruhan. Akhiri dengan rekomendasi: **Blokir** (ada KRITIS), **Setuju dengan perubahan** (ada TINGGI/SEDANG), atau **Setuju**.

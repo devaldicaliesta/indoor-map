@@ -10,12 +10,14 @@ import {
 import type { LngLat, MapDisplay } from '@indoor/map-core';
 import { EmptyState, Skeleton } from '@indoor/ui';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useRole } from '../../app/auth/can';
+import { useCurrentProfile } from '../../app/auth/current-profile';
 import { data } from '../../app/data-client';
 import { ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
+import { ClosureDialog } from '../closures/closure-dialog';
 import { useFloorPlans } from '../floor-plans/queries';
 import { useDisplaySettings } from '../settings/display/queries';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
@@ -25,10 +27,13 @@ import { EditorCanvas, type PlanBackground } from './editor-canvas';
 import { EditorSidebar } from './editor-sidebar';
 import { EditorToolbar } from './editor-toolbar';
 import { EditorTopbar, OUTDOOR } from './editor-topbar';
+import { LockBanner } from './lock/lock-banner';
+import { useEditLock } from './lock/use-edit-lock';
 import { KindPicker } from './properties/kind-picker';
 import { PropertiesPanel } from './properties/properties-panel';
 import { ReferenceFloorPicker } from './reference-layer';
 import { StatusBar } from './status-bar';
+import { useTestRouteStore } from './test-route/test-route-store';
 import { useEditorSession } from './use-editor-session';
 import { useEditorShortcuts } from './use-editor-shortcuts';
 import { useFloorValidation } from './use-floor-validation';
@@ -84,7 +89,22 @@ function useFloorSelection(venueId: VenueId) {
     loading: buildings.isPending || venue.isPending || (building ? floors.isPending : false),
     setBuilding: (value: string) => setParams({ building: value }),
     setFloor: (id: FloorId) => setParams({ building: buildingValue, floor: id }),
+    /** Lantai di gedung mana pun; `null` = lapisan Area Luar. */
+    goTo: (id: string, buildingId: string | null) =>
+      setParams({ building: buildingId ?? OUTDOOR, floor: id }),
   };
+}
+
+/** Langkah uji rute di lantai lain memindah editor ke lantai itu, sekali per permintaan. */
+function useStepFloor(selection: ReturnType<typeof useFloorSelection>) {
+  const focus = useTestRouteStore((s) => s.focus);
+  const handled = useRef(focus?.seq ?? 0);
+  const currentFloorId = selection.floor?.id;
+  useEffect(() => {
+    if (!focus || handled.current === focus.seq) return;
+    handled.current = focus.seq;
+    if (focus.floorId !== currentFloorId) selection.goTo(focus.floorId, focus.buildingId);
+  }, [focus, currentFloorId, selection]);
 }
 
 function useActivePlan(floorId: FloorId | null): PlanBackground | null {
@@ -101,9 +121,25 @@ function useActivePlan(floorId: FloorId | null): PlanBackground | null {
     : null;
 }
 
-function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
+function Editor({
+  venueId,
+  canEditMap,
+  canManageClosures,
+  canTakeOverLock,
+  userId,
+}: {
+  venueId: VenueId;
+  /** Role boleh menyunting peta; menyunting lantai juga butuh kunci lantai itu. */
+  canEditMap: boolean;
+  canManageClosures: boolean;
+  canTakeOverLock: boolean;
+  userId: string | null;
+}) {
   const selection = useFloorSelection(venueId);
+  useStepFloor(selection);
   const { floor, building } = selection;
+  const lock = useEditLock(floor?.id ?? null, userId, canEditMap);
+  const canEdit = canEditMap && lock.state.status === 'mine';
   const session = useEditorSession(venueId, floor, building);
   useEditorShortcuts(session, canEdit);
   const plan = useActivePlan(floor?.id ?? null);
@@ -135,34 +171,38 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
 
   return (
     <div className="grid h-full grid-rows-[auto_1fr_auto]">
-      <EditorTopbar
-        buildings={selection.buildings}
-        outdoorName={selection.outdoorName}
-        buildingValue={selection.buildingValue}
-        onBuilding={selection.setBuilding}
-        floors={selection.floors}
-        floorId={floor.id}
-        onFloor={selection.setFloor}
-        onRetry={session.retry}
-        validation={<ValidationSummary issues={validation.issues} />}
-        reference={
-          building ? (
-            <ReferenceFloorPicker
-              compact
-              floors={selection.floors}
-              currentFloorId={floor.id}
-              value={referenceFloorId}
-              onChange={setReferenceFloorId}
-            />
-          ) : null
-        }
-      />
+      <div>
+        <EditorTopbar
+          buildings={selection.buildings}
+          outdoorName={selection.outdoorName}
+          buildingValue={selection.buildingValue}
+          onBuilding={selection.setBuilding}
+          floors={selection.floors}
+          floorId={floor.id}
+          onFloor={selection.setFloor}
+          onRetry={session.retry}
+          validation={<ValidationSummary issues={validation.issues} />}
+          reference={
+            building ? (
+              <ReferenceFloorPicker
+                compact
+                floors={selection.floors}
+                currentFloorId={floor.id}
+                value={referenceFloorId}
+                onChange={setReferenceFloorId}
+              />
+            ) : null
+          }
+        />
+        <LockBanner state={lock.state} canTakeOver={canTakeOverLock} onTakeOver={lock.takeOver} />
+      </div>
       <div className="grid min-h-0 grid-cols-[3rem_15rem_1fr_18rem]">
         <aside className="border-line border-r">
           <EditorToolbar canEdit={canEdit} session={session} />
         </aside>
         <aside className="min-h-0 overflow-hidden border-line border-r">
           <EditorSidebar
+            venueId={venueId}
             floorName={floor.name}
             facilityTypes={session.facilityTypes}
             issues={validation.byFeature}
@@ -186,6 +226,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
               facilityTypes={session.facilityTypes}
               issueFeatureIds={validation.featureIds}
               display={display}
+              canManageClosures={canManageClosures}
               onCursor={setCursor}
             />
           )}
@@ -204,6 +245,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
       </div>
       <StatusBar cursor={cursor} canEdit={canEdit} />
       {canEdit ? <ConnectorDialog venueId={venueId} floor={floor} /> : null}
+      {canManageClosures ? <ClosureDialog venueId={venueId} /> : null}
     </div>
   );
 }
@@ -211,6 +253,7 @@ function Editor({ venueId, canEdit }: { venueId: VenueId; canEdit: boolean }) {
 export function EditorPage() {
   const { venue } = useSelectedVenue();
   const role = useRole();
+  const profile = useCurrentProfile().data;
   return (
     <ModuleRoute module="map_editor">
       {() =>
@@ -218,7 +261,10 @@ export function EditorPage() {
           <Editor
             key={venue.id}
             venueId={venue.id}
-            canEdit={role !== null && can(role, 'map.edit')}
+            canEditMap={role !== null && can(role, 'map.edit')}
+            canManageClosures={role !== null && can(role, 'closure.manage')}
+            canTakeOverLock={role !== null && can(role, 'user.manage')}
+            userId={profile?.userId ?? null}
           />
         ) : (
           <div className="p-6">

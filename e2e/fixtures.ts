@@ -1,7 +1,9 @@
 import { createDataClient, type DataClient } from '@indoor/data';
+import { createFullVenue, type FullVenue, signedInDb } from '@indoor/data/testing/full-venue';
 import {
   type AppRole,
   type Building,
+  EMPTY_OPENING_HOURS,
   FeatureIdSchema,
   type Floor,
   type Polygon,
@@ -66,6 +68,11 @@ interface Fixtures {
   testVenue: TestVenue;
   /** Venue uji dengan dua unit dan satu lokasi yang sudah diterbitkan untuk Visitor. */
   publishedVenue: PublishedVenue;
+  /**
+   * Venue uji lengkap (2 gedung, 4 lantai + Area Luar, lift sebagian, eskalator naik/turun,
+   * tangga, jalur luar, lokasi berbagai status, titik asal, Info Point); dihapus setelah test.
+   */
+  fullVenue: FullVenue;
   /** Masuk ke Admin lewat halaman login sebagai role tertentu. */
   loginAs: (role: AppRole) => Promise<void>;
 }
@@ -103,6 +110,23 @@ export const test = base.extend<Fixtures>({
     }
   },
 
+  fullVenue: async ({ superAdmin }, use, testInfo) => {
+    const db = await signedInDb(env.supabaseUrl, env.anonKey, {
+      email: ACCOUNTS.super_admin.email,
+      password: env.password,
+    });
+    const venue = await createFullVenue(
+      db,
+      `E2E Lengkap ${testInfo.workerIndex}-${Date.now().toString(36)}`,
+    );
+    try {
+      await use(venue);
+    } finally {
+      await superAdmin.venues.remove(venue.venueId as Venue['id']);
+      await db.auth.signOut();
+    }
+  },
+
   publishedVenue: async ({ superAdmin, testVenue }, use) => {
     const { venue, floor } = testVenue;
     const unit = (id: string, code: string, dx: number) =>
@@ -134,6 +158,10 @@ export const test = base.extend<Fixtures>({
         categoryIds: [category.id],
         unitIds: [radiologyUnitId],
         primaryUnitId: radiologyUnitId,
+        customFields: {},
+        status: 'active',
+        openingDate: null,
+        hours: EMPTY_OPENING_HOURS,
       },
       { keepPhotoPaths: [], newPhotos: [] },
     );

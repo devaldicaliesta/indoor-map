@@ -16,7 +16,7 @@ import type {
   SnapshotNodeRole,
   SnapshotPosition,
 } from '../../src/snapshot';
-import sample from './venue-sample.json';
+import sample from './venue-sample.json' with { type: 'json' };
 
 const EARTH_RADIUS_M = 6_371_008.8;
 const RAD = Math.PI / 180;

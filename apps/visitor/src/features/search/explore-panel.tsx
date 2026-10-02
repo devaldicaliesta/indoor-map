@@ -1,23 +1,17 @@
-import type { ExploreTarget, SnapshotIndex } from '@indoor/domain';
+import type { ExploreTarget } from '@indoor/domain';
 import { Button } from '@indoor/ui';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { FacilityDetail, UnitDetail } from '../location/feature-details';
 import { LocationProfile } from '../location/location-profile';
+import { OriginChooser, OriginRow, OriginTapHint } from '../origin/origin-panels';
+import { RoutePanel } from '../route/route-panel';
+import { detailTitle } from './detail-title';
 import { Directory } from './directory';
 import { ExploreChips } from './explore-chips';
 import { useExplore, useExploreStore } from './explore-context';
 import { CategoryList, FacilityTypeList } from './member-lists';
 import { SearchResults } from './search-results';
-
-/** Judul singkat detail untuk tombol kembali di header HP. */
-export function detailTitle(index: SnapshotIndex, detail: ExploreTarget): string {
-  if (detail.kind === 'location') return index.locations.get(detail.id)?.name ?? '';
-  const feature = index.features.get(detail.id);
-  if (detail.kind === 'unit') return feature?.properties.unitCode ?? '';
-  const typeId = feature?.properties.facilityTypeId;
-  return feature?.properties.name ?? (typeId ? index.facilityTypes.get(typeId)?.name : '') ?? '';
-}
 
 function Detail({ detail }: { detail: ExploreTarget }) {
   if (detail.kind === 'location') return <LocationProfile id={detail.id} />;
@@ -69,11 +63,28 @@ function ListContent({ hint }: { hint: boolean }) {
 }
 
 /**
- * Isi panel kiri (desktop) dan bottom sheet (HP): detail yang terbuka, hasil cari, atau chip
- * dengan daftar yang dipilih. Detail memakai seluruh panel (chip venue bisa lebih dari satu
- * baris); tombol kembali ada di atas detail di desktop dan di header di HP.
+ * Isi panel kiri (desktop) dan bottom sheet (HP): panel rute, petunjuk menentukan titik asal, atau
+ * panel jelajah dengan baris "Anda di sini".
  */
 export function ExplorePanel({ desktop }: { desktop: boolean }) {
+  const originMode = useExploreStore((s) => s.originMode);
+  const routing = useExploreStore((s) => s.destination !== null && s.origin !== null);
+  if (originMode === 'tap') return <OriginTapHint />;
+  if (routing && originMode === 'off') return <RoutePanel />;
+  return (
+    <div className="grid gap-3">
+      {originMode === 'choose' ? <OriginChooser /> : <OriginRow />}
+      <ExploreContent desktop={desktop} />
+    </div>
+  );
+}
+
+/**
+ * Detail yang terbuka, hasil cari, atau chip dengan daftar yang dipilih. Detail memakai seluruh
+ * panel (chip venue bisa lebih dari satu baris); tombol kembali ada di atas detail di desktop dan
+ * di header di HP.
+ */
+function ExploreContent({ desktop }: { desktop: boolean }) {
   const detail = useExploreStore((s) => s.detail);
   const query = useExploreStore((s) => s.query);
   if (detail) {

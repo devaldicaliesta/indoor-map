@@ -6,6 +6,7 @@ export {
   type ClosureFeature,
   closedElements,
 } from './closed-elements';
+export { type ClosureImpact, closureImpact } from './closure-impact';
 export { connectorAllows, connectorArcs } from './connectors';
 export {
   BUILDING_DOOR_M,
@@ -27,21 +28,34 @@ export {
   type RouteStep,
   roundStepDistance,
   routeSteps,
+  unknownPlaceholders,
 } from './instructions';
 export {
   activeClosures,
   closedFeatureNodes,
   closuresOnRoute,
+  insidePolygon,
   type Restrictions,
   type RouteClosure,
   type RouteOptions,
   restrictionsFor,
 } from './options';
 export {
+  buildRouteGraph,
+  type RouteData,
+  type RouteDraft,
+  routeDataFromDraft,
+} from './route-data';
+export { type FloorRoute, routeOnFloor } from './route-floor';
+export { type RouteGap, routeGap } from './route-gap';
+export { planRoute, type RoutePlan, type RoutePlanFailureReason } from './route-plan';
+export {
   featureTarget,
   infoPointTarget,
   locationTarget,
   originPointTarget,
+  placeTarget,
+  type RoutePlace,
   routeEndTarget,
 } from './targets';
 export type {

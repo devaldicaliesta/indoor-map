@@ -1,8 +1,10 @@
 import {
+  brandingJson,
   DISPLAY_MODES,
   type DisplayMode,
   type DisplaySettings,
   type DisplaySettingsPatch,
+  parseBranding,
   parseCamera,
   parseColors,
   parseHeights,
@@ -14,11 +16,11 @@ import { DataError, toDataError } from '../errors';
 import { zeroRowsError } from '../mutations';
 import type { Db } from '../supabase';
 
-const COLUMNS = 'venue_id, default_mode, heights, colors, camera';
+const COLUMNS = 'venue_id, default_mode, heights, colors, camera, branding';
 
 type DisplaySettingsRow = Pick<
   Tables<'display_settings'>,
-  'venue_id' | 'default_mode' | 'heights' | 'colors' | 'camera'
+  'venue_id' | 'default_mode' | 'heights' | 'colors' | 'camera' | 'branding'
 >;
 
 export function mapDisplaySettingsRow(row: DisplaySettingsRow): DisplaySettings {
@@ -30,6 +32,7 @@ export function mapDisplaySettingsRow(row: DisplaySettingsRow): DisplaySettings 
     heights: parseHeights(row.heights),
     colors: parseColors(row.colors),
     camera: parseCamera(row.camera),
+    branding: parseBranding(row.branding),
   };
 }
 
@@ -41,6 +44,7 @@ export function toDisplaySettingsUpdate(
   if (patch.heights !== undefined) update.heights = patch.heights;
   if (patch.colors !== undefined) update.colors = patch.colors;
   if (patch.camera !== undefined) update.camera = patch.camera;
+  if (patch.branding !== undefined) update.branding = brandingJson(patch.branding);
   return update;
 }
 

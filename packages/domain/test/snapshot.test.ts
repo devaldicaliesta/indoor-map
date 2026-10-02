@@ -118,6 +118,15 @@ describe('buildSnapshot', () => {
     expect(snapshot.locationTypes[0]?.fields.map((f) => f.key)).toEqual(['extension']);
   });
 
+  it('field tersembunyi tidak masuk indeks pencarian walau ditandai dapat dicari', () => {
+    const source = sampleSnapshotSource();
+    const hidden = source.locationTypes[0]?.fields.find((f) => f.key === 'staff_phone');
+    if (hidden) hidden.isSearchable = true;
+    const text = JSON.stringify(entryOf(source, IDS.radiology));
+    expect(text).not.toContain('0812');
+    expect(text).toContain('1203');
+  });
+
   it('koordinat dibulatkan 7 desimal dan anggota selain type/coordinates dibuang', () => {
     const source = sampleSnapshotSource();
     const [first] = source.features;
@@ -207,6 +216,7 @@ describe('buildSnapshot', () => {
         heights: { unit: 4, wall: -1, stairs: 'tinggi', unknown_kind: 3 },
         colors: { unit: '#D9DCD4', wall: 'red' },
         camera: { center: [106.82712345678, -6.1753], zoom: 18, pitch: 30, bearing: 0 },
+        branding: { displayName: '  RS  Kenari ', primaryColor: '#0B1F4D', routeColor: 'biru' },
       },
     };
     const venue = buildSnapshot(messy).venue;
@@ -217,10 +227,16 @@ describe('buildSnapshot', () => {
     });
     expect(venue.camera?.center).toEqual([106.8271235, -6.1753]);
     expect(venue.defaultLanguage).toBe('id');
+    expect(venue.branding).toEqual({
+      displayName: 'RS Kenari',
+      primaryColor: '#0b1f4d',
+      routeColor: null,
+    });
 
     const bare = buildSnapshot({ ...source, display: null }).venue;
     expect(bare.display).toEqual({ defaultMode: '2d', heights: {}, colors: {} });
     expect(bare.camera).toBeNull();
+    expect(bare.branding).toEqual({ displayName: null, primaryColor: null, routeColor: null });
   });
 
   it('template instruksi lengkap untuk semua aksi dan fitur lisensi unik', () => {
@@ -235,6 +251,14 @@ describe('buildSnapshot', () => {
     });
     expect(snapshot.instructionTemplates.turn_left).toEqual({ id: '', en: '' });
     expect(snapshot.enabledFeatures).toEqual(['3d', 'info_point']);
+  });
+
+  it('snapshot lama tanpa branding tetap terbaca; warna branding yang rusak ditolak', () => {
+    const snapshot = JSON.parse(JSON.stringify(buildSnapshot(sampleSnapshotSource())));
+    delete snapshot.venue.branding;
+    expect(parseSnapshot(snapshot).venue.branding).toBeUndefined();
+    snapshot.venue.branding = { displayName: null, primaryColor: 'url(x)', routeColor: null };
+    expect(SnapshotSchema.safeParse(snapshot).success).toBe(false);
   });
 
   it('versi skema ditolak bila bukan 1', () => {

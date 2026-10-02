@@ -194,3 +194,13 @@ Workflow E2E terpisah dari `ci.yml` (`.github/workflows/e2e.yml`; buat bila belu
 - Nol flaky pada `--repeat-each=5 --retries=0`.
 - Seluruh suite selesai di bawah 10 menit di CI.
 - Laporan HTML dan JUnit terbentuk; artefak tersedia untuk setiap test yang gagal.
+
+## Verifikasi bertahap T-307a
+
+Saat dipakai untuk T-307a, aturan di `docs/15-verifikasi-e2e.md` dan katalog `docs/16-test-case.md` berlaku di atas panduan umum di atas:
+
+- Cakupan bukan hanya lima alur utama: setiap task berstatus `review` diuji CRUD, UI/UX, dan keamanan sesuai ID test case (`TC-xxx-nn`) yang disebut di nama test.
+- Spec di `e2e/tests/admin/verify/` atau `e2e/tests/visitor/verify/` (folder lain tidak dijalankan konfigurasi).
+- Gambar bukti ditulis langsung ke `e2e/evidence/T-xxx/NN-langkah.png` (path relatif `evidence/…` dari folder `e2e`), bukan ke `test-results/` yang dikosongkan setiap run. Ambil gambar setelah layar siap dan periksa dengan mata.
+- Data dicek juga lewat fixture `superAdmin` (database), bukan hanya lewat UI; penolakan role diuji langsung ke server.
+- Setiap selesai satu task: tulis `e2e/evidence/T-xxx/README.md`, laporkan hasil ke pemilik, lalu **berhenti dan tunggu konfirmasi** sebelum task berikutnya.

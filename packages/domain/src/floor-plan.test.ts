@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   checkFloorPlanFile,
   checkFloorPlanPlacement,
+  defaultCadLayers,
   MAX_FLOOR_PLAN_BYTES,
   MAX_RASTER_WIDTH_PX,
+  naturalWidthM,
   pdfRenderScale,
 } from './floor-plan';
 
@@ -35,8 +37,24 @@ describe('checkFloorPlanFile', () => {
     expect(checkFloorPlanFile(file('tanpa-ekstensi', 'image/png'))).toMatchObject({ ok: false });
   });
 
-  it('DWG/DXF diarahkan ke konversi CAD nanti', () => {
-    expect(checkFloorPlanFile(file('denah.dwg', ''))).toEqual({ ok: false, problem: 'cad_later' });
+  it('DXF diterima dengan MIME apa pun yang biasa dikirim browser', () => {
+    for (const type of [
+      '',
+      'image/vnd.dxf',
+      'application/dxf',
+      'image/x-dxf',
+      'application/octet-stream',
+    ]) {
+      expect(checkFloorPlanFile(file('Denah L1.DXF', type))).toEqual({ ok: true, format: 'dxf' });
+    }
+    expect(checkFloorPlanFile(file('denah.dxf', 'image/png'))).toMatchObject({ ok: false });
+  });
+
+  it('DWG ditolak dengan arahan menyimpan sebagai DXF/PDF', () => {
+    expect(checkFloorPlanFile(file('denah.dwg', ''))).toEqual({
+      ok: false,
+      problem: 'dwg_unsupported',
+    });
   });
 
   it('batas 50 MB inklusif; berkas kosong ditolak', () => {
@@ -49,6 +67,32 @@ describe('checkFloorPlanFile', () => {
       ok: false,
       problem: 'empty',
     });
+  });
+});
+
+describe('naturalWidthM', () => {
+  it('lebar gambar dalam meter dari batas dan satuan berkas', () => {
+    expect(naturalWidthM([0, 0, 20000, 10000], 0.001)).toBe(20);
+    expect(naturalWidthM([-5, 0, 37.25, 1], 1)).toBe(42.25);
+  });
+
+  it('tanpa satuan, tanpa batas, atau ukuran tak masuk akal: tidak ada skala awal', () => {
+    expect(naturalWidthM([0, 0, 20000, 10000], null)).toBeNull();
+    expect(naturalWidthM(null, 0.001)).toBeNull();
+    expect(naturalWidthM([0, 0, 0, 10], 1)).toBeNull();
+    expect(naturalWidthM([0, 0, 1e9, 1], 1)).toBeNull();
+  });
+});
+
+describe('defaultCadLayers', () => {
+  it('mencentang semua layer yang berisi gambar', () => {
+    expect(
+      defaultCadLayers([
+        { name: 'DINDING', entities: 12 },
+        { name: 'Defpoints', entities: 0 },
+        { name: 'PINTU', entities: 3 },
+      ]),
+    ).toEqual(['DINDING', 'PINTU']);
   });
 });
 

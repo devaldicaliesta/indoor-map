@@ -65,3 +65,125 @@ describe('store panel Visitor', () => {
     expect(selectionOf({ detail: null, query: '', list: { kind: 'directory' } })).toBeNull();
   });
 });
+
+describe('titik asal', () => {
+  const qr = { kind: 'origin_point', code: '3fa9c1d2e4b5' } as const;
+
+  it('Rute ke sini tanpa titik asal meminta titik asal lebih dulu', () => {
+    const store = createExploreStore();
+    store.getState().openDetail(location);
+    store.getState().requestRoute(location);
+    expect(store.getState()).toMatchObject({
+      destination: location,
+      originMode: 'choose',
+      detail: null,
+    });
+    store.getState().setOrigin({ kind: 'feature', featureId: 'u1' });
+    expect(store.getState()).toMatchObject({
+      origin: { kind: 'feature', featureId: 'u1' },
+      originMode: 'off',
+      destination: location,
+      originSeq: 1,
+    });
+  });
+
+  it('dari QR titik asal sudah ada: Rute ke sini langsung ke panel rute', () => {
+    const store = createExploreStore({ origin: qr });
+    store.getState().requestRoute(location);
+    expect(store.getState()).toMatchObject({
+      origin: qr,
+      originMode: 'off',
+      destination: location,
+    });
+  });
+
+  it('titik asal bisa diganti; ketuk peta; batal tanpa titik asal membatalkan rute', () => {
+    const store = createExploreStore({ origin: qr });
+    store.getState().requestRoute(location);
+    store.getState().chooseOrigin();
+    store.getState().tapOrigin();
+    expect(store.getState().originMode).toBe('tap');
+    store.getState().cancelOrigin();
+    expect(store.getState()).toMatchObject({
+      origin: qr,
+      destination: location,
+      originMode: 'off',
+    });
+
+    const fresh = createExploreStore();
+    fresh.getState().requestRoute(location);
+    fresh.getState().cancelOrigin();
+    expect(fresh.getState()).toMatchObject({ destination: null, originMode: 'off' });
+  });
+});
+
+describe('rute', () => {
+  it('mode aksesibel dan rute baru kembali ke daftar langkah dan membingkai ulang', () => {
+    const store = createExploreStore({ origin: { kind: 'origin_point', code: '3fa9c1d2e4b5' } });
+    store.getState().requestRoute(location);
+    const seq = store.getState().routeSeq;
+    store.getState().showStep(2);
+    store.getState().setAccessible(true);
+    expect(store.getState()).toMatchObject({
+      accessible: true,
+      activeStep: null,
+      routeSeq: seq + 1,
+    });
+    store.getState().showStep(1);
+    store.getState().closeRoute();
+    expect(store.getState()).toMatchObject({ destination: null, activeStep: null });
+  });
+
+  it('tukar asal dan tujuan', () => {
+    const store = createExploreStore({ origin: { kind: 'location', locationId: 'l1' } });
+    store.getState().requestRoute({ kind: 'unit', id: 'u2' });
+    store.getState().swap({ kind: 'feature', featureId: 'u2' }, location);
+    expect(store.getState()).toMatchObject({
+      origin: { kind: 'feature', featureId: 'u2' },
+      destination: location,
+    });
+  });
+});
+
+describe('keadaan awal dari tautan', () => {
+  it('lokasi dibuka dan kamera membingkainya', () => {
+    const state = createExploreStore({ detail: location }).getState();
+    expect(state).toMatchObject({ detail: location, sheetSnap: 'half', focus: { seq: 1 } });
+  });
+
+  it('rute lengkap langsung tampil; tanpa asal yang berlaku meminta asal', () => {
+    const qr = { kind: 'origin_point', code: '3fa9c1d2e4b5' } as const;
+    expect(
+      createExploreStore({ origin: qr, destination: location, accessible: true }).getState(),
+    ).toMatchObject({ originMode: 'off', destination: location, accessible: true, routeSeq: 1 });
+    expect(createExploreStore({ destination: location }).getState()).toMatchObject({
+      originMode: 'choose',
+      destination: location,
+    });
+  });
+});
+
+describe('penutupan live di store', () => {
+  const closure = {
+    id: 'c1',
+    featureId: null,
+    edgeId: 'e1',
+    connectorId: null,
+    reason: 'Perawatan',
+    startsAt: '2026-10-01T00:00:00Z',
+    endsAt: null,
+  };
+
+  it('isi yang sama tidak mengganti array; isi baru mengembalikan mode langkah ke daftar', () => {
+    const store = createExploreStore({ origin: { kind: 'origin_point', code: 'x' } });
+    store.getState().requestRoute(location);
+    store.getState().setClosures([closure]);
+    const first = store.getState().closures;
+    store.getState().showStep(4);
+    store.getState().setClosures([{ ...closure }]);
+    expect(store.getState().closures).toBe(first);
+    expect(store.getState().activeStep).toBe(4);
+    store.getState().setClosures([]);
+    expect(store.getState()).toMatchObject({ closures: [], activeStep: null });
+  });
+});

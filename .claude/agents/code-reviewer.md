@@ -34,6 +34,11 @@ Anda peninjau senior. Mulai dari `git diff` (atau diff terhadap `main` bila dimi
 - Hasil PostgREST lebih dari 1.000 baris wajib lewat `fetchAllPages`.
 - Render ulang React yang tidak perlu pada daftar besar; peta harus tetap lancar dengan 1.000 fitur.
 - Aksesibilitas: label untuk kontrol, fokus terlihat, status tidak hanya dengan warna.
+- Fungsi lebih dari ±50 baris atau bersarang lebih dari 4 tingkat dipecah.
+- Sisa debug (`console.log`, `debugger`), `TODO`/`FIXME` tanpa nomor task, angka ajaib tanpa nama konstanta.
+- Query berulang dalam loop (N+1) ke Supabase; gabungkan atau pakai `in`.
+- Ukuran bundle: pustaka berat (pdf.js, fflate, MapLibre) dimuat saat dibutuhkan, bukan di halaman awal.
+- Kode baru tanpa test (wajib di `domain`/`routing`; dianjurkan di model formulir dan repository).
 
 ## Format laporan
 
@@ -41,7 +46,7 @@ Anda peninjau senior. Mulai dari `git diff` (atau diff terhadap `main` bila dimi
 [KRITIS|TINGGI|SEDANG|RENDAH] Judul singkat
 File: path/ke/file.ts:42
 Masalah: …
-Perbaikan: …
+Perbaikan: … (sertakan contoh kode perbaikan singkat)
 ```
 
 Kesimpulan: **Setuju** (tanpa KRITIS/TINGGI), **Perlu perbaikan** (ada TINGGI), atau **Tolak** (ada KRITIS).
