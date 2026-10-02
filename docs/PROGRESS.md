@@ -21,7 +21,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-008 | Login, logout, reset password | T-007 | review | Auth Hook penguncian (migrasi 0002), sesi idle 60 menit, reset lewat email; diuji di browser + Mailpit. Akun terkunci tanpa pesan khusus + email pemberitahuan (migrasi 0021, keputusan T-307a). Diuji E2E T-307a (lulus 3/3, 12 TC-AUTH), bukti `e2e/evidence/T-008/` |
 | T-009a | Peta aksi per role dan pgTAP per role | T-008 | review | `can(role, action)` + 20 uji pgTAP (venues, features, closures, profiles) untuk 5 role. Diuji E2E T-307a (5 role: tombol sesuai `can()`, 19 percobaan buat/ubah/hapus ditolak server, DB tetap), bukti `e2e/evidence/T-009a/` |
 | T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | review | Undang/ubah role/nonaktifkan; guard Super Admin terakhir + audit (migrasi 0003); diuji browser, 2 test integrasi, 7 pgTAP  Diuji E2E T-307a, bukti `e2e/evidence/T-009b/`; perbaikan: keluar hanya sesi ini (`signOut` scope `local`). |
-| T-010 | Pengaturan sistem | T-009 | review | Tab Sistem, password SMTP di Vault, email uji lewat Edge Function; diuji browser + Mailpit. Lihat pertanyaan terbuka soal SMTP GoTrue |
+| T-010 | Pengaturan sistem | T-009 | review | Tab Sistem, password SMTP di Vault, email uji lewat Edge Function; diuji browser + Mailpit. Lihat pertanyaan terbuka soal SMTP GoTrue  Diuji E2E T-307a, bukti `e2e/evidence/T-010/`. |
 | T-011 | Kerangka Visitor | T-002, T-006 | review | Layout HP/desktop, bottom sheet 3 tinggi (drag + keyboard), i18next ID/EN, PWA installable; tanpa cookie & request pihak ketiga |
 | T-012 | Catatan peristiwa penting | T-009 | review | Tab Catatan (Super Admin), 200 terakhir + filter; login, gagal masuk, role, nonaktif, pengaturan tercatat |
 
@@ -117,6 +117,8 @@ Tidak ada.
 Pemilik (2026-09-30): pertanyaan diputuskan langsung sesuai dokumen, lalu dicatat di "Catatan keputusan".
 
 ## Catatan keputusan
+
+- [2026-10-02] T-307a/T-009b — Pencabutan sesi (temuan security-reviewer): menonaktifkan pengguna menghapus semua `auth.sessions` miliknya (migrasi 0022, trigger), dan ganti password mencabut sesi perangkat lain (`signOut({ scope: 'others' })`). Sebelumnya RLS sudah menolak data, tetapi refresh token tetap hidup dan sesi lama berlaku lagi bila akun diaktifkan kembali.
 
 - [2026-10-02] T-307a/T-009b — "Keluar" kini hanya mencabut sesi perangkat ini (`signOut({ scope: 'local' })`); bawaan supabase-js `global` mengeluarkan semua perangkat akun itu, bertentangan dengan TC-AUTH-34. Untuk "keluar dari semua perangkat" (bila dibutuhkan) perlu aksi terpisah. Temuan RENDAH: tombol ghost ("Aktifkan", "Ubah waktu selesai") tampak seperti teks; baris Super Admin terakhir tetap menawarkan aksi yang pasti ditolak; halaman Pengguna tanpa pencarian.
 

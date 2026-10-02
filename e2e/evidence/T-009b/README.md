@@ -23,3 +23,9 @@ Data: 8 pengguna undangan per run (5 role, nama pendek/angka di awal) + akun see
 - [RENDAH] Baris Super Admin terakhir tetap menawarkan "Nonaktifkan" dan pilihan role walaupun pasti ditolak; lebih jelas bila dinonaktifkan dengan keterangan.
 - [RENDAH] Halaman Pengguna tanpa pencarian/penyaringan; dengan puluhan pengguna daftar panjang sulit dipindai.
 - [Catatan test] Toast sempat terpotret setengah transparan (animasi); spec kini menunggu opasitas 1.
+
+## Tinjauan
+
+security-reviewer — Setuju (scope `local` aman karena otorisasi bergantung pada `is_active`, bukan sesi). Dua temuan SEDANG **diperbaiki** setelahnya:
+- Menonaktifkan pengguna kini mencabut semua sesinya di server (migrasi 0022, trigger pada `profiles.is_active`; pgTAP `session_revoke.test.sql` + test integrasi: `getUser`/`refreshSession` di perangkat lain gagal).
+- Ganti password (termasuk lewat tautan reset) kini mencabut sesi perangkat lain (`signOut({ scope: 'others' })`; test integrasi dua perangkat).
