@@ -110,4 +110,36 @@ test.describe('T-007 Kerangka Admin', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await expect(page.getByText(/Admin dirancang untuk layar lebar/)).toHaveCount(0);
   });
+
+  test('sidebar bisa diciutkan dan dilebarkan; pilihan diingat', async ({ page, loginAs }) => {
+    await loginAs('admin');
+    const sidebar = page.locator('aside').first();
+    const nav = page.getByRole('navigation', { name: 'Menu utama' });
+    await expect(sidebar).toHaveJSProperty('offsetWidth', 240);
+
+    const collapse = page.getByRole('button', { name: 'Ciutkan menu' });
+    await expect(collapse).toHaveAttribute('aria-expanded', 'true');
+    await collapse.click();
+    await expect(sidebar).toHaveJSProperty('offsetWidth', 56);
+    // Menu halaman aktif tetap disorot saat diciutkan.
+    await expect(nav.getByRole('link', { name: 'Venue' })).toHaveClass(/bg-signal-soft/);
+    // Nama menu tetap dibacakan (teks tersembunyi) dan muncul sebagai tooltip.
+    await expect(nav.getByRole('link', { name: 'Lokasi' })).toBeVisible();
+    await expect(nav.getByText('Lokasi')).toHaveClass(/sr-only/);
+    await nav.getByRole('link', { name: 'Lokasi' }).hover();
+    await expect(page.getByRole('tooltip', { name: 'Lokasi' })).toBeVisible();
+    await capture(page, '08-sidebar-diciutkan');
+
+    await page.reload();
+    await expect(sidebar).toHaveJSProperty('offsetWidth', 56);
+    await nav.getByRole('link', { name: 'Lokasi' }).click();
+    await expect(page).toHaveURL(/\/locations$/);
+
+    const expand = page.getByRole('button', { name: 'Lebarkan menu' });
+    await expand.focus();
+    await page.keyboard.press('Enter');
+    await expect(sidebar).toHaveJSProperty('offsetWidth', 240);
+    await expect(nav.getByText('Lokasi')).not.toHaveClass(/sr-only/);
+    await capture(page, '09-sidebar-dilebarkan');
+  });
 });
