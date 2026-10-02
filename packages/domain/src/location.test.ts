@@ -55,6 +55,7 @@ function location(
     id: id<LocationId>(100 + n),
     venueId: id<VenueId>(900),
     locationTypeId: id(901),
+    customFields: {},
     code: extra.code ?? null,
     name,
     description: null,

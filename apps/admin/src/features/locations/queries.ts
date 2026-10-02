@@ -2,9 +2,11 @@ import type { LocationImages } from '@indoor/data';
 import type {
   CategoryId,
   CategoryInput,
+  CustomField,
   LocationId,
   LocationInput,
   LocationTypeId,
+  LocationTypeInput,
   VenueId,
 } from '@indoor/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,13 +20,69 @@ const keys = {
   forUnit: (featureId: string) => ['unit-locations', featureId] as const,
 };
 
-/** Tipe bawaan "Lokasi"; T-303 menambah pengelolaan tipe. */
-export function useDefaultLocationType(venueId: VenueId) {
+/** Tipe lokasi venue beserta field kustomnya, terurut. */
+export function useLocationTypes(venueId: VenueId) {
   return useQuery({
     queryKey: keys.types(venueId),
-    queryFn: () => data.categories.listTypes(venueId),
-    select: (types) => types[0] ?? null,
+    queryFn: () => data.locationTypes.list(venueId),
   });
+}
+
+function useRefreshTypes(venueId: VenueId) {
+  const queryClient = useQueryClient();
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: keys.types(venueId) }),
+      queryClient.invalidateQueries({ queryKey: keys.locations(venueId) }),
+    ]);
+}
+
+export function useSaveLocationType(venueId: VenueId) {
+  const refresh = useRefreshTypes(venueId);
+  return useMutation({
+    mutationFn: ({ id, input }: { id: LocationTypeId | null; input: LocationTypeInput }) =>
+      data.locationTypes.save(venueId, id, input),
+    onSuccess: refresh,
+  });
+}
+
+export function useSaveField(venueId: VenueId) {
+  const refresh = useRefreshTypes(venueId);
+  return useMutation({
+    mutationFn: ({
+      typeId,
+      id,
+      field,
+      sortOrder,
+    }: {
+      typeId: LocationTypeId;
+      id: string | null;
+      field: CustomField;
+      sortOrder: number;
+    }) => data.locationTypes.saveField(typeId, id, field, sortOrder),
+    onSuccess: refresh,
+  });
+}
+
+export function useRemoveField(venueId: VenueId) {
+  const refresh = useRefreshTypes(venueId);
+  return useMutation({
+    mutationFn: (id: string) => data.locationTypes.removeField(id),
+    onSuccess: refresh,
+  });
+}
+
+export function useReorderFields(venueId: VenueId) {
+  const refresh = useRefreshTypes(venueId);
+  return useMutation({
+    mutationFn: (order: { id: string; sortOrder: number }[]) =>
+      data.locationTypes.reorderFields(order),
+    onSettled: refresh,
+  });
+}
+
+export function fieldUsage(typeId: LocationTypeId, key: string) {
+  return data.locationTypes.fieldUsage(typeId, key);
 }
 
 export function useLocations(venueId: VenueId) {
@@ -136,4 +194,8 @@ export function useRemoveCategory(venueId: VenueId) {
 
 export function locationImageUrl(path: string): string {
   return data.locations.imageUrl(path);
+}
+
+export function uploadFieldImage(venueId: VenueId, file: Blob): Promise<string> {
+  return data.locations.uploadFieldImage(venueId, file);
 }

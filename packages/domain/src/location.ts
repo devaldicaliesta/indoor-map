@@ -11,6 +11,7 @@ import type {
 } from './ids';
 import { checkUniqueName, type NameProblem, sortByOrder } from './names';
 import { normalizeSearchText } from './search';
+import type { SnapshotFieldValue } from './snapshot';
 
 /** Sama dengan enum `location_status` di migrasi 0001. Status diubah lewat T-304. */
 export const LOCATION_STATUSES = [
@@ -102,6 +103,8 @@ export interface Location {
   status: LocationStatus;
   categoryIds: CategoryId[];
   units: LocationUnit[];
+  /** Nilai field kustom per kunci (`locations.custom_fields`). */
+  customFields: Record<string, SnapshotFieldValue>;
 }
 
 /** Lokasi yang menempati sebuah unit (panel properti unit di editor). */
@@ -119,6 +122,8 @@ export interface LocationInput {
   unitIds: FeatureId[];
   /** Unit utama; tanpa pilihan, unit pertama yang menjadi utama. */
   primaryUnitId: FeatureId | null;
+  /** Nilai field kustom tipe lokasinya, sudah divalidasi `parseCustomFieldInputs`. */
+  customFields: Record<string, SnapshotFieldValue>;
 }
 
 export const LOCATION_NAME_MAX = 120;

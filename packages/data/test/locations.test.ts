@@ -28,6 +28,7 @@ const row: LocationRow = {
   logo_path: 'locations/v/logo.png',
   photo_paths: [],
   status: 'active',
+  custom_fields: { telepon: '021-555', lantai: 2, rusak: { x: 1 } },
   location_categories: [{ category_id: CATEGORY }],
   location_units: [
     {
@@ -59,6 +60,8 @@ describe('lokasi', () => {
       locationTypeId: TYPE,
       code: 'RAD-01',
       name: 'Radiologi',
+      // Isi jsonb yang bentuknya tidak dikenal (objek) dibuang.
+      customFields: { telepon: '021-555', lantai: 2 },
       description: null,
       logoPath: 'locations/v/logo.png',
       photoPaths: [],
@@ -95,6 +98,7 @@ describe('lokasi', () => {
       categoryIds: [CATEGORY as CategoryId],
       unitIds: [UNIT_1 as FeatureId, UNIT_2 as FeatureId],
       primaryUnitId: UNIT_2 as FeatureId,
+      customFields: { telepon: '021-555' },
     };
     const args = toSaveLocationArgs(
       LOCATION as LocationId,
@@ -112,6 +116,7 @@ describe('lokasi', () => {
       p_unit_ids: [UNIT_1, UNIT_2],
       p_photo_paths: ['locations/v/a.jpg'],
       p_primary_unit_id: UNIT_2,
+      p_custom_fields: { telepon: '021-555' },
     });
     const other = toSaveLocationArgs(
       LOCATION as LocationId,

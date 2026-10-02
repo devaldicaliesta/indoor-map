@@ -1504,9 +1504,11 @@ export type Database = {
           p_primary_unit_id?: string;
           p_unit_ids: string[];
           p_venue_id: string;
+          p_custom_fields?: Json;
         };
         Returns: string;
       };
+      remove_field_definition: { Args: { p_id: string }; Returns: undefined };
       set_smtp_password: { Args: { p_password: string }; Returns: undefined };
       smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
       smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };

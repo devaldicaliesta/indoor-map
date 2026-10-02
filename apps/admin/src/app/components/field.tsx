@@ -10,7 +10,7 @@ export function Field({
 }: {
   id: string;
   label: string;
-  hint?: string;
+  hint?: string | undefined;
   error?: string | undefined;
   children: ReactNode;
 }) {
