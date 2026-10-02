@@ -11,4 +11,4 @@ Spec: `e2e/tests/visitor/verify/T-214-visitor-origin.spec.ts` (fixture `fullVenu
 
 ## Temuan
 
-Tidak ada yang baru (bingkai kamera rute di HP yang terpotong di kanan sudah tercatat di T-118).
+Tidak ada. Kamera membingkai rute (seluruh garis rute terlihat); gedung boleh terpotong di tepi.
