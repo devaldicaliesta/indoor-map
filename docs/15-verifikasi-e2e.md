@@ -190,7 +190,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-303 · Tipe lokasi dan field kustom — CRUD tipe lokasi dan field kustom (6 jenis), urutan, field wajib → `e2e/evidence/T-303/`
 - [x] T-304 · Status dan jam operasional — Status lokasi, jam operasional, tanggal khusus; label buka/tutup di Visitor → `e2e/evidence/T-304/`
 - [x] T-305 · Import CSV/Excel — Import CSV/XLSX: template, pratinjau baru/perbarui/gagal, simpan baris valid → `e2e/evidence/T-305/`
-- [ ] T-306 · Alias pencarian — Alias pencarian: tambah/ubah/hapus, cari alias di Visitor setelah publish → `e2e/evidence/T-306/`
+- [x] T-306 · Alias pencarian — Alias pencarian: tambah/ubah/hapus, cari alias di Visitor setelah publish → `e2e/evidence/T-306/`
 
 ### Sudah diuji saat dikerjakan (2026-10-02)
 
