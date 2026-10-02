@@ -1,0 +1,2 @@
+@indoor/data:test:integration:  Test Files  22 passed (22)
+@indoor/data:test:integration:       Tests  43 passed (43)
