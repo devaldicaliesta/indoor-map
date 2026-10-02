@@ -33,8 +33,12 @@ test.describe('T-205 Editor graf', () => {
     }
     const end = await at(editor, 120, 0);
     await page.mouse.dblclick(end.x, end.y);
-    await expect.poll(async () => (await graph()).nodes).toBe(3);
-    expect((await graph()).edges).toHaveLength(2);
+    await expect
+      .poll(async () => {
+        const g = await graph();
+        return [g.nodes, g.edges.length];
+      })
+      .toEqual([3, 2]);
     await expect(page.getByText(/2 edge jalur/)).toBeVisible();
     await page.screenshot({ path: shot('01-jalur-digambar') });
 
@@ -50,8 +54,12 @@ test.describe('T-205 Editor graf', () => {
       .toBe(1);
     await page.screenshot({ path: shot('02-edge-tidak-aksesibel') });
     await edgePanel.getByRole('button', { name: 'Pisah di tengah' }).click();
-    await expect.poll(async () => (await graph()).nodes).toBe(4);
-    expect((await graph()).edges).toHaveLength(3);
+    await expect
+      .poll(async () => {
+        const g = await graph();
+        return [g.nodes, g.edges.length];
+      })
+      .toEqual([4, 3]);
 
     // Hapus node ujung kanan: edge yang menempel ikut terhapus.
     await page.keyboard.press('Escape');
@@ -59,8 +67,12 @@ test.describe('T-205 Editor graf', () => {
     const nodePanel = page.getByRole('region', { name: 'Properti node jalur' });
     await expect(nodePanel).toBeVisible();
     await nodePanel.getByRole('button', { name: 'Hapus node' }).click();
-    await expect.poll(async () => (await graph()).nodes).toBe(3);
-    expect((await graph()).edges).toHaveLength(2);
+    await expect
+      .poll(async () => {
+        const g = await graph();
+        return [g.nodes, g.edges.length];
+      })
+      .toEqual([3, 2]);
 
     // Hapus edge lewat panel (titik tengah lama kini node hasil pisah, jadi klik di seperempat).
     const quarter = await at(editor, -90, 0);

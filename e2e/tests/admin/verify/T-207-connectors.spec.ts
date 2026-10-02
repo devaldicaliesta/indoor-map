@@ -70,7 +70,7 @@ test.describe('T-207 Editor konektor dan aksesibilitas', () => {
     await expect.poll(async () => (await connectors()).length).toBe(2);
     const escalator = (await connectors()).find((c) => c.kind === 'escalator');
     expect(escalator).toMatchObject({ accessible: false });
-    expect(escalator?.direction).toBeTruthy();
+    expect(escalator?.direction).toBe('up');
     expect(escalator?.stops).toHaveLength(2);
     await page.screenshot({ path: shot('03-dua-konektor') });
 

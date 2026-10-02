@@ -1,5 +1,6 @@
 import type { ConnectorInput } from '@indoor/data';
 import type { Connector, GraphChange, NavEdge, NavNode, Position, VenueId } from '@indoor/domain';
+import { toast } from '@indoor/ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { data } from '../../../app/data-client';
 import { venueGraphKey } from '../graph/graph-queries';
@@ -81,7 +82,11 @@ export function useConnectorMutations(venueId: VenueId) {
       await data.connectors.remove(connector.id);
       syncStop(stopOn(connector.stops), null, [0, 0]);
     },
-    onSuccess: invalidate,
+    // Toast di sini, bukan di panel: panel ter-unmount begitu node konektornya hilang.
+    onSuccess: (_result, connector) => {
+      toast.success('Konektor dihapus', { description: connector.name });
+      return invalidate();
+    },
   });
 
   return { save, remove };
