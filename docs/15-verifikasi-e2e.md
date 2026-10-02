@@ -167,7 +167,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 
 - [x] T-201 · Routing: graf dan A* — Rute A→B di Test route dan Visitor (paket murni: unit test lulus) → `e2e/evidence/T-201/`
 - [x] T-202 · Routing: konektor — Rute lintas lantai lewat lift/eskalator/tangga → `e2e/evidence/T-202/`
-- [ ] T-203 · Routing: aksesibel, penutupan, titik masuk — Rute aksesibel menghindari tangga; penutupan dihindari; titik masuk dipakai → `e2e/evidence/T-203/`
+- [x] T-203 · Routing: aksesibel, penutupan, titik masuk — Rute aksesibel menghindari tangga; penutupan dihindari; titik masuk dipakai → `e2e/evidence/T-203/`
 - [ ] T-204 · Routing: instruksi — Teks instruksi per langkah (ID/EN) → `e2e/evidence/T-204/`
 - [ ] T-205 · Editor graf — CRUD node/edge graf di editor → `e2e/evidence/T-205/`
 - [ ] T-206 · Titik masuk unit/fasilitas — Titik masuk unit/fasilitas: tambah, pindah, hapus → `e2e/evidence/T-206/`
