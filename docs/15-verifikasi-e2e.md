@@ -133,7 +133,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-005 · Lapisan data — Error data tampil sebagai pesan Indonesia (mis. simpan tanpa izin → "tidak memiliki izin") → `e2e/evidence/T-005/`
 - [x] T-006 · Sistem desain — Galeri `/_ui`: komponen, fokus keyboard, kontras; screenshot galeri → `e2e/evidence/T-006/`
 - [x] T-007 · Kerangka Admin — Menu per role (5 role), pemilih venue diingat, layar sempit diberi pemberitahuan → `e2e/evidence/T-007/`
-- [ ] T-008 · Login, logout, reset password — Login benar/salah, terkunci setelah gagal berulang, logout, lupa password (Mailpit), sesi idle → `e2e/evidence/T-008/`
+- [x] T-008 · Login, logout, reset password — Login benar/salah, terkunci setelah gagal berulang, logout, lupa password (Mailpit), sesi idle → `e2e/evidence/T-008/`
 - [ ] T-009a · Peta aksi per role dan pgTAP per role — Tiap role mencoba aksi terlarang lewat UI → server menolak → `e2e/evidence/T-009a/`
 - [ ] T-009b · Halaman Pengguna, Edge Function `admin-users`, `<Can>` — CRUD pengguna: undang, ubah role, nonaktifkan; Super Admin terakhir tidak bisa dinonaktifkan → `e2e/evidence/T-009b/`
 - [ ] T-010 · Pengaturan sistem — Ubah pengaturan sistem + kirim email uji (Mailpit); non-Super Admin tidak melihat tab → `e2e/evidence/T-010/`

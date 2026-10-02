@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(13);
+select plan(19);
 
 insert into auth.users (id, email) values
   ('d0000000-0000-4000-8000-000000000001', 'kunci@login.test'),
@@ -68,8 +68,48 @@ select is(
 );
 select is(
   pg_temp.attempt('d0000000-0000-4000-8000-000000000001', true) ->> 'message',
-  'Akun terkunci karena terlalu banyak percobaan gagal. Coba lagi dalam 15 menit.',
-  'Pesan akun terkunci'
+  'Invalid login credentials',
+  'Akun terkunci ditolak dengan pesan bawaan GoTrue untuk kredensial salah (tidak membocorkan akun)'
+);
+select results_eq(
+  $$ select kind, sent_at from public.account_notices
+     where user_id = 'd0000000-0000-4000-8000-000000000001' $$,
+  $$ values ('account_locked', null::timestamptz) $$,
+  'Gagal ke-5 mencatat satu pemberitahuan akun terkunci untuk dikirim lewat email'
+);
+select is(
+  (select array_to_string(proconfig, ',') from pg_proc
+   where oid = 'app.hook_password_verification_attempt(jsonb)'::regprocedure),
+  'search_path=""',
+  'Hook security definer memakai search_path kosong'
+);
+set local role authenticated;
+select throws_ok(
+  'select 1 from public.account_notices',
+  '42501',
+  null,
+  'Pengguna login tidak bisa membaca pemberitahuan akun'
+);
+select throws_ok(
+  'select 1 from app.server_settings',
+  '42501',
+  null,
+  'Pengguna login tidak bisa membaca konfigurasi server'
+);
+reset role;
+
+-- Kunci ulang dalam satu jam tidak mengirim email lagi (mencegah banjir email).
+update public.profiles set locked_until = now() - interval '1 second' where email = 'kunci@login.test';
+select pg_temp.attempt('d0000000-0000-4000-8000-000000000001', false) from generate_series(1, 5);
+select is(
+  (select count(*)::int from public.account_notices where user_id = 'd0000000-0000-4000-8000-000000000001'),
+  1,
+  'Kunci kedua dalam satu jam tidak menambah pemberitahuan'
+);
+select ok(
+  not has_function_privilege('authenticated', 'app.request_account_notice(uuid, text)', 'execute')
+  and not has_function_privilege('anon', 'app.request_account_notice(uuid, text)', 'execute'),
+  'Klien tidak bisa memicu email pemberitahuan'
 );
 
 -- Kunci kedaluwarsa: login benar diterima dan penghitung kembali 0.
@@ -94,8 +134,8 @@ select is(
 select is(
   (select count(*)::int from public.audit_events
    where user_id = 'd0000000-0000-4000-8000-000000000001' and action = 'login_failed'),
-  7,
-  'Setiap gagal login dicatat (5 password salah + 2 saat terkunci)'
+  12,
+  'Setiap gagal login dicatat (5 + 5 password salah, 2 saat terkunci)'
 );
 select is(
   (select count(*)::int from public.audit_events
