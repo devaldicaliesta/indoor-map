@@ -1,5 +1,12 @@
 import { cn } from '@indoor/ui';
-import { type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, useRef, useState } from 'react';
+import {
+  type KeyboardEvent,
+  type MouseEvent,
+  type PointerEvent,
+  type ReactNode,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { cycleSnap, nearestSnap, type SheetSnap, snapHeight, stepSnap } from './sheet-snap';
 
