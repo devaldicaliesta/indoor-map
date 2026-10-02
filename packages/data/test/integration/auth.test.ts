@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ACCOUNT_INACTIVE_MESSAGE, ACCOUNT_LOCKED_MESSAGE } from '../../src/auth';
+import { ACCOUNT_INACTIVE_MESSAGE } from '../../src/auth';
 import { createRepositories } from '../../src/client';
 import type { Database } from '../../src/database.types';
 import { DataError } from '../../src/errors';
@@ -58,8 +58,8 @@ describe.runIf(url && anonKey && serviceKey)('login lewat Auth Hook (Supabase lo
     expect(error.message).toBe('Email atau password salah.');
   });
 
-  it('percobaan ke-6 setelah 5 gagal ditolak dengan pesan akun terkunci (teks sama dengan hook)', async () => {
-    const { email } = await createUser('editor');
+  it('akun terkunci ditolak persis seperti email tidak terdaftar (tanpa membocorkan akun)', async () => {
+    const { id, email } = await createUser('editor');
     const auth = createRepositories(newDb(anonKey)).auth;
     for (let attempt = 1; attempt <= 5; attempt += 1) {
       expect((await failure(auth.signIn(email, `salah-${attempt}`))).code).toBe(
@@ -67,8 +67,16 @@ describe.runIf(url && anonKey && serviceKey)('login lewat Auth Hook (Supabase lo
       );
     }
     const locked = await failure(auth.signIn(email, PASSWORD));
-    expect(locked.code).toBe('account_locked');
-    expect(locked.message).toBe(ACCOUNT_LOCKED_MESSAGE);
+    const unknown = await failure(auth.signIn(`tidak-ada-${randomUUID()}@login.test`, PASSWORD));
+    expect(locked.code).toBe('invalid_credentials');
+    expect(locked.message).toBe('Email atau password salah.');
+    expect(locked.cause).toEqual(unknown.cause);
+    const { data: profile } = await service
+      .from('profiles')
+      .select('locked_until')
+      .eq('user_id', id)
+      .single();
+    expect(profile?.locked_until).not.toBeNull();
   });
 
   it('pengguna nonaktif tidak bisa masuk', async () => {

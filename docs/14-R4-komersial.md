@@ -175,7 +175,7 @@
 - **Bergantung pada:** T-402
 - **Langkah:**
   1. `deploy/`: Docker Compose berisi Supabase self-host (komponen yang dipakai saja), build statis Admin dan Visitor di balik reverse proxy (Caddy) dengan HTTPS otomatis atau sertifikat klien, layanan `cad-converter`.
-  2. `deploy/install.sh`: cek prasyarat, buat `.env` dari input, jalankan migrasi, tampilkan URL aktivasi. Bangkitkan rahasia Auth Hook *send email* (`v1,whsec_<base64 32 byte>`) dan isi ke GoTrue (`GOTRUE_HOOK_SEND_EMAIL_ENABLED/URI/SECRETS`, URI ke Edge Function `auth-email`) serta ke secret Edge Function `SEND_EMAIL_HOOK_SECRET`; email Auth memakai SMTP dari Pengaturan Sistem (keputusan T-010), jadi SMTP GoTrue tidak perlu diisi.
+  2. `deploy/install.sh`: cek prasyarat, buat `.env` dari input, jalankan migrasi, tampilkan URL aktivasi. Bangkitkan rahasia Auth Hook *send email* (`v1,whsec_<base64 32 byte>`) dan isi ke GoTrue (`GOTRUE_HOOK_SEND_EMAIL_ENABLED/URI/SECRETS`, URI ke Edge Function `auth-email`) serta ke secret Edge Function `SEND_EMAIL_HOOK_SECRET`; email Auth memakai SMTP dari Pengaturan Sistem (keputusan T-010), jadi SMTP GoTrue tidak perlu diisi. Isi `app.server_settings` (`functions_url`: alamat Edge Function yang dijangkau dari database, mis. `http://kong:8000/functions/v1`) agar email pemberitahuan akun terkunci terkirim (keputusan T-307a/T-008); tolak rahasia hook bawaan repo.
   3. Backup harian database + Storage ke folder lokal (retensi 14 hari) dan `deploy/restore.sh`.
   4. `deploy/upgrade.sh`: backup otomatis → tarik versi baru → migrasi → health check → rollback otomatis jika gagal.
   5. `deploy/README.md`: spesifikasi server minimum, port, langkah instalasi, pembaruan, pemulihan.
