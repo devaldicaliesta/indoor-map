@@ -117,7 +117,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-003 · Kerangka paket bersama — Bukan CRUD; dibuktikan lewat T-005/T-007 (app memakai paket bersama) → `e2e/evidence/T-003/`
 - [x] T-004 · Supabase lokal dan skema inti — Data seed tampil di Admin (Venue Contoh); `supabase test db` lulus → `e2e/evidence/T-004/`
 - [x] T-005 · Lapisan data — Error data tampil sebagai pesan Indonesia (mis. simpan tanpa izin → "tidak memiliki izin") → `e2e/evidence/T-005/`
-- [ ] T-006 · Sistem desain — Galeri `/_ui`: komponen, fokus keyboard, kontras; screenshot galeri → `e2e/evidence/T-006/`
+- [x] T-006 · Sistem desain — Galeri `/_ui`: komponen, fokus keyboard, kontras; screenshot galeri → `e2e/evidence/T-006/`
 - [ ] T-007 · Kerangka Admin — Menu per role (5 role), pemilih venue diingat, layar sempit diberi pemberitahuan → `e2e/evidence/T-007/`
 - [ ] T-008 · Login, logout, reset password — Login benar/salah, terkunci setelah gagal berulang, logout, lupa password (Mailpit), sesi idle → `e2e/evidence/T-008/`
 - [ ] T-009a · Peta aksi per role dan pgTAP per role — Tiap role mencoba aksi terlarang lewat UI → server menolak → `e2e/evidence/T-009a/`

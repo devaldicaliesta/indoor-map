@@ -16,7 +16,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-003 | Kerangka paket bersama | T-001 | review | 5 paket `@indoor/*` (exports ke src); batas impor di Biome. Diuji E2E T-307a (29 pemeriksaan + uji negatif impor), bukti `e2e/evidence/T-003/` |
 | T-004 | Supabase lokal dan skema inti | T-001 | review | Migrasi 0001, seed, 14 uji pgTAP lulus; diverifikasi dengan Docker di lingkungan cloud. Diuji E2E T-307a (reset 2×, 169 pgTAP, RLS/definer/anon), bukti `e2e/evidence/T-004/` |
 | T-005 | Lapisan data | T-003, T-004 | review | Repository profiles & systemSettings, DataError, helper GeoJSON; 25 unit + 7 integrasi lulus. Diuji E2E T-307a (galat nyata per role, pesan offline ±24 s → ±10 s), bukti `e2e/evidence/T-005/` |
-| T-006 | Sistem desain | T-003 | review | Tailwind 4 + token, font lokal, 15 komponen, galeri `/_ui` (dev); 19 uji kontras lulus |
+| T-006 | Sistem desain | T-003 | review | Tailwind 4 + token, font lokal, 15 komponen, galeri `/_ui` (dev); 19 uji kontras lulus. Diuji E2E T-307a (kontras AA semua teks /_ui, font lokal, bentuk; istilah industri di galeri diganti), bukti `e2e/evidence/T-006/` |
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | review | Layout, menu per role dari `permissions.ts`, pemilih venue (Zustand), guard sesi; diuji di browser dengan 5 akun seed |
 | T-008 | Login, logout, reset password | T-007 | review | Auth Hook penguncian (migrasi 0002), sesi idle 60 menit, reset lewat email; diuji di browser + Mailpit |
 | T-009a | Peta aksi per role dan pgTAP per role | T-008 | review | `can(role, action)` + 20 uji pgTAP (venues, features, closures, profiles) untuk 5 role |
