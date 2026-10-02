@@ -1,6 +1,7 @@
 import { createBrowserRouter, type RouteObject } from 'react-router';
 import { HomePage } from './routes/home-page';
 import { InfoPointPage } from './routes/info-point-page';
+import { NotFoundPage, RouteError } from './routes/route-error';
 import { VenuePage } from './routes/venue-page';
 
 // Pratinjau peta dengan fixture hanya ada saat pengembangan.
@@ -14,8 +15,14 @@ const devRoutes: RouteObject[] = import.meta.env.DEV
   : [];
 
 export const router = createBrowserRouter([
-  { path: '/', element: <HomePage /> },
-  { path: '/v/:venueId', element: <VenuePage /> },
-  { path: '/ip/:code', element: <InfoPointPage /> },
-  ...devRoutes,
+  {
+    errorElement: <RouteError />,
+    children: [
+      { path: '/', element: <HomePage /> },
+      { path: '/v/:venueId', element: <VenuePage /> },
+      { path: '/ip/:code', element: <InfoPointPage /> },
+      ...devRoutes,
+      { path: '*', element: <NotFoundPage /> },
+    ],
+  },
 ]);

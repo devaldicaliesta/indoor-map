@@ -12,7 +12,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
 | T-001 | Monorepo dan tooling | – | review | pnpm + Turborepo + Biome + Vitest + TS 7; CI & template PR. Kriteria "CI hijau di PR" menunggu PR pertama. Diuji E2E T-307a (16 pemeriksaan, CI PR run #27 hijau), bukti `e2e/evidence/T-001/` |
-| T-002 | Scaffold aplikasi Admin dan Visitor | T-001 | review | Vite 8 + React 19 + React Router 8; Admin 5173, Visitor 5174 |
+| T-002 | Scaffold aplikasi Admin dan Visitor | T-001 | review | Vite 8 + React 19 + React Router 8; Admin 5173, Visitor 5174. Diuji E2E T-307a (ditambah halaman 404/galat Visitor, sheet setengah untuk halaman pesan), bukti `e2e/evidence/T-002/` |
 | T-003 | Kerangka paket bersama | T-001 | review | 5 paket `@indoor/*` (exports ke src); batas impor di Biome |
 | T-004 | Supabase lokal dan skema inti | T-001 | review | Migrasi 0001, seed, 14 uji pgTAP lulus; diverifikasi dengan Docker di lingkungan cloud |
 | T-005 | Lapisan data | T-003, T-004 | review | Repository profiles & systemSettings, DataError, helper GeoJSON; 25 unit + 7 integrasi lulus |
