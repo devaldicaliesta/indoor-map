@@ -22,6 +22,7 @@ Katalog ini adalah daftar test case yang wajib dijalankan **sebelum dan selama**
 - Supabase lokal (`supabase start`, `pnpm db:reset`), Admin :5173, Visitor :5174, `services/cad-converter` untuk DXF.
 - Akun seed per role: `admin@local.test` (Super Admin), `pengelola@local.test` (Admin), `editor@local.test`, `operator@local.test`, `viewer@local.test`; password `SEED_ADMIN_PASSWORD`.
 - Venue uji (dibuat fixture, bukan data dummy produksi): 2 gedung, 3 lantai di gedung utama (B1, GF, L1), ≥ 20 unit, 1 lift yang tidak melayani semua lantai, 1 eskalator naik dan 1 turun, 1 tangga, 3 QR titik asal, Area Luar dengan jalur antar-gedung, berkas denah PNG, JPG, PDF 2 halaman, DXF (`e2e/files/denah-contoh.dxf`), DWG palsu.
+- Volume data untuk bukti gambar: minimal 4 venue, 20–50 lokasi per venue dengan status campuran, pengguna untuk setiap role, puluhan unit per lantai, beberapa penutupan dan titik asal (lihat `15-verifikasi-e2e.md` aturan 6).
 - Browser: Chromium (otomatis); Chrome, Edge, Firefox, Safari untuk NFR-COMP (manual).
 - Layar: Admin 1440 × 900; Visitor HP 360 × 740 dan 390 × 844; Visitor desktop 1280 × 800.
 
