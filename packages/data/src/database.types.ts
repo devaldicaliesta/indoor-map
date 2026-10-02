@@ -1452,6 +1452,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      apply_template: {
+        Args: {
+          p_template: Json;
+          p_venue_id: string;
+          p_venue_type: Database['public']['Enums']['venue_type'];
+        };
+        Returns: undefined;
+      };
       acquire_edit_lock: {
         Args: { p_floor_id: string };
         Returns: {
