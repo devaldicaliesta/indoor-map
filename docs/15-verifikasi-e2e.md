@@ -18,6 +18,25 @@ pnpm test:e2e                  # Playwright menyalakan Admin :5173 dan Visitor :
 - Bila gateway membalas "name resolution failed" setelah Docker dinyalakan ulang, `supabase stop && supabase start`.
 - Pakai fixture `e2e/fixtures.ts` (`loginAs`, `testVenue`, `publishedVenue`, `superAdmin`) dan Page Object `e2e/pages/` (tambah bila perlu); agent `e2e-runner` atau `/ecc-e2e`.
 
+## Referensi: e2e-runner (everything-claude-code)
+
+Panduan kerja E2E mengikuti agent [e2e-runner](https://github.com/WorldFlowAI/everything-claude-code/blob/main/agents/e2e-runner.md) (WorldFlowAI/everything-claude-code), yang versi adaptasinya ada di `.claude/agents/e2e-runner.md` (panggil lewat agent `e2e-runner` atau `/ecc-e2e`). Bila berbeda, aturan di dokumen ini dan `CLAUDE.md` yang berlaku.
+
+Prinsip yang dipakai selama pengujian:
+
+| Prinsip upstream | Penerapan di repo ini |
+| --- | --- |
+| Rencanakan alur kritis dan kelompokkan menurut risiko | Prioritas P1–P3 dan ID test case di `16-test-case.md` |
+| Page Object Model | `e2e/pages/` (tambah kelas baru per halaman bila belum ada) |
+| Locator stabil (`data-testid`) | Utamakan role + nama aksesibel (`getByRole`, `getByLabel`); `data-testid` hanya untuk elemen tanpa nama (peta, pratinjau) |
+| Tanpa timeout sembarang; tunggu kondisi spesifik | Dilarang `waitForTimeout`; tunggu elemen/teks, respons jaringan (`waitForResponse`), atau `data-ready` |
+| Pola Arrange-Act-Assert | Siapkan data lewat fixture/repository, lakukan aksi lewat UI, periksa di UI **dan** database |
+| Screenshot di momen penting | Gambar wajib per langkah ke `e2e/evidence/T-xxx/` |
+| Trace saat gagal, video hanya untuk yang gagal | Sudah di `playwright.config.ts` (`trace: retain-on-failure`, `video: retain-on-failure`); lampirkan path trace di README bukti bila gagal |
+| Laporan HTML dan JUnit | `e2e/playwright-report/` dan `e2e/test-results/junit.xml` (tidak di-commit) |
+| Tangani test flaky | Cari penyebab (animasi, jaringan, elemen belum siap) dan perbaiki. `test.fixme()` hanya boleh disertai temuan di `PROGRESS.md` dan disetujui pemilik, **tidak pernah** untuk membuat hijau |
+| Target lulus > 95%, flaky < 5%, satu run < 10 menit | Untuk spec verifikasi: lulus 3 kali berturut-turut tanpa retry; seluruh `pnpm test:e2e` dijaga < 10 menit |
+
 ## Aturan pengerjaan
 
 1. Mulai dari **R0 Fondasi (T-001)**, lanjut berurutan sesuai daftar di bawah. **Satu task per langkah**: task berikutnya baru dimulai setelah task saat ini lulus atau temuannya dicatat.
