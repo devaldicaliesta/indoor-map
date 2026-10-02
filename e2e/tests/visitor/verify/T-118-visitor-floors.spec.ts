@@ -19,6 +19,7 @@ test.describe('T-118 Visitor: peta, gedung, lantai', () => {
     await expect(floor('GF')).toHaveAttribute('aria-pressed', 'true');
     await expect(visitor.floors.getByRole('button')).toHaveText(['L2', 'L1', 'GF']);
     const gf = await visitor.map.getAttribute('data-floor-id');
+    expect(gf).toBeTruthy();
     for (const name of ['L2', 'L1', 'GF']) {
       const box = await floor(name).boundingBox();
       expect(Math.min(box?.width ?? 0, box?.height ?? 0)).toBeGreaterThanOrEqual(44);
@@ -47,9 +48,7 @@ test.describe('T-118 Visitor: peta, gedung, lantai', () => {
     await expect(page.getByRole('option', { name: /Area Luar/ })).toHaveCount(0);
     await page.keyboard.press('Escape');
 
-    for (const control of [building]) {
-      const box = await control.boundingBox();
-      expect(Math.min(box?.width ?? 0, box?.height ?? 0)).toBeGreaterThanOrEqual(44);
-    }
+    const box = await building.boundingBox();
+    expect(Math.min(box?.width ?? 0, box?.height ?? 0)).toBeGreaterThanOrEqual(44);
   });
 });

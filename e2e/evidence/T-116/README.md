@@ -19,3 +19,5 @@ Spec: `e2e/tests/admin/verify/T-116-locations.spec.ts` (fixture `fullVenue` + 24
 - [Catatan] Kategori terikat ke tipe lokasi: formulir dengan tipe "Lokasi" menampilkan "Tipe ini belum punya kategori…", kategori Pemeriksaan baru muncul setelah memilih tipe "Layanan". Sesuai desain T-303.
 
 Tinjauan code-reviewer T-107–T-115: Setuju; dua asersi SEDANG diperkuat di commit ini: T-115 kini membuktikan tinggi 12 m dan mode awal 3D lewat snapshot terbit (bukan perbandingan gambar dari kamera berbeda); T-113 tidak lagi mengklaim perpindahan kamera dari beda piksel (kanvas juga berubah karena sorotan).
+
+Tinjauan code-reviewer T-116–T-120: Perlu perbaikan → **diperbaiki**: T-117 kini menunggu pesan "Tidak ada hasil untuk …" sebelum publish dan hasil tepat 1 sesudahnya (sebelumnya `count()` bisa lulus palsu); T-119 memeriksa hasil kode unit `GF-A0x` dan nama A–Z yang tidak kosong (cek urutan sebelumnya ikut membaca tombol tanpa teks); T-118 memastikan `data-floor-id` awal ada; T-116 memakai nama tombol simpan yang tepat.

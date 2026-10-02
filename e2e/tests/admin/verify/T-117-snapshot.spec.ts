@@ -7,8 +7,14 @@ import { VisitorPage } from '../../../pages/visitor-page';
 
 const shot = (name: string) => `evidence/T-117/${name}.png`;
 
-/** Cari di Visitor HP; mengembalikan jumlah hasil yang memuat teks itu. */
-async function visitorSearch(browser: Browser, venueId: string, query: string, name: string) {
+/** Cari di Visitor HP dan tunggu hasil yang diharapkan untuk kueri itu (asersi berulang). */
+async function visitorSearch(
+  browser: Browser,
+  venueId: string,
+  query: string,
+  expected: 'found' | 'none',
+  name: string,
+) {
   const page = await browser.newPage({
     viewport: { width: 360, height: 740 },
     isMobile: true,
@@ -19,15 +25,12 @@ async function visitorSearch(browser: Browser, venueId: string, query: string, n
     const visitor = new VisitorPage(page);
     await visitor.goto(venueId);
     await visitor.search.fill(query);
-    await expect(
-      page
-        .locator('#search-results')
-        .or(page.getByText(/Tidak ada|tidak ditemukan/i))
-        .first(),
-    ).toBeVisible();
-    const count = await visitor.results.filter({ hasText: query }).count();
+    if (expected === 'none') {
+      await expect(page.getByText(`Tidak ada hasil untuk “${query}”`).first()).toBeVisible();
+    } else {
+      await expect(visitor.results.filter({ hasText: query })).toHaveCount(1);
+    }
     await page.screenshot({ path: shot(name) });
-    return count;
   } finally {
     await page.close();
   }
@@ -64,10 +67,8 @@ test.describe('T-117 Snapshot minimal', () => {
       { keepPhotoPaths: [], newPhotos: [] },
     );
 
-    expect(
-      await visitorSearch(browser, venue.id, 'Klinik Kulit', '01-visitor-sebelum-publish'),
-    ).toBe(0);
-    expect(await visitorSearch(browser, venue.id, 'Radiologi', '01b-visitor-versi-lama')).toBe(1);
+    await visitorSearch(browser, venue.id, 'Klinik Kulit', 'none', '01-visitor-sebelum-publish');
+    await visitorSearch(browser, venue.id, 'Radiologi', 'found', '01b-visitor-versi-lama');
 
     await loginAs('admin');
     await new AdminShell(page).selectVenue(venue.name);
@@ -77,8 +78,6 @@ test.describe('T-117 Snapshot minimal', () => {
     await page.screenshot({ path: shot('02-admin-publish') });
     expect((await superAdmin.publications.active(venue.id))?.version).toBe(2);
 
-    expect(
-      await visitorSearch(browser, venue.id, 'Klinik Kulit', '03-visitor-setelah-publish'),
-    ).toBe(1);
+    await visitorSearch(browser, venue.id, 'Klinik Kulit', 'found', '03-visitor-setelah-publish');
   });
 });
