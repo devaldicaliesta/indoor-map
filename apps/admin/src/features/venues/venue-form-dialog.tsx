@@ -14,6 +14,7 @@ import { type FormEvent, useState } from 'react';
 import { Field } from '../../app/components/field';
 import { TimezoneSelect } from '../../app/components/timezone-select';
 import { FormNotice } from '../auth/auth-layout';
+import { CreateVenueSteps, type VenueBasics } from './create-venue-wizard';
 import { useSaveVenue } from './queries';
 
 interface Errors {
@@ -34,6 +35,8 @@ export function VenueFormDialog({
   const [timezone, setTimezone] = useState(venue?.timezone ?? 'Asia/Jakarta');
   const [errors, setErrors] = useState<Errors>({});
   const save = useSaveVenue();
+  // Venue baru: data dasar disimpan setelah tipe venue dipilih (wizard langkah 2 dan 3).
+  const [basics, setBasics] = useState<VenueBasics | null>(null);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -56,15 +59,16 @@ export function VenueFormDialog({
     if (Object.keys(found).length > 0) return;
 
     const logo = form.get('logo');
+    const file = logo instanceof File && logo.size > 0 ? logo : null;
+    if (!venue) {
+      setBasics({ input, logo: file });
+      return;
+    }
     save.mutate(
-      { id: venue?.id ?? null, input, logo: logo instanceof File && logo.size > 0 ? logo : null },
+      { id: venue.id, input, logo: file },
       {
         onSuccess: (saved) => {
-          toast.success(venue ? 'Venue disimpan' : 'Venue dibuat', {
-            description: venue
-              ? saved.name
-              : `${saved.name} dipilih. Lanjutkan dengan menambah gedung.`,
-          });
+          toast.success('Venue disimpan', { description: saved.name });
           onOpenChange(false);
         },
       },
@@ -76,7 +80,10 @@ export function VenueFormDialog({
       open={open}
       onOpenChange={(next) => {
         onOpenChange(next);
-        if (!next) save.reset();
+        if (!next) {
+          save.reset();
+          setBasics(null);
+        }
       }}
     >
       <DialogContent className="sm:max-w-xl">
@@ -86,7 +93,18 @@ export function VenueFormDialog({
             Venue adalah satu kawasan, misalnya satu rumah sakit atau satu kampus.
           </DialogDescription>
         </DialogHeader>
-        <form className="grid gap-4" onSubmit={submit} noValidate>
+        {basics ? (
+          <CreateVenueSteps
+            basics={basics}
+            onBack={() => setBasics(null)}
+            onDone={() => {
+              setBasics(null);
+              onOpenChange(false);
+            }}
+          />
+        ) : null}
+        <form className={basics ? 'hidden' : 'grid gap-4'} onSubmit={submit} noValidate>
+          {venue ? null : <p className="font-bold">Langkah 1 dari 3 · Data dasar</p>}
           <Field id="venue-name" label="Nama" error={errors.name}>
             <Input
               id="venue-name"
@@ -135,7 +153,7 @@ export function VenueFormDialog({
           {save.error ? <FormNotice tone="error">{save.error.message}</FormNotice> : null}
           <DialogFooter>
             <Button type="submit" variant="primary" disabled={save.isPending}>
-              {save.isPending ? 'Menyimpan…' : venue ? 'Simpan venue' : 'Buat venue'}
+              {save.isPending ? 'Menyimpan…' : venue ? 'Simpan venue' : 'Lanjut'}
             </Button>
           </DialogFooter>
         </form>

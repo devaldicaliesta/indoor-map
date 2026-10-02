@@ -8,9 +8,11 @@ import {
   VenueIdSchema,
   type VenueInput,
   type VenueSummary,
+  type VenueTemplate,
+  VenueTemplateSchema,
   type VenueType,
 } from '@indoor/domain';
-import type { Tables } from '../database.types';
+import type { Json, Tables } from '../database.types';
 import { DataError, toDataError } from '../errors';
 import { geometryToColumn, nullableGeometryFromColumn } from '../geometry';
 import { zeroRowsError } from '../mutations';
@@ -64,8 +66,13 @@ export interface VenuesRepository {
   list(): Promise<VenueSummary[]>;
   listDetailed(): Promise<Venue[]>;
   get(id: VenueId): Promise<Venue>;
-  /** Venue baru memakai tipe `custom`; template industri di T-302. */
+  /** Venue baru memakai tipe `custom` sampai template diterapkan. */
   create(input: VenueInput): Promise<Venue>;
+  /**
+   * Menyalin template industri ke venue yang belum berisi lokasi (`apply_template`, satu
+   * transaksi): tipe lokasi, field, kategori, jenis fasilitas, alias, dan tipe venue.
+   */
+  applyTemplate(id: VenueId, template: VenueTemplate): Promise<void>;
   update(id: VenueId, input: VenueInput): Promise<Venue>;
   /** Menghapus venue beserta semua data turunannya (cascade) dan berkas logonya. */
   remove(id: VenueId): Promise<void>;
@@ -131,6 +138,15 @@ export function createVenuesRepository(db: Db): VenuesRepository {
         .single();
       if (error) throw toDataError(error);
       return mapVenueRow(data);
+    },
+
+    async applyTemplate(id, template) {
+      const { error } = await db.rpc('apply_template', {
+        p_venue_id: id,
+        p_venue_type: template.venueType,
+        p_template: VenueTemplateSchema.parse(template) as unknown as Json,
+      });
+      if (error) throw toDataError(error);
     },
 
     async update(id, input) {
