@@ -70,6 +70,25 @@ function FailureMessage({ failure }: { failure: RouteFailure }) {
   );
 }
 
+/** Alasan penutupan yang mengenai rute, misalnya "Perawatan lift; Lantai basah". */
+function ClosureNotice({ ids, detour }: { ids: readonly string[]; detour: boolean }) {
+  const { t } = useTranslation();
+  const closures = useExploreStore((s) => s.closures);
+  const reasons = [
+    ...new Set(closures.filter((c) => ids.includes(c.id)).map((c) => c.reason.trim())),
+  ].join('; ');
+  if (ids.length === 0) return null;
+  return (
+    <p
+      role="status"
+      className="rounded-sm border border-line border-l-4 border-l-danger p-2 text-sm"
+    >
+      {detour ? t('route.detour') : t('route.closedBecause')}
+      {reasons ? ` ${reasons}` : null}
+    </p>
+  );
+}
+
 function StepMode({
   steps,
   texts,
@@ -180,7 +199,13 @@ export function RoutePanel() {
         />
         {t('route.accessible')}
       </label>
-      {plan && !plan.ok ? <FailureMessage failure={routeFailure(plan)} /> : null}
+      {plan && !plan.ok ? (
+        <>
+          <FailureMessage failure={routeFailure(plan)} />
+          <ClosureNotice ids={plan.blockingClosureIds} detour={false} />
+        </>
+      ) : null}
+      {plan?.ok ? <ClosureNotice ids={plan.route.avoidedClosureIds} detour /> : null}
       {plan?.ok ? (
         <>
           <div className="flex flex-wrap items-center gap-2">

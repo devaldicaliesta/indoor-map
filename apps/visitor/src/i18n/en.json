@@ -125,6 +125,8 @@
     "failAccessible": "There is no accessible route to this destination. Turn off “Accessible route” to see other routes.",
     "failClosed": "The route to this destination is temporarily closed.",
     "failOrigin": "Your starting point is not connected to a path. Change the starting point.",
-    "failDestination": "This destination is not connected to a path yet."
+    "failDestination": "This destination is not connected to a path yet.",
+    "detour": "The route takes a detour because of a temporary closure:",
+    "closedBecause": "Temporary closure:"
   }
 }

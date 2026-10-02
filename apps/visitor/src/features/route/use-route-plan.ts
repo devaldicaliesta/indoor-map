@@ -9,8 +9,10 @@ export function useRoutePlan(): RoutePlan | null {
   const destination = useExploreStore((s) => s.destination);
   const accessible = useExploreStore((s) => s.accessible);
   const choosing = useExploreStore((s) => s.originMode !== 'off');
+  const closures = useExploreStore((s) => s.closures);
   return useMemo(
-    () => (origin && destination && !choosing ? route(origin, destination, accessible) : null),
-    [route, origin, destination, accessible, choosing],
+    () =>
+      origin && destination && !choosing ? route(origin, destination, accessible, closures) : null,
+    [route, origin, destination, accessible, choosing, closures],
   );
 }

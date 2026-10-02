@@ -2,6 +2,7 @@ import type { ExploreTarget, Snapshot, SnapshotIndex, SnapshotLanguage } from '@
 import {
   instructionText,
   planRoute,
+  type RouteClosure,
   type RouteGraph,
   type RoutePlace,
   type RoutePlan,
@@ -18,9 +19,13 @@ export function visitorRoute(
   snapshot: Snapshot,
   origin: RoutePlace,
   destination: ExploreTarget,
-  accessible: boolean,
+  options: { accessible: boolean; closures?: readonly RouteClosure[] },
 ): RoutePlan {
-  return planRoute(graph, snapshot, origin, placeOfTarget(destination), { accessible });
+  // Server hanya mengirim penutupan yang sedang berlaku, jadi semuanya dianggap berlaku sekarang.
+  return planRoute(graph, snapshot, origin, placeOfTarget(destination), {
+    accessible: options.accessible,
+    closures: options.closures ?? [],
+  });
 }
 
 /** Teks setiap langkah dari template venue dalam bahasa tampilan. */

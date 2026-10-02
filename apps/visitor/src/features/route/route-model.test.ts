@@ -16,7 +16,7 @@ const radiology = { kind: 'location', id: IDS.radiology } as const;
 
 describe('rute Visitor', () => {
   it('dari QR Lobi ke Radiologi: langkah mulai sampai tiba dengan teks template venue', () => {
-    const plan = visitorRoute(graph, snapshot, lobby, radiology, false);
+    const plan = visitorRoute(graph, snapshot, lobby, radiology, { accessible: false });
     if (!plan.ok) throw new Error(`gagal: ${plan.reason}`);
     expect(plan.route.distanceM).toBeGreaterThan(0);
     expect(plan.steps[0]?.action).toBe('start');
@@ -32,7 +32,8 @@ describe('rute Visitor', () => {
 
   it('hitung rute fixture jauh di bawah 500 ms', () => {
     const start = performance.now();
-    for (let i = 0; i < 20; i++) visitorRoute(graph, snapshot, lobby, radiology, i % 2 === 0);
+    for (let i = 0; i < 20; i++)
+      visitorRoute(graph, snapshot, lobby, radiology, { accessible: i % 2 === 0 });
     expect((performance.now() - start) / 20).toBeLessThan(50);
   });
 
