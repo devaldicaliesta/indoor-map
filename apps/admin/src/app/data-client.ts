@@ -12,4 +12,8 @@ if (!url || !anonKey) {
   );
 }
 
-export const data = createDataClient({ url, anonKey });
+export const data = createDataClient({
+  url,
+  anonKey,
+  cadConverterUrl: import.meta.env.VITE_CAD_CONVERTER_URL,
+});
