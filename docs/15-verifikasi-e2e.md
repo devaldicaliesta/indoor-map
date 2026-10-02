@@ -161,7 +161,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-117 · Snapshot minimal — Publish → Visitor membaca snapshot; draft tidak tampil sebelum publish → `e2e/evidence/T-117/`
 - [x] T-118 · Visitor: peta, gedung, lantai — Visitor: peta, pemilih gedung dan lantai → `e2e/evidence/T-118/`
 - [x] T-119 · Visitor: cari, kategori, detail, A–Z — Visitor: cari (salah ketik), chip kategori, detail lokasi, A–Z → `e2e/evidence/T-119/`
-- [ ] T-120 · Visitor: bahasa ID/EN — Ganti bahasa ID/EN, pilihan diingat, tautan berbahasa → `e2e/evidence/T-120/`
+- [x] T-120 · Visitor: bahasa ID/EN — Ganti bahasa ID/EN, pilihan diingat, tautan berbahasa → `e2e/evidence/T-120/`
 
 ### R2 · Navigasi (`12-R2-navigasi.md`)
 
