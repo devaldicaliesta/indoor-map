@@ -98,6 +98,13 @@ const sameList = (a: ExploreList | null, b: ExploreList) =>
   a?.kind === b.kind && (a.kind === 'directory' || (b.kind !== 'directory' && a.id === b.id));
 
 /** Satu store per venue yang dibuka (dibuat ExploreProvider), jadi pilihan tidak terbawa ke venue lain. */
+/** Isi sama (dibaca ulang tiap menit): rute tidak dihitung ulang dan mode langkah tidak direset. */
+export function sameClosures(a: readonly Closure[], b: readonly Closure[]): boolean {
+  const key = (c: Closure) =>
+    [c.id, c.featureId, c.edgeId, c.connectorId, c.reason, c.startsAt, c.endsAt].join('|');
+  return a.length === b.length && a.every((c, i) => key(c) === key(b[i] as Closure));
+}
+
 /** Keadaan awal dari tautan bagikan atau QR; tanpa tautan semuanya kosong. */
 export interface InitialExplore {
   detail?: ExploreTarget | null;
@@ -237,7 +244,11 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
       })),
 
     showStep: (activeStep) => set({ activeStep }),
-    setClosures: (closures) => set({ closures }),
+    setClosures: (closures) => {
+      if (sameClosures(get().closures, closures)) return;
+      // Rute bisa memutar dengan jumlah langkah lain; mode langkah kembali ke daftar.
+      set({ closures, activeStep: null });
+    },
   }));
 
 /** Yang disorot di peta: detail yang terbuka, atau daftar kategori/jenis fasilitas saat tidak mencari. */
