@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { VenueId } from '@indoor/domain';
+import { EMPTY_OPENING_HOURS } from '@indoor/domain';
 import { createClient } from '@supabase/supabase-js';
 import { afterAll, describe, expect, it } from 'vitest';
 import { createRepositories } from '../../src/client';
@@ -89,6 +90,9 @@ describe.runIf(url && anonKey && serviceKey)(
           unitIds: [],
           primaryUnitId: null,
           customFields: { telepon: '021-555', layanan: 'BPJS' },
+          status: 'active',
+          openingDate: null,
+          hours: EMPTY_OPENING_HOURS,
         },
         { keepPhotoPaths: [], newPhotos: [] },
       );

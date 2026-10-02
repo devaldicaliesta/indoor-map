@@ -2,6 +2,7 @@ import { createDataClient, type DataClient } from '@indoor/data';
 import {
   type AppRole,
   type Building,
+  EMPTY_OPENING_HOURS,
   FeatureIdSchema,
   type Floor,
   type Polygon,
@@ -135,6 +136,9 @@ export const test = base.extend<Fixtures>({
         unitIds: [radiologyUnitId],
         primaryUnitId: radiologyUnitId,
         customFields: {},
+        status: 'active',
+        openingDate: null,
+        hours: EMPTY_OPENING_HOURS,
       },
       { keepPhotoPaths: [], newPhotos: [] },
     );

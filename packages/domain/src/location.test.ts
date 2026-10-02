@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { EMPTY_OPENING_HOURS } from './hours';
 import type { BuildingId, CategoryId, FeatureId, FloorId, LocationId, VenueId } from './ids';
 import {
   checkCategoryName,
@@ -56,6 +57,8 @@ function location(
     venueId: id<VenueId>(900),
     locationTypeId: id(901),
     customFields: {},
+    openingDate: null,
+    hours: EMPTY_OPENING_HOURS,
     code: extra.code ?? null,
     name,
     description: null,

@@ -15,6 +15,9 @@ import {
   LocationTypeIdSchema,
   type LocationUnit,
   MAX_IMAGE_BYTES,
+  type OpeningHours,
+  type OpeningHoursRow,
+  openingHoursFromRows,
   type SnapshotFieldValue,
   UNIT_STATUSES,
   type UnitStatus,
@@ -22,7 +25,7 @@ import {
   VenueIdSchema,
   type VenueUnit,
 } from '@indoor/domain';
-import type { Database } from '../database.types';
+import type { Database, Json } from '../database.types';
 import { DataError, toDataError } from '../errors';
 import { zeroRowsError } from '../mutations';
 import { fetchAllPages } from '../pagination';
@@ -36,7 +39,8 @@ const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/webp': 'webp',
 };
 
-const COLUMNS = `id, venue_id, location_type_id, code, name, description, logo_path, photo_paths, status, custom_fields,
+const COLUMNS = `id, venue_id, location_type_id, code, name, description, logo_path, photo_paths, status, custom_fields, opening_date,
+  opening_hours(weekday, special_date, opens_at, closes_at, is_closed),
   location_categories(category_id),
   location_units(feature_id, is_primary, features(unit_code, floor_id, floors(name, building_id, buildings!floors_building_same_venue(name))))`;
 
@@ -58,6 +62,8 @@ export interface LocationRow {
   photo_paths: string[];
   status: string;
   custom_fields: unknown;
+  opening_date: string | null;
+  opening_hours: OpeningHoursRow[];
   location_categories: { category_id: string }[];
   location_units: {
     feature_id: string;
@@ -99,7 +105,46 @@ export function mapLocationRow(row: LocationRow): Location {
     categoryIds: row.location_categories.map((c) => CategoryIdSchema.parse(c.category_id)),
     units,
     customFields: customFieldsOf(row.custom_fields),
+    openingDate: row.opening_date,
+    hours: openingHoursFromRows(row.opening_hours),
   };
+}
+
+/** Jadwal menjadi baris untuk `save_location`; tanggal khusus tanpa rentang = tutup. */
+export function hoursToRows(hours: OpeningHours): OpeningHoursRow[] {
+  const rows: OpeningHoursRow[] = [];
+  hours.weekly.forEach((spans, i) => {
+    for (const span of spans) {
+      rows.push({
+        weekday: i + 1,
+        special_date: null,
+        opens_at: span.opens,
+        closes_at: span.closes,
+        is_closed: false,
+      });
+    }
+  });
+  for (const [date, spans] of Object.entries(hours.special)) {
+    if (spans.length === 0) {
+      rows.push({
+        weekday: null,
+        special_date: date,
+        opens_at: null,
+        closes_at: null,
+        is_closed: true,
+      });
+    }
+    for (const span of spans) {
+      rows.push({
+        weekday: null,
+        special_date: date,
+        opens_at: span.opens,
+        closes_at: span.closes,
+        is_closed: false,
+      });
+    }
+  }
+  return rows;
 }
 
 /** Nilai field kustom yang bentuknya dikenal; isi jsonb lain diabaikan. */
@@ -139,6 +184,9 @@ export function toSaveLocationArgs(
   if (description) args.p_description = description;
   if (images.logoPath) args.p_logo_path = images.logoPath;
   args.p_custom_fields = input.customFields;
+  args.p_status = input.status;
+  if (input.status === 'coming_soon' && input.openingDate) args.p_opening_date = input.openingDate;
+  args.p_hours = hoursToRows(input.hours) as unknown as Json;
   if (input.primaryUnitId && input.unitIds.includes(input.primaryUnitId)) {
     args.p_primary_unit_id = input.primaryUnitId;
   }

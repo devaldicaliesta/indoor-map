@@ -75,6 +75,18 @@ function largeVenue(): SnapshotSource {
           locationTypeId: base.locationTypes[0]?.id ?? '',
           status: 'active',
           openingDate: null,
+          // Jadwal khas: Senin–Jumat dua rentang, Sabtu setengah hari, Minggu libur.
+          hours: {
+            weekly: [
+              ...Array.from({ length: 5 }, () => [
+                { opens: '08:00', closes: '12:00' },
+                { opens: '13:00', closes: '16:00' },
+              ]),
+              [{ opens: '08:00', closes: '12:00' }],
+              [],
+            ],
+            special: {},
+          },
           categoryIds: base.categories.map((c) => c.id),
           unitIds: [id],
           primaryUnitId: id,

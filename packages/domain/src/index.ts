@@ -20,6 +20,7 @@ export * from './floor-plan';
 export * from './geometry';
 export * from './graph-connectivity';
 export * from './graph-edit';
+export * from './hours';
 export * from './ids';
 export * from './image';
 export type * from './info-point';

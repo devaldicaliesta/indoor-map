@@ -34,8 +34,8 @@ const usedKeys = new Set(
     [...text.matchAll(/\bt\(\s*['"]([\w.]+)['"]/g)].flatMap((m) => m[1] ?? []),
   ),
 );
-// `t(`language.${code}`)` di pemilih bahasa.
-const DYNAMIC_PREFIXES = ['language.'];
+// `t(`language.${code}`)` di pemilih bahasa, `t(`hours.day.${hari}`)` di status jam buka.
+const DYNAMIC_PREFIXES = ['language.', 'hours.day.'];
 
 describe('terjemahan Visitor', () => {
   it('kunci ID dan EN sama persis', () => {

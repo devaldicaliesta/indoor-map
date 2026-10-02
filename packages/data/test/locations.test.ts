@@ -1,7 +1,16 @@
-import type { CategoryId, FeatureId, LocationId, LocationTypeId, VenueId } from '@indoor/domain';
+import {
+  type CategoryId,
+  EMPTY_OPENING_HOURS,
+  type FeatureId,
+  type LocationId,
+  type LocationTypeId,
+  openingHoursFromRows,
+  type VenueId,
+} from '@indoor/domain';
 import { describe, expect, it } from 'vitest';
 import { mapCategoryRow } from '../src/repositories/categories';
 import {
+  hoursToRows,
   type LocationRow,
   mapLocationRow,
   mapVenueUnitRow,
@@ -29,6 +38,17 @@ const row: LocationRow = {
   photo_paths: [],
   status: 'active',
   custom_fields: { telepon: '021-555', lantai: 2, rusak: { x: 1 } },
+  opening_date: null,
+  opening_hours: [
+    {
+      weekday: 1,
+      special_date: null,
+      opens_at: '08:00:00',
+      closes_at: '16:00:00',
+      is_closed: false,
+    },
+    { weekday: null, special_date: '2026-08-17', opens_at: null, closes_at: null, is_closed: true },
+  ],
   location_categories: [{ category_id: CATEGORY }],
   location_units: [
     {
@@ -62,6 +82,11 @@ describe('lokasi', () => {
       name: 'Radiologi',
       // Isi jsonb yang bentuknya tidak dikenal (objek) dibuang.
       customFields: { telepon: '021-555', lantai: 2 },
+      openingDate: null,
+      hours: {
+        weekly: [[{ opens: '08:00', closes: '16:00' }], [], [], [], [], [], []],
+        special: { '2026-08-17': [] },
+      },
       description: null,
       logoPath: 'locations/v/logo.png',
       photoPaths: [],
@@ -99,6 +124,9 @@ describe('lokasi', () => {
       unitIds: [UNIT_1 as FeatureId, UNIT_2 as FeatureId],
       primaryUnitId: UNIT_2 as FeatureId,
       customFields: { telepon: '021-555' },
+      status: 'coming_soon' as const,
+      openingDate: '2026-11-01',
+      hours: EMPTY_OPENING_HOURS,
     };
     const args = toSaveLocationArgs(
       LOCATION as LocationId,
@@ -117,6 +145,9 @@ describe('lokasi', () => {
       p_photo_paths: ['locations/v/a.jpg'],
       p_primary_unit_id: UNIT_2,
       p_custom_fields: { telepon: '021-555' },
+      p_status: 'coming_soon',
+      p_opening_date: '2026-11-01',
+      p_hours: [],
     });
     const other = toSaveLocationArgs(
       LOCATION as LocationId,
@@ -173,5 +204,34 @@ describe('lokasi', () => {
       icon: { kind: 'builtin', key: 'first-aid' },
       sortOrder: 2,
     });
+  });
+});
+
+describe('jam operasional', () => {
+  it('jadwal → baris save_location → jadwal lagi (tanggal khusus tanpa rentang = tutup)', () => {
+    const hours = {
+      weekly: [
+        [
+          { opens: '08:00', closes: '12:00' },
+          { opens: '13:00', closes: '16:00' },
+        ],
+        [],
+        [],
+        [],
+        [],
+        [{ opens: '20:00', closes: '02:00' }],
+        [],
+      ],
+      special: { '2026-08-17': [], '2026-12-24': [{ opens: '08:00', closes: '12:00' }] },
+    };
+    const rows = hoursToRows(hours);
+    expect(rows).toContainEqual({
+      weekday: null,
+      special_date: '2026-08-17',
+      opens_at: null,
+      closes_at: null,
+      is_closed: true,
+    });
+    expect(openingHoursFromRows(rows)).toEqual(hours);
   });
 });
