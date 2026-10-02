@@ -112,8 +112,10 @@ export function FeatureList({
   floorName,
   facilityTypes,
   issues,
+  canEdit,
 }: {
   floorName: string;
+  canEdit: boolean;
   facilityTypes: readonly FacilityType[];
   issues: ReadonlyMap<string, ValidationIssue[]>;
 }) {
@@ -221,7 +223,9 @@ export function FeatureList({
       >
         {total === 0 ? (
           <p className="px-1 text-ink-muted text-sm">
-            Belum ada fitur. Pilih alat Poligon, Garis, atau Titik di sebelah kiri.
+            {canEdit
+              ? 'Belum ada fitur. Pilih alat Poligon, Garis, atau Titik di sebelah kiri.'
+              : 'Belum ada fitur di lantai ini.'}
           </p>
         ) : rows.length === 0 ? (
           <p className="px-1 text-ink-muted text-sm" role="status">

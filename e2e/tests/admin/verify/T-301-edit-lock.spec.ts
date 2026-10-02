@@ -64,6 +64,7 @@ test.describe('T-301 Kunci edit per lantai', () => {
     await page.clock.fastForward('01:05');
     await expect(banner(page)).toContainText('Super Admin Lokal', { timeout: 15_000 });
     await expect(editor.tool('Poligon')).toBeDisabled();
+    await expect(page.getByText('Belum ada fitur di lantai ini.')).toBeVisible();
     await page.screenshot({ path: shot('04-editor-kehilangan-kunci') });
 
     await admin.context().close();

@@ -13,4 +13,4 @@ Heartbeat kunci 60 detik; jam halaman Editor dipalsukan (tetap berjalan) lalu di
 
 ## Temuan
 
-- RENDAH: pada mode baca, petunjuk daftar fitur kosong tetap berbunyi "Pilih alat Poligon, Garis, atau Titik di sebelah kiri." padahal alat-alat itu nonaktif.
+- **Diperbaiki (RENDAH)**: pada mode baca, petunjuk daftar fitur kosong tetap berbunyi "Pilih alat Poligon, Garis, atau Titik di sebelah kiri." padahal alat-alat itu nonaktif. Kini "Belum ada fitur di lantai ini." (`feature-list.tsx` menerima `canEdit`).

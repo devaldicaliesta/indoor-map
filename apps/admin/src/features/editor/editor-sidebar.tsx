@@ -55,7 +55,12 @@ export function EditorSidebar({
         <TabsTrigger value={ROUTE_TAB}>Uji rute</TabsTrigger>
       </TabsList>
       <TabsContent value="features" className="min-h-0">
-        <FeatureList floorName={floorName} facilityTypes={facilityTypes} issues={issues} />
+        <FeatureList
+          floorName={floorName}
+          facilityTypes={facilityTypes}
+          issues={issues}
+          canEdit={canEdit}
+        />
       </TabsContent>
       <TabsContent value="entrances" className="min-h-0">
         <EntrancesPanel session={session} canEdit={canEdit} />
