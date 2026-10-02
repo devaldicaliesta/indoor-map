@@ -2,7 +2,7 @@ import { env } from '../../env';
 import { expect, test } from '../../fixtures';
 import { AdminShell } from '../../pages/admin-shell';
 
-const shot = (name: string) => `test-results/evidence/T-410/${name}.png`;
+const shot = (name: string) => `evidence/T-410/${name}.png`;
 // PNG 1×1 hitam; cukup untuk membuktikan logo tersimpan dan tampil.
 const PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',

@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { expect, test } from '../../fixtures';
 import { AdminShell } from '../../pages/admin-shell';
 
-const shot = (name: string) => `test-results/evidence/T-313/${name}.png`;
+const shot = (name: string) => `evidence/T-313/${name}.png`;
 // Denah 40 × 20 m dalam milimeter: layer DINDING, PINTU, TEKS, FURNITUR, GRID.
 const DXF = fileURLToPath(new URL('../../files/denah-contoh.dxf', import.meta.url));
 
