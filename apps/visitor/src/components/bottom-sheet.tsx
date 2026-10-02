@@ -1,5 +1,5 @@
 import { cn } from '@indoor/ui';
-import { type KeyboardEvent, type PointerEvent, type ReactNode, useRef, useState } from 'react';
+import { type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cycleSnap, nearestSnap, type SheetSnap, snapHeight, stepSnap } from './sheet-snap';
 
@@ -59,6 +59,11 @@ export function BottomSheet({
     setDragHeight(null);
   }
 
+  // Enter/Spasi memicu click tanpa pointer (detail 0); klik mouse/sentuh sudah ditangani onPointerUp.
+  function onClick(event: MouseEvent<HTMLButtonElement>) {
+    if (event.detail === 0) setSnap(cycleSnap(snap));
+  }
+
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
@@ -88,6 +93,7 @@ export function BottomSheet({
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         onKeyDown={onKeyDown}
+        onClick={onClick}
       >
         <span aria-hidden="true" className="h-1 w-10 rounded-full bg-line" />
       </button>
