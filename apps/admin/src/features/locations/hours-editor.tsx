@@ -28,7 +28,7 @@ function Spans({
           <Input
             type="time"
             aria-label={`${label} buka ${i + 1}`}
-            className="w-28"
+            className="w-36"
             value={span.opens}
             disabled={disabled}
             onChange={(e) => set(i, { opens: e.target.value })}
@@ -37,7 +37,7 @@ function Spans({
           <Input
             type="time"
             aria-label={`${label} tutup ${i + 1}`}
-            className="w-28"
+            className="w-36"
             value={span.closes}
             disabled={disabled}
             onChange={(e) => set(i, { closes: e.target.value })}
