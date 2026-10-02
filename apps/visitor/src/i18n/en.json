@@ -128,5 +128,10 @@
     "failDestination": "This destination is not connected to a path yet.",
     "detour": "The route takes a detour because of a temporary closure:",
     "closedBecause": "Temporary closure:"
+  },
+  "share": {
+    "button": "Share",
+    "copied": "Link copied",
+    "manual": "Copy this link:"
   }
 }

@@ -108,6 +108,8 @@ export function useExploreMap({
       const bottom = desktop ? base.bottom : snapHeight(sheet, window.innerHeight) + MAP_GAP_PX;
       focusCamera(map, bounds, state.focus.mode, { ...base, bottom });
     }
+    // Pilihan dari tautan bagikan sudah ada sebelum peta siap; dibingkai sekali di sini.
+    if (store.getState().focus.seq > 0) focus(store.getState());
     return store.subscribe((state, previous) => {
       if (state.focus.seq !== previous.focus.seq) focus(state);
     });

@@ -8,6 +8,7 @@ import { placeOfTarget } from '../origin/origin-model';
 import { useOriginName } from '../origin/origin-panels';
 import { detailTitle } from '../search/detail-title';
 import { useExplore, useExploreStore } from '../search/explore-context';
+import { ShareButton } from '../share/share-button';
 import {
   type RouteFailure,
   routeFailure,
@@ -239,6 +240,7 @@ export function RoutePanel() {
           )}
         </>
       ) : null}
+      {plan?.ok ? <ShareButton title={`${from ?? ''} → ${to}`} /> : null}
       <Button variant="ghost" className="justify-self-start" onClick={closeRoute}>
         {t('route.close')}
       </Button>

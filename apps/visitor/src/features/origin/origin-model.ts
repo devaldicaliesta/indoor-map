@@ -1,5 +1,4 @@
 import {
-  decodeDeepLink,
   type ExploreTarget,
   labelPoint,
   type Snapshot,
@@ -26,7 +25,7 @@ export function placeOfTarget(target: ExploreTarget): RoutePlace {
     : { kind: 'feature', featureId: target.id };
 }
 
-function featurePosition(feature: SnapshotFeature): SnapshotPosition | null {
+export function featurePosition(feature: SnapshotFeature): SnapshotPosition | null {
   const { geometry } = feature;
   if (geometry.type === 'Point') return geometry.coordinates;
   if (geometry.type === 'Polygon') return labelPoint(geometry.coordinates) as SnapshotPosition;
@@ -89,17 +88,4 @@ export function originView(
         ? { floorId: place.floorId, position: [place.lng, place.lat], headingDeg: null, name: null }
         : null;
   }
-}
-
-/**
- * Titik asal dari URL QR (`?o=kode`). Kode yang tidak ada di snapshot (QR dihapus, atau belum
- * dipublish) diabaikan, sehingga Visitor tetap terbuka tanpa titik asal.
- */
-export function originFromUrl(
-  snapshot: Pick<Snapshot, 'originPoints'>,
-  pathAndQuery: string,
-): RoutePlace | null {
-  const code = decodeDeepLink(pathAndQuery)?.originCode;
-  if (!code || !snapshot.originPoints.some((p) => p.code === code)) return null;
-  return { kind: 'origin_point', code };
 }

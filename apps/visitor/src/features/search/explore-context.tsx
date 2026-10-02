@@ -1,5 +1,6 @@
 import {
   createSnapshotSearch,
+  type DeepLink,
   type ExploreChip,
   type ExploreTarget,
   exploreChips,
@@ -18,6 +19,7 @@ import {
 import { createContext, type ReactNode, use, useMemo, useState } from 'react';
 import { type StoreApi, useStore } from 'zustand';
 import { visitorRoute } from '../route/route-model';
+import { sharedState } from '../share/share-model';
 import { createExploreStore, type ExploreState } from './explore-store';
 
 export interface ExploreData {
@@ -59,25 +61,26 @@ const ExploreContext = createContext<ExploreData | null>(null);
  */
 export function ExploreProvider({
   snapshot,
-  initialOrigin = null,
+  link = null,
   children,
 }: {
   snapshot: Snapshot;
-  /** Titik asal dari URL QR; hanya dibaca saat provider dibuat. */
-  initialOrigin?: RoutePlace | null;
+  /** Tautan bagikan atau QR yang membuka Visitor; hanya dibaca saat provider dibuat. */
+  link?: DeepLink | null;
   children: ReactNode;
 }) {
-  const [store] = useState(() => createExploreStore(initialOrigin));
+  const index = useMemo(() => indexSnapshot(snapshot), [snapshot]);
+  const [store] = useState(() => createExploreStore(sharedState(snapshot, index, link)));
   const value = useMemo(
     () => ({
       snapshot,
-      index: indexSnapshot(snapshot),
+      index,
       search: createSnapshotSearch(snapshot),
       chips: exploreChips(snapshot),
       store,
       route: routeCache(snapshot),
     }),
-    [snapshot, store],
+    [snapshot, index, store],
   );
   return <ExploreContext value={value}>{children}</ExploreContext>;
 }

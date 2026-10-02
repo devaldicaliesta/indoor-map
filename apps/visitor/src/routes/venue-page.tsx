@@ -1,7 +1,7 @@
 import { DataError } from '@indoor/data';
-import { type Snapshot, type VenueId, VenueIdSchema } from '@indoor/domain';
+import { decodeDeepLink, type Snapshot, type VenueId, VenueIdSchema } from '@indoor/domain';
 import { Button, Skeleton } from '@indoor/ui';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router';
 import { PanelMessage } from '../app/panel-message';
@@ -10,12 +10,11 @@ import { DESKTOP_QUERY, VisitorShell } from '../app/visitor-shell';
 import { useSnapshot } from '../data/loadSnapshot';
 import { useLiveClosures } from '../features/closures/use-live-closures';
 import { VenueMap } from '../features/map/venue-map';
-import { originFromUrl } from '../features/origin/origin-model';
 import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
 import { DetailBackBar, ExplorePanel } from '../features/search/explore-panel';
 import { VenueSearch } from '../features/search/venue-search';
 import { VenueInfo } from '../features/venue/venue-info';
-import { applyVenueLanguage } from '../i18n';
+import { applyVenueLanguage, showLanguage } from '../i18n';
 
 function Unavailable() {
   const { t } = useTranslation();
@@ -33,11 +32,15 @@ function VenueView({ venueId }: { venueId: VenueId }) {
   const { t } = useTranslation();
   const snapshot = useSnapshot(venueId);
   const location = useLocation();
+  // Dibaca sekali per pembukaan: berpindah keadaan di dalam Visitor tidak mengubah URL.
+  const [link] = useState(() => decodeDeepLink(`${location.pathname}${location.search}`));
   const defaultLanguage = snapshot.data?.venue.defaultLanguage;
 
   useEffect(() => {
-    if (defaultLanguage) applyVenueLanguage(defaultLanguage);
-  }, [defaultLanguage]);
+    // Bahasa di tautan bagikan berlaku untuk kunjungan ini tanpa mengganti pilihan tersimpan.
+    if (link?.language) showLanguage(link.language);
+    else if (defaultLanguage) applyVenueLanguage(defaultLanguage);
+  }, [defaultLanguage, link]);
 
   if (snapshot.isPending) {
     return (
@@ -68,11 +71,7 @@ function VenueView({ venueId }: { venueId: VenueId }) {
   }
 
   return (
-    <ExploreProvider
-      key={venueId}
-      snapshot={snapshot.data}
-      initialOrigin={originFromUrl(snapshot.data, `${location.pathname}${location.search}`)}
-    >
+    <ExploreProvider key={venueId} snapshot={snapshot.data} link={link}>
       <VenueExplorer snapshot={snapshot.data} />
     </ExploreProvider>
   );

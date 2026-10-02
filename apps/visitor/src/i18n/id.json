@@ -128,5 +128,10 @@
     "failDestination": "Tujuan ini belum terhubung ke jalur.",
     "detour": "Rute memutar karena ada penutupan sementara:",
     "closedBecause": "Penutupan sementara:"
+  },
+  "share": {
+    "button": "Bagikan",
+    "copied": "Tautan disalin",
+    "manual": "Salin tautan ini:"
   }
 }
