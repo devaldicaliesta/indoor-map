@@ -6,6 +6,7 @@ export {
   type AuthRepository,
 } from './auth';
 export { createDataClient, type DataClient, type DataClientConfig } from './client';
+export type { Database, Json } from './database.types';
 export { DataError, type DataErrorKind } from './errors';
 export { type AliasesRepository, aliasKey } from './repositories/aliases';
 export type { AuditRepository } from './repositories/audit';

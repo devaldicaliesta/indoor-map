@@ -1,0 +1,96 @@
+
+> indoor-nav@ build /home/user/indoor-map
+> turbo run build
+
+
+   • turbo 2.11.5
+   • Packages in scope: @indoor/admin, @indoor/data, @indoor/domain, @indoor/e2e, @indoor/map-core, @indoor/routing, @indoor/ui, @indoor/visitor
+   • Running build in 8 packages
+   • Remote caching disabled
+
+@indoor/visitor:build: cache miss, executing 19db8788d046eeaf
+@indoor/admin:build: cache miss, executing 11b22440b98684c2
+@indoor/visitor:build: 
+@indoor/visitor:build: > @indoor/visitor@0.0.0 build /home/user/indoor-map/apps/visitor
+@indoor/visitor:build: > vite build
+@indoor/visitor:build: 
+@indoor/admin:build: 
+@indoor/admin:build: > @indoor/admin@0.0.0 build /home/user/indoor-map/apps/admin
+@indoor/admin:build: > vite build
+@indoor/admin:build: 
+@indoor/visitor:build: vite v8.3.1 building client environment for production...
+@indoor/visitor:build: transforming...
+@indoor/admin:build: vite v8.3.1 building client environment for production...
+@indoor/admin:build: transforming...
+@indoor/visitor:build: ✓ 2508 modules transformed.
+@indoor/admin:build: ✓ 2611 modules transformed.
+@indoor/visitor:build: rendering chunks...
+@indoor/admin:build: rendering chunks...
+@indoor/visitor:build: computing gzip size...
+@indoor/visitor:build: dist/registerSW.js                                                         0.13 kB
+@indoor/visitor:build: dist/manifest.webmanifest                                                  0.46 kB
+@indoor/visitor:build: dist/index.html                                                            0.84 kB │ gzip:   0.45 kB
+@indoor/visitor:build: dist/assets/atkinson-hyperlegible-latin-ext-700-normal-BoVPHkS0.woff2      9.37 kB
+@indoor/visitor:build: dist/assets/atkinson-hyperlegible-latin-ext-400-normal-DRk46D-x.woff2      9.38 kB
+@indoor/visitor:build: dist/assets/ibm-plex-mono-latin-ext-400-normal-BmRBH3aV.woff2             13.34 kB
+@indoor/visitor:build: dist/assets/ibm-plex-mono-latin-ext-700-normal-Dhimjc7-.woff2             13.38 kB
+@indoor/visitor:build: dist/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2                 14.70 kB
+@indoor/visitor:build: dist/assets/ibm-plex-mono-latin-700-normal-7sUh57Bg.woff2                 14.90 kB
+@indoor/visitor:build: dist/assets/ibm-plex-sans-latin-ext-400-normal-C5H60-Va.woff2             15.98 kB
+@indoor/visitor:build: dist/assets/ibm-plex-sans-latin-ext-700-normal-aMgXseD4.woff2             16.18 kB
+@indoor/visitor:build: dist/assets/atkinson-hyperlegible-latin-400-normal-BrHNak5F.woff2         17.20 kB
+@indoor/visitor:build: dist/assets/atkinson-hyperlegible-latin-700-normal-GZI4o3u0.woff2         17.52 kB
+@indoor/visitor:build: dist/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2                 22.58 kB
+@indoor/visitor:build: dist/assets/ibm-plex-sans-latin-700-normal-Bxkt5Cjx.woff2                 22.83 kB
+@indoor/visitor:build: dist/assets/index-C4kUkv3q.css                                           117.03 kB │ gzip:  17.95 kB
+@indoor/visitor:build: dist/assets/index-CxCqwpe0.js                                          2,052.82 kB │ gzip: 584.35 kB
+@indoor/visitor:build: 
+@indoor/visitor:build: [plugin builtin:vite-reporter] 
+@indoor/visitor:build: (!) Some chunks are larger than 500 kB after minification. Consider:
+@indoor/visitor:build: - Using dynamic import() to code-split the application
+@indoor/visitor:build: - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+@indoor/visitor:build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+@indoor/visitor:build: ✓ built in 3.86s
+@indoor/admin:build: computing gzip size...
+@indoor/admin:build: dist/index.html                                                            0.48 kB │ gzip:   0.31 kB
+@indoor/admin:build: dist/assets/atkinson-hyperlegible-latin-ext-700-normal-BoVPHkS0.woff2      9.37 kB
+@indoor/admin:build: dist/assets/atkinson-hyperlegible-latin-ext-400-normal-DRk46D-x.woff2      9.38 kB
+@indoor/admin:build: dist/assets/ibm-plex-mono-latin-ext-400-normal-BmRBH3aV.woff2             13.34 kB
+@indoor/admin:build: dist/assets/ibm-plex-mono-latin-ext-700-normal-Dhimjc7-.woff2             13.38 kB
+@indoor/admin:build: dist/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2                 14.70 kB
+@indoor/admin:build: dist/assets/ibm-plex-mono-latin-700-normal-7sUh57Bg.woff2                 14.90 kB
+@indoor/admin:build: dist/assets/ibm-plex-sans-latin-ext-400-normal-C5H60-Va.woff2             15.98 kB
+@indoor/admin:build: dist/assets/ibm-plex-sans-latin-ext-700-normal-aMgXseD4.woff2             16.18 kB
+@indoor/admin:build: dist/assets/atkinson-hyperlegible-latin-400-normal-BrHNak5F.woff2         17.20 kB
+@indoor/admin:build: dist/assets/atkinson-hyperlegible-latin-700-normal-GZI4o3u0.woff2         17.52 kB
+@indoor/admin:build: dist/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2                 22.58 kB
+@indoor/admin:build: dist/assets/ibm-plex-sans-latin-700-normal-Bxkt5Cjx.woff2                 22.83 kB
+@indoor/admin:build: dist/assets/pdf.worker.min-BmVo14Nb.mjs                                1,317.03 kB
+@indoor/admin:build: dist/assets/index-BEb6Qxeb.css                                           123.42 kB │ gzip:  19.13 kB
+@indoor/admin:build: dist/assets/pdf.worker.min-D7i8o3wR.js                                     0.06 kB │ gzip:   0.08 kB
+@indoor/admin:build: dist/assets/xlsx-CL06hU21.js                                              17.09 kB │ gzip:   7.83 kB
+@indoor/admin:build: dist/assets/pdf-D1n55S5p.js                                              487.95 kB │ gzip: 148.26 kB
+@indoor/admin:build: dist/assets/index-B7Mpef2o.js                                          2,522.37 kB │ gzip: 705.56 kB
+@indoor/admin:build: 
+@indoor/admin:build: [plugin builtin:vite-reporter] 
+@indoor/admin:build: (!) Some chunks are larger than 500 kB after minification. Consider:
+@indoor/admin:build: - Using dynamic import() to code-split the application
+@indoor/admin:build: - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+@indoor/admin:build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+@indoor/admin:build: ✓ built in 4.33s
+@indoor/visitor:build: 
+@indoor/visitor:build: PWA v1.3.0
+@indoor/visitor:build: mode      generateSW
+@indoor/visitor:build: precache  21 entries (2251.31 KiB)
+@indoor/visitor:build: files generated
+@indoor/visitor:build:   dist/sw.js
+@indoor/visitor:build:   dist/workbox-e4022e15.js
+
+ Tasks:    2 successful, 2 total
+Cached:    0 cached, 2 total
+  Time:    7.902s 
+
+
+real	0m8.953s
+user	0m12.091s
+sys	0m9.022s

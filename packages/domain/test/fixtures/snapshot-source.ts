@@ -6,7 +6,7 @@ import type {
 } from '../../src';
 import { EMPTY_OPENING_HOURS } from '../../src';
 import { GRAPH, sampleGraph } from './venue-graph';
-import sample from './venue-sample.json';
+import sample from './venue-sample.json' with { type: 'json' };
 
 // Id tetap agar test bisa menunjuk entitas tertentu.
 export const IDS = {

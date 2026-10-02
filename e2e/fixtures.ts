@@ -1,4 +1,5 @@
 import { createDataClient, type DataClient } from '@indoor/data';
+import { createFullVenue, type FullVenue, signedInDb } from '@indoor/data/testing/full-venue';
 import {
   type AppRole,
   type Building,
@@ -67,6 +68,11 @@ interface Fixtures {
   testVenue: TestVenue;
   /** Venue uji dengan dua unit dan satu lokasi yang sudah diterbitkan untuk Visitor. */
   publishedVenue: PublishedVenue;
+  /**
+   * Venue uji lengkap (2 gedung, 4 lantai + Area Luar, lift sebagian, eskalator naik/turun,
+   * tangga, jalur luar, lokasi berbagai status, titik asal, Info Point); dihapus setelah test.
+   */
+  fullVenue: FullVenue;
   /** Masuk ke Admin lewat halaman login sebagai role tertentu. */
   loginAs: (role: AppRole) => Promise<void>;
 }
@@ -101,6 +107,23 @@ export const test = base.extend<Fixtures>({
       await use({ venue, building, floor });
     } finally {
       await superAdmin.venues.remove(venue.id);
+    }
+  },
+
+  fullVenue: async ({ superAdmin }, use, testInfo) => {
+    const db = await signedInDb(env.supabaseUrl, env.anonKey, {
+      email: ACCOUNTS.super_admin.email,
+      password: env.password,
+    });
+    const venue = await createFullVenue(
+      db,
+      `E2E Lengkap ${testInfo.workerIndex}-${Date.now().toString(36)}`,
+    );
+    try {
+      await use(venue);
+    } finally {
+      await superAdmin.venues.remove(venue.venueId as Venue['id']);
+      await db.auth.signOut();
     }
   },
 
