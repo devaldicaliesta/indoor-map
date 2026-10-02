@@ -31,7 +31,7 @@ Katalog ini adalah daftar test case yang wajib dijalankan **sebelum dan selama**
 | --- | --- | --- | --- | --- |
 | TC-AUTH-01 | Login dengan email dan password benar, tiap role | Masuk ke beranda role (Venue/Editor Peta/Penutupan) | E | P1 |
 | TC-AUTH-02 | Login password salah, dan email tidak terdaftar | Pesan umum yang sama "Email atau password salah."; tidak membocorkan email terdaftar | E | P1 |
-| TC-AUTH-03 | 5 kali gagal login berturut-turut | Akun terkunci sementara; login benar pun ditolak sampai waktu kunci lewat; tercatat di Catatan | D, E | P1 |
+| TC-AUTH-03 | 5 kali gagal login berturut-turut | Akun terkunci 15 menit dengan pesan "Akun terkunci…"; login benar pun ditolak sampai waktu kunci lewat; tercatat di Catatan | D, E | P1 |
 | TC-AUTH-04 | Idle 60 menit (jam palsu) | Sesi berakhir, diarahkan ke login, draft tidak hilang | E | P2 |
 | TC-AUTH-05 | Logout lalu tombol Back browser | Halaman Admin meminta login lagi | E | P1 |
 | TC-AUTH-06 | Lupa password → email (Mailpit) → buka tautan → password baru | Password berubah; tautan kedua kalinya ditolak; tautan kedaluwarsa ditolak | E | P1 |
