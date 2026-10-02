@@ -13,6 +13,7 @@ export type { CategoriesRepository, CategoryWithUsage } from './repositories/cat
 export type { ClosuresRepository } from './repositories/closures';
 export type { ConnectorInput, ConnectorsRepository } from './repositories/connectors';
 export type { DisplaySettingsRepository } from './repositories/display-settings';
+export type { EditLocksRepository } from './repositories/edit-locks';
 export type {
   FacilityTypesRepository,
   FacilityTypeWithUsage,

@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useRole } from '../../app/auth/can';
+import { useCurrentProfile } from '../../app/auth/current-profile';
 import { data } from '../../app/data-client';
 import { ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
@@ -26,6 +27,8 @@ import { EditorCanvas, type PlanBackground } from './editor-canvas';
 import { EditorSidebar } from './editor-sidebar';
 import { EditorToolbar } from './editor-toolbar';
 import { EditorTopbar, OUTDOOR } from './editor-topbar';
+import { LockBanner } from './lock/lock-banner';
+import { useEditLock } from './lock/use-edit-lock';
 import { KindPicker } from './properties/kind-picker';
 import { PropertiesPanel } from './properties/properties-panel';
 import { ReferenceFloorPicker } from './reference-layer';
@@ -120,16 +123,23 @@ function useActivePlan(floorId: FloorId | null): PlanBackground | null {
 
 function Editor({
   venueId,
-  canEdit,
+  canEditMap,
   canManageClosures,
+  canTakeOverLock,
+  userId,
 }: {
   venueId: VenueId;
-  canEdit: boolean;
+  /** Role boleh menyunting peta; menyunting lantai juga butuh kunci lantai itu. */
+  canEditMap: boolean;
   canManageClosures: boolean;
+  canTakeOverLock: boolean;
+  userId: string | null;
 }) {
   const selection = useFloorSelection(venueId);
   useStepFloor(selection);
   const { floor, building } = selection;
+  const lock = useEditLock(floor?.id ?? null, userId, canEditMap);
+  const canEdit = canEditMap && lock.state.status === 'mine';
   const session = useEditorSession(venueId, floor, building);
   useEditorShortcuts(session, canEdit);
   const plan = useActivePlan(floor?.id ?? null);
@@ -161,28 +171,31 @@ function Editor({
 
   return (
     <div className="grid h-full grid-rows-[auto_1fr_auto]">
-      <EditorTopbar
-        buildings={selection.buildings}
-        outdoorName={selection.outdoorName}
-        buildingValue={selection.buildingValue}
-        onBuilding={selection.setBuilding}
-        floors={selection.floors}
-        floorId={floor.id}
-        onFloor={selection.setFloor}
-        onRetry={session.retry}
-        validation={<ValidationSummary issues={validation.issues} />}
-        reference={
-          building ? (
-            <ReferenceFloorPicker
-              compact
-              floors={selection.floors}
-              currentFloorId={floor.id}
-              value={referenceFloorId}
-              onChange={setReferenceFloorId}
-            />
-          ) : null
-        }
-      />
+      <div>
+        <EditorTopbar
+          buildings={selection.buildings}
+          outdoorName={selection.outdoorName}
+          buildingValue={selection.buildingValue}
+          onBuilding={selection.setBuilding}
+          floors={selection.floors}
+          floorId={floor.id}
+          onFloor={selection.setFloor}
+          onRetry={session.retry}
+          validation={<ValidationSummary issues={validation.issues} />}
+          reference={
+            building ? (
+              <ReferenceFloorPicker
+                compact
+                floors={selection.floors}
+                currentFloorId={floor.id}
+                value={referenceFloorId}
+                onChange={setReferenceFloorId}
+              />
+            ) : null
+          }
+        />
+        <LockBanner state={lock.state} canTakeOver={canTakeOverLock} onTakeOver={lock.takeOver} />
+      </div>
       <div className="grid min-h-0 grid-cols-[3rem_15rem_1fr_18rem]">
         <aside className="border-line border-r">
           <EditorToolbar canEdit={canEdit} session={session} />
@@ -240,6 +253,7 @@ function Editor({
 export function EditorPage() {
   const { venue } = useSelectedVenue();
   const role = useRole();
+  const profile = useCurrentProfile().data;
   return (
     <ModuleRoute module="map_editor">
       {() =>
@@ -247,8 +261,10 @@ export function EditorPage() {
           <Editor
             key={venue.id}
             venueId={venue.id}
-            canEdit={role !== null && can(role, 'map.edit')}
+            canEditMap={role !== null && can(role, 'map.edit')}
             canManageClosures={role !== null && can(role, 'closure.manage')}
+            canTakeOverLock={role !== null && can(role, 'user.manage')}
+            userId={profile?.userId ?? null}
           />
         ) : (
           <div className="p-6">

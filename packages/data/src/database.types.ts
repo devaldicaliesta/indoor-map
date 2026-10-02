@@ -1452,6 +1452,15 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      acquire_edit_lock: {
+        Args: { p_floor_id: string };
+        Returns: {
+          user_id: string;
+          full_name: string;
+          started_at: string;
+          last_activity_at: string;
+        }[];
+      };
       delete_connector: { Args: { p_id: string }; Returns: undefined };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
@@ -1464,6 +1473,7 @@ export type Database = {
         }[];
       };
       publish_commit: { Args: { p_publication_id: string }; Returns: undefined };
+      release_edit_lock: { Args: { p_floor_id: string }; Returns: undefined };
       save_connector: {
         Args: {
           p_direction?: Database['public']['Enums']['escalator_direction'];
@@ -1500,6 +1510,7 @@ export type Database = {
       set_smtp_password: { Args: { p_password: string }; Returns: undefined };
       smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
       smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };
+      take_over_edit_lock: { Args: { p_floor_id: string }; Returns: undefined };
     };
     Enums: {
       app_role: 'super_admin' | 'admin' | 'editor' | 'operator' | 'viewer';
