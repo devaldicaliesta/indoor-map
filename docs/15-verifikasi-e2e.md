@@ -118,7 +118,7 @@ Tinjauan: code-reviewer [Setuju/…], security-reviewer [Setuju/…/tidak releva
 
 ## Temuan yang sudah diketahui
 
-- `e2e/tests/visitor/search.spec.ts` gagal: masih mengharapkan "Rute ke sini" nonaktif, padahal sudah aktif sejak T-215 (perbaiki saat T-119/T-215).
+- ~~`e2e/tests/visitor/search.spec.ts` gagal: masih mengharapkan "Rute ke sini" nonaktif~~ — diperbaiki saat verifikasi T-119.
 
 ## Daftar task (urutan pengerjaan)
 
@@ -160,7 +160,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-116 · Lokasi dasar, kategori, tautan unit — CRUD lokasi + kategori + tautan unit; pencarian daftar → `e2e/evidence/T-116/`
 - [x] T-117 · Snapshot minimal — Publish → Visitor membaca snapshot; draft tidak tampil sebelum publish → `e2e/evidence/T-117/`
 - [x] T-118 · Visitor: peta, gedung, lantai — Visitor: peta, pemilih gedung dan lantai → `e2e/evidence/T-118/`
-- [ ] T-119 · Visitor: cari, kategori, detail, A–Z — Visitor: cari (salah ketik), chip kategori, detail lokasi, A–Z → `e2e/evidence/T-119/`
+- [x] T-119 · Visitor: cari, kategori, detail, A–Z — Visitor: cari (salah ketik), chip kategori, detail lokasi, A–Z → `e2e/evidence/T-119/`
 - [ ] T-120 · Visitor: bahasa ID/EN — Ganti bahasa ID/EN, pilihan diingat, tautan berbahasa → `e2e/evidence/T-120/`
 
 ### R2 · Navigasi (`12-R2-navigasi.md`)

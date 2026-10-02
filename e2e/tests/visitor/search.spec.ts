@@ -18,7 +18,8 @@ test.describe('Cari dan jelajah di Visitor', () => {
     await expect(visitor.profile).toContainText('Radiologi');
     await expect(visitor.profile).toContainText('Gedung Uji · GF · UJI-GF-001');
     await expect(visitor.profile).toContainText('Rontgen dan CT scan.');
-    await expect(visitor.profile.getByRole('button', { name: 'Rute ke sini' })).toBeDisabled();
+    // Sejak T-215 rute aktif.
+    await expect(visitor.profile.getByRole('button', { name: 'Rute ke sini' })).toBeEnabled();
 
     await visitor.back();
     await expect(visitor.results).toHaveCount(1);
