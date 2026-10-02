@@ -98,10 +98,44 @@ const sameList = (a: ExploreList | null, b: ExploreList) =>
   a?.kind === b.kind && (a.kind === 'directory' || (b.kind !== 'directory' && a.id === b.id));
 
 /** Satu store per venue yang dibuka (dibuat ExploreProvider), jadi pilihan tidak terbawa ke venue lain. */
-export const createExploreStore = (origin: RoutePlace | null = null) =>
+/** Keadaan awal dari tautan bagikan atau QR; tanpa tautan semuanya kosong. */
+export interface InitialExplore {
+  detail?: ExploreTarget | null;
+  origin?: RoutePlace | null;
+  destination?: ExploreTarget | null;
+  accessible?: boolean;
+}
+
+function initialState({
+  detail = null,
+  origin = null,
+  destination = null,
+  accessible = false,
+}: InitialExplore) {
+  if (destination) {
+    return {
+      origin,
+      destination,
+      accessible,
+      // Tautan rute tanpa asal yang masih berlaku meminta pengunjung menentukan asalnya.
+      originMode: (origin ? 'off' : 'choose') as OriginMode,
+      sheetSnap: 'half' as SheetSnap,
+      routeSeq: origin ? 1 : 0,
+    };
+  }
+  return {
+    origin,
+    accessible,
+    detail,
+    sheetSnap: (detail ? 'half' : 'peek') as SheetSnap,
+    focus: { seq: detail ? 1 : 0, mode: 'fit' as FocusMode },
+  };
+}
+
+export const createExploreStore = (initial: InitialExplore = {}) =>
   createStore<ExploreState>()((set, get) => ({
     ...INITIAL,
-    origin,
+    ...initialState(initial),
 
     search: (query) =>
       set((s) => ({

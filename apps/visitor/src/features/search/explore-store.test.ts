@@ -88,7 +88,7 @@ describe('titik asal', () => {
   });
 
   it('dari QR titik asal sudah ada: Rute ke sini langsung ke panel rute', () => {
-    const store = createExploreStore(qr);
+    const store = createExploreStore({ origin: qr });
     store.getState().requestRoute(location);
     expect(store.getState()).toMatchObject({
       origin: qr,
@@ -98,7 +98,7 @@ describe('titik asal', () => {
   });
 
   it('titik asal bisa diganti; ketuk peta; batal tanpa titik asal membatalkan rute', () => {
-    const store = createExploreStore(qr);
+    const store = createExploreStore({ origin: qr });
     store.getState().requestRoute(location);
     store.getState().chooseOrigin();
     store.getState().tapOrigin();
@@ -119,7 +119,7 @@ describe('titik asal', () => {
 
 describe('rute', () => {
   it('mode aksesibel dan rute baru kembali ke daftar langkah dan membingkai ulang', () => {
-    const store = createExploreStore({ kind: 'origin_point', code: '3fa9c1d2e4b5' });
+    const store = createExploreStore({ origin: { kind: 'origin_point', code: '3fa9c1d2e4b5' } });
     store.getState().requestRoute(location);
     const seq = store.getState().routeSeq;
     store.getState().showStep(2);
@@ -135,11 +135,29 @@ describe('rute', () => {
   });
 
   it('tukar asal dan tujuan', () => {
-    const store = createExploreStore({ kind: 'location', locationId: 'l1' });
+    const store = createExploreStore({ origin: { kind: 'location', locationId: 'l1' } });
     store.getState().requestRoute({ kind: 'unit', id: 'u2' });
     store.getState().swap({ kind: 'feature', featureId: 'u2' }, location);
     expect(store.getState()).toMatchObject({
       origin: { kind: 'feature', featureId: 'u2' },
+      destination: location,
+    });
+  });
+});
+
+describe('keadaan awal dari tautan', () => {
+  it('lokasi dibuka dan kamera membingkainya', () => {
+    const state = createExploreStore({ detail: location }).getState();
+    expect(state).toMatchObject({ detail: location, sheetSnap: 'half', focus: { seq: 1 } });
+  });
+
+  it('rute lengkap langsung tampil; tanpa asal yang berlaku meminta asal', () => {
+    const qr = { kind: 'origin_point', code: '3fa9c1d2e4b5' } as const;
+    expect(
+      createExploreStore({ origin: qr, destination: location, accessible: true }).getState(),
+    ).toMatchObject({ originMode: 'off', destination: location, accessible: true, routeSeq: 1 });
+    expect(createExploreStore({ destination: location }).getState()).toMatchObject({
+      originMode: 'choose',
       destination: location,
     });
   });

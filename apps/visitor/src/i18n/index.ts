@@ -39,6 +39,11 @@ export function setLanguage(language: LanguageCode) {
   }
 }
 
+/** Bahasa untuk kunjungan ini saja (misalnya dari tautan bagikan), tidak disimpan. */
+export function showLanguage(language: LanguageCode) {
+  if (language !== i18next.resolvedLanguage) void i18next.changeLanguage(language);
+}
+
 export { i18next };
 
 /** Bahasa default venue berlaku bila pengunjung belum memilih dan bahasa perangkat bukan ID/EN. */

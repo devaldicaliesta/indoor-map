@@ -5,24 +5,13 @@ import {
   sampleSnapshotSource,
 } from '@indoor/domain/fixtures/snapshot-source.ts';
 import { describe, expect, it } from 'vitest';
-import { originFromUrl, originView, placeOfTarget } from './origin-model';
+import { originView, placeOfTarget } from './origin-model';
 
 const snapshot = buildSnapshot(sampleSnapshotSource());
 const index = indexSnapshot(snapshot);
 const lobby = snapshot.originPoints[0];
-const venuePath = `/v/${snapshot.venue.id}`;
 
 describe('titik asal Visitor', () => {
-  it('dari URL QR: kode yang ada di snapshot', () => {
-    expect(originFromUrl(snapshot, `${venuePath}?o=${lobby?.code}`)).toEqual({
-      kind: 'origin_point',
-      code: lobby?.code,
-    });
-    expect(originFromUrl(snapshot, `${venuePath}?o=000000000000`)).toBeNull();
-    expect(originFromUrl(snapshot, `${venuePath}?o=rusak`)).toBeNull();
-    expect(originFromUrl(snapshot, venuePath)).toBeNull();
-  });
-
   it('QR: posisi, lantai, arah hadap, dan nama dari snapshot', () => {
     expect(originView(snapshot, index, { kind: 'origin_point', code: lobby?.code ?? '' })).toEqual({
       floorId: lobby?.floorId,

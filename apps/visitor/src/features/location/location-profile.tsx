@@ -10,6 +10,7 @@ import { PanelMessage } from '../../app/panel-message';
 import { data } from '../../data/client';
 import { intlLocale } from '../../i18n';
 import { useExplore } from '../search/explore-context';
+import { ShareButton } from '../share/share-button';
 import { LocationStatus } from './location-status';
 import { placeText } from './location-text';
 import { RouteAction } from './route-action';
@@ -99,6 +100,7 @@ export function LocationProfile({ id }: { id: string }) {
       <Places places={locationPlaces(index, location)} />
       <LocationStatus location={location} />
       <RouteAction target={{ kind: 'location', id: location.id }} />
+      <ShareButton title={location.name} />
       {location.description ? <p className="whitespace-pre-line">{location.description}</p> : null}
       {location.photoPaths.length ? (
         <ul className="-mx-(--panel-padding) flex gap-2 overflow-x-auto px-(--panel-padding)">
