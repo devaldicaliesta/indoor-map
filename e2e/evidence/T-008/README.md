@@ -10,7 +10,8 @@ Akun yang dikunci atau diganti password-nya dibuat per test lewat alur undangan 
 | [01](01-halaman-masuk.png) | Halaman masuk | TC-AUTH-01 |
 | [02](02-masuk-berhasil.png) | Masuk dengan email berhuruf besar + spasi → beranda Venue | TC-AUTH-01, -30 |
 | [03](03-password-salah.png) | Password salah: "Email atau password salah." (sama untuk email tak terdaftar) | TC-AUTH-02 |
-| [04](04-akun-terkunci.png) | Setelah 5 gagal, password benar pun ditolak "Akun terkunci…" | TC-AUTH-03 |
+| [04](04-akun-terkunci.png) | Setelah 5 gagal, password benar pun ditolak dengan pesan yang sama seperti email tak terdaftar | TC-AUTH-03 |
+| [04b](04b-email-pemberitahuan-kunci.png) | Email pemberitahuan kunci ke pemilik akun (Mailpit) | TC-AUTH-03 |
 | [05](05-menu-akun.png) | Menu akun dengan "Keluar" | TC-AUTH-05 |
 | [06](06-back-setelah-keluar.png) | Keluar lalu Back → tetap di halaman masuk | TC-AUTH-05 |
 | [07](07-lupa-password.png) | Halaman lupa password | TC-AUTH-06 |
@@ -30,8 +31,8 @@ Belum dicek: tautan kedaluwarsa (> 1 jam, batas GoTrue), kunci habis setelah 15 
 - [Catatan test] `pnpm check` sekali merah di `@indoor/domain#test` saat Supabase + Playwright berjalan bersamaan; lulus saat diulang (2× terpisah, 1× penuh). Tidak berkaitan dengan T-008.
 
 - [SEDANG, test] Kuota email lokal `auth.rate_limit.email_sent = 10`/jam: menjalankan spec berulang kali dalam satu jam bisa membuat email reset tidak terkirim (UI tetap menampilkan pesan netral), lalu `waitForMail` gagal. Pesan galat `waitForMail` kini menyebut batas ini; Mailpit yang tidak menjawab dilaporkan jelas. 3 run beruntun tetap lulus.
-- [SEDANG, keamanan] Hook penguncian `security definer` memakai `search_path = public, pg_temp`, bukan `''` (nama di dalamnya sudah berskema, celah kecil). Perbaikan lewat migrasi baru; dicatat di PROGRESS.
-- [SEDANG, keamanan] Pesan "Akun terkunci…" membedakan email terdaftar dari yang tidak (enumerasi + kunci 15 menit oleh orang lain). Butuh keputusan pemilik: pesan umum + pemberitahuan email, atau terima risiko + captcha/batas laju. Dicatat di PROGRESS (pertanyaan terbuka).
+- [SEDANG, keamanan] Hook penguncian `security definer` memakai `search_path = public, pg_temp`, bukan `''`. **Diperbaiki** di migrasi 0021 (dijaga pgTAP).
+- [SEDANG, keamanan] Pesan "Akun terkunci…" membedakan email terdaftar dari yang tidak. **Diperbaiki (keputusan pemilik: opsi A):** pesan saat terkunci identik dengan email tak terdaftar, pemilik akun menerima email pemberitahuan (Edge Function `account-notice`, maks. 1 per jam). Tinjauan keamanan perubahan ini: Setuju; dua temuan SEDANG (rincian SMTP di balasan, banjir email) diperbaiki sebelum commit.
 - [SEDANG, keamanan] Rahasia hook `send_email` lokal ada di `supabase/config.toml`; instalasi klien wajib membangkitkan sendiri (T-411 harus menolak nilai bawaan). Dicatat.
 - [RENDAH, keamanan] Pesan galat tak dikenal GoTrue tampil mentah di halaman reset; `secure_password_change = false`; `max_frequency` reset 1 detik. Dicatat.
 

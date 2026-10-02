@@ -14,7 +14,6 @@ const validity = (input: Locator, key: keyof ValidityState) =>
   input.evaluate((el, k) => (el as HTMLInputElement).validity[k], key);
 
 const WRONG = 'Email atau password salah.';
-const LOCKED = /Akun terkunci karena terlalu banyak percobaan gagal/;
 
 test.describe('T-008 Login, logout, reset password', () => {
   test('TC-AUTH-01/30/31 login benar (email dinormalisasi), validasi kosong', async ({ page }) => {
@@ -53,7 +52,7 @@ test.describe('T-008 Login, logout, reset password', () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
-  test('TC-AUTH-03/39 lima kali gagal mengunci akun; tercatat di Catatan', async ({
+  test('TC-AUTH-03 lima kali gagal mengunci akun tanpa membocorkannya; pemilik diberi tahu lewat email', async ({
     page,
     superAdmin,
   }) => {
@@ -65,10 +64,20 @@ test.describe('T-008 Login, logout, reset password', () => {
       await expect(login.error).toHaveText(WRONG);
       await expect(login.submit).toBeEnabled();
     }
-    // Password benar pun ditolak selama terkunci.
+    // Password benar pun ditolak selama terkunci, dengan pesan yang sama seperti email tidak
+    // terdaftar agar orang lain tidak bisa menebak akun mana yang ada.
     await login.signIn(user.email, user.password);
-    await expect(login.error).toHaveText(LOCKED);
+    await expect(login.error).toHaveText(WRONG);
+    await expect(page).toHaveURL(/\/login$/);
     await capture(page, '04-akun-terkunci');
+
+    // Email pertama adalah undangan; yang kedua pemberitahuan kunci untuk pemilik akun.
+    const notice = await waitForMail(user.email, 2);
+    expect(notice.subject).toBe('Akun Admin Indoor Map dikunci sementara');
+    expect(notice.text).toContain('dikunci selama 15 menit karena 5 kali percobaan masuk');
+    await page.goto(`${env.mailpitUrl}/view/${notice.id}`);
+    await expect(page.getByText('Akun Admin Indoor Map dikunci sementara').first()).toBeVisible();
+    await capture(page, '04b-email-pemberitahuan-kunci');
 
     const failures = (await superAdmin.audit.listRecent('login_failed')).filter(
       (e) => e.actor?.email === user.email,

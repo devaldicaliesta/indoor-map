@@ -118,3 +118,10 @@ update public.system_settings
 set smtp_host = 'supabase_inbucket_indoor-map',
     smtp_port = 1025,
     smtp_from = 'Indoor Map <noreply@local.test>';
+
+-- ---------------------------------------------------------------------
+-- Alamat Edge Function dari dalam database lokal (pemberitahuan akun terkunci lewat pg_net).
+-- Kong di jaringan Docker Supabase lokal; instalasi klien diisi installer (T-411).
+-- ---------------------------------------------------------------------
+insert into app.server_settings (key, value)
+values ('functions_url', 'http://supabase_kong_indoor-map:8000/functions/v1');

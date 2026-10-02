@@ -7,9 +7,11 @@ interface MailpitSummary {
 }
 
 export interface Mail {
+  /** ID Mailpit; tampilan web di `${env.mailpitUrl}/view/<id>`. */
+  id: string;
   subject: string;
   text: string;
-  /** Tautan `…/auth/v1/verify?…` di isi email. */
+  /** Tautan `…/auth/v1/verify?…` di isi email; kosong untuk email tanpa tautan (pemberitahuan). */
   link: string;
 }
 
@@ -41,7 +43,6 @@ export async function waitForMail(to: string, count = 1): Promise<Mail> {
   const detail = (await (await fetch(`${env.mailpitUrl}/api/v1/message/${latest.ID}`)).json()) as {
     Text: string;
   };
-  const link = /(http\S+\/auth\/v1\/verify\?\S+)/.exec(detail.Text)?.[1];
-  if (!link) throw new Error(`Email "${latest.Subject}" tanpa tautan.`);
-  return { subject: latest.Subject, text: detail.Text, link };
+  const link = /(http\S+\/auth\/v1\/verify\?\S+)/.exec(detail.Text)?.[1] ?? '';
+  return { id: latest.ID, subject: latest.Subject, text: detail.Text, link };
 }

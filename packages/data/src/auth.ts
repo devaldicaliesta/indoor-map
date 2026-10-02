@@ -4,9 +4,9 @@ import { DataError, toDataError } from './errors';
 import type { ProfilesRepository } from './repositories/profiles';
 import type { Db } from './supabase';
 
-// Pesan dari Auth Hook di migrasi 0002_login_lockout; harus sama persis (dijaga test integrasi).
-export const ACCOUNT_LOCKED_MESSAGE =
-  'Akun terkunci karena terlalu banyak percobaan gagal. Coba lagi dalam 15 menit.';
+// Pesan dari Auth Hook penguncian (migrasi 0021); harus sama persis (dijaga test integrasi).
+// Akun terkunci sengaja tidak punya pesan sendiri: hook membalas seperti kredensial salah
+// agar email terdaftar tidak bisa ditebak, dan pemilik akun diberi tahu lewat email.
 export const ACCOUNT_INACTIVE_MESSAGE = 'Akun Anda dinonaktifkan. Hubungi Super Admin.';
 
 // Awal pesan dari Edge Function auth-email (Auth Hook send email) saat email Auth tidak
@@ -16,7 +16,6 @@ export const EMAIL_UNAVAILABLE_PREFIXES = ['Server email belum diatur', 'Email t
 /** Kode pada `DataError.code` untuk kegagalan autentikasi. */
 export type AuthErrorCode =
   | 'invalid_credentials'
-  | 'account_locked'
   | 'account_inactive'
   | 'rate_limited'
   | 'weak_password'
@@ -54,9 +53,6 @@ interface AuthErrorLike {
 
 /** Menerjemahkan error Supabase Auth; pesan untuk kredensial salah sengaja umum. */
 export function toAuthError(error: AuthErrorLike): DataError {
-  if (error.message === ACCOUNT_LOCKED_MESSAGE) {
-    return authError('account_locked', ACCOUNT_LOCKED_MESSAGE, error);
-  }
   if (error.message === ACCOUNT_INACTIVE_MESSAGE) {
     return authError('account_inactive', ACCOUNT_INACTIVE_MESSAGE, error);
   }

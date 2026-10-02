@@ -1,6 +1,5 @@
 export {
   ACCOUNT_INACTIVE_MESSAGE,
-  ACCOUNT_LOCKED_MESSAGE,
   type AuthErrorCode,
   type AuthEvent,
   type AuthRepository,
