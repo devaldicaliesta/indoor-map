@@ -76,8 +76,13 @@ test.describe('T-115 Tampilan 2D/3D', () => {
 
     // Setelah publish: Visitor langsung 3D (tanpa menekan tombol) dan unit lebih tinggi.
     await superAdmin.publications.publish(venueId);
+    // Snapshot terbit memuat tinggi baru (yang dibaca Visitor untuk fill-extrusion).
+    const published = await superAdmin.snapshots.latest(venueId);
+    expect(published.venue.display.heights.unit).toBe(12);
+    expect(published.venue.display.defaultMode).toBe('3d');
     const after = await visitorCanvas(browser, venueId, '04-visitor-3d-unit-12m', false);
+    // Mode awal 3D tanpa menekan tombol. Gambar tidak dibandingkan dengan `before` karena kamera
+    // awal 3D dan 3D hasil klik bisa berbeda; tinggi dibuktikan lewat snapshot di atas.
     expect(after.is3d).toBe(true);
-    expect(after.image.equals(before.image)).toBe(false);
   });
 });

@@ -8,7 +8,7 @@ Spec: `e2e/tests/admin/verify/T-115-display-3d.spec.ts` (fixture `fullVenue`). H
 | [06](06-error-tinggi.png) | Tinggi unit −3 ditolak dengan pesan di bawah kolom |
 | [02](02-pengaturan-tersimpan.png) | Pengaturan → Tampilan: mode awal 3D, tinggi unit 12 m, "Tampilan disimpan"; DB `defaultMode=3d`, `heights.unit=12` |
 | [03](03-admin-editor-3d.png) | Editor Peta Admin: 3D mengubah kanvas |
-| [04](04-visitor-3d-unit-12m.png) | Setelah publish, Visitor langsung 3D tanpa menekan tombol; kanvas berbeda dari gambar 01 (unit lebih tinggi) |
+| [04](04-visitor-3d-unit-12m.png) | Setelah publish, snapshot terbit memuat `heights.unit = 12` dan `defaultMode = 3d`; Visitor langsung 3D tanpa menekan tombol |
 
 ## Temuan
 
