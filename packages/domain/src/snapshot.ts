@@ -1,4 +1,4 @@
-import type { OpeningHours } from './hours';
+import type { OpeningHours } from './hours.ts';
 /**
  * Format snapshot publish yang dibaca Visitor dan Info Point (03-arsitektur.md "Format
  * snapshot"). Builder-nya di `snapshot-builder.ts`, skema zod-nya di `snapshot-schema.ts`.
@@ -120,6 +120,16 @@ export interface SnapshotDisplay {
   colors: Partial<Record<SnapshotFeatureKind, string>>;
 }
 
+/** Branding venue; tidak ada di snapshot yang diterbitkan sebelum branding dibuat. */
+export interface SnapshotBranding {
+  /** `null` = nama venue. */
+  displayName: string | null;
+  /** `#rrggbb` pengganti --signal; `null` = bawaan. */
+  primaryColor: string | null;
+  /** `#rrggbb` pengganti --route; `null` = bawaan. */
+  routeColor: string | null;
+}
+
 export interface SnapshotVenue {
   id: string;
   name: string;
@@ -131,6 +141,7 @@ export interface SnapshotVenue {
   /** Kamera awal; `null` berarti Visitor membingkai lantai default. */
   camera: SnapshotCamera | null;
   display: SnapshotDisplay;
+  branding?: SnapshotBranding;
 }
 
 export interface SnapshotBuilding {

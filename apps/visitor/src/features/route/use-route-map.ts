@@ -4,7 +4,7 @@ import {
   type SnapshotPosition,
   visibleFloorIds,
 } from '@indoor/domain';
-import { type LngLat, type MapInstance, type RouteView, setRoute } from '@indoor/map-core';
+import { type MapInstance, ROUTE_COLOR, type RouteView, setRoute } from '@indoor/map-core';
 import { type RouteSuccess, routeOnFloor } from '@indoor/routing';
 import { useEffect, useRef } from 'react';
 import { snapHeight } from '../../components/sheet-snap';
@@ -58,10 +58,11 @@ export function useRouteMap({ map, snapshot, view, setView, padding, isDesktop }
   const latest = useRef({ view, setView, padding, isDesktop });
   latest.current = { view, setView, padding, isDesktop };
 
+  const routeColor = snapshot.venue.branding?.routeColor ?? ROUTE_COLOR;
   useEffect(() => {
     if (!map) return;
     if (!plan?.ok || !view.floorId) {
-      setRoute(map, null);
+      setRoute(map, null, routeColor);
       return;
     }
     const shown = visibleFloorIds(snapshot, view.floorId);
@@ -70,8 +71,8 @@ export function useRouteMap({ map, snapshot, view, setView, padding, isDesktop }
       ...routeOnFloors(plan.route, shown),
       active: step && shown.includes(step.floorId) ? step.coordinates : null,
     };
-    setRoute(map, drawn);
-  }, [map, snapshot, plan, view.floorId, activeStep]);
+    setRoute(map, drawn, routeColor);
+  }, [map, snapshot, plan, view.floorId, activeStep, routeColor]);
 
   /** Pindah ke lantai lalu bingkai titik-titiknya di area yang tidak tertutup panel. */
   function show(floorId: string, points: readonly SnapshotPosition[]) {

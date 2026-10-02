@@ -27,6 +27,7 @@ const HoursSchema = z.object({
 const id = z.string().min(1);
 const text = z.string();
 const nullableText = z.string().nullable();
+const hexColor = z.string().regex(/^#[0-9a-f]{6}$/);
 const byKind = <T extends z.ZodType>(value: T) =>
   z.partialRecord(z.enum(SNAPSHOT_FEATURE_KINDS), value);
 
@@ -45,6 +46,13 @@ const VenueSchema = z.object({
     heights: byKind(z.number().min(0)),
     colors: byKind(text),
   }),
+  branding: z.exactOptional(
+    z.object({
+      displayName: nullableText,
+      primaryColor: hexColor.nullable(),
+      routeColor: hexColor.nullable(),
+    }),
+  ),
 });
 
 const BuildingSchema = z.object({

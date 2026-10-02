@@ -81,8 +81,11 @@ describe.runIf(url && anonKey && serviceKey)('venue (Supabase lokal)', () => {
       new Blob([PNG], { type: 'image/png' }),
     );
     expect(withLogo.logoPath).toMatch(new RegExp(`^venues/${venue.id}/logo-\\d+\\.png$`));
-    const logo = await fetch(admin.data.venues.logoUrl(withLogo.logoPath ?? ''));
-    expect(logo.status).toBe(200);
+    const logoUrl = admin.data.venues.logoUrl(withLogo.logoPath ?? '');
+    expect((await fetch(logoUrl)).status).toBe(200);
+
+    expect((await admin.data.venues.removeLogo(venue.id)).logoPath).toBeNull();
+    expect((await fetch(logoUrl)).ok).toBe(false);
   });
 
   it('data dua venue terpisah', async () => {
@@ -143,6 +146,7 @@ describe.runIf(url && anonKey && serviceKey)('venue (Supabase lokal)', () => {
     expect(
       await kindOf(editor.data.venues.uploadLogo(venue.id, new Blob([PNG], { type: 'image/png' }))),
     ).toBe('forbidden');
+    expect(await kindOf(editor.data.venues.removeLogo(venue.id))).toBe('forbidden');
   });
 
   it('hapus venue menghapus data turunannya', async () => {

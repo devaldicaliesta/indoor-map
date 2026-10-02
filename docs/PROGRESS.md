@@ -95,7 +95,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-410 | Branding Visitor | T-117 | siap | boleh paralel sejak R1 |
+| T-410 | Branding Visitor | T-117 | review | Pengaturan → Branding: logo (memakai logo venue; ganti/hapus, `venues.removeLogo` baru), nama tampilan (≤ 60), warna utama dan warna rute dengan pratinjau Visitor langsung serta catatan kontras. Disimpan di `display_settings.branding` (tanpa migrasi), masuk snapshot sebagai `venue.branding` opsional (snapshot lama tetap terbaca). `packages/ui/src/theme/apply-branding.ts` menghitung `--signal`, `--signal-soft`, `--on-signal` (--ink atau putih, mana yang lolos AA), `--route`, `--on-route`; tombol utama kini `text-on-signal`. Visitor: logo + nama di header desktop, logo di header HP, judul tab, warna garis rute di peta. Info Point memakai `useVenueBranding` yang sama saat dibuat di T-408. Ikut diperbaiki: impor `./hours` tanpa `.ts` (T-304) membuat Edge Function `publish` gagal boot; kini ada test penjaga impor Edge Function. Diuji: unit, 43 integrasi, E2E `branding.spec.ts` + gambar di `e2e/evidence/T-410/` |
 | T-401 | Format lisensi dan license-cli | R3 | menunggu | model besar |
 | T-402 | Aktivasi online dan manual | T-401 | menunggu | |
 | T-403 | Check-in, pencabutan, proteksi waktu | T-402 | menunggu | |
@@ -115,6 +115,8 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 Tidak ada. Pemilik (2026-09-30): pertanyaan diputuskan langsung sesuai dokumen, lalu dicatat di "Catatan keputusan".
 
 ## Catatan keputusan
+
+- [2026-10-02] T-410 — Logo branding = logo venue (satu logo per venue), bukan kolom terpisah. Mengganti/menghapus logo langsung menghapus berkas lama, sehingga Visitor versi terbit bisa kehilangan logonya sampai publish berikutnya (Visitor jatuh ke tanda bawaan); penyimpanan aset per versi diputuskan di T-310. Di HP placeholder kolom cari tetap generik karena nama venue terpotong.
 
 Format: `- [tanggal] T-xxx — keputusan — alasan`
 

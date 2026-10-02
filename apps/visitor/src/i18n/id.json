@@ -5,6 +5,7 @@
   "search": {
     "label": "Cari lokasi",
     "placeholder": "Cari lokasi…",
+    "placeholderIn": "Cari di {{name}}…",
     "clear": "Hapus pencarian",
     "results": "Hasil pencarian",
     "count_one": "{{count}} hasil",

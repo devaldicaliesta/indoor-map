@@ -91,4 +91,32 @@ describe('lapisan rute', () => {
     expect(calls).toContain(`move ${ROUTE_LAYER_IDS.destination} td-polygon`);
     expect(calls.filter((call) => call.startsWith('data'))).toEqual(['data 4', 'data 0']);
   });
+
+  it('warna rute venue dipakai saat dibuat dan diganti hanya bila berubah', () => {
+    const painted: string[] = [];
+    let added = false;
+    const map = {
+      getSource: () => (added ? { setData: () => undefined } : undefined),
+      addSource: () => {
+        added = true;
+      },
+      addLayer: (layer: LayerSpecification) => {
+        if (layer.id === ROUTE_LAYER_IDS.line) painted.push(`add ${paint(layer)['line-color']}`);
+      },
+      getStyle: () => ({ layers: [] }),
+      moveLayer: () => undefined,
+      setPaintProperty: (id: string, name: string, value: string) =>
+        painted.push(`${id} ${name} ${value}`),
+    } as unknown as MapLibreMap;
+    setRoute(map, view, '#e4002b');
+    setRoute(map, null, '#e4002b');
+    setRoute(map, view, '#0b1f4d');
+    expect(painted).toEqual([
+      'add #e4002b',
+      `${ROUTE_LAYER_IDS.line} line-color #0b1f4d`,
+      `${ROUTE_LAYER_IDS.origin} circle-stroke-color #0b1f4d`,
+      `${ROUTE_LAYER_IDS.destination} circle-color #0b1f4d`,
+    ]);
+    expect(paint(routeLayers('#0b1f4d')[2] as LayerSpecification)['line-color']).toBe('#0b1f4d');
+  });
 });

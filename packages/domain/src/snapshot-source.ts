@@ -1,4 +1,4 @@
-import type { OpeningHours } from './hours';
+import type { OpeningHours } from './hours.ts';
 /**
  * Data draft venue yang menjadi masukan builder snapshot. Dimuat Edge Function `publish`
  * di Deno, jadi hanya mengimpor tipe dengan ekstensi `.ts` (lihat `snapshot.ts`).
@@ -76,7 +76,13 @@ export interface SnapshotSource {
   defaultLanguage: SnapshotLanguage;
   enabledFeatures: readonly string[];
   venue: Omit<SnapshotVenue, 'defaultLanguage' | 'camera' | 'display'>;
-  display: { defaultMode: string; heights: unknown; colors: unknown; camera: unknown } | null;
+  display: {
+    defaultMode: string;
+    heights: unknown;
+    colors: unknown;
+    camera: unknown;
+    branding: unknown;
+  } | null;
   buildings: readonly (SnapshotBuilding & Ordered)[];
   floors: readonly (SnapshotFloor & Ordered)[];
   features: readonly SourceFeature[];

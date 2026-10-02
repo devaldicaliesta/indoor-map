@@ -72,7 +72,7 @@ const is = (role: Role, type: 'LineString' | 'Point'): FilterSpecification => [
  * bawah garis; asal berupa lingkaran putih bertepi --route, tujuan lingkaran --route, perpindahan
  * lantai lingkaran putih bertepi --ink.
  */
-export function routeLayers(): LayerSpecification[] {
+export function routeLayers(color: string = ROUTE_COLOR): LayerSpecification[] {
   const { signal, ink, paper } = EDIT_COLORS;
   const round = { 'line-cap': 'round', 'line-join': 'round' } as const;
   return [
@@ -98,7 +98,7 @@ export function routeLayers(): LayerSpecification[] {
       source: ROUTE_SOURCE_ID,
       filter: is('line', 'LineString'),
       layout: round,
-      paint: { 'line-color': ROUTE_COLOR, 'line-width': ROUTE_WIDTH },
+      paint: { 'line-color': color, 'line-width': ROUTE_WIDTH },
     },
     {
       id: ROUTE_LAYER_IDS.activePoint,
@@ -132,7 +132,7 @@ export function routeLayers(): LayerSpecification[] {
       paint: {
         'circle-radius': 7,
         'circle-color': paper,
-        'circle-stroke-color': ROUTE_COLOR,
+        'circle-stroke-color': color,
         'circle-stroke-width': 3,
       },
     },
@@ -143,7 +143,7 @@ export function routeLayers(): LayerSpecification[] {
       filter: is('destination', 'Point'),
       paint: {
         'circle-radius': 8,
-        'circle-color': ROUTE_COLOR,
+        'circle-color': color,
         'circle-stroke-color': paper,
         'circle-stroke-width': 3,
       },
@@ -151,15 +151,27 @@ export function routeLayers(): LayerSpecification[] {
   ];
 }
 
+const appliedColors = new WeakMap<MapLibreMap, string>();
+
 /**
  * Menggambar rute lantai yang tampil; `null` menghapusnya. Layer rute dijaga tetap di atas fitur
- * dan graf, tetapi di bawah lapisan sunting terra-draw (`td-*`).
+ * dan graf, tetapi di bawah lapisan sunting terra-draw (`td-*`). `color` adalah warna rute venue
+ * (branding); garis, tepi asal, dan isi tujuan mengikutinya.
  */
-export function setRoute(map: MapLibreMap, view: RouteView | null): void {
+export function setRoute(
+  map: MapLibreMap,
+  view: RouteView | null,
+  color: string = ROUTE_COLOR,
+): void {
   if (!map.getSource(ROUTE_SOURCE_ID)) {
     map.addSource(ROUTE_SOURCE_ID, { type: 'geojson', data: routeCollection(null) });
-    for (const layer of routeLayers()) map.addLayer(layer);
+    for (const layer of routeLayers(color)) map.addLayer(layer);
+  } else if (appliedColors.get(map) !== color) {
+    map.setPaintProperty(ROUTE_LAYER_IDS.line, 'line-color', color);
+    map.setPaintProperty(ROUTE_LAYER_IDS.origin, 'circle-stroke-color', color);
+    map.setPaintProperty(ROUTE_LAYER_IDS.destination, 'circle-color', color);
   }
+  appliedColors.set(map, color);
   const before = map.getStyle().layers.find((layer) => layer.id.startsWith('td-'))?.id;
   for (const id of Object.values(ROUTE_LAYER_IDS)) map.moveLayer(id, before);
   map.getSource<GeoJSONSource>(ROUTE_SOURCE_ID)?.setData(routeCollection(view));

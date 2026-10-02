@@ -10,6 +10,7 @@ const row = {
   heights: { unit: 4, wall: 5, corridor: 0, outdoor_area: 0 },
   colors: { unit: '#FFFFFF', wall: 'abu' },
   camera: { center: [106.8272, -6.1754], zoom: 18.5, pitch: 50, bearing: 15 },
+  branding: { displayName: 'RS Kenari', primaryColor: '#0B1F4D', routeColor: 'merah' },
 };
 
 describe('pengaturan tampilan', () => {
@@ -20,6 +21,7 @@ describe('pengaturan tampilan', () => {
       heights: { unit: 4, wall: 5, corridor: 0, outdoor_area: 0 },
       colors: { unit: '#ffffff' },
       camera: { center: [106.8272, -6.1754], zoom: 18.5, pitch: 50, bearing: 15 },
+      branding: { displayName: 'RS Kenari', primaryColor: '#0b1f4d', routeColor: null },
     });
     expect(mapDisplaySettingsRow({ ...row, camera: { zoom: 'x' } }).camera).toBeNull();
   });
@@ -30,5 +32,13 @@ describe('pengaturan tampilan', () => {
       heights: { unit: 3 },
       camera: null,
     });
+  });
+
+  it('branding disimpan tanpa kunci kosong agar memakai bawaan', () => {
+    expect(
+      toDisplaySettingsUpdate({
+        branding: { displayName: null, primaryColor: '#0b1f4d', routeColor: null },
+      }),
+    ).toEqual({ branding: { primaryColor: '#0b1f4d' } });
   });
 });
