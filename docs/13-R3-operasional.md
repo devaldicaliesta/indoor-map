@@ -102,35 +102,10 @@
   - [ ] Mencari "rontgen" di Visitor menemukan Radiologi setelah publish
 - **Jangan:** membuat mesin sinonim otomatis.
 
-### T-307a · Verifikasi E2E bertahap (CRUD dan UI/UX)
-
-- **Untuk:** verifikasi semua task berstatus `review` sebelum validasi publish
-- **Bergantung pada:** T-306 (dikerjakan sebelum T-307)
-- **Konteks:** Banyak task R0–R3 berstatus `review` dengan catatan "belum diuji browser (tanpa Docker)". Sebelum T-307 dimulai, semua yang sudah dibuat dibuktikan di browser dengan Playwright, bertahap per task, beserta gambar hasil pengecekan. Jalankan dengan Supabase lokal (`supabase start`, `pnpm db:reset`). Pakai Page Object yang ada di `e2e/pages/` dan agent/skill `e2e-runner` / `/ecc-e2e`.
-- **Langkah:**
-  1. Mulai dari **R0 Fondasi** (T-001), lalu lanjut berurutan per rilis sesuai urutan di bawah. Kerjakan **satu task per langkah**; jangan lanjut ke task berikutnya sebelum task saat ini lulus atau temuannya dicatat. Task tanpa UI (tooling, paket, skema) cukup dibuktikan lewat efeknya di aplikasi (mis. app jalan, data tampil) dan tetap diberi screenshot.
-     - **R0 Fondasi:** T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009a, T-009b, T-010, T-011, T-012
-     - **R1 Inti peta:** T-101, T-102, T-103, T-104, T-105, T-106, T-107, T-108, T-109, T-110, T-111, T-112, T-113, T-114, T-115, T-116, T-117, T-118, T-119, T-120
-     - **R2 Navigasi:** T-201 s.d. T-217
-     - **R3 Operasional:** T-301, T-302, T-303, T-304, T-305, T-306
-  2. Per task, tulis spec Playwright di `e2e/tests/verify/T-xxx-slug.spec.ts` yang mencakup:
-     - **CRUD:** buat, baca (tampil di daftar/peta), ubah, hapus untuk entitas task itu; termasuk penolakan (validasi formulir, role tanpa izin ditolak server, bukan hanya tombol tersembunyi).
-     - **UI/UX:** sesuai `docs/05-desain-ui.md` — teks Admin Bahasa Indonesia, Visitor ID/EN, keadaan kosong/memuat/error, umpan balik setelah simpan, fokus dan navigasi keyboard, tampilan HP (390 × 844) untuk Visitor dan desktop (1440 × 900) untuk Admin.
-  3. **Gambar wajib:** setiap langkah penting diambil screenshot dengan `page.screenshot({ path, fullPage: true })` ke `e2e/evidence/T-xxx/NN-langkah.png` (mis. `01-daftar-kosong.png`, `02-form-isi.png`, `03-tersimpan.png`, `04-dihapus.png`). Sertakan juga screenshot keadaan error.
-  4. Tulis ringkasan per task di `e2e/evidence/T-xxx/README.md`: skenario, hasil (lulus/gagal), daftar gambar dengan tautan, dan temuan (bug, ketidaksesuaian UI/UX).
-  5. Bug kecil di file task itu diperbaiki di PR yang sama dengan test pembuktiannya; bug besar dicatat di `docs/PROGRESS.md` bagian "Pertanyaan terbuka"/catatan sebagai pekerjaan lanjutan, tidak diperbaiki diam-diam.
-  6. Setelah setiap task terverifikasi, perbarui kolom Catatan task itu di `docs/PROGRESS.md` ("diuji E2E T-307a, bukti di `e2e/evidence/T-xxx/`"), commit `T-307a: verifikasi E2E T-xxx`.
-- **File:** `e2e/tests/verify/**`, `e2e/pages/**`, `e2e/evidence/**`, `docs/PROGRESS.md`
-- **Selesai jika:**
-  - [ ] Setiap task berstatus `review` punya spec verifikasi yang lulus di `pnpm test:e2e`, atau temuan tercatat
-  - [ ] Setiap task punya folder `e2e/evidence/T-xxx/` berisi screenshot langkah CRUD dan UI/UX serta README ringkasan
-  - [ ] Spec stabil: lulus 3 kali berturut-turut tanpa retry
-- **Jangan:** menggabungkan banyak task dalam satu spec atau satu commit; memakai `waitForTimeout` sebagai pengganti menunggu elemen; menghapus/melemahkan test agar hijau.
-
 ### T-307 · Validasi publish lengkap
 
 - **Untuk:** FR-PUB-03, FR-PUB-04
-- **Bergantung pada:** T-303, T-307a, R2
+- **Bergantung pada:** T-303, T-307a (`15-verifikasi-e2e.md`), R2
 - **Konteks:** Gunakan model besar. Validasi adalah fungsi murni yang dipakai Admin (tombol Validasi) dan Edge Function `publish`.
 - **Langkah:**
   1. `validateVenue(draft): Finding[]` di `packages/domain/src/validation/publish.ts`.
