@@ -1519,6 +1519,10 @@ export type Database = {
         };
         Returns: string;
       };
+      import_locations: {
+        Args: { p_location_type_id: string; p_rows: Json; p_venue_id: string };
+        Returns: number;
+      };
       remove_field_definition: { Args: { p_id: string }; Returns: undefined };
       set_smtp_password: { Args: { p_password: string }; Returns: undefined };
       smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };

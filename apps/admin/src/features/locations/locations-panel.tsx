@@ -25,6 +25,7 @@ import { TriangleAlertIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Can, useRole } from '../../app/auth/can';
+import { ImportDialog } from '../import/import-dialog';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
 import { DeleteLocationDialog } from './delete-location-dialog';
 import { buildingNames, floorNames, LOCATION_STATUS_LABELS, LOCATION_STATUS_TONE } from './labels';
@@ -85,6 +86,7 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
   const locations = useLocations(venueId);
   const categories = useCategories(venueId);
   const types = useLocationTypes(venueId);
+  const [importing, setImporting] = useState(false);
   const typeName = (id: string) => types.data?.find((t) => t.id === id)?.name ?? '';
   const units = useVenueUnits(venueId);
   const buildings = useBuildings(venueId);
@@ -117,6 +119,9 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
           />
         </div>
         <Can action="location.edit">
+          <Button disabled={!types.data?.length} onClick={() => setImporting(true)}>
+            Import
+          </Button>
           <Button
             variant="primary"
             disabled={!types.data?.length}
@@ -244,6 +249,9 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
           outdoorName={outdoorName}
           onClose={() => setOpen(null)}
         />
+      ) : null}
+      {importing && types.data ? (
+        <ImportDialog venueId={venueId} types={types.data} onClose={() => setImporting(false)} />
       ) : null}
       {open?.kind === 'delete' ? (
         <DeleteLocationDialog
