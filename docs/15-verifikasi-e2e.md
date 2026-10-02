@@ -170,7 +170,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-203 · Routing: aksesibel, penutupan, titik masuk — Rute aksesibel menghindari tangga; penutupan dihindari; titik masuk dipakai → `e2e/evidence/T-203/`
 - [x] T-204 · Routing: instruksi — Teks instruksi per langkah (ID/EN) → `e2e/evidence/T-204/`
 - [x] T-205 · Editor graf — CRUD node/edge graf di editor → `e2e/evidence/T-205/`
-- [ ] T-206 · Titik masuk unit/fasilitas — Titik masuk unit/fasilitas: tambah, pindah, hapus → `e2e/evidence/T-206/`
+- [x] T-206 · Titik masuk unit/fasilitas — Titik masuk unit/fasilitas: tambah, pindah, hapus → `e2e/evidence/T-206/`
 - [ ] T-207 · Editor konektor dan aksesibilitas — CRUD konektor + arah eskalator + aksesibilitas → `e2e/evidence/T-207/`
 - [ ] T-208 · Tampilan graf — Tampilan graf: tampil/sembunyi, warna aksesibel → `e2e/evidence/T-208/`
 - [ ] T-209 · Test route — Test route di Admin: asal/tujuan, langkah, mode aksesibel → `e2e/evidence/T-209/`
