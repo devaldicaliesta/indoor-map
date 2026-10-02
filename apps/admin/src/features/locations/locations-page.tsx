@@ -3,26 +3,25 @@ import { EmptyState, Tabs, TabsContent, TabsList, TabsTrigger } from '@indoor/ui
 import { useSearchParams } from 'react-router';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
-import { CategoriesPanel } from './categories-panel';
+import { LocationTypesPanel } from '../location-types/location-types-panel';
 import { LocationsPanel } from './locations-panel';
 
 function LocationsModule({ venueId }: { venueId: VenueId }) {
   const [params, setParams] = useSearchParams();
-  const tab = params.get('tab') === 'categories' ? 'categories' : 'locations';
+  // `categories` dari tautan lama (sebelum T-303) membuka tab yang kini memuat kategori.
+  const requested = params.get('tab');
+  const tab = requested === 'types' || requested === 'categories' ? 'types' : 'locations';
   return (
-    <Tabs
-      value={tab}
-      onValueChange={(value) => setParams(value === 'categories' ? { tab: value } : {})}
-    >
+    <Tabs value={tab} onValueChange={(value) => setParams(value === 'types' ? { tab: value } : {})}>
       <TabsList>
         <TabsTrigger value="locations">Lokasi</TabsTrigger>
-        <TabsTrigger value="categories">Kategori</TabsTrigger>
+        <TabsTrigger value="types">Tipe lokasi</TabsTrigger>
       </TabsList>
       <TabsContent value="locations">
         <LocationsPanel venueId={venueId} />
       </TabsContent>
-      <TabsContent value="categories">
-        <CategoriesPanel venueId={venueId} />
+      <TabsContent value="types">
+        <LocationTypesPanel venueId={venueId} />
       </TabsContent>
     </Tabs>
   );

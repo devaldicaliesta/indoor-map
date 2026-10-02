@@ -1,5 +1,5 @@
 import type { CategoryWithUsage } from '@indoor/data';
-import { moveCategory, type VenueId } from '@indoor/domain';
+import { type LocationTypeId, moveCategory, type VenueId } from '@indoor/domain';
 import {
   Button,
   Dialog,
@@ -24,12 +24,7 @@ import { Can } from '../../app/auth/can';
 import { FacilityIconPreview } from '../facilities/facility-icon-preview';
 import { iconSource } from '../facilities/icons';
 import { CategoryDialog } from './category-dialog';
-import {
-  useCategories,
-  useDefaultLocationType,
-  useRemoveCategory,
-  useReorderCategories,
-} from './queries';
+import { useCategories, useRemoveCategory, useReorderCategories } from './queries';
 
 function DeleteCategoryDialog({
   venueId,
@@ -81,12 +76,12 @@ type Open =
   | { kind: 'delete'; category: CategoryWithUsage }
   | null;
 
-export function CategoriesPanel({ venueId }: { venueId: VenueId }) {
+/** Kategori satu tipe lokasi; urutannya dipakai Visitor. */
+export function CategoriesPanel({ venueId, typeId }: { venueId: VenueId; typeId: LocationTypeId }) {
   const categories = useCategories(venueId);
-  const type = useDefaultLocationType(venueId);
   const reorder = useReorderCategories(venueId);
   const [open, setOpen] = useState<Open>(null);
-  const list = categories.data ?? [];
+  const list = (categories.data ?? []).filter((c) => c.locationTypeId === typeId);
 
   function move(category: CategoryWithUsage, step: -1 | 1) {
     reorder.mutate(moveCategory(list, category.id, step), {
@@ -99,11 +94,7 @@ export function CategoriesPanel({ venueId }: { venueId: VenueId }) {
       <div className="flex items-center justify-between gap-4">
         <p className="text-ink-muted">Urutan di sini dipakai sebagai urutan kategori di Visitor.</p>
         <Can action="location.edit">
-          <Button
-            variant="primary"
-            disabled={!type.data}
-            onClick={() => setOpen({ kind: 'form', category: null })}
-          >
+          <Button variant="primary" onClick={() => setOpen({ kind: 'form', category: null })}>
             Tambah kategori
           </Button>
         </Can>
@@ -181,10 +172,10 @@ export function CategoriesPanel({ venueId }: { venueId: VenueId }) {
           </TableBody>
         </Table>
       )}
-      {open?.kind === 'form' && type.data ? (
+      {open?.kind === 'form' ? (
         <CategoryDialog
           venueId={venueId}
-          typeId={type.data.id}
+          typeId={typeId}
           category={open.category}
           others={list}
           onClose={() => setOpen(null)}

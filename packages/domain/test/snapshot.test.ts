@@ -118,6 +118,15 @@ describe('buildSnapshot', () => {
     expect(snapshot.locationTypes[0]?.fields.map((f) => f.key)).toEqual(['extension']);
   });
 
+  it('field tersembunyi tidak masuk indeks pencarian walau ditandai dapat dicari', () => {
+    const source = sampleSnapshotSource();
+    const hidden = source.locationTypes[0]?.fields.find((f) => f.key === 'staff_phone');
+    if (hidden) hidden.isSearchable = true;
+    const text = JSON.stringify(entryOf(source, IDS.radiology));
+    expect(text).not.toContain('0812');
+    expect(text).toContain('1203');
+  });
+
   it('koordinat dibulatkan 7 desimal dan anggota selain type/coordinates dibuang', () => {
     const source = sampleSnapshotSource();
     const [first] = source.features;

@@ -23,6 +23,10 @@ import {
   createInstructionTemplatesRepository,
   type InstructionTemplatesRepository,
 } from './repositories/instruction-templates';
+import {
+  createLocationTypesRepository,
+  type LocationTypesRepository,
+} from './repositories/location-types';
 import { createLocationsRepository, type LocationsRepository } from './repositories/locations';
 import { createNavGraphRepository, type NavGraphRepository } from './repositories/nav-graph';
 import {
@@ -66,6 +70,7 @@ export interface DataClient {
   infoPoints: InfoPointsRepository;
   instructionTemplates: InstructionTemplatesRepository;
   locations: LocationsRepository;
+  locationTypes: LocationTypesRepository;
   navGraph: NavGraphRepository;
   originPoints: OriginPointsRepository;
   profiles: ProfilesRepository;
@@ -95,6 +100,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     infoPoints: createInfoPointsRepository(db),
     instructionTemplates: createInstructionTemplatesRepository(db),
     locations: createLocationsRepository(db),
+    locationTypes: createLocationTypesRepository(db),
     navGraph: createNavGraphRepository(db),
     originPoints: createOriginPointsRepository(db),
     profiles,

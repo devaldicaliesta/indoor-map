@@ -4,6 +4,7 @@ export * from './auth';
 export * from './building';
 export * from './closure';
 export * from './connector';
+export * from './custom-fields';
 export * from './deep-link';
 export * from './directory';
 export * from './display-settings';

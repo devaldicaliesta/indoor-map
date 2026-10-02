@@ -293,7 +293,8 @@ export function buildSnapshot(source: SnapshotSource): Snapshot {
   const searchableKeys = new Map(
     locationTypes.map((t) => [
       t.id,
-      new Set(t.fields.filter((f) => f.isSearchable).map((f) => f.key)),
+      // Field tersembunyi tidak masuk indeks pencarian publik walau ditandai dapat dicari.
+      new Set(t.fields.filter((f) => f.isSearchable && f.isVisible).map((f) => f.key)),
     ]),
   );
   const locations = source.locations

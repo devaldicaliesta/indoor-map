@@ -15,6 +15,7 @@ import {
   LocationTypeIdSchema,
   type LocationUnit,
   MAX_IMAGE_BYTES,
+  type SnapshotFieldValue,
   UNIT_STATUSES,
   type UnitStatus,
   type VenueId,
@@ -35,7 +36,7 @@ const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/webp': 'webp',
 };
 
-const COLUMNS = `id, venue_id, location_type_id, code, name, description, logo_path, photo_paths, status,
+const COLUMNS = `id, venue_id, location_type_id, code, name, description, logo_path, photo_paths, status, custom_fields,
   location_categories(category_id),
   location_units(feature_id, is_primary, features(unit_code, floor_id, floors(name, building_id, buildings!floors_building_same_venue(name))))`;
 
@@ -56,6 +57,7 @@ export interface LocationRow {
   logo_path: string | null;
   photo_paths: string[];
   status: string;
+  custom_fields: unknown;
   location_categories: { category_id: string }[];
   location_units: {
     feature_id: string;
@@ -96,7 +98,20 @@ export function mapLocationRow(row: LocationRow): Location {
     status: statusOf(row.status),
     categoryIds: row.location_categories.map((c) => CategoryIdSchema.parse(c.category_id)),
     units,
+    customFields: customFieldsOf(row.custom_fields),
   };
+}
+
+/** Nilai field kustom yang bentuknya dikenal; isi jsonb lain diabaikan. */
+export function customFieldsOf(value: unknown): Record<string, SnapshotFieldValue> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const out: Record<string, SnapshotFieldValue> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (typeof item === 'string' || typeof item === 'boolean') out[key] = item;
+    else if (typeof item === 'number' && Number.isFinite(item)) out[key] = item;
+    else if (Array.isArray(item) && item.every((x) => typeof x === 'string')) out[key] = item;
+  }
+  return out;
 }
 
 type SaveArgs = Database['public']['Functions']['save_location']['Args'];
@@ -123,6 +138,7 @@ export function toSaveLocationArgs(
   if (code) args.p_code = code;
   if (description) args.p_description = description;
   if (images.logoPath) args.p_logo_path = images.logoPath;
+  args.p_custom_fields = input.customFields;
   if (input.primaryUnitId && input.unitIds.includes(input.primaryUnitId)) {
     args.p_primary_unit_id = input.primaryUnitId;
   }
@@ -190,6 +206,8 @@ export interface LocationsRepository {
   /** Lokasi yang ditautkan ke satu unit (panel properti unit di editor). */
   forUnit(featureId: string): Promise<LocationRef[]>;
   imageUrl(path: string): string;
+  /** Gambar untuk field kustom berjenis gambar; path-nya disimpan sebagai nilai field. */
+  uploadFieldImage(venueId: VenueId, file: Blob): Promise<string>;
 }
 
 export function createLocationsRepository(db: Db): LocationsRepository {
@@ -278,6 +296,10 @@ export function createLocationsRepository(db: Db): LocationsRepository {
         await removeFiles(uploaded);
         throw toDataError(error);
       }
+    },
+
+    uploadFieldImage(venueId, file) {
+      return upload(venueId, `field-${globalThis.crypto.randomUUID()}`, file);
     },
 
     async remove(id) {

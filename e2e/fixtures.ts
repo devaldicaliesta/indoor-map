@@ -134,6 +134,7 @@ export const test = base.extend<Fixtures>({
         categoryIds: [category.id],
         unitIds: [radiologyUnitId],
         primaryUnitId: radiologyUnitId,
+        customFields: {},
       },
       { keepPhotoPaths: [], newPhotos: [] },
     );

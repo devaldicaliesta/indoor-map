@@ -122,6 +122,7 @@ describe.runIf(url && anonKey && serviceKey)('lokasi dan kategori (Supabase loka
       code: '',
       name: 'Lokasi',
       description: '',
+      customFields: {},
       categoryIds: [],
       unitIds: [],
       primaryUnitId: null,

@@ -2,17 +2,26 @@ import type { CategoryWithUsage } from '@indoor/data';
 import {
   type CategoryId,
   checkLocationInput,
+  customFieldInput,
   type FeatureId,
+  keepFieldsOf,
   LOCATION_DESCRIPTION_MAX,
   type Location,
   type LocationInputProblems,
+  type LocationType,
   type LocationTypeId,
+  parseCustomFieldInputs,
   type VenueId,
   type VenueUnit,
 } from '@indoor/domain';
 import {
   Button,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Sheet,
   SheetContent,
   SheetDescription,
@@ -26,6 +35,7 @@ import { Field } from '../../app/components/field';
 import { FormNotice } from '../auth/auth-layout';
 import { FacilityIconPreview } from '../facilities/facility-icon-preview';
 import { iconSource } from '../facilities/icons';
+import { CustomFieldInputs, type FieldDraft } from './custom-field-inputs';
 import { codeMessage, NAME_MESSAGES } from './labels';
 import {
   type ImagesDraft,
@@ -33,7 +43,7 @@ import {
   LocationImagesField,
   toLocationImages,
 } from './location-images';
-import { useSaveLocation } from './queries';
+import { uploadFieldImage, useSaveLocation } from './queries';
 import { UnitLinks, type UnitSelection } from './unit-links';
 import { UnitMapPicker } from './unit-map-picker';
 
@@ -52,7 +62,9 @@ function CategoryChecklist({
     <fieldset className="grid gap-1" disabled={disabled}>
       <legend className="mb-1 font-bold">Kategori</legend>
       {categories.length === 0 ? (
-        <p className="text-ink-muted text-sm">Belum ada kategori. Tambahkan di tab Kategori.</p>
+        <p className="text-ink-muted text-sm">
+          Tipe ini belum punya kategori. Tambahkan di tab Tipe lokasi.
+        </p>
       ) : (
         <div className="grid max-h-48 grid-cols-2 gap-1 overflow-y-auto rounded-md border border-line p-2">
           {categories.map((category) => (
@@ -86,7 +98,7 @@ function CategoryChecklist({
 /** Formulir tambah/ubah lokasi; Viewer melihatnya dalam mode baca. */
 export function LocationSheet({
   venueId,
-  typeId,
+  types,
   location,
   initialUnitId,
   readOnly,
@@ -97,7 +109,8 @@ export function LocationSheet({
   onClose,
 }: {
   venueId: VenueId;
-  typeId: LocationTypeId;
+  /** Tipe lokasi venue; formulir menampilkan field kustom tipe yang dipilih. */
+  types: readonly LocationType[];
   location: Location | null;
   initialUnitId: FeatureId | null;
   readOnly: boolean;
@@ -108,6 +121,22 @@ export function LocationSheet({
   onClose: () => void;
 }) {
   const save = useSaveLocation(venueId);
+  const [typeId, setTypeId] = useState<LocationTypeId | null>(
+    location?.locationTypeId ?? types[0]?.id ?? null,
+  );
+  const type = types.find((t) => t.id === typeId) ?? null;
+  const [draft, setDraft] = useState<FieldDraft>(() => ({
+    inputs: Object.fromEntries(
+      Object.entries(location?.customFields ?? {}).map(([k, v]) => [k, customFieldInput(v)]),
+    ),
+    files: {},
+  }));
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  // Tipe tujuan yang menunggu konfirmasi karena isian lama akan hilang.
+  const [pendingType, setPendingType] = useState<{ id: LocationTypeId; lost: string[] } | null>(
+    null,
+  );
+  const [uploading, setUploading] = useState(false);
   const [code, setCode] = useState(location?.code ?? '');
   const [name, setName] = useState(location?.name ?? '');
   const [description, setDescription] = useState(location?.description ?? '');
@@ -123,16 +152,70 @@ export function LocationSheet({
   );
   const [problems, setProblems] = useState<LocationInputProblems>({});
   const [picking, setPicking] = useState(false);
-  const busy = save.isPending;
+  const busy = save.isPending || uploading;
+  const typeCategories = categories.filter((c) => c.locationTypeId === typeId);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  /** Isian tipe lama yang hilang bila pindah ke `nextId`: field kustom dan kategori. */
+  function lostOnChange(nextId: LocationTypeId): string[] {
+    const next = types.find((t) => t.id === nextId);
+    const filled = Object.fromEntries(
+      Object.entries(draft.inputs).filter(([key, value]) => value.trim() || draft.files[key]),
+    );
+    const { dropped } = keepFieldsOf(filled, type?.fields ?? [], next?.fields ?? []);
+    const labels = dropped.map((key) => type?.fields.find((f) => f.key === key)?.label ?? key);
+    const categoryNames = categories
+      .filter((c) => categoryIds.includes(c.id) && c.locationTypeId !== nextId)
+      .map((c) => `kategori ${c.name}`);
+    return [...labels, ...categoryNames];
+  }
+
+  function changeType(nextId: LocationTypeId, confirmed: boolean) {
+    const lost = lostOnChange(nextId);
+    if (lost.length > 0 && !confirmed) {
+      setPendingType({ id: nextId, lost });
+      return;
+    }
+    const next = types.find((t) => t.id === nextId);
+    const keep = new Set(next?.fields.map((f) => f.key) ?? []);
+    const { kept } = keepFieldsOf(draft.inputs, type?.fields ?? [], next?.fields ?? []);
+    setDraft({
+      inputs: kept as Record<string, string>,
+      files: Object.fromEntries(Object.entries(draft.files).filter(([k]) => keep.has(k))),
+    });
+    setCategoryIds(
+      categoryIds.filter((id) => categories.find((c) => c.id === id)?.locationTypeId === nextId),
+    );
+    setTypeId(nextId);
+    setPendingType(null);
+    setFieldErrors({});
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!type) return;
     const found = checkLocationInput({ code, name, description }, locations, location?.id ?? null);
     setProblems(found);
-    if (Object.keys(found).length > 0) return;
+    // Berkas gambar yang belum diunggah dihitung terisi untuk pemeriksaan wajib.
+    const inputs = { ...draft.inputs };
+    for (const key of Object.keys(draft.files)) inputs[key] = 'berkas-baru';
+    const parsed = parseCustomFieldInputs(type.fields, inputs);
+    setFieldErrors(parsed.errors);
+    if (Object.keys(found).length > 0 || Object.keys(parsed.errors).length > 0) return;
+    const customFields = { ...parsed.values };
+    try {
+      setUploading(true);
+      for (const [key, file] of Object.entries(draft.files)) {
+        customFields[key] = await uploadFieldImage(venueId, file);
+      }
+    } catch (error) {
+      setFieldErrors({ upload: error instanceof Error ? error.message : 'Gambar gagal diunggah.' });
+      return;
+    } finally {
+      setUploading(false);
+    }
     save.mutate(
       {
-        typeId,
+        typeId: type.id,
         id: location?.id ?? null,
         input: {
           code,
@@ -141,6 +224,7 @@ export function LocationSheet({
           categoryIds,
           unitIds: selection.unitIds,
           primaryUnitId: selection.primaryUnitId,
+          customFields,
         },
         images: toLocationImages(images, location?.logoPath ?? null),
       },
@@ -163,10 +247,44 @@ export function LocationSheet({
             {readOnly ? location?.name : location ? `Ubah ${location.name}` : 'Tambah lokasi'}
           </SheetTitle>
           <SheetDescription>
-            Tipe: Lokasi. Tipe lain dan field kustom menyusul di pengaturan tipe lokasi.
+            Field tambahan mengikuti tipe lokasi; atur tipe dan field-nya di tab Tipe lokasi.
           </SheetDescription>
         </SheetHeader>
-        <form className="grid gap-4" onSubmit={submit} noValidate>
+        <form className="grid gap-4" onSubmit={(e) => void submit(e)} noValidate>
+          <Field id="location-type" label="Tipe lokasi">
+            <Select
+              value={typeId ?? ''}
+              disabled={readOnly || busy}
+              onValueChange={(id) => changeType(id as LocationTypeId, false)}
+            >
+              <SelectTrigger id="location-type">
+                <SelectValue placeholder="Pilih tipe" />
+              </SelectTrigger>
+              <SelectContent>
+                {types.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          {pendingType ? (
+            <div role="alert" className="grid gap-2 rounded-sm border border-line p-3 text-sm">
+              <p>
+                Mengganti tipe menghapus isian yang tidak ada di tipe baru:{' '}
+                <strong>{pendingType.lost.join(', ')}</strong>.
+              </p>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => changeType(pendingType.id, true)}>
+                  Ganti tipe
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setPendingType(null)}>
+                  Batal
+                </Button>
+              </div>
+            </div>
+          ) : null}
           <div className="grid grid-cols-[12rem_1fr] gap-3">
             <Field
               id="location-code"
@@ -198,7 +316,7 @@ export function LocationSheet({
             </Field>
           </div>
           <CategoryChecklist
-            categories={categories}
+            categories={typeCategories}
             value={categoryIds}
             disabled={readOnly || busy}
             onChange={setCategoryIds}
@@ -217,6 +335,14 @@ export function LocationSheet({
               className="w-full rounded-sm border border-ink-muted bg-surface px-3 py-2 text-ink disabled:cursor-not-allowed disabled:opacity-50"
             />
           </Field>
+          <CustomFieldInputs
+            fields={type?.fields ?? []}
+            draft={draft}
+            errors={fieldErrors}
+            disabled={readOnly || busy}
+            onChange={setDraft}
+          />
+          {fieldErrors.upload ? <FormNotice tone="error">{fieldErrors.upload}</FormNotice> : null}
           <UnitLinks
             units={units}
             selfId={location?.id ?? null}
