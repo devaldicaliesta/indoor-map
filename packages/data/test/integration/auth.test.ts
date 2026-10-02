@@ -93,6 +93,27 @@ describe.runIf(url && anonKey && serviceKey)('login lewat Auth Hook (Supabase lo
     expect(data.user?.email).toBe(email);
   });
 
+  it('ganti password mencabut sesi perangkat lain, perangkat ini tetap masuk', async () => {
+    const { email } = await createUser('viewer');
+    const laptopDb = newDb(anonKey);
+    const phoneDb = newDb(anonKey);
+    const laptop = createRepositories(laptopDb).auth;
+    await laptop.signIn(email, PASSWORD);
+    await createRepositories(phoneDb).auth.signIn(email, PASSWORD);
+    await laptop.updatePassword('Password-Baru-2026!');
+    expect((await laptopDb.auth.getUser()).error).toBeNull();
+    expect((await phoneDb.auth.getUser()).error).not.toBeNull();
+  });
+
+  it('menonaktifkan pengguna mencabut semua sesinya di server', async () => {
+    const { id, email } = await createUser('viewer');
+    const phoneDb = newDb(anonKey);
+    await createRepositories(phoneDb).auth.signIn(email, PASSWORD);
+    await service.from('profiles').update({ is_active: false }).eq('user_id', id);
+    expect((await phoneDb.auth.getUser()).error).not.toBeNull();
+    expect((await phoneDb.auth.refreshSession()).error).not.toBeNull();
+  });
+
   it('pengguna nonaktif tidak bisa masuk', async () => {
     const { id, email } = await createUser('viewer');
     await service.from('profiles').update({ is_active: false }).eq('user_id', id);

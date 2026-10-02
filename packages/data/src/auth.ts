@@ -162,6 +162,9 @@ export function createAuthRepository(db: Db, profiles: ProfilesRepository): Auth
     async updatePassword(password) {
       const { error } = await db.auth.updateUser({ password });
       if (error) throw toAuthError(error);
+      // Password diganti (sering karena dicurigai bocor): sesi di perangkat lain dicabut.
+      const others = await db.auth.signOut({ scope: 'others' });
+      if (others.error) throw toAuthError(others.error);
     },
 
     onChange(listener) {
