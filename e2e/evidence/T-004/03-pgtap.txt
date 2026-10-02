@@ -1,0 +1,32 @@
+Connecting to local database...
+psql:/home/user/indoor-map/supabase/tests/audit.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/audit.test.sql ............... ok
+psql:/home/user/indoor-map/supabase/tests/connectors.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/connectors.test.sql .......... ok
+psql:/home/user/indoor-map/supabase/tests/edit_locks.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/edit_locks.test.sql .......... ok
+psql:/home/user/indoor-map/supabase/tests/facility_types.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/facility_types.test.sql ...... ok
+psql:/home/user/indoor-map/supabase/tests/locations.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/locations.test.sql ........... ok
+psql:/home/user/indoor-map/supabase/tests/login_lockout.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/login_lockout.test.sql ....... ok
+psql:/home/user/indoor-map/supabase/tests/outdoor_layer.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/outdoor_layer.test.sql ....... ok
+psql:/home/user/indoor-map/supabase/tests/public_visitor_url.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/public_visitor_url.test.sql .. ok
+psql:/home/user/indoor-map/supabase/tests/publish.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/publish.test.sql ............. ok
+psql:/home/user/indoor-map/supabase/tests/rls.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/rls.test.sql ................. ok
+psql:/home/user/indoor-map/supabase/tests/roles.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/roles.test.sql ............... ok
+psql:/home/user/indoor-map/supabase/tests/seed_venue.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/seed_venue.test.sql .......... ok
+psql:/home/user/indoor-map/supabase/tests/system_settings.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/system_settings.test.sql ..... ok
+psql:/home/user/indoor-map/supabase/tests/user_admin.test.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/home/user/indoor-map/supabase/tests/user_admin.test.sql .......... ok
+All tests successful.
+Files=14, Tests=169,  1 wallclock secs ( 0.06 usr  0.04 sys +  0.17 cusr  0.08 csys =  0.35 CPU)
+Result: PASS

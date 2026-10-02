@@ -115,7 +115,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-001 · Monorepo dan tooling — Bukan CRUD. `pnpm check` hijau; screenshot hasil terminal tidak perlu, cukup catat di README → `e2e/evidence/T-001/`
 - [x] T-002 · Scaffold aplikasi Admin dan Visitor — Admin :5173 dan Visitor :5174 terbuka; halaman 404 tiap app → `e2e/evidence/T-002/`
 - [x] T-003 · Kerangka paket bersama — Bukan CRUD; dibuktikan lewat T-005/T-007 (app memakai paket bersama) → `e2e/evidence/T-003/`
-- [ ] T-004 · Supabase lokal dan skema inti — Data seed tampil di Admin (Venue Contoh); `supabase test db` lulus → `e2e/evidence/T-004/`
+- [x] T-004 · Supabase lokal dan skema inti — Data seed tampil di Admin (Venue Contoh); `supabase test db` lulus → `e2e/evidence/T-004/`
 - [ ] T-005 · Lapisan data — Error data tampil sebagai pesan Indonesia (mis. simpan tanpa izin → "tidak memiliki izin") → `e2e/evidence/T-005/`
 - [ ] T-006 · Sistem desain — Galeri `/_ui`: komponen, fokus keyboard, kontras; screenshot galeri → `e2e/evidence/T-006/`
 - [ ] T-007 · Kerangka Admin — Menu per role (5 role), pemilih venue diingat, layar sempit diberi pemberitahuan → `e2e/evidence/T-007/`
