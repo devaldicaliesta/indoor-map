@@ -87,7 +87,7 @@ export function FloorsSheet({ building, onClose }: { building: Building; onClose
 
   return (
     <Sheet open onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-[40rem] sm:max-w-none">
+      <SheetContent className="w-[48rem] max-w-[calc(100vw-2rem)] sm:max-w-none">
         <SheetHeader>
           <SheetTitle>Lantai {building.name}</SheetTitle>
           <SheetDescription>
@@ -112,7 +112,9 @@ export function FloorsSheet({ building, onClose }: { building: Building; onClose
               {list.map((floor) => (
                 <TableRow key={floor.id}>
                   <TableCell className="text-right font-mono tabular-nums">{floor.level}</TableCell>
-                  <TableCell className="font-bold font-mono">{floor.name}</TableCell>
+                  <TableCell className="whitespace-normal font-bold font-mono">
+                    {floor.name}
+                  </TableCell>
                   <TableCell className="text-right font-mono tabular-nums">
                     {floor.heightM} m
                   </TableCell>
