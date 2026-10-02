@@ -9,7 +9,7 @@ Spec: `e2e/tests/admin/verify/T-212-origin-qr.spec.ts` (fixture `fullVenue`, rol
 | [03](03-visitor-dari-qr.png) | "Coba" (tautan yang sama dengan isi QR, `?o=<kode>`) membuka Visitor: "Anda di sini: Lobi Ümum Selatan", lantai GF, peta diputar sesuai arah hadap 90° (gedung yang mendatar di Admin tampil tegak, garis arah ke atas) |
 | [04](04-dihapus.png) | Hapus dengan konfirmasi: baris hilang, "Lobi Utama" milik fixture tetap ada |
 
-Isi QR tidak didekode di test (tanpa dependensi pembaca QR); tautannya sama dengan tombol "Coba" (`originPointUrl`, diuji unit di `qr-print.test.ts`).
+Isi QR tidak didekode di test (tanpa dependensi pembaca QR); tautannya sama dengan tombol "Coba" (`originPointUrl`, diuji unit di `packages/domain/test/origin-point.test.ts`).
 
 ## Temuan
 
