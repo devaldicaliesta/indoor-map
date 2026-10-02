@@ -96,7 +96,9 @@ export function AuditLog() {
                     <span className="text-ink-muted">Sistem</span>
                   )}
                 </TableCell>
-                <TableCell className="whitespace-normal text-ink-muted">{describeAuditDetails(event)}</TableCell>
+                <TableCell className="whitespace-normal text-ink-muted">
+                  {describeAuditDetails(event)}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
