@@ -20,7 +20,10 @@ Kelompokkan per paket dan per file; perbaiki penyebab paling hulu lebih dulu (ti
 
 ## Aturan perbaikan
 
-- Satu penyebab per langkah; jalankan ulang pemeriksaan setelah tiap perbaikan.
+- Satu penyebab per langkah; jalankan ulang pemeriksaan setelah tiap perbaikan dan catat kemajuan ("3/7 error diperbaiki").
+- Diff sekecil mungkin: target 1–3 baris per error; jangan refactor, mengganti nama, menambah fitur, mengubah alur logika, atau merapikan gaya kode yang tidak terkait.
+- Boleh: menambah anotasi tipe, pemeriksaan null, memperbaiki impor/ekspor, memperbarui tipe, memperbaiki konfigurasi.
+- Layanan Python (`services/cad-converter`): `python -m unittest discover -s tests -t .` di folder layanan.
 - Jangan menambahkan `any`, `@ts-ignore`, `biome-ignore`, atau melonggarkan `tsconfig` untuk menutupi error. `biome-ignore` hanya dengan alasan yang benar (misalnya tombol segmen dengan `role="radio"`).
 - Jangan melewati, menonaktifkan, atau mengarantina test. Test yang gagal adalah bug sampai terbukti sebaliknya.
 - Tipe dari database dibuat ulang dengan `pnpm db:types` (butuh Supabase lokal), bukan diedit tangan.
@@ -32,5 +35,5 @@ Kelompokkan per paket dan per file; perbaiki penyebab paling hulu lebih dulu (ti
 ```
 Diperbaiki: n error (daftar file:baris dan penyebab)
 Tersisa: n error (alasan, usulan)
-Pemeriksaan: pnpm check [hijau/merah], pnpm build [hijau/merah]
+Pemeriksaan: pnpm check [hijau/merah], pnpm build [hijau/merah], error baru: 0
 ```

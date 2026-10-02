@@ -141,6 +141,8 @@ Katalog ini adalah daftar test case yang wajib dijalankan **sebelum dan selama**
 
 ## 9. Keamanan (NFR-SEC)
 
+Pemetaan ke OWASP Top 10 (dipakai `security-reviewer`): A01 kontrol akses → 9.1, TC-SEC-50/52/54; A02 kriptografi/rahasia → TC-SEC-24/46; A03 injeksi/XSS → TC-SEC-42/43/44, TC-LOC-34; A04 desain tidak aman → TC-SEC-35/60; A05 salah konfigurasi → TC-SEC-11/54/56/57, TC-SEC-34 (CORS); A06 komponen rentan → TC-SEC-63; A07 autentikasi → 9.2; A08 integritas data → TC-SEC-51/61, TC-VIS-36; A09 log → TC-SEC-47/64; A10 SSRF → layanan pendamping tidak mengambil URL dari pengguna (cek di TC-SEC-34).
+
 ### 9.1 Otorisasi server per role (matriks)
 
 Untuk setiap baris, uji **langsung ke server** (repository/REST dengan token role itu), bukan lewat UI. Harapan: ✓ diizinkan, ✗ ditolak (`forbidden` atau 0 baris). `anon` = pengunjung tanpa login.

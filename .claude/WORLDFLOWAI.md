@@ -30,3 +30,7 @@ Bila CI atau `pnpm check` merah: `/ecc-build-fix`. Untuk perubahan RLS, Storage,
 - Command yang bergantung pada hook atau stack lain: `/checkpoint`, `/learn`, `/eval`, `/orchestrate`, `/setup-pm`, `/test-coverage`, `/update-codemaps`, `/update-docs`.
 - Skill untuk stack lain (ClickHouse, backend Node/Express) dan konfigurasi MCP.
 - Dari `e2e-runner`: karantina test tidak stabil (`test.fixme`), project Firefox/WebKit, dan contoh skenario proyek asal (markets, wallet, trading). Pola lainnya dibawa: Page Object Model, fixture, artefak saat gagal, laporan HTML/JUnit, cek stabilitas `--repeat-each`, dan workflow CI dengan unggah artefak.
+
+## Pembaruan dari upstream (2026-10-02)
+
+Dibandingkan dengan `agents/` di WorldFlowAI/everything-claude-code: ditambahkan ke `security-reviewer` (OWASP Top 10 + CWE, CORS/CSRF, header, batas pemakaian, log dan pesan error aman, data di URL, audit riwayat git dan `pip-audit`, ringkasan risiko dan rekomendasi Blokir/Setuju), `code-reviewer` (ukuran fungsi dan sarang, sisa debug, TODO tanpa task, angka ajaib, N+1, bundle, kode tanpa test, contoh perbaikan), `build-error-resolver` (catatan kemajuan, diff minimal, daftar boleh/tidak, test Python). Bagian khusus keuangan/blockchain dan Next.js tidak diambil karena tidak relevan. `doc-updater` tidak diambil: dokumentasi diperbarui lewat `PROGRESS.md` dan file task.

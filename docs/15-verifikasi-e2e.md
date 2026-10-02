@@ -50,10 +50,11 @@ Prinsip yang dipakai selama pengujian:
    `page.screenshot({ path: 'evidence/T-xxx/NN-langkah.png', fullPage: true })` (path relatif ke `e2e/`), mis. `01-daftar-kosong.png`, `02-form-isi.png`, `03-tersimpan.png`, `04-diubah.png`, `05-dihapus.png`, `06-error.png`, `07-role-ditolak.png`.
 6. Ambil gambar **setelah layar siap**: tunggu elemen/teks hasil (`toBeVisible`, `toHaveAttribute('data-ready', 'true')`), jangan `waitForTimeout`. Peta Visitor punya `data-testid="venue-map"` dengan `data-ready`; peta georeferensi `georef-map`.
 7. Periksa setiap gambar dengan mata (bukan hanya lulus test): teks terpotong, elemen tumpang tindih, garis/ikon tak terlihat, warna kontras rendah dicatat sebagai temuan.
-8. Ringkasan per task di `e2e/evidence/T-xxx/README.md`: spec, hasil (lulus/gagal), tabel gambar (ditautkan), temuan.
-9. Bug kecil di file task itu diperbaiki di commit yang sama beserta test-nya; bug besar dicatat di `docs/PROGRESS.md` sebagai pekerjaan lanjutan.
-10. Setelah task terverifikasi: centang di daftar bawah, tambahkan "diuji E2E, bukti `e2e/evidence/T-xxx/`" di catatan task itu di `PROGRESS.md`, commit `T-307a: verifikasi E2E T-xxx`.
-11. Jangan: menggabungkan beberapa task dalam satu spec/commit, memakai `waitForTimeout`, atau melemahkan/menghapus test agar hijau. Test lama yang salah (mis. harapan yang sudah tidak berlaku) diperbaiki dengan alasan di README.
+8. Sebelum melapor ke pemilik, tinjau test dan perbaikan yang ditulis dengan agent `code-reviewer`; untuk task yang menyentuh auth, RLS, Storage, Edge Function, unggahan, atau snapshot, jalankan juga `security-reviewer` (dengan kategori OWASP). Bila `pnpm check` merah, pakai `build-error-resolver`. Temuan KRITIS/TINGGI diselesaikan atau dicatat sebelum task dinyatakan lulus.
+9. Ringkasan per task di `e2e/evidence/T-xxx/README.md`: spec, hasil (lulus/gagal), tabel gambar (ditautkan), temuan.
+10. Bug kecil di file task itu diperbaiki di commit yang sama beserta test-nya; bug besar dicatat di `docs/PROGRESS.md` sebagai pekerjaan lanjutan.
+11. Setelah task terverifikasi: centang di daftar bawah, tambahkan "diuji E2E, bukti `e2e/evidence/T-xxx/`" di catatan task itu di `PROGRESS.md`, commit `T-307a: verifikasi E2E T-xxx`.
+12. Jangan: menggabungkan beberapa task dalam satu spec/commit, memakai `waitForTimeout`, atau melemahkan/menghapus test agar hijau. Test lama yang salah (mis. harapan yang sudah tidak berlaku) diperbaiki dengan alasan di README.
 
 ## Daftar periksa CRUD (per entitas task)
 
