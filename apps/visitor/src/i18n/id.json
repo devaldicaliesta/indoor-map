@@ -151,5 +151,15 @@
       "sat": "Sabtu",
       "sun": "Minggu"
     }
+  },
+  "notFound": {
+    "title": "Halaman tidak ditemukan",
+    "description": "Alamat ini tidak ada. Pindai lagi QR di gedung atau buka tautan dari pengelola gedung.",
+    "home": "Ke beranda"
+  },
+  "error": {
+    "title": "Terjadi kesalahan",
+    "description": "Halaman tidak bisa ditampilkan. Muat ulang untuk mencoba lagi.",
+    "reload": "Muat ulang"
   }
 }

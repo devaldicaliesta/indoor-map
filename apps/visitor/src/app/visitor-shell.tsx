@@ -109,7 +109,12 @@ export function VisitorShell({
         {actions ? <div className="shrink-0 rounded-sm shadow-float">{actions}</div> : null}
         <LanguagePicker className="shadow-float" />
       </header>
-      <BottomSheet snap={sheet?.snap} onSnapChange={sheet?.onSnapChange}>
+      <BottomSheet
+        snap={sheet?.snap}
+        onSnapChange={sheet?.onSnapChange}
+        // Halaman tanpa peta hanya berisi pesan; sheet intip menyembunyikan arahan dan tombolnya.
+        initialSnap={map ? 'peek' : 'half'}
+      >
         <div className="grid gap-3 pt-1">
           {/* Halaman dengan kolom cari memakai sheet untuk chip dan hasil; nama venue tetap dibacakan. */}
           <h1 className={search ? 'sr-only' : 'font-bold text-lg'}>{name}</h1>

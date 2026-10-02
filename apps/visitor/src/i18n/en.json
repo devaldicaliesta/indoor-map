@@ -151,5 +151,15 @@
       "sat": "Saturday",
       "sun": "Sunday"
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "This address does not exist. Scan the QR code in the building again or open the link from the building management.",
+    "home": "Go to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "The page could not be shown. Reload to try again.",
+    "reload": "Reload"
   }
 }
