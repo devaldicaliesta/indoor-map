@@ -127,7 +127,7 @@ function ContrastTable() {
                   className="rounded-sm px-2 py-1"
                   style={{ color: `var(--${fg})`, background: `var(--${bg})` }}
                 >
-                  Poli Anak · L1-023
+                  Ruang Rapat · L1-023
                 </span>
               </TableCell>
               <TableCell className="text-right font-mono tabular-nums">
@@ -279,9 +279,9 @@ export function UiGalleryPage() {
               </TableHeader>
               <TableBody>
                 {[
-                  ['POL-01', 'Poli Anak', 'L1', '84.00', 'ok', 'Aktif'],
+                  ['RPT-01', 'Ruang Rapat', 'L1', '84.00', 'ok', 'Aktif'],
                   ['LAB-02', 'Laboratorium', 'GF', '120.50', 'ok', 'Aktif'],
-                  ['—', 'Apotek 2', '—', '0.00', 'warn', 'Segera buka'],
+                  ['—', 'Ruang Arsip', '—', '0.00', 'warn', 'Segera buka'],
                 ].map(([code, name, floor, area, tone, status]) => (
                   <TableRow key={name}>
                     <TableCell className="font-mono">{code}</TableCell>
