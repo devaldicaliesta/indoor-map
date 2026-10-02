@@ -112,9 +112,9 @@ Tinjauan: code-reviewer [Setuju/…], security-reviewer [Setuju/…/tidak releva
 
 ## Selesai jika
 
-- [ ] Setiap task di daftar punya spec verifikasi yang lulus di `pnpm test:e2e`, atau temuannya tercatat
-- [ ] Setiap task punya `e2e/evidence/T-xxx/` berisi screenshot CRUD dan UI/UX serta README
-- [ ] Semua spec lulus 3 kali berturut-turut tanpa retry
+- [x] Setiap task di daftar punya spec verifikasi yang lulus di `pnpm test:e2e`, atau temuannya tercatat
+- [x] Setiap task punya `e2e/evidence/T-xxx/` berisi screenshot CRUD dan UI/UX serta README
+- [ ] Semua spec lulus 3 kali berturut-turut tanpa retry (per spec: setiap spec verifikasi lulus 3 run beruntun saat ditulis. Seluruh suite 2026-10-02: run 1 gagal 3 (T-119, T-120, T-211, tidak terulang dengan 4 worker × 3 ulangan), run 2 lulus 111/111 + 1 skip. Perlu dua run penuh hijau berikutnya)
 
 ## Temuan yang sudah diketahui
 
