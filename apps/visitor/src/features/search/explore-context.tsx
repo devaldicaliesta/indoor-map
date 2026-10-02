@@ -28,6 +28,8 @@ export interface ExploreData {
   search: SnapshotSearch;
   chips: ExploreChip[];
   store: StoreApi<ExploreState>;
+  /** Tautan pembuka kunjungan ini (gedung dan lantai awal peta). */
+  link: DeepLink | null;
   /**
    * Rute untuk asal, tujuan, dan mode; graf dibangun saat rute pertama diminta dan hasil terakhir
    * diingat, sehingga panel dan peta memakai hitungan yang sama.
@@ -78,9 +80,10 @@ export function ExploreProvider({
       search: createSnapshotSearch(snapshot),
       chips: exploreChips(snapshot),
       store,
+      link,
       route: routeCache(snapshot),
     }),
-    [snapshot, index, store],
+    [snapshot, index, store, link],
   );
   return <ExploreContext value={value}>{children}</ExploreContext>;
 }

@@ -51,6 +51,22 @@ export function initialMapView(
   return { buildingId: null, floorId: snapshot.floors.find((f) => f.isOutdoor)?.id ?? null };
 }
 
+/**
+ * Tampilan dari parameter `b`/`f` tautan bagikan. Lantai yang ada menang (gedungnya ikut lantai
+ * itu); tanpa lantai yang valid dipakai gedung. `null` bila keduanya tidak ada di snapshot.
+ */
+export function linkedMapView(
+  snapshot: Pick<Snapshot, 'buildings' | 'floors'>,
+  link: { buildingId?: string | undefined; floorId?: string | undefined },
+): MapView | null {
+  const floor = snapshot.floors.find((f) => f.id === link.floorId);
+  if (floor) return { buildingId: floor.buildingId, floorId: floor.id };
+  if (snapshot.buildings.some((b) => b.id === link.buildingId) && link.buildingId) {
+    return buildingView(snapshot, link.buildingId);
+  }
+  return null;
+}
+
 /** Mode 3D hanya tersedia bila fitur `3d` aktif di lisensi. */
 export function allows3d(snapshot: Pick<Snapshot, 'enabledFeatures'>): boolean {
   return snapshot.enabledFeatures.includes('3d');
