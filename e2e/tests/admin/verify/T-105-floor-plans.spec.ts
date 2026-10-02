@@ -72,8 +72,8 @@ test.describe('T-105 Unggah denah PNG/JPG/PDF', () => {
       buffer: await drawPlan(page, 'image/jpeg', 'GF versi 2 (JPG)'),
     });
     await activate.click();
-    await expect(page.getByText('Denah lantai GF diperbarui')).toHaveCount(1);
-    await expect(dialog.getByRole('heading', { name: 'Riwayat' })).toBeVisible();
+    await expect(dialog.locator('table').last().getByRole('cell', { name: /png/i })).toBeVisible();
+    await expect.poll(async () => (await superAdmin.floorPlans.list(floor.id)).length).toBe(2);
 
     // PDF dua halaman: pilih halaman 2.
     await dialog.getByRole('button', { name: 'Ganti denah' }).click();

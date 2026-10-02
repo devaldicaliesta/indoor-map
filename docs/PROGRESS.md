@@ -35,7 +35,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-103 | Lantai dan default tampilan | T-102 | review | Sheet lantai per gedung, level negatif, konfirmasi hapus dengan jumlah fitur, lantai default, `FloorSwitcher`, `initialFloorView`  Diuji E2E T-307a, bukti `e2e/evidence/T-103/`; perbaikan: panel Lantai tidak lagi memotong kolom Level dan Hapus. |
 | T-105 | Unggah denah PNG/JPG/PDF | T-103 | review |  Diuji E2E T-307a, bukti `e2e/evidence/T-105/`. |
 | T-106 | Georeferensi dan opasitas | T-105 | review |  Diuji E2E T-307a, bukti `e2e/evidence/T-106/`. |
-| T-107 | Lapisan acuan lantai lain | T-106 | review | |
+| T-107 | Lapisan acuan lantai lain | T-106 | review |  Diuji E2E T-307a, bukti `e2e/evidence/T-107/`. |
 | T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | review | model besar |
 | T-109 | Jenis fitur dan atribut unit | T-108 | review | |
 | T-110 | Edit geometri, multi-select, snapping | T-109 | review | |

@@ -57,11 +57,8 @@ test.describe('T-103 Lantai dan default tampilan', () => {
     }
     const levels = await sheet.locator('tbody tr td:first-child').allTextContents();
     const numbers = levels.map(Number);
-    expect(
-      [...numbers].sort((a, b) => b - a).join() === numbers.join() ||
-        [...numbers].sort((a, b) => a - b).join() === numbers.join(),
-    ).toBe(true);
-    expect(numbers).toEqual(expect.arrayContaining([-1, 0, 1, 2]));
+    // Lantai atas di atas, sesuai keterangan panel.
+    expect(numbers).toEqual([2, 1, 0, -1]);
     // Semua kolom (Level sampai Hapus) terlihat tanpa gulir mendatar di panel.
     const overflow = await sheet
       .locator('[data-slot="table-container"]')
@@ -80,7 +77,11 @@ test.describe('T-103 Lantai dan default tampilan', () => {
     await b1.getByRole('button', { name: 'Jadikan default' }).click();
     await expect(b1.getByText('Default')).toBeVisible();
     await expect
-      .poll(async () => (await superAdmin.buildings.list(venue.id))[0]?.defaultFloorId)
+      .poll(
+        async () =>
+          (await superAdmin.buildings.list(venue.id)).find((b) => b.id === building.id)
+            ?.defaultFloorId,
+      )
       .toBe(stored.find((f) => f.name === 'B1')?.id);
 
     // Ubah.

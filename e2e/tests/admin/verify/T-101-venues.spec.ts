@@ -162,6 +162,7 @@ test.describe('T-101 Venue dan multi-venue', () => {
     await loginAs('admin');
     await new AdminShell(page).selectVenue(factory.name);
     await page.goto('/venues');
+    await expect(page.getByText('Belum ada gedung')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Tambah gedung' })).toBeVisible();
     await capture(page, '07-gedung-kosong');
   });
