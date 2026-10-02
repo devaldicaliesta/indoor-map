@@ -1,6 +1,6 @@
 # Verifikasi E2E bertahap (T-307a)
 
-Pengecekan end-to-end **CRUD** dan **UI/UX** dengan Playwright untuk **semua task berstatus `review`** di `docs/PROGRESS.md`, dikerjakan **sebelum T-307**. Setiap task dicek satu per satu dan disertai gambar hasil pengecekan.
+Pengecekan end-to-end **CRUD** dan **UI/UX** dengan Playwright untuk **semua task berstatus `review`** di `docs/PROGRESS.md`, dikerjakan **sebelum T-307**. Setiap task dicek satu per satu dan disertai gambar hasil pengecekan. Test case yang dijalankan (CRUD, UI/UX, keamanan, NFR) ada di `16-test-case.md`; sebut ID-nya (`TC-xxx-nn`) di nama test dan README bukti.
 
 ## Persiapan
 
