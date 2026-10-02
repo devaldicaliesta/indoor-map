@@ -2,6 +2,7 @@ import { type ImportPlan, type LocationType, planImport, type VenueId } from '@i
 import {
   Badge,
   Button,
+  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -204,7 +205,7 @@ export function ImportDialog({
             label="Berkas"
             hint="CSV (koma atau titik koma) atau XLSX. Kategori dan kode unit dipisah titik koma."
           >
-            <input
+            <Input
               id="import-file"
               type="file"
               accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -212,7 +213,6 @@ export function ImportDialog({
               // Kunci nama berkas: memilih berkas yang sama lagi setelah diperbaiki tetap terbaca.
               key={fileName ?? 'kosong'}
               onChange={(e) => void choose(e.target.files?.[0])}
-              className="text-sm"
             />
           </Field>
           {problem ? <FormNotice tone="error">{problem}</FormNotice> : null}
