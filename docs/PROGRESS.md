@@ -39,7 +39,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | review | model besar  Diuji E2E T-307a, bukti `e2e/evidence/T-108/`; kinerja 1.000 fitur di SwiftShader ±50–70 % lantai kosong, perlu dicek di perangkat dengan GPU. |
 | T-109 | Jenis fitur dan atribut unit | T-108 | review |  Diuji E2E T-307a, bukti `e2e/evidence/T-109/`; perbaikan: cari + Enter di daftar fitur memakai teks terbaru. |
 | T-110 | Edit geometri, multi-select, snapping | T-109 | review |  Diuji E2E T-307a, bukti `e2e/evidence/T-110/`. |
-| T-111 | Undo/redo | T-110 | review | |
+| T-111 | Undo/redo | T-110 | review |  Diuji E2E T-307a, bukti `e2e/evidence/T-111/`. |
 | T-112 | Fasilitas dan jenis fasilitas | T-109 | review | Tab Pengaturan → Jenis fasilitas, 14 piktogram bawaan, ikon unggahan SVG/PNG, sprite + layer simbol di map-core, pilihan Fasilitas di alat Titik (migrasi 0008); 2 integrasi + 7 pgTAP + browser |
 | T-113 | Panel daftar fitur | T-109 | review | Pencarian kode/nama/jenis, hover menyorot, klik memilih dan menerbangkan peta, daftar tervirtualisasi; lantai > 1.000 fitur kini dimuat utuh (paginasi). 1.006 fitur: gulir 60 fps tanpa long task, cari 27 ms |
 | T-114 | Validasi geometri | T-109 | review | `validateFloorGeometry` (5 kode temuan, fixture per kasus, 102 test domain); garis/isi merah di peta, ikon di daftar fitur, pesan di panel properti, ringkasan "● n temuan" yang bisa diklik. 1.006 fitur divalidasi 11–48 ms |
