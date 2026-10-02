@@ -11,4 +11,4 @@ Spec: `e2e/tests/admin/verify/T-114-geometry-validation.spec.ts` (5 unit ditanam
 
 ## Temuan
 
-- [Catatan] Kode unit ganda (`duplicate_unit_code`) tidak diuji di sini karena server menolak kode ganda saat simpan (diuji di T-109); temuan itu hanya muncul untuk data lama.
+- [Catatan] Kode unit ganda (`duplicate_unit_code`) tidak diuji di sini karena database punya indeks unik `(venue_id, lower(unit_code))` sehingga kode ganda tidak bisa tersimpan (pengecekan di formulir diuji di T-109); temuan itu hanya relevan untuk draft lokal.
