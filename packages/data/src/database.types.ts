@@ -1513,6 +1513,9 @@ export type Database = {
           p_unit_ids: string[];
           p_venue_id: string;
           p_custom_fields?: Json;
+          p_status?: Database['public']['Enums']['location_status'];
+          p_opening_date?: string;
+          p_hours?: Json;
         };
         Returns: string;
       };

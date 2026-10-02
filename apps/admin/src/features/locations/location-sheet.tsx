@@ -2,15 +2,20 @@ import type { CategoryWithUsage } from '@indoor/data';
 import {
   type CategoryId,
   checkLocationInput,
+  checkOpeningHours,
   customFieldInput,
+  EMPTY_OPENING_HOURS,
   type FeatureId,
   keepFieldsOf,
   LOCATION_DESCRIPTION_MAX,
   type Location,
   type LocationInputProblems,
+  type LocationStatus,
   type LocationType,
   type LocationTypeId,
+  type OpeningHours,
   parseCustomFieldInputs,
+  unitsLeftEmpty,
   type VenueId,
   type VenueUnit,
 } from '@indoor/domain';
@@ -33,9 +38,9 @@ import {
 import { type FormEvent, useState } from 'react';
 import { Field } from '../../app/components/field';
 import { FormNotice } from '../auth/auth-layout';
-import { FacilityIconPreview } from '../facilities/facility-icon-preview';
-import { iconSource } from '../facilities/icons';
+import { CategoryChecklist } from './category-checklist';
 import { CustomFieldInputs, type FieldDraft } from './custom-field-inputs';
+import { HoursEditor } from './hours-editor';
 import { codeMessage, NAME_MESSAGES } from './labels';
 import {
   type ImagesDraft,
@@ -44,56 +49,10 @@ import {
   toLocationImages,
 } from './location-images';
 import { uploadFieldImage, useSaveLocation } from './queries';
+import { StatusField } from './status-field';
+import { TypeChoice, useTypeChoice } from './type-choice';
 import { UnitLinks, type UnitSelection } from './unit-links';
 import { UnitMapPicker } from './unit-map-picker';
-
-function CategoryChecklist({
-  categories,
-  value,
-  disabled,
-  onChange,
-}: {
-  categories: readonly CategoryWithUsage[];
-  value: readonly CategoryId[];
-  disabled: boolean;
-  onChange: (value: CategoryId[]) => void;
-}) {
-  return (
-    <fieldset className="grid gap-1" disabled={disabled}>
-      <legend className="mb-1 font-bold">Kategori</legend>
-      {categories.length === 0 ? (
-        <p className="text-ink-muted text-sm">
-          Tipe ini belum punya kategori. Tambahkan di tab Tipe lokasi.
-        </p>
-      ) : (
-        <div className="grid max-h-48 grid-cols-2 gap-1 overflow-y-auto rounded-md border border-line p-2">
-          {categories.map((category) => (
-            <label key={category.id} className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                className="size-4 accent-ink"
-                checked={value.includes(category.id)}
-                onChange={(e) =>
-                  onChange(
-                    e.target.checked
-                      ? [...value, category.id]
-                      : value.filter((id) => id !== category.id),
-                  )
-                }
-              />
-              <FacilityIconPreview
-                source={iconSource(category.icon)}
-                isSafety={false}
-                scale={0.75}
-              />
-              <span className="truncate">{category.name}</span>
-            </label>
-          ))}
-        </div>
-      )}
-    </fieldset>
-  );
-}
 
 /** Formulir tambah/ubah lokasi; Viewer melihatnya dalam mode baca. */
 export function LocationSheet({
@@ -121,26 +80,17 @@ export function LocationSheet({
   onClose: () => void;
 }) {
   const save = useSaveLocation(venueId);
-  const [typeId, setTypeId] = useState<LocationTypeId | null>(
-    location?.locationTypeId ?? types[0]?.id ?? null,
-  );
-  const type = types.find((t) => t.id === typeId) ?? null;
-  const [draft, setDraft] = useState<FieldDraft>(() => ({
-    inputs: Object.fromEntries(
-      Object.entries(location?.customFields ?? {}).map(([k, v]) => [k, customFieldInput(v)]),
-    ),
-    files: {},
-  }));
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  // Tipe tujuan yang menunggu konfirmasi karena isian lama akan hilang.
-  const [pendingType, setPendingType] = useState<{ id: LocationTypeId; lost: string[] } | null>(
-    null,
-  );
+  const choice = useTypeChoice(types, location, categories, () => setFieldErrors({}));
+  const { type, typeId, draft, setDraft, categoryIds, setCategoryIds } = choice;
   const [uploading, setUploading] = useState(false);
+  const [status, setStatus] = useState<LocationStatus>(location?.status ?? 'active');
+  const [openingDate, setOpeningDate] = useState(location?.openingDate ?? '');
+  const [hours, setHours] = useState<OpeningHours>(location?.hours ?? EMPTY_OPENING_HOURS);
+  const [detailErrors, setDetailErrors] = useState<{ date?: string; hours?: string }>({});
   const [code, setCode] = useState(location?.code ?? '');
   const [name, setName] = useState(location?.name ?? '');
   const [description, setDescription] = useState(location?.description ?? '');
-  const [categoryIds, setCategoryIds] = useState<CategoryId[]>(location?.categoryIds ?? []);
   const [selection, setSelection] = useState<UnitSelection>(() => {
     const unitIds =
       location?.units.map((u) => u.featureId) ?? (initialUnitId ? [initialUnitId] : []);
@@ -155,41 +105,6 @@ export function LocationSheet({
   const busy = save.isPending || uploading;
   const typeCategories = categories.filter((c) => c.locationTypeId === typeId);
 
-  /** Isian tipe lama yang hilang bila pindah ke `nextId`: field kustom dan kategori. */
-  function lostOnChange(nextId: LocationTypeId): string[] {
-    const next = types.find((t) => t.id === nextId);
-    const filled = Object.fromEntries(
-      Object.entries(draft.inputs).filter(([key, value]) => value.trim() || draft.files[key]),
-    );
-    const { dropped } = keepFieldsOf(filled, type?.fields ?? [], next?.fields ?? []);
-    const labels = dropped.map((key) => type?.fields.find((f) => f.key === key)?.label ?? key);
-    const categoryNames = categories
-      .filter((c) => categoryIds.includes(c.id) && c.locationTypeId !== nextId)
-      .map((c) => `kategori ${c.name}`);
-    return [...labels, ...categoryNames];
-  }
-
-  function changeType(nextId: LocationTypeId, confirmed: boolean) {
-    const lost = lostOnChange(nextId);
-    if (lost.length > 0 && !confirmed) {
-      setPendingType({ id: nextId, lost });
-      return;
-    }
-    const next = types.find((t) => t.id === nextId);
-    const keep = new Set(next?.fields.map((f) => f.key) ?? []);
-    const { kept } = keepFieldsOf(draft.inputs, type?.fields ?? [], next?.fields ?? []);
-    setDraft({
-      inputs: kept as Record<string, string>,
-      files: Object.fromEntries(Object.entries(draft.files).filter(([k]) => keep.has(k))),
-    });
-    setCategoryIds(
-      categoryIds.filter((id) => categories.find((c) => c.id === id)?.locationTypeId === nextId),
-    );
-    setTypeId(nextId);
-    setPendingType(null);
-    setFieldErrors({});
-  }
-
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!type) return;
@@ -200,7 +115,17 @@ export function LocationSheet({
     for (const key of Object.keys(draft.files)) inputs[key] = 'berkas-baru';
     const parsed = parseCustomFieldInputs(type.fields, inputs);
     setFieldErrors(parsed.errors);
-    if (Object.keys(found).length > 0 || Object.keys(parsed.errors).length > 0) return;
+    const details: { date?: string; hours?: string } = {};
+    if (status === 'coming_soon' && !openingDate) details.date = 'Isi tanggal buka.';
+    if (checkOpeningHours(hours).length > 0) details.hours = 'Isi jam dengan format JJ:MM.';
+    setDetailErrors(details);
+    if (
+      Object.keys(found).length > 0 ||
+      Object.keys(parsed.errors).length > 0 ||
+      Object.keys(details).length > 0
+    ) {
+      return;
+    }
     const customFields = { ...parsed.values };
     try {
       setUploading(true);
@@ -225,6 +150,9 @@ export function LocationSheet({
           unitIds: selection.unitIds,
           primaryUnitId: selection.primaryUnitId,
           customFields,
+          status,
+          openingDate: status === 'coming_soon' ? openingDate : null,
+          hours,
         },
         images: toLocationImages(images, location?.logoPath ?? null),
       },
@@ -251,40 +179,7 @@ export function LocationSheet({
           </SheetDescription>
         </SheetHeader>
         <form className="grid gap-4" onSubmit={(e) => void submit(e)} noValidate>
-          <Field id="location-type" label="Tipe lokasi">
-            <Select
-              value={typeId ?? ''}
-              disabled={readOnly || busy}
-              onValueChange={(id) => changeType(id as LocationTypeId, false)}
-            >
-              <SelectTrigger id="location-type">
-                <SelectValue placeholder="Pilih tipe" />
-              </SelectTrigger>
-              <SelectContent>
-                {types.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          {pendingType ? (
-            <div role="alert" className="grid gap-2 rounded-sm border border-line p-3 text-sm">
-              <p>
-                Mengganti tipe menghapus isian yang tidak ada di tipe baru:{' '}
-                <strong>{pendingType.lost.join(', ')}</strong>.
-              </p>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => changeType(pendingType.id, true)}>
-                  Ganti tipe
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => setPendingType(null)}>
-                  Batal
-                </Button>
-              </div>
-            </div>
-          ) : null}
+          <TypeChoice choice={choice} types={types} disabled={readOnly || busy} />
           <div className="grid grid-cols-[12rem_1fr] gap-3">
             <Field
               id="location-code"
@@ -343,6 +238,21 @@ export function LocationSheet({
             onChange={setDraft}
           />
           {fieldErrors.upload ? <FormNotice tone="error">{fieldErrors.upload}</FormNotice> : null}
+          <StatusField
+            status={status}
+            openingDate={openingDate}
+            emptiedUnits={unitsLeftEmpty(location?.id ?? null, selection.unitIds, units)}
+            dateError={detailErrors.date}
+            disabled={readOnly || busy}
+            onStatus={setStatus}
+            onOpeningDate={setOpeningDate}
+          />
+          <HoursEditor
+            hours={hours}
+            error={detailErrors.hours}
+            disabled={readOnly || busy}
+            onChange={setHours}
+          />
           <UnitLinks
             units={units}
             selfId={location?.id ?? null}

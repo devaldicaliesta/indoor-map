@@ -4,6 +4,7 @@ import type {
   SnapshotPolygon,
   SnapshotSource,
 } from '../../src';
+import { EMPTY_OPENING_HOURS } from '../../src';
 import { GRAPH, sampleGraph } from './venue-graph';
 import sample from './venue-sample.json';
 
@@ -153,6 +154,14 @@ export function sampleSnapshotSource(): SnapshotSource {
         logoPath: null,
         photoPaths: [`locations/${sample.venue.id}/${IDS.radiology}/1.jpg`],
         customFields: { extension: '1203', staff_phone: '0812-0000-1111' },
+        hours: {
+          weekly: [
+            ...Array.from({ length: 5 }, () => [{ opens: '08:00', closes: '16:00' }]),
+            [],
+            [],
+          ],
+          special: { '2026-08-17': [] },
+        },
       },
       {
         id: IDS.lab,
@@ -168,6 +177,7 @@ export function sampleSnapshotSource(): SnapshotSource {
         logoPath: null,
         photoPaths: [],
         customFields: {},
+        hours: EMPTY_OPENING_HOURS,
       },
       {
         id: IDS.waitingRoom,
@@ -183,6 +193,7 @@ export function sampleSnapshotSource(): SnapshotSource {
         logoPath: null,
         photoPaths: [],
         customFields: {},
+        hours: EMPTY_OPENING_HOURS,
       },
       {
         id: IDS.closedPharmacy,
@@ -198,6 +209,7 @@ export function sampleSnapshotSource(): SnapshotSource {
         logoPath: null,
         photoPaths: [],
         customFields: {},
+        hours: EMPTY_OPENING_HOURS,
       },
     ],
     aliases: [

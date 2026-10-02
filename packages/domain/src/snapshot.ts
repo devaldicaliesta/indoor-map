@@ -1,3 +1,4 @@
+import type { OpeningHours } from './hours';
 /**
  * Format snapshot publish yang dibaca Visitor dan Info Point (03-arsitektur.md "Format
  * snapshot"). Builder-nya di `snapshot-builder.ts`, skema zod-nya di `snapshot-schema.ts`.
@@ -225,6 +226,8 @@ export interface SnapshotLocation {
   photoPaths: string[];
   /** Isi field kustom yang ditandai tampil, per `key`. */
   fields: Record<string, SnapshotFieldValue>;
+  /** Jam operasional dalam zona waktu venue; `null` bila tidak dijadwalkan. */
+  hours: OpeningHours | null;
 }
 
 export const SEARCH_TARGET_KINDS = ['location', 'category', 'facility_type', 'unit'] as const;

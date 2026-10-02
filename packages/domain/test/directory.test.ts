@@ -6,6 +6,7 @@ import {
   directoryGroups,
   directoryLetter,
   directoryLocations,
+  EMPTY_OPENING_HOURS,
   indexSnapshot,
   NO_DIRECTORY_FILTER,
   OUTDOOR_FILTER,
@@ -70,6 +71,7 @@ function source(): SnapshotSource {
         logoPath: null,
         photoPaths: [],
         customFields: {},
+        hours: EMPTY_OPENING_HOURS,
       },
     ],
   };

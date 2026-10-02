@@ -1,3 +1,4 @@
+import { hasOpeningHours, type OpeningHours } from './hours';
 /**
  * Builder snapshot dari data draft venue. Dijalankan Edge Function `publish` di Deno, jadi
  * hanya mengimpor modul tanpa dependensi dengan ekstensi `.ts` (lihat `snapshot.ts`).
@@ -183,6 +184,19 @@ function toLocation(l: SourceLocation, visibleKeys: ReadonlySet<string>): Snapsh
     logoPath: l.logoPath,
     photoPaths: [...l.photoPaths],
     fields,
+    hours: hasOpeningHours(l.hours) ? sortedHours(l.hours) : null,
+  };
+}
+
+/** Tanggal khusus berurutan agar snapshot yang sama menghasilkan berkas yang sama. */
+function sortedHours(hours: OpeningHours): OpeningHours {
+  return {
+    weekly: hours.weekly.map((spans) => [...spans]),
+    special: Object.fromEntries(
+      Object.keys(hours.special)
+        .sort()
+        .map((date) => [date, [...(hours.special[date] ?? [])]]),
+    ),
   };
 }
 

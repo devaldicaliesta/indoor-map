@@ -133,5 +133,22 @@
     "button": "Share",
     "copied": "Link copied",
     "manual": "Copy this link:"
+  },
+  "hours": {
+    "openUntil": "Open · closes {{time}}",
+    "open24": "Open 24 hours",
+    "closed": "Closed",
+    "closedOpensToday": "Closed · opens {{time}}",
+    "closedOpensTomorrow": "Closed · opens tomorrow {{time}}",
+    "closedOpensOn": "Closed · opens {{day}} {{time}}",
+    "day": {
+      "mon": "Monday",
+      "tue": "Tuesday",
+      "wed": "Wednesday",
+      "thu": "Thursday",
+      "fri": "Friday",
+      "sat": "Saturday",
+      "sun": "Sunday"
+    }
   }
 }

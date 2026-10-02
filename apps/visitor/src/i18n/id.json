@@ -133,5 +133,22 @@
     "button": "Bagikan",
     "copied": "Tautan disalin",
     "manual": "Salin tautan ini:"
+  },
+  "hours": {
+    "openUntil": "Buka · tutup {{time}}",
+    "open24": "Buka 24 jam",
+    "closed": "Tutup",
+    "closedOpensToday": "Tutup · buka {{time}}",
+    "closedOpensTomorrow": "Tutup · buka besok {{time}}",
+    "closedOpensOn": "Tutup · buka {{day}} {{time}}",
+    "day": {
+      "mon": "Senin",
+      "tue": "Selasa",
+      "wed": "Rabu",
+      "thu": "Kamis",
+      "fri": "Jumat",
+      "sat": "Sabtu",
+      "sun": "Minggu"
+    }
   }
 }

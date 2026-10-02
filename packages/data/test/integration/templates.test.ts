@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { VENUE_TEMPLATES, type VenueId } from '@indoor/domain';
+import { EMPTY_OPENING_HOURS, VENUE_TEMPLATES, type VenueId } from '@indoor/domain';
 import { createClient } from '@supabase/supabase-js';
 import { afterAll, describe, expect, it } from 'vitest';
 import { createRepositories } from '../../src/client';
@@ -80,6 +80,9 @@ describe.runIf(url && anonKey && serviceKey)('template venue (Supabase lokal)', 
         unitIds: [],
         primaryUnitId: null,
         customFields: { jadwal_praktik: 'Senin 08.00' },
+        status: 'active',
+        openingDate: null,
+        hours: EMPTY_OPENING_HOURS,
       },
       { keepPhotoPaths: [], newPhotos: [] },
     );
