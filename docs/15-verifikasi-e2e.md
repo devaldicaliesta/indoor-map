@@ -16,6 +16,7 @@ pnpm test:e2e                  # Playwright menyalakan Admin :5173 dan Visitor :
 - `.env.local` berisi `SEED_ADMIN_PASSWORD`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, dan (opsional) `VITE_CAD_CONVERTER_URL`.
 - Bila Edge Function mulai mengimpor file `packages/domain` baru, jalankan `supabase stop && supabase start`: berkas di luar `supabase/functions` hanya dipasang saat start.
 - Bila gateway membalas "name resolution failed" setelah Docker dinyalakan ulang, `supabase stop && supabase start`.
+- Langkah pertama T-307a (sebelum T-001): tambahkan fixture data uji lengkap sesuai `16-test-case.md` bagian 2 (2 gedung, 3 lantai, ≥ 20 unit, lift yang tidak melayani semua lantai, eskalator naik dan turun, tangga, 3 QR, jalur Area Luar) dan berkas denah contoh; fixture `testVenue`/`publishedVenue` yang ada baru berisi satu gedung satu lantai.
 - Pakai fixture `e2e/fixtures.ts` (`loginAs`, `testVenue`, `publishedVenue`, `superAdmin`) dan Page Object `e2e/pages/` (tambah bila perlu); agent `e2e-runner` atau `/ecc-e2e`.
 
 ## Referensi: e2e-runner (everything-claude-code)
@@ -55,6 +56,22 @@ Prinsip yang dipakai selama pengujian:
 10. Bug kecil di file task itu diperbaiki di commit yang sama beserta test-nya; bug besar dicatat di `docs/PROGRESS.md` sebagai pekerjaan lanjutan.
 11. Setelah task terverifikasi: centang di daftar bawah, tambahkan "diuji E2E, bukti `e2e/evidence/T-xxx/`" di catatan task itu di `PROGRESS.md`, commit `T-307a: verifikasi E2E T-xxx`.
 12. Jangan: menggabungkan beberapa task dalam satu spec/commit, memakai `waitForTimeout`, atau melemahkan/menghapus test agar hijau. Test lama yang salah (mis. harapan yang sudah tidak berlaku) diperbaiki dengan alasan di README.
+
+## Contoh README bukti
+
+```
+# T-xxx · Judul — bukti E2E
+
+Spec: `e2e/tests/admin/verify/T-xxx-slug.spec.ts`. Hasil: **lulus 3/3** (tanggal).
+Test case: TC-VEN-07, TC-VEN-39, TC-SEC-02 …
+
+| Gambar | Langkah | Test case |
+| --- | --- | --- |
+| [01](01-daftar-kosong.png) | Keadaan kosong | TC-VEN-07 |
+
+Temuan: [KRITIS|TINGGI|SEDANG|RENDAH] judul — langkah reproduksi — status (diperbaiki di commit … / dicatat di PROGRESS).
+Tinjauan: code-reviewer [Setuju/…], security-reviewer [Setuju/…/tidak relevan].
+```
 
 ## Daftar periksa CRUD (per entitas task)
 
