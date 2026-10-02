@@ -76,7 +76,7 @@ function VenuesTable({
                 />
               )}
             </TableCell>
-            <TableCell className="font-bold">{venue.name}</TableCell>
+            <TableCell className="min-w-48 whitespace-normal font-bold">{venue.name}</TableCell>
             <TableCell className="max-w-72 truncate">{venue.address ?? '—'}</TableCell>
             <TableCell className="font-mono">{venue.timezone}</TableCell>
             <TableCell className="font-mono tabular-nums">

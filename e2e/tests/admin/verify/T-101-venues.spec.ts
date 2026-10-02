@@ -50,6 +50,11 @@ test.describe('T-101 Venue dan multi-venue', () => {
       await page.getByRole('tab', { name: 'Semua venue' }).click();
       for (const v of variedVenues)
         await expect(page.getByRole('cell', { name: v.name })).toBeVisible();
+      // Nama sangat panjang membungkus; kolom Aksi tetap terlihat tanpa gulir mendatar.
+      const overflow = await page
+        .locator('[data-slot="table-container"]')
+        .evaluate((el) => el.scrollWidth - el.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(0);
       await capture(page, '01-daftar-venue');
 
       // Validasi per kolom.

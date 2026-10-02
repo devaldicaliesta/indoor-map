@@ -142,7 +142,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 
 ### R1 · Inti peta (`11-R1-inti-peta.md`)
 
-- [ ] T-101 · Venue dan multi-venue — CRUD venue (buat lewat wizard, ubah, hapus), pindah venue, logo → `e2e/evidence/T-101/`
+- [x] T-101 · Venue dan multi-venue — CRUD venue (buat lewat wizard, ubah, hapus), pindah venue, logo → `e2e/evidence/T-101/`
 - [ ] T-102 · Gedung dan Area Luar — CRUD gedung + footprint; Area Luar tidak bisa dihapus → `e2e/evidence/T-102/`
 - [ ] T-103 · Lantai dan default tampilan — CRUD lantai, urutan level, lantai default → `e2e/evidence/T-103/`
 - [ ] T-104 · Fondasi peta (map-core) — Peta tampil, zoom/rotasi/2D–3D, kontrol peta → `e2e/evidence/T-104/`
