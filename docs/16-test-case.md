@@ -216,3 +216,184 @@ Ditulis saat task terkait dikerjakan: FR-PUB-02 s.d. 08 (T-307 s.d. T-312: valid
 ## 12. Pemetaan ke verifikasi E2E (T-307a)
 
 Saat memverifikasi task di `15-verifikasi-e2e.md`, jalankan test case yang kolom **Task**-nya (judul bagian) memuat task itu, dan sebutkan ID-nya di README bukti. Test case keamanan 9.1 dijalankan sekali per tabel/aksi di task yang membuatnya; sisanya (9.2–9.4) dan NFR dijalankan setelah seluruh daftar R0–R3 terverifikasi, sebagai langkah terakhir T-307a.
+
+## 13. Kasus tepi, negatif, batas, dan konkurensi
+
+Bagian ini melengkapi bagian 3–10 dengan semua kemungkinan yang bisa terjadi di lapangan. Tiap bagian 13.x dijalankan bersama bagian utama area yang sama saat task terkait diverifikasi. Kolom sama: skenario, hasil diharapkan, level, prioritas.
+
+### 13.1 Akun dan sesi (lanjutan TC-AUTH)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-AUTH-30 | Email dengan huruf besar/spasi di depan-belakang | Tetap bisa login (dinormalisasi) | E | P2 |
+| TC-AUTH-31 | Email/password kosong, format email salah | Tombol/validasi mencegah kirim; pesan per kolom | E | P2 |
+| TC-AUTH-32 | Password 7, 8, dan 72+ karakter; berisi emoji/spasi | 7 ditolak; 8 diterima; panjang ekstrem ditangani tanpa galat | U, E | P2 |
+| TC-AUTH-33 | Login di dua tab, logout di satu tab | Tab lain ikut keluar saat aksi berikutnya | E | P2 |
+| TC-AUTH-34 | Login di dua perangkat bersamaan | Keduanya berfungsi; kunci edit tetap per lantai | M | P3 |
+| TC-AUTH-35 | Role diubah saat pengguna sedang login | Aksi berikutnya mengikuti role baru (server menolak aksi lama) | I, E | P1 |
+| TC-AUTH-36 | Pengguna dinonaktifkan saat sedang login | Aksi berikutnya ditolak; diarahkan ke login | I, E | P1 |
+| TC-AUTH-37 | Mengakses URL Admin langsung tanpa login (deep URL) | Ke login, lalu kembali ke URL semula setelah masuk | E | P2 |
+| TC-AUTH-38 | Role mengakses URL menu terlarang langsung (`/users` sebagai Editor) | Halaman "tidak berizin", bukan halaman kosong/galat | E | P1 |
+| TC-AUTH-39 | Kunci akun habis waktunya | Login benar berhasil lagi; hitungan gagal direset | D | P2 |
+| TC-AUTH-40 | Reset password untuk email tidak terdaftar | Pesan sama dengan email terdaftar (tanpa kebocoran) | E | P1 |
+| TC-AUTH-41 | Minta reset berkali-kali | Hanya tautan terakhir berlaku / dibatasi | E | P2 |
+| TC-AUTH-42 | Undang email yang sudah terdaftar / format salah | Ditolak dengan pesan | I | P2 |
+| TC-AUTH-43 | Admin (bukan Super Admin) mencoba mengubah role dirinya | Ditolak server | D | P1 |
+| TC-AUTH-44 | Kunci edit: A menutup tab tiba-tiba | Kunci dilepas (keepalive) atau habis 30 menit | E | P2 |
+| TC-AUTH-45 | Kunci edit: jaringan A putus lalu kembali | A tidak menimpa perubahan B; mode baca bila kunci sudah diambil | M | P1 |
+| TC-AUTH-46 | Dua pengguna mengambil kunci di detik yang sama | Hanya satu yang mendapat kunci (atomik) | D | P1 |
+
+### 13.2 Venue, gedung, lantai, denah (lanjutan TC-VEN)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-VEN-30 | Nama venue 1 karakter, 200 karakter, hanya spasi, karakter khusus/emoji | Batas dipatuhi; spasi saja ditolak; emoji tersimpan utuh | U, E | P2 |
+| TC-VEN-31 | Nama venue sama dengan venue lain | Sesuai aturan (boleh/ditolak) dan konsisten di server | D | P2 |
+| TC-VEN-32 | Koordinat pusat di luar rentang (lat 91, lng 181), format salah | Ditolak dengan contoh format | U, E | P2 |
+| TC-VEN-33 | Zona waktu lain (Asia/Makassar, Asia/Jayapura) | Jam operasional dan waktu terbit mengikuti zona venue | U, E | P1 |
+| TC-VEN-34 | Wizard: gagal di tengah (template gagal) lalu "Coba lagi" | Venue tidak terduplikasi; template diterapkan sekali | I, E | P1 |
+| TC-VEN-35 | Template diterapkan ke venue yang sudah punya lokasi | Ditolak server | D | P1 |
+| TC-VEN-36 | Hapus venue yang sedang dipilih pengguna lain | Pengguna lain jatuh ke venue berikutnya tanpa galat | E | P2 |
+| TC-VEN-37 | Hapus venue terakhir | Keadaan kosong "Belum ada venue" di semua menu | E | P2 |
+| TC-VEN-38 | Footprint gedung tidak tertutup / berpotongan sendiri | Ditolak dengan alasan | U, E | P2 |
+| TC-VEN-39 | Kode gedung ganda dalam venue | Ditolak | D | P2 |
+| TC-VEN-40 | Lantai dengan level sama di gedung sama | Ditolak | D | P1 |
+| TC-VEN-41 | Tinggi lantai 0, negatif, sangat besar, koma desimal | 0/negatif ditolak; koma diterima | U, E | P2 |
+| TC-VEN-42 | Hapus lantai default gedung | Default pindah/kosong tanpa merusak Visitor | I, E | P1 |
+| TC-VEN-43 | Hapus gedung yang dipakai konektor/rute | Konfirmasi; data turunan dibersihkan; graf tetap valid | I, E | P1 |
+| TC-VEN-44 | PDF terkunci kata sandi / rusak / 0 halaman / 300 halaman | Pesan jelas; pemilih halaman tetap cepat | E | P2 |
+| TC-VEN-45 | PDF/gambar sangat besar (A0, 10.000 px) | Raster dibatasi ≤ 8.000 px tanpa browser macet | U, E | P2 |
+| TC-VEN-46 | JPG dengan orientasi EXIF diputar | Tampil sesuai orientasi | M | P3 |
+| TC-VEN-47 | DXF tanpa satuan / satuan inci / kosong / semua layer kosong / layer bernama Unicode | Pesan atau skala footprint; nama layer tampil benar | U, E | P2 |
+| TC-VEN-48 | Layanan cad-converter mati / lambat | Pesan "tidak bisa dihubungi"; PNG/PDF tetap bisa | U, E | P1 |
+| TC-VEN-49 | Ganti denah saat georeferensi lama belum disimpan | Peringatan perubahan belum disimpan | E | P2 |
+| TC-VEN-50 | Georeferensi: kalibrasi dengan jarak 0 / negatif / dua titik sama | Ditolak | U, E | P2 |
+| TC-VEN-51 | Riwayat denah: aktifkan versi lama, unduh berkas asli | Berhasil; URL bertanda kedaluwarsa diperbarui | E | P3 |
+
+### 13.3 Editor peta (lanjutan TC-MAP)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-MAP-30 | Poligon dengan 2 titik, titik ganda berurutan, luas nol | Ditolak/diperbaiki sebelum disimpan | U, E | P1 |
+| TC-MAP-31 | Poligon berpotongan sendiri (bentuk 8) | Ditandai tidak valid | U | P1 |
+| TC-MAP-32 | Fitur sangat kecil (< 0,5 m²) dan sangat besar (> footprint) | Peringatan/galat sesuai aturan validasi | U | P2 |
+| TC-MAP-33 | Kode unit beda huruf besar/kecil (`a-01` vs `A-01`) | Dianggap ganda | U, D | P1 |
+| TC-MAP-34 | Kode unit berisi spasi/simbol/80 karakter | Sesuai aturan format, pesan jelas | U, E | P2 |
+| TC-MAP-35 | Ganti jenis fitur unit → koridor saat unit tertaut lokasi | Konfirmasi; tautan lokasi ditangani | E | P1 |
+| TC-MAP-36 | Hapus fitur yang dipakai titik masuk/konektor/penutupan | Konfirmasi; data turunan ikut bersih | I, E | P1 |
+| TC-MAP-37 | Undo setelah simpan, setelah ganti lantai, setelah muat ulang | Perilaku konsisten (riwayat per sesi lantai) | E | P2 |
+| TC-MAP-38 | Ctrl+Z di dalam kolom teks | Membatalkan teks, bukan perubahan peta | E | P2 |
+| TC-MAP-39 | Jaringan putus saat menyimpan draft | Pesan gagal; perubahan tidak hilang; simpan ulang berhasil | E | P1 |
+| TC-MAP-40 | Dua tab yang sama membuka lantai sama | Satu mendapat kunci; tidak ada penimpaan diam-diam | E | P1 |
+| TC-MAP-41 | Fitur di Area Luar (tanpa batas lantai) | Pemeriksaan batas dilewati | U | P2 |
+| TC-MAP-42 | Lantai dengan 1.000 fitur: pilih semua dan geser | Lancar; tersimpan | M | P2 |
+| TC-MAP-43 | Warna per jenis format salah (`merah`, `#12`) | Ditolak dengan contoh | U, E | P2 |
+| TC-MAP-44 | Tinggi override 0 dan 100 (batas), 100,01 | 0/100 diterima; 100,01 ditolak | U | P2 |
+| TC-MAP-45 | Ikon fasilitas > 200 kB / SVG / transparan | Sesuai batas; SVG dirasterisasi | U, E | P2 |
+| TC-MAP-46 | Hapus jenis fasilitas yang masih dipakai | Ditolak atau konfirmasi dengan jumlah pemakaian | D, E | P2 |
+
+### 13.4 Navigasi dan rute (lanjutan TC-NAV)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-NAV-30 | Asal sama dengan tujuan | Pesan "sudah di tujuan", bukan rute nol | U, E | P2 |
+| TC-NAV-31 | Tujuan tidak terhubung graf | Pesan rute tidak ditemukan | U, E | P1 |
+| TC-NAV-32 | Semua jalur ke tujuan ditutup | Pesan dengan alasan penutupan | U, E | P1 |
+| TC-NAV-33 | Lokasi tanpa unit / tanpa titik masuk | Tombol rute nonaktif dengan keterangan | E | P1 |
+| TC-NAV-34 | Graf dengan siklus, edge ganda, node terisolasi | Rute tetap benar; node terisolasi dilaporkan validasi | U | P1 |
+| TC-NAV-35 | Lift dengan satu pemberhentian; eskalator tanpa dua pemberhentian | Ditolak saat disimpan / dilaporkan | U, D | P1 |
+| TC-NAV-36 | Konektor dihapus saat rute sedang tampil di Visitor | Rute dihitung ulang setelah snapshot baru | E | P2 |
+| TC-NAV-37 | Penutupan dengan waktu mulai di masa depan / selesai di masa lalu / selesai < mulai | Belum/tidak berlaku / ditolak | U, D | P1 |
+| TC-NAV-38 | Penutupan berakhir saat rute tampil | Rute kembali normal tanpa muat ulang | E | P2 |
+| TC-NAV-39 | Instruksi template berisi placeholder salah (`{tujuan}`) atau kosong | Ditolak atau bawaan dipakai | U, E | P2 |
+| TC-NAV-40 | Rute sangat panjang (antar-gedung, 3 lantai) | ≤ 500 ms; langkah ringkas | U | P1 |
+| TC-NAV-41 | QR titik asal yang sudah dihapus dipindai | Visitor terbuka tanpa asal + pesan | E | P1 |
+| TC-NAV-42 | QR dari venue lain / kode acak | Pesan tidak dikenal, tanpa galat | E | P2 |
+| TC-NAV-43 | Deep link dengan id lokasi tidak ada / parameter rusak / bahasa `fr` | Dibuka di keadaan aman + pesan; bahasa jatuh ke bawaan | U, E | P2 |
+| TC-NAV-44 | Arah hadap QR 0°, 359°, 360°, negatif | Dinormalisasi; peta berputar benar | U | P3 |
+| TC-NAV-45 | Operator membuat penutupan saat offline | Pesan gagal; tidak tersimpan setengah | E | P2 |
+
+### 13.5 Lokasi (lanjutan TC-LOC)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-LOC-30 | Nama lokasi kosong / 120 karakter / emoji / HTML | Batas dan escaping dipatuhi | U, E | P1 |
+| TC-LOC-31 | Field wajib kosong saat simpan | Ditolak dengan pesan per field | U, E | P1 |
+| TC-LOC-32 | Field angka berisi teks / koma desimal / negatif | Sesuai aturan field | U | P2 |
+| TC-LOC-33 | Field pilihan: opsi dihapus setelah dipakai lokasi | Nilai lama ditangani (kosong/ditandai) | U, I | P2 |
+| TC-LOC-34 | Field tautan: `javascript:alert(1)`, tanpa skema, URL sangat panjang | `javascript:` ditolak; tautan aman di Visitor | U, E | P1 |
+| TC-LOC-35 | Field gambar: > 5 MB, SVG, 0 byte | Ditolak | U | P1 |
+| TC-LOC-36 | Kunci field ganda / label hanya simbol | Kunci unik otomatis; tidak bentrok | U | P2 |
+| TC-LOC-37 | Hapus field yang dipakai 100 lokasi | Konfirmasi menyebut jumlah; nilai ikut terhapus | D, E | P2 |
+| TC-LOC-38 | Ganti tipe lokasi yang punya isian | Konfirmasi daftar isian yang hilang | E | P2 |
+| TC-LOC-39 | Jam: buka = tutup (24 jam), lewat tengah malam, hari kosong, 3 rentang sehari, rentang tumpang tindih | Benar / tumpang tindih ditolak | U | P1 |
+| TC-LOC-40 | Tanggal khusus di masa lalu, 29 Februari, pergantian tahun | Benar | U | P2 |
+| TC-LOC-41 | Segera buka tanpa tanggal / tanggal lewat | Ditolak / peringatan | U, E | P2 |
+| TC-LOC-42 | Nonaktif permanen lalu diaktifkan lagi saat unitnya sudah dipakai lokasi lain | Ditolak dengan pesan | D | P1 |
+| TC-LOC-43 | Import: berkas kosong, hanya header, kolom diacak, kolom hilang, kolom tak dikenal | Pesan jelas; tidak menyimpan apa pun bila fatal | U, E | P1 |
+| TC-LOC-44 | Import: CSV `;`, BOM, CRLF, kutip ganda, baris kosong, UTF-8 dengan aksen | Terbaca benar | U | P1 |
+| TC-LOC-45 | Import: 5.000 baris (lebih dari satu batch) | Semua batch tersimpan; kemajuan tampil; gagal di batch tengah dilaporkan | I, E | P1 |
+| TC-LOC-46 | Import: kode ganda di berkas, unit tak dikenal, kategori tak dikenal, tanggal 31-02 | Baris gagal dengan alasan per kolom | U | P1 |
+| TC-LOC-47 | Import XLSX dengan sel tanggal/angka Excel, beberapa sheet | Sheet pertama; nilai dikonversi benar | U | P2 |
+| TC-LOC-48 | Alias: lebih dari 20, sama dengan nama sendiri, duplikat beda huruf | Dibatasi / dibuang / digabung | U, D | P2 |
+| TC-LOC-49 | Pencarian daftar Admin dengan aksen ("kafé" vs "kafe") | Ditemukan | U | P3 |
+
+### 13.6 Visitor, branding, publish (lanjutan)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-VIS-30 | Pencarian kosong, 1 huruf, 100 karakter, simbol saja | Tanpa galat; hasil wajar | U, E | P2 |
+| TC-VIS-31 | Tidak ada hasil | Pesan kosong dengan saran A–Z | E | P2 |
+| TC-VIS-32 | Rotasi layar HP saat sheet terbuka | Tata letak tetap benar | M | P2 |
+| TC-VIS-33 | Zoom browser 200%, teks diperbesar sistem | Tidak ada teks terpotong/tumpang tindih | M | P2 |
+| TC-VIS-34 | Gestur: pinch, putar, geser sheet cepat, ketuk ganda | Peta dan sheet tidak saling mengganggu | M | P2 |
+| TC-VIS-35 | Snapshot baru terbit saat pengunjung sedang membuka | Versi lama tetap jalan; versi baru dipakai saat aman | E | P2 |
+| TC-VIS-36 | Cache snapshot rusak / skema versi lebih baru | Muat ulang dari server; versi tak dikenal ditolak dengan pesan | U, E | P1 |
+| TC-VIS-37 | Lantai tanpa fitur, gedung tanpa lantai | Pesan kosong, tanpa galat | E | P2 |
+| TC-VIS-38 | Logo branding gagal dimuat / sangat lebar / transparan | Tanda bawaan / dibatasi lebarnya | E | P3 |
+| TC-VIS-39 | Nama tampilan 60 karakter di HP 360 px | Terpotong rapi dengan elipsis | E | P3 |
+| TC-VIS-40 | Warna utama putih, hitam, abu tengah | Teks tetap lolos AA atau paling kontras | U | P1 |
+| TC-PUB-30 | Publish dua kali beruntun / dua Admin bersamaan | Nomor versi berurutan tanpa bentrok | I | P1 |
+| TC-PUB-31 | Publish saat Edge Function/Storage gagal | Pesan gagal; versi aktif lama tetap | I | P1 |
+| TC-PUB-32 | Publish venue kosong (tanpa lantai/fitur) | Ditolak atau Visitor menampilkan keadaan kosong | I, E | P2 |
+
+### 13.7 Keamanan (lanjutan)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-SEC-50 | IDOR: ubah `venueId`/`floorId`/`locationId` di permintaan ke milik venue lain | Ditolak sesuai role/RLS | D, I | P1 |
+| TC-SEC-51 | Mass assignment: kirim kolom `role`, `created_by`, `is_active` lewat REST update profil/lokasi | Kolom terlindungi tidak berubah | D | P1 |
+| TC-SEC-52 | Memanggil fungsi RPC (`save_location`, `import_locations`, `apply_template`, `acquire_edit_lock`) sebagai anon/Viewer | Ditolak | D | P1 |
+| TC-SEC-53 | Path traversal di nama berkas (`../../x.png`) | Path disusun server; tidak keluar folder venue | I | P1 |
+| TC-SEC-54 | Daftar isi bucket privat lewat anon | Ditolak | D | P1 |
+| TC-SEC-55 | URL bertanda denah dipakai setelah 1 jam | Ditolak | I | P2 |
+| TC-SEC-56 | Header keamanan Visitor/Admin (CSP, X-Content-Type-Options, frame-ancestors) di paket produksi | Ada (diuji di T-411/T-412) | M | P2 |
+| TC-SEC-57 | Clickjacking: Admin di-iframe situs lain | Diblokir (produksi) | M | P2 |
+| TC-SEC-58 | Open redirect di parameter kembali setelah login | Hanya path internal | E | P1 |
+| TC-SEC-59 | Pesan galat tidak membocorkan SQL/stack trace/nama tabel | Pesan Indonesia yang umum | I, E | P1 |
+| TC-SEC-60 | Rate limit / banyak permintaan publish atau unggah beruntun | Server tetap responsif | M | P2 |
+| TC-SEC-61 | Webhook Auth Hook tanpa/ dengan tanda tangan salah | Ditolak | I | P1 |
+| TC-SEC-62 | Edge Function dipanggil dengan metode/isi tak terduga (GET, JSON rusak, body 10 MB) | 4xx dengan pesan; tidak crash | I | P2 |
+| TC-SEC-63 | Dependensi: `pnpm audit` dan `pip-audit` cad-converter | Tanpa celah tinggi/kritis | M | P2 |
+| TC-SEC-64 | Data pribadi di Catatan dan log server | Hanya yang diperlukan; tanpa password/token | M | P1 |
+
+### 13.8 Ketahanan, data, dan lingkungan
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-REL-01 | Muat ulang halaman di tengah formulir/wizard | Tidak ada data setengah tersimpan | E | P2 |
+| TC-REL-02 | Tombol simpan diklik dua kali cepat | Satu data saja (tanpa duplikat) | E | P1 |
+| TC-REL-03 | Back/Forward browser di dalam dialog dan editor | Tidak kehilangan perubahan tanpa peringatan | E | P2 |
+| TC-REL-04 | Jaringan lambat (3G) dan putus-sambung | Indikator memuat; coba lagi berhasil | E | P2 |
+| TC-REL-05 | Supabase dimatikan saat Admin terbuka | Pesan koneksi jelas; pulih otomatis saat kembali | M | P2 |
+| TC-REL-06 | Visitor offline setelah kunjungan pertama (PWA) | Peta dan rute versi tersimpan berjalan | E | P1 |
+| TC-REL-07 | `supabase db reset` dari nol | Semua migrasi dan seed berhasil; pgTAP lulus | D | P1 |
+| TC-REL-08 | Migrasi baru di atas data yang ada (bukan database kosong) | Data lama utuh | D | P1 |
+| TC-REL-09 | Zona waktu perangkat berbeda dari venue (UTC, Asia/Tokyo) | Semua waktu tampil menurut zona venue | U, E | P1 |
+| TC-REL-10 | Pergantian hari/jam saat halaman terbuka (23.59 → 00.00) | Status buka/tutup berganti otomatis | U, E | P2 |
+| TC-REL-11 | Bahasa browser Inggris tanpa pilihan tersimpan | Visitor mengikuti bahasa bawaan venue | E | P3 |
+| TC-REL-12 | localStorage diblokir/penuh (mode privat) | Aplikasi tetap jalan tanpa mengingat pilihan | E | P2 |
+
+## 14. Ringkasan jumlah test case
+
+Bagian 3–10: 126 test case utama. Bagian 13: 133 kasus tepi, negatif, batas, konkurensi, keamanan lanjutan, dan ketahanan. Total 259. Jumlah ini ditinjau ulang setiap kali satu task selesai diverifikasi; kasus baru yang ditemukan saat pengujian ditambahkan ke bagian area yang sesuai dengan ID lanjutan.
