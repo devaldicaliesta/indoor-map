@@ -4,6 +4,7 @@ import {
   FeatureIdSchema,
   FloorIdSchema,
   holdsUnits,
+  type ImportWrite,
   LOCATION_STATUSES,
   type Location,
   type LocationId,
@@ -32,6 +33,8 @@ import { fetchAllPages } from '../pagination';
 import type { Db } from '../supabase';
 
 const ASSETS_BUCKET = 'public-assets';
+/** Baris per panggilan `import_locations` (satu transaksi). */
+export const IMPORT_BATCH = 200;
 /** Sama dengan tipe yang diizinkan bucket `public-assets` (migrasi 0005). */
 const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/png': 'png',
@@ -254,6 +257,17 @@ export interface LocationsRepository {
   /** Lokasi yang ditautkan ke satu unit (panel properti unit di editor). */
   forUnit(featureId: string): Promise<LocationRef[]>;
   imageUrl(path: string): string;
+  /**
+   * Menulis baris import yang sudah divalidasi, per batch 200 baris (satu transaksi per batch).
+   * `onProgress` dipanggil dengan jumlah baris yang sudah tersimpan. Bila satu batch gagal, batch
+   * sebelumnya tetap tersimpan dan galatnya menyebut baris pertama batch itu.
+   */
+  importRows(
+    venueId: VenueId,
+    typeId: LocationTypeId,
+    rows: readonly ImportWrite[],
+    onProgress?: (saved: number) => void,
+  ): Promise<number>;
   /** Gambar untuk field kustom berjenis gambar; path-nya disimpan sebagai nilai field. */
   uploadFieldImage(venueId: VenueId, file: Blob): Promise<string>;
 }
@@ -344,6 +358,22 @@ export function createLocationsRepository(db: Db): LocationsRepository {
         await removeFiles(uploaded);
         throw toDataError(error);
       }
+    },
+
+    async importRows(venueId, typeId, rows, onProgress) {
+      let saved = 0;
+      for (let start = 0; start < rows.length; start += IMPORT_BATCH) {
+        const batch = rows.slice(start, start + IMPORT_BATCH);
+        const { data, error } = await db.rpc('import_locations', {
+          p_venue_id: venueId,
+          p_location_type_id: typeId,
+          p_rows: batch as unknown as Json,
+        });
+        if (error) throw toDataError(error);
+        saved += data ?? batch.length;
+        onProgress?.(saved);
+      }
+      return saved;
     },
 
     uploadFieldImage(venueId, file) {

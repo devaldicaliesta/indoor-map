@@ -10,12 +10,14 @@ import {
 import { describe, expect, it } from 'vitest';
 import { mapCategoryRow } from '../src/repositories/categories';
 import {
+  createLocationsRepository,
   hoursToRows,
   type LocationRow,
   mapLocationRow,
   mapVenueUnitRow,
   toSaveLocationArgs,
 } from '../src/repositories/locations';
+import type { Db } from '../src/supabase';
 
 const VENUE = '10000000-0000-4000-8000-000000000001';
 const TYPE = '20000000-0000-4000-8000-000000000001';
@@ -233,5 +235,38 @@ describe('jam operasional', () => {
       is_closed: true,
     });
     expect(openingHoursFromRows(rows)).toEqual(hours);
+  });
+});
+
+describe('import lokasi', () => {
+  it('ditulis per batch 200 baris; kemajuan dilaporkan setelah setiap batch', async () => {
+    const sizes: number[] = [];
+    const db = {
+      rpc: async (_name: string, args: { p_rows: unknown[] }) => {
+        sizes.push(args.p_rows.length);
+        return { data: args.p_rows.length, error: null };
+      },
+    } as unknown as Db;
+    const write = {
+      id: null,
+      code: null,
+      name: 'A',
+      description: '',
+      status: 'active' as const,
+      openingDate: null,
+      categoryIds: [],
+      unitIds: [],
+      customFields: {},
+    };
+    const progress: number[] = [];
+    const saved = await createLocationsRepository(db).importRows(
+      VENUE as VenueId,
+      TYPE as LocationTypeId,
+      Array.from({ length: 450 }, () => write),
+      (n) => progress.push(n),
+    );
+    expect(sizes).toEqual([200, 200, 50]);
+    expect(progress).toEqual([200, 400, 450]);
+    expect(saved).toBe(450);
   });
 });
