@@ -7,7 +7,7 @@ Platform indoor map dan indoor navigation untuk semua jenis gedung (rumah sakit,
 1. Baca `docs/PROGRESS.md` untuk tahu task mana yang sedang berjalan atau berikutnya.
 2. Buka file rilis yang memuat task itu (`docs/10-R0-fondasi.md` s.d. `docs/14-R4-komersial.md`). Setiap task sudah mandiri: konteks, langkah, file, kriteria selesai.
 3. Baca dokumen pendukung **hanya jika task merujuknya** (misalnya `docs/04-model-data.md` untuk task database). Untuk detail perilaku dan kriteria lengkap sebuah FR, cari ID-nya di `docs/spec/` (sumber kebenaran spesifikasi). Jangan membaca seluruh `docs/` di setiap sesi.
-4. Kerjakan satu task saja, di branch `task/T-xxx-slug`.
+4. Kerjakan satu task saja, langsung di branch `claude/vibrant-davinci-uyrrka`. **Jangan membuat branch baru** (lihat `docs/07-aturan-branch.md`).
 5. Jalankan `pnpm check` (typecheck, lint, test) sampai hijau.
 6. Centang task di `docs/PROGRESS.md`, tulis catatan singkat jika ada keputusan baru, lalu buka PR.
 
