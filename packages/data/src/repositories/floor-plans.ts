@@ -18,7 +18,7 @@ import type { Db } from '../supabase';
 
 const BUCKET = 'floor-plans';
 const COLUMNS =
-  'id, floor_id, source_path, source_format, raster_path, pdf_page, cad_layers, corners, opacity, is_active, uploaded_by, created_at';
+  'id, floor_id, source_path, source_format, raster_path, pdf_page, cad_layers, natural_width_m, corners, opacity, is_active, uploaded_by, created_at';
 /** URL bertanda cukup lama untuk satu sesi kerja, cukup singkat agar tidak jadi tautan publik. */
 const SIGNED_URL_SECONDS = 60 * 60;
 
@@ -39,6 +39,8 @@ export function mapFloorPlanRow(row: FloorPlanRow): FloorPlan {
       : 'png',
     rasterPath: row.raster_path,
     pdfPage: row.pdf_page,
+    cadLayers: row.cad_layers,
+    naturalWidthM: row.natural_width_m === null ? null : Number(row.natural_width_m),
     corners: isCorners(row.corners) ? row.corners : null,
     opacity: Number(row.opacity),
     isActive: row.is_active,
@@ -49,9 +51,12 @@ export function mapFloorPlanRow(row: FloorPlanRow): FloorPlan {
 export interface FloorPlanUpload {
   /** Berkas asli dari pengguna. */
   source: File;
-  /** PNG hasil render halaman PDF; wajib untuk PDF, diabaikan untuk gambar. */
+  /** PNG hasil render halaman PDF atau layer DXF; wajib untuk keduanya, diabaikan untuk gambar. */
   raster?: Blob;
   pdfPage?: number;
+  /** Layer DXF yang dirender ke `raster`. */
+  cadLayers?: string[];
+  naturalWidthM?: number | null;
 }
 
 export interface FloorPlansRepository {
@@ -101,19 +106,30 @@ export function createFloorPlansRepository(db: Db): FloorPlansRepository {
       const check = checkFloorPlanFile(input.source);
       if (!check.ok)
         throw new DataError('invalid', { message: floorPlanProblemMessage(check.problem) });
-      if (check.format === 'pdf' && !input.raster) {
-        throw new DataError('invalid', { message: 'Halaman PDF belum dirender.' });
+      const rendered = check.format === 'pdf' || check.format === 'dxf';
+      if (rendered && !input.raster) {
+        throw new DataError('invalid', {
+          message:
+            check.format === 'pdf' ? 'Halaman PDF belum dirender.' : 'Layer DXF belum dirender.',
+        });
+      }
+      if (check.format === 'dxf' && !input.cadLayers?.length) {
+        throw new DataError('invalid', { message: 'Pilih minimal satu layer DXF.' });
       }
 
       const venueId = await venueOf(floorId);
       const base = `${venueId}/${floorId}/${Date.now()}`;
       const sourcePath = `${base}-source.${check.format}`;
-      const rasterPath = check.format === 'pdf' ? `${base}-raster.png` : sourcePath;
+      const rasterPath = rendered ? `${base}-raster.png` : sourcePath;
       const written: string[] = [];
       try {
-        await put(sourcePath, input.source, input.source.type || mimeOf(check.format));
+        // MIME DXF dari browser tidak seragam; bucket hanya menerima `image/vnd.dxf`.
+        const sourceType =
+          check.format === 'dxf' ? mimeOf('dxf') : input.source.type || mimeOf(check.format);
+        // Storage memakai tipe objek Blob, bukan opsi contentType; tipe DXF diseragamkan dulu.
+        await put(sourcePath, new Blob([input.source], { type: sourceType }), sourceType);
         written.push(sourcePath);
-        if (input.raster && check.format === 'pdf') {
+        if (input.raster && rendered) {
           await put(rasterPath, input.raster, 'image/png');
           written.push(rasterPath);
         }
@@ -135,6 +151,8 @@ export function createFloorPlansRepository(db: Db): FloorPlansRepository {
             source_format: check.format,
             raster_path: rasterPath,
             pdf_page: check.format === 'pdf' ? (input.pdfPage ?? 1) : null,
+            cad_layers: check.format === 'dxf' ? (input.cadLayers ?? []) : [],
+            natural_width_m: check.format === 'dxf' ? (input.naturalWidthM ?? null) : null,
             uploaded_by: auth.user?.id ?? null,
           })
           .select(COLUMNS)
@@ -173,18 +191,24 @@ export function createFloorPlansRepository(db: Db): FloorPlansRepository {
   };
 }
 
-const mimeOf = (format: FloorPlanFormat) =>
-  format === 'pdf' ? 'application/pdf' : format === 'jpg' ? 'image/jpeg' : 'image/png';
+const MIME_OF: Record<FloorPlanFormat, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  pdf: 'application/pdf',
+  dxf: 'image/vnd.dxf',
+  dwg: 'application/octet-stream',
+};
+const mimeOf = (format: FloorPlanFormat) => MIME_OF[format];
 
 export function floorPlanProblemMessage(problem: FloorPlanFileProblem): string {
   switch (problem) {
     case 'too_large':
       return 'Berkas terlalu besar. Denah maksimal 50 MB.';
-    case 'cad_later':
-      return 'DWG/DXF belum didukung. Ekspor denah ke PDF atau PNG lebih dulu.';
+    case 'dwg_unsupported':
+      return 'DWG tidak didukung. Simpan sebagai DXF atau PDF dari software CAD (atau DWG TrueView yang gratis), lalu unggah lagi.';
     case 'empty':
       return 'Berkas kosong.';
     case 'unsupported_type':
-      return 'Tipe berkas tidak didukung. Unggah PNG, JPG, atau PDF.';
+      return 'Tipe berkas tidak didukung. Unggah PNG, JPG, PDF, atau DXF.';
   }
 }

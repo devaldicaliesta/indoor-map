@@ -4,6 +4,10 @@ import type { Database } from './database.types';
 import { type AliasesRepository, createAliasesRepository } from './repositories/aliases';
 import { type AuditRepository, createAuditRepository } from './repositories/audit';
 import { type BuildingsRepository, createBuildingsRepository } from './repositories/buildings';
+import {
+  type CadConverterRepository,
+  createCadConverterRepository,
+} from './repositories/cad-converter';
 import { type CategoriesRepository, createCategoriesRepository } from './repositories/categories';
 import { type ClosuresRepository, createClosuresRepository } from './repositories/closures';
 import { type ConnectorsRepository, createConnectorsRepository } from './repositories/connectors';
@@ -52,6 +56,8 @@ import type { Db } from './supabase';
 export interface DataClientConfig {
   url: string;
   anonKey: string;
+  /** Alamat `services/cad-converter`; tanpa ini unggah DXF ditolak dengan pesan jelas. */
+  cadConverterUrl?: string | undefined;
 }
 
 /** Pintu tunggal app ke database. Klien Supabase mentah tidak pernah diekspos. */
@@ -60,6 +66,7 @@ export interface DataClient {
   audit: AuditRepository;
   auth: AuthRepository;
   buildings: BuildingsRepository;
+  cadConverter: CadConverterRepository;
   categories: CategoriesRepository;
   closures: ClosuresRepository;
   connectors: ConnectorsRepository;
@@ -91,6 +98,10 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     audit: createAuditRepository(db),
     auth: createAuthRepository(db, profiles),
     buildings: createBuildingsRepository(db),
+    cadConverter: createCadConverterRepository(
+      async () => (await db.auth.getSession()).data.session?.access_token ?? null,
+      endpoint?.cadConverterUrl,
+    ),
     categories: createCategoriesRepository(db),
     closures: createClosuresRepository(db),
     connectors: createConnectorsRepository(db),

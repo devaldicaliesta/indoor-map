@@ -33,6 +33,7 @@ packages/map-core wrapper MapLibre: style, layer 2D/3D, georeferensi, kamera
 packages/data     satu-satunya pintu ke Supabase (repository)
 packages/ui       komponen shadcn yang sudah dikustom + design token
 supabase/         migrations (SQL murni), functions (Edge Functions)
+services/         layanan pendamping (cad-converter: DXF → gambar per layer, Python)
 e2e/              test E2E Playwright (alur utama), satu konfigurasi untuk Admin dan Visitor
 docs/             playbook, dibaca per kebutuhan task
 ```

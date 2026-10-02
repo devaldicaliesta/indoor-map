@@ -561,6 +561,7 @@ export type Database = {
           floor_id: string;
           id: string;
           is_active: boolean;
+          natural_width_m: number | null;
           opacity: number;
           pdf_page: number | null;
           raster_path: string | null;
@@ -575,6 +576,7 @@ export type Database = {
           floor_id: string;
           id?: string;
           is_active?: boolean;
+          natural_width_m?: number | null;
           opacity?: number;
           pdf_page?: number | null;
           raster_path?: string | null;
@@ -589,6 +591,7 @@ export type Database = {
           floor_id?: string;
           id?: string;
           is_active?: boolean;
+          natural_width_m?: number | null;
           opacity?: number;
           pdf_page?: number | null;
           raster_path?: string | null;
@@ -1452,6 +1455,15 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      acquire_edit_lock: {
+        Args: { p_floor_id: string };
+        Returns: {
+          full_name: string;
+          last_activity_at: string;
+          started_at: string;
+          user_id: string;
+        }[];
+      };
       apply_template: {
         Args: {
           p_template: Json;
@@ -1460,16 +1472,11 @@ export type Database = {
         };
         Returns: undefined;
       };
-      acquire_edit_lock: {
-        Args: { p_floor_id: string };
-        Returns: {
-          user_id: string;
-          full_name: string;
-          started_at: string;
-          last_activity_at: string;
-        }[];
-      };
       delete_connector: { Args: { p_id: string }; Returns: undefined };
+      import_locations: {
+        Args: { p_location_type_id: string; p_rows: Json; p_venue_id: string };
+        Returns: number;
+      };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {
@@ -1482,15 +1489,7 @@ export type Database = {
       };
       publish_commit: { Args: { p_publication_id: string }; Returns: undefined };
       release_edit_lock: { Args: { p_floor_id: string }; Returns: undefined };
-      set_search_aliases: {
-        Args: {
-          p_keywords: string[];
-          p_target_id: string;
-          p_target_kind: string;
-          p_venue_id: string;
-        };
-        Returns: undefined;
-      };
+      remove_field_definition: { Args: { p_id: string }; Returns: undefined };
       save_connector: {
         Args: {
           p_direction?: Database['public']['Enums']['escalator_direction'];
@@ -1512,27 +1511,31 @@ export type Database = {
         Args: {
           p_category_ids: string[];
           p_code?: string;
+          p_custom_fields?: Json;
           p_description?: string;
+          p_hours?: Json;
           p_id: string;
           p_location_type_id: string;
           p_logo_path?: string;
           p_name: string;
+          p_opening_date?: string;
           p_photo_paths: string[];
           p_primary_unit_id?: string;
+          p_status?: Database['public']['Enums']['location_status'];
           p_unit_ids: string[];
           p_venue_id: string;
-          p_custom_fields?: Json;
-          p_status?: Database['public']['Enums']['location_status'];
-          p_opening_date?: string;
-          p_hours?: Json;
         };
         Returns: string;
       };
-      import_locations: {
-        Args: { p_location_type_id: string; p_rows: Json; p_venue_id: string };
-        Returns: number;
+      set_search_aliases: {
+        Args: {
+          p_keywords: string[];
+          p_target_id: string;
+          p_target_kind: string;
+          p_venue_id: string;
+        };
+        Returns: undefined;
       };
-      remove_field_definition: { Args: { p_id: string }; Returns: undefined };
       set_smtp_password: { Args: { p_password: string }; Returns: undefined };
       smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
       smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };
