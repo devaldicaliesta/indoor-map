@@ -125,6 +125,8 @@
     "failAccessible": "Tidak ada rute aksesibel ke tujuan ini. Matikan “Rute aksesibel” untuk melihat rute lain.",
     "failClosed": "Rute ke tujuan ini tertutup sementara.",
     "failOrigin": "Titik asal tidak terhubung ke jalur. Ganti titik asal.",
-    "failDestination": "Tujuan ini belum terhubung ke jalur."
+    "failDestination": "Tujuan ini belum terhubung ke jalur.",
+    "detour": "Rute memutar karena ada penutupan sementara:",
+    "closedBecause": "Penutupan sementara:"
   }
 }

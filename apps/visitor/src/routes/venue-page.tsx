@@ -8,6 +8,7 @@ import { PanelMessage } from '../app/panel-message';
 import { useMediaQuery } from '../app/use-media-query';
 import { DESKTOP_QUERY, VisitorShell } from '../app/visitor-shell';
 import { useSnapshot } from '../data/loadSnapshot';
+import { useLiveClosures } from '../features/closures/use-live-closures';
 import { VenueMap } from '../features/map/venue-map';
 import { originFromUrl } from '../features/origin/origin-model';
 import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
@@ -79,6 +80,7 @@ function VenueView({ venueId }: { venueId: VenueId }) {
 
 /** Peta dengan pencarian, chip, daftar, dan detail; semuanya dari snapshot di perangkat. */
 function VenueExplorer({ snapshot }: { snapshot: Snapshot }) {
+  useLiveClosures(snapshot);
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const sheetSnap = useExploreStore((s) => s.sheetSnap);
   const setSheetSnap = useExploreStore((s) => s.setSheetSnap);

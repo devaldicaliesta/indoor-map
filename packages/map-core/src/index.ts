@@ -54,6 +54,12 @@ export {
   type GraphInteractionOptions,
   type GraphNodeDrag,
 } from './graph-interactions';
+export {
+  CLOSURE_LAYER_IDS,
+  type ClosureMarks,
+  closureCollection,
+  setClosureMarks,
+} from './layers/closures';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
 export {
   type GraphEdgeView,

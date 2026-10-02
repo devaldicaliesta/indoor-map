@@ -1,3 +1,4 @@
+import type { Closure } from '@indoor/domain';
 import {
   type DirectoryFilter,
   type ExploreSelection,
@@ -49,6 +50,8 @@ export interface ExploreState {
   activeStep: number | null;
   /** Naik setiap rute baru dihitung untuk asal/tujuan/mode baru, agar kamera membingkainya sekali. */
   routeSeq: number;
+  /** Penutupan yang sedang berlaku dan sasarannya ada di snapshot; dibaca ulang tiap menit. */
+  closures: readonly Closure[];
 
   search(query: string): void;
   /** Membuka daftar dan mengosongkan pencarian (hasil cari berupa kategori atau jenis fasilitas). */
@@ -72,6 +75,7 @@ export interface ExploreState {
   /** Tukar asal dan tujuan; hanya untuk asal berupa tempat (bukan QR atau titik di peta). */
   swap(origin: RoutePlace, destination: ExploreTarget): void;
   showStep(step: number | null): void;
+  setClosures(closures: readonly Closure[]): void;
 }
 
 const INITIAL = {
@@ -87,6 +91,7 @@ const INITIAL = {
   accessible: false,
   activeStep: null,
   routeSeq: 0,
+  closures: [] as readonly Closure[],
 };
 
 const sameList = (a: ExploreList | null, b: ExploreList) =>
@@ -198,6 +203,7 @@ export const createExploreStore = (origin: RoutePlace | null = null) =>
       })),
 
     showStep: (activeStep) => set({ activeStep }),
+    setClosures: (closures) => set({ closures }),
   }));
 
 /** Yang disorot di peta: detail yang terbuka, atau daftar kategori/jenis fasilitas saat tidak mencari. */
