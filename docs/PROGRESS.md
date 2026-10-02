@@ -37,7 +37,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-106 | Georeferensi dan opasitas | T-105 | review |  Diuji E2E T-307a, bukti `e2e/evidence/T-106/`. |
 | T-107 | Lapisan acuan lantai lain | T-106 | review |  Diuji E2E T-307a, bukti `e2e/evidence/T-107/`. |
 | T-108 | Editor: kanvas, alat gambar, draft | T-104, T-106 | review | model besar  Diuji E2E T-307a, bukti `e2e/evidence/T-108/`; kinerja 1.000 fitur di SwiftShader ±50–70 % lantai kosong, perlu dicek di perangkat dengan GPU. |
-| T-109 | Jenis fitur dan atribut unit | T-108 | review | |
+| T-109 | Jenis fitur dan atribut unit | T-108 | review |  Diuji E2E T-307a, bukti `e2e/evidence/T-109/`; perbaikan: cari + Enter di daftar fitur memakai teks terbaru. |
 | T-110 | Edit geometri, multi-select, snapping | T-109 | review | |
 | T-111 | Undo/redo | T-110 | review | |
 | T-112 | Fasilitas dan jenis fasilitas | T-109 | review | Tab Pengaturan → Jenis fasilitas, 14 piktogram bawaan, ikon unggahan SVG/PNG, sprite + layer simbol di map-core, pilihan Fasilitas di alat Titik (migrasi 0008); 2 integrasi + 7 pgTAP + browser |
