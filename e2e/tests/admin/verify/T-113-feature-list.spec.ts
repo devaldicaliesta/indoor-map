@@ -33,7 +33,8 @@ test.describe('T-113 Panel daftar fitur', () => {
     await expect(list.getByRole('button', { name: /Eskalator\s*2/ })).toBeVisible();
     await page.screenshot({ path: shot('02-cari-jenis') });
 
-    // Pilih dari daftar: panel properti menampilkan fitur, peta berpindah ke sana.
+    // Pilih dari daftar: panel properti menampilkan fitur dan peta menyorotnya (perpindahan
+    // kamera tidak dibuktikan terpisah: kanvas juga berubah karena sorotan).
     const canvas = editor.canvas.locator('canvas').first();
     await search.fill('GF-B03');
     const before = await canvas.screenshot();

@@ -6,7 +6,7 @@ Spec: `e2e/tests/admin/verify/T-113-feature-list.spec.ts` (fixture `fullVenue`, 
 | --- | --- |
 | [01](01-grup-dibuka.png) | Grup per jenis dengan jumlah; grup Unit dibuka, isi terurut |
 | [02](02-cari-jenis.png) | Cari "gf-b0" (huruf kecil) hanya unit GF-B0x; cari "eskalator" menampilkan grup Eskalator 2 |
-| [03](03-dipilih-peta-fokus.png) | Klik GF-B03: properti "Unit GF-B03", baris ditandai `aria-current`, peta bergerak ke unit itu |
+| [03](03-dipilih-peta-fokus.png) | Klik GF-B03: properti "Unit GF-B03", baris ditandai `aria-current`, unit disorot di peta (perpindahan kamera terlihat di gambar, tidak diukur terpisah) |
 | [04](04-tidak-ada-hasil.png) | Esc di kotak cari mengosongkan teks tanpa membatalkan pilihan; teks tanpa hasil: "Tidak ada fitur yang cocok dengan …" |
 
 ## Temuan

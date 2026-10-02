@@ -157,7 +157,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-113 · Panel daftar fitur — Panel daftar fitur: cari, pilih → peta fokus → `e2e/evidence/T-113/`
 - [x] T-114 · Validasi geometri — Validasi geometri: temuan tampil, klik menuju fitur → `e2e/evidence/T-114/`
 - [x] T-115 · Tampilan 2D/3D — 2D/3D di Admin dan Visitor, tinggi per jenis → `e2e/evidence/T-115/`
-- [ ] T-116 · Lokasi dasar, kategori, tautan unit — CRUD lokasi + kategori + tautan unit; pencarian daftar → `e2e/evidence/T-116/`
+- [x] T-116 · Lokasi dasar, kategori, tautan unit — CRUD lokasi + kategori + tautan unit; pencarian daftar → `e2e/evidence/T-116/`
 - [ ] T-117 · Snapshot minimal — Publish → Visitor membaca snapshot; draft tidak tampil sebelum publish → `e2e/evidence/T-117/`
 - [ ] T-118 · Visitor: peta, gedung, lantai — Visitor: peta, pemilih gedung dan lantai → `e2e/evidence/T-118/`
 - [ ] T-119 · Visitor: cari, kategori, detail, A–Z — Visitor: cari (salah ketik), chip kategori, detail lokasi, A–Z → `e2e/evidence/T-119/`

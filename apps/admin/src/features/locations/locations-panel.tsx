@@ -164,7 +164,7 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
                 return (
                   <TableRow key={location.id}>
                     <TableCell className="font-mono">{location.code ?? '—'}</TableCell>
-                    <TableCell>
+                    <TableCell className="min-w-48 whitespace-normal">
                       <span className="font-bold">{location.name}</span>
                       {categoryText ? (
                         <span className="block text-ink-muted text-sm">{categoryText}</span>
