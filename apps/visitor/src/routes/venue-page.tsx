@@ -13,6 +13,7 @@ import { VenueMap } from '../features/map/venue-map';
 import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
 import { DetailBackBar, ExplorePanel } from '../features/search/explore-panel';
 import { VenueSearch } from '../features/search/venue-search';
+import { useVenueBranding } from '../features/venue/use-venue-branding';
 import { VenueInfo } from '../features/venue/venue-info';
 import { applyVenueLanguage, showLanguage } from '../i18n';
 
@@ -79,6 +80,8 @@ function VenueView({ venueId }: { venueId: VenueId }) {
 
 /** Peta dengan pencarian, chip, daftar, dan detail; semuanya dari snapshot di perangkat. */
 function VenueExplorer({ snapshot }: { snapshot: Snapshot }) {
+  const { t } = useTranslation();
+  const brand = useVenueBranding(snapshot);
   useLiveClosures(snapshot);
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const sheetSnap = useExploreStore((s) => s.sheetSnap);
@@ -86,10 +89,16 @@ function VenueExplorer({ snapshot }: { snapshot: Snapshot }) {
   const hasDetail = useExploreStore((s) => s.detail !== null);
   return (
     <VisitorShell
-      title={snapshot.venue.name}
+      title={brand.name}
+      logoUrl={brand.logoUrl}
       actions={<VenueInfo snapshot={snapshot} />}
       map={<VenueMap snapshot={snapshot} />}
-      search={<VenueSearch />}
+      search={
+        // Di HP kolom cari terlalu sempit untuk nama venue; logo yang menandai venue.
+        <VenueSearch
+          placeholder={isDesktop ? t('search.placeholderIn', { name: brand.name }) : undefined}
+        />
+      }
       mobileHeader={hasDetail ? <DetailBackBar /> : undefined}
       sheet={{ snap: sheetSnap, onSnapChange: setSheetSnap }}
     >

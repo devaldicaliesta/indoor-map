@@ -1,4 +1,4 @@
-import type { DisplaySettings, VenueId } from '@indoor/domain';
+import { type DisplaySettings, EMPTY_BRANDING, type VenueId } from '@indoor/domain';
 import { describe, expect, it } from 'vitest';
 import { toFormValues, toPatch, validate } from './display-form-model';
 
@@ -8,6 +8,7 @@ const settings: DisplaySettings = {
   heights: { unit: 4, wall: 5, corridor: 0, outdoor_area: 0 },
   colors: { unit: '#ffe9a8' },
   camera: null,
+  branding: EMPTY_BRANDING,
 };
 
 describe('formulir tampilan', () => {

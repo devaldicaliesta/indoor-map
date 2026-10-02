@@ -61,6 +61,7 @@ export function sampleSnapshotSource(): SnapshotSource {
       heights: { unit: 4, wall: 5 },
       colors: { unit: '#d9dcd4' },
       camera: { center: [106.8272, -6.1753], zoom: 18.5, pitch: 40, bearing: -12 },
+      branding: { displayName: 'RS Kenari', primaryColor: '#0b1f4d', routeColor: '#e4002b' },
     },
     // Urutan database sengaja terbalik agar pengurutan builder teruji.
     buildings: [

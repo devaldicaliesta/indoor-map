@@ -58,7 +58,9 @@ export function validate(values: DisplayFormValues): DisplayFormErrors {
 }
 
 /** Tinggi/warna kosong tidak disimpan sehingga memakai bawaan aplikasi. Panggil setelah `validate`. */
-export function toPatch(values: DisplayFormValues): Required<Omit<DisplaySettingsPatch, 'camera'>> {
+export function toPatch(
+  values: DisplayFormValues,
+): Required<Omit<DisplaySettingsPatch, 'camera' | 'branding'>> {
   const heights: DisplaySettings['heights'] = {};
   for (const kind of HEIGHT_KINDS) {
     const parsed = parseHeightInput(values.heights[kind]);

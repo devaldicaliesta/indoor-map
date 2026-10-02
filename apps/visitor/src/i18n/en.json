@@ -5,6 +5,7 @@
   "search": {
     "label": "Search locations",
     "placeholder": "Search places…",
+    "placeholderIn": "Search {{name}}…",
     "clear": "Clear search",
     "results": "Search results",
     "count_one": "{{count}} result",

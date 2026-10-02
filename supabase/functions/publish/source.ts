@@ -136,7 +136,7 @@ export async function readSource(
     ),
     rest.select<Row>(
       'display_settings',
-      `select=default_mode,heights,colors,camera&${byVenue}&order=venue_id`,
+      `select=default_mode,heights,colors,camera,branding&${byVenue}&order=venue_id`,
     ),
     defaultLanguage(),
     rest.select<Row>(
@@ -219,6 +219,7 @@ export async function readSource(
           heights: settings.heights,
           colors: settings.colors,
           camera: settings.camera,
+          branding: settings.branding,
         }
       : null,
     buildings: buildings.map((b) => ({

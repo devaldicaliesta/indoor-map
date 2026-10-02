@@ -1,4 +1,5 @@
-import { hasOpeningHours, type OpeningHours } from './hours';
+import { parseBranding } from './branding.ts';
+import { hasOpeningHours, type OpeningHours } from './hours.ts';
 /**
  * Builder snapshot dari data draft venue. Dijalankan Edge Function `publish` di Deno, jadi
  * hanya mengimpor modul tanpa dependensi dengan ekstensi `.ts` (lihat `snapshot.ts`).
@@ -114,6 +115,7 @@ function toVenue(source: SnapshotSource): SnapshotVenue {
       heights: pickKinds(display?.heights, isHeight),
       colors: pickKinds(display?.colors, isColor),
     },
+    branding: parseBranding(display?.branding),
   };
 }
 

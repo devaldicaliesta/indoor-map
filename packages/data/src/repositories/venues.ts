@@ -77,6 +77,8 @@ export interface VenuesRepository {
   /** Menghapus venue beserta semua data turunannya (cascade) dan berkas logonya. */
   remove(id: VenueId): Promise<void>;
   uploadLogo(id: VenueId, file: Blob): Promise<Venue>;
+  /** Mengosongkan logo venue dan menghapus berkasnya. */
+  removeLogo(id: VenueId): Promise<Venue>;
   logoUrl(path: string): string;
 }
 
@@ -196,6 +198,21 @@ export function createVenuesRepository(db: Db): VenuesRepository {
       const old = previous.data?.logo_path;
       if (old && old !== path) await db.storage.from(ASSETS_BUCKET).remove([old]);
       return mapVenueRow(data[0]);
+    },
+
+    async removeLogo(id) {
+      const previous = await db.from('venues').select('logo_path').eq('id', id).maybeSingle();
+      const { data, error } = await db
+        .from('venues')
+        .update({ logo_path: null })
+        .eq('id', id)
+        .select(COLUMNS);
+      if (error) throw toDataError(error);
+      const row = data[0];
+      if (!row) throw await zeroRowsError(() => isVisible(id));
+      const old = previous.data?.logo_path;
+      if (old) await db.storage.from(ASSETS_BUCKET).remove([old]);
+      return mapVenueRow(row);
     },
 
     logoUrl(path) {
