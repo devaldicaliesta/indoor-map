@@ -29,4 +29,10 @@ Belum dicek: tautan kedaluwarsa (> 1 jam, batas GoTrue), kunci habis setelah 15 
 - [RENDAH] Gambar 04: tombol "Masuk" tampak pudar karena kursor masih di atas tombol (hover). Bukan bug.
 - [Catatan test] `pnpm check` sekali merah di `@indoor/domain#test` saat Supabase + Playwright berjalan bersamaan; lulus saat diulang (2× terpisah, 1× penuh). Tidak berkaitan dengan T-008.
 
-Tinjauan: code-reviewer — …; security-reviewer — ….
+- [SEDANG, test] Kuota email lokal `auth.rate_limit.email_sent = 10`/jam: menjalankan spec berulang kali dalam satu jam bisa membuat email reset tidak terkirim (UI tetap menampilkan pesan netral), lalu `waitForMail` gagal. Pesan galat `waitForMail` kini menyebut batas ini; Mailpit yang tidak menjawab dilaporkan jelas. 3 run beruntun tetap lulus.
+- [SEDANG, keamanan] Hook penguncian `security definer` memakai `search_path = public, pg_temp`, bukan `''` (nama di dalamnya sudah berskema, celah kecil). Perbaikan lewat migrasi baru; dicatat di PROGRESS.
+- [SEDANG, keamanan] Pesan "Akun terkunci…" membedakan email terdaftar dari yang tidak (enumerasi + kunci 15 menit oleh orang lain). Butuh keputusan pemilik: pesan umum + pemberitahuan email, atau terima risiko + captcha/batas laju. Dicatat di PROGRESS (pertanyaan terbuka).
+- [SEDANG, keamanan] Rahasia hook `send_email` lokal ada di `supabase/config.toml`; instalasi klien wajib membangkitkan sendiri (T-411 harus menolak nilai bawaan). Dicatat.
+- [RENDAH, keamanan] Pesan galat tak dikenal GoTrue tampil mentah di halaman reset; `secure_password_change = false`; `max_frequency` reset 1 detik. Dicatat.
+
+Tinjauan: code-reviewer — Setuju (temuan test diperbaiki: pemeriksaan 59 menit kini memberi timer kesempatan berjalan, komentar "apa" dihapus); security-reviewer — Setuju dengan perubahan (0 KRITIS/TINGGI; temuan SEDANG di atas dicatat sebagai pekerjaan lanjutan, tidak diubah di verifikasi ini).
