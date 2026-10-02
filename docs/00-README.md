@@ -17,7 +17,6 @@ Playbook ini membawa proyek dari repo kosong sampai produk siap dijual, dalam ur
 | `10-R0-fondasi.md` | Task T-001 s.d. T-012 | Rilis 0 |
 | `11-R1-inti-peta.md` | Task T-101 s.d. T-120 | Rilis 1 |
 | `12-R2-navigasi.md` | Task T-201 s.d. T-217 | Rilis 2 |
-| `13-R3-operasional.md` | Task T-301 s.d. T-313 | Rilis 3 |
 | `14-R4-komersial.md` | Task T-401 s.d. T-412 | Rilis 4 |
 | `15-verifikasi-e2e.md` | T-307a: verifikasi E2E CRUD & UI/UX semua task `review` | Sebelum T-307 |
 | `spec/` | Spesifikasi lengkap (FR, user flow, proses bisnis, kriteria penerimaan) — sumber kebenaran perilaku | Saat task menyebut ID FR dan butuh detail |
