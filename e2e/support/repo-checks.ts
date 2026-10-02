@@ -37,7 +37,7 @@ export function runOnTempFile(dir: string, file: string, content: string, comman
   }
 }
 
-const escape = (text: string) =>
+const escapeHtml = (text: string) =>
   text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
 /** Tabel hasil + potongan log sebagai halaman, untuk di-screenshot ke folder bukti. */
@@ -50,13 +50,13 @@ export async function renderSummary(
   const rows = results
     .map(
       (r) =>
-        `<tr><td>${r.id}</td><td>${escape(r.check)}</td><td class="${r.ok ? 'ok' : 'no'}">${r.ok ? 'Lulus' : 'Gagal'}</td></tr>`,
+        `<tr><td>${r.id}</td><td>${escapeHtml(r.check)}</td><td class="${r.ok ? 'ok' : 'no'}">${r.ok ? 'Lulus' : 'Gagal'}</td></tr>`,
     )
     .join('');
-  const blocks = logs.map((l) => `<h3>${escape(l.name)}</h3><pre>${escape(l.text)}</pre>`).join('');
+  const blocks = logs.map((l) => `<h3>${escapeHtml(l.name)}</h3><pre>${escapeHtml(l.text)}</pre>`).join('');
   await page.setContent(`<!doctype html><html lang="id"><meta charset="utf-8"><style>
     body{font:14px system-ui;margin:24px;color:#111418}table{border-collapse:collapse;width:100%}
     td,th{border:1px solid #d5d9de;padding:6px 8px;text-align:left}.ok{color:#12805c;font-weight:700}
     .no{color:#c8321e;font-weight:700}pre{background:#f2f3ef;padding:8px;white-space:pre-wrap}</style>
-    <h1>${escape(title)}</h1><table><tr><th>ID</th><th>Pemeriksaan</th><th>Hasil</th></tr>${rows}</table>${blocks}</html>`);
+    <h1>${escapeHtml(title)}</h1><table><tr><th>ID</th><th>Pemeriksaan</th><th>Hasil</th></tr>${rows}</table>${blocks}</html>`);
 }
