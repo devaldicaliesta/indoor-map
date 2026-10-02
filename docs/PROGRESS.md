@@ -29,7 +29,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-104 | Fondasi peta (map-core) | T-003, T-006 | review | Style tanpa basemap, layer 2D/3D, ganti lantai lewat satu source, MapControls; `/_map` (dev) di Admin & Visitor. Ganti lantai 1.000 fitur 102–204 ms di WebGL perangkat lunak — perlu diukur ulang di perangkat dengan GPU |
+| T-104 | Fondasi peta (map-core) | T-003, T-006 | review | Style tanpa basemap, layer 2D/3D, ganti lantai lewat satu source, MapControls; `/_map` (dev) di Admin & Visitor. Ganti lantai 1.000 fitur 102–204 ms di WebGL perangkat lunak — perlu diukur ulang di perangkat dengan GPU  Diuji E2E T-307a, bukti `e2e/evidence/T-104/`. |
 | T-101 | Venue dan multi-venue | R0 | review | CRUD venue, logo ke `public-assets` (migrasi 0005), waktu dalam zona venue, hapus dengan ketik ulang nama; 4 test integrasi + browser  Diuji E2E T-307a, bukti `e2e/evidence/T-101/`; perbaikan: nama panjang tidak lagi mendorong kolom Aksi keluar layar. |
 | T-102 | Gedung dan Area Luar | T-101, T-104 | review | Tab Gedung (tabel, footprint digambar terra-draw, default), Area Luar dijaga trigger (migrasi 0006); 2 integrasi + 3 pgTAP + browser  Diuji E2E T-307a, bukti `e2e/evidence/T-102/`. |
 | T-103 | Lantai dan default tampilan | T-102 | review | Sheet lantai per gedung, level negatif, konfirmasi hapus dengan jumlah fitur, lantai default, `FloorSwitcher`, `initialFloorView`  Diuji E2E T-307a, bukti `e2e/evidence/T-103/`; perbaikan: panel Lantai tidak lagi memotong kolom Level dan Hapus. |
