@@ -112,7 +112,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 
 ### R0 · Fondasi (`10-R0-fondasi.md`)
 
-- [ ] T-001 · Monorepo dan tooling — Bukan CRUD. `pnpm check` hijau; screenshot hasil terminal tidak perlu, cukup catat di README → `e2e/evidence/T-001/`
+- [x] T-001 · Monorepo dan tooling — Bukan CRUD. `pnpm check` hijau; screenshot hasil terminal tidak perlu, cukup catat di README → `e2e/evidence/T-001/`
 - [ ] T-002 · Scaffold aplikasi Admin dan Visitor — Admin :5173 dan Visitor :5174 terbuka; halaman 404 tiap app → `e2e/evidence/T-002/`
 - [ ] T-003 · Kerangka paket bersama — Bukan CRUD; dibuktikan lewat T-005/T-007 (app memakai paket bersama) → `e2e/evidence/T-003/`
 - [ ] T-004 · Supabase lokal dan skema inti — Data seed tampil di Admin (Venue Contoh); `supabase test db` lulus → `e2e/evidence/T-004/`
