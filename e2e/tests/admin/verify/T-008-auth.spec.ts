@@ -149,7 +149,6 @@ test.describe('T-008 Login, logout, reset password', () => {
     );
     await capture(page, '10-password-diubah');
 
-    // Password lama tidak berlaku, yang baru berlaku.
     await login.signIn(user.email, user.password);
     await expect(login.error).toHaveText(WRONG);
     await login.signIn(user.email, 'Baru-2026-ok');
@@ -172,12 +171,14 @@ test.describe('T-008 Login, logout, reset password', () => {
     await loginAs('viewer');
     await expect(page).toHaveURL('/venues');
 
-    // 59 menit: masih masuk.
     await page.clock.fastForward('59:00');
+    // Beri timer pemeriksa kesempatan berjalan agar keluar yang terlambat tetap tertangkap.
+    await page.clock.runFor(31_000);
+    await expect(page.getByText(/Sesi berakhir/)).toHaveCount(0);
     await expect(page.getByRole('heading', { name: 'Venue' })).toBeVisible();
     await expect(page).toHaveURL('/venues');
 
-    await page.clock.fastForward('02:00');
+    await page.clock.fastForward('01:00');
     await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByRole('status')).toHaveText(
       'Sesi berakhir karena tidak ada aktivitas selama 60 menit. Silakan masuk lagi.',

@@ -16,6 +16,8 @@ export interface Mail {
 async function search(to: string): Promise<MailpitSummary[]> {
   const url = `${env.mailpitUrl}/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`;
   const response = await fetch(url);
+  if (!response.ok)
+    throw new Error(`Mailpit ${env.mailpitUrl} tidak menjawab (${response.status}).`);
   return ((await response.json()) as { messages: MailpitSummary[] }).messages;
 }
 
@@ -28,7 +30,10 @@ export async function waitForMail(to: string, count = 1): Promise<Mail> {
         messages = await search(to);
         return messages.length;
       },
-      { message: `email ke ${to} di Mailpit`, timeout: 15_000 },
+      {
+        message: `email ke ${to} di Mailpit (cek juga batas auth.rate_limit.email_sent)`,
+        timeout: 15_000,
+      },
     )
     .toBeGreaterThanOrEqual(count);
   const [latest] = messages;

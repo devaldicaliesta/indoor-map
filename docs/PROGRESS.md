@@ -18,7 +18,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-005 | Lapisan data | T-003, T-004 | review | Repository profiles & systemSettings, DataError, helper GeoJSON; 25 unit + 7 integrasi lulus. Diuji E2E T-307a (galat nyata per role, pesan offline ±24 s → ±10 s), bukti `e2e/evidence/T-005/` |
 | T-006 | Sistem desain | T-003 | review | Tailwind 4 + token, font lokal, 15 komponen, galeri `/_ui` (dev); 19 uji kontras lulus. Diuji E2E T-307a (kontras AA semua teks /_ui, font lokal, bentuk; istilah industri di galeri diganti), bukti `e2e/evidence/T-006/` |
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | review | Layout, menu per role dari `permissions.ts`, pemilih venue (Zustand), guard sesi; diuji di browser dengan 5 akun seed. Diuji E2E T-307a (menu 5 role, 7 venue bervariasi, elipsis nama panjang di Select diperbaiki), bukti `e2e/evidence/T-007/` |
-| T-008 | Login, logout, reset password | T-007 | review | Auth Hook penguncian (migrasi 0002), sesi idle 60 menit, reset lewat email; diuji di browser + Mailpit |
+| T-008 | Login, logout, reset password | T-007 | review | Auth Hook penguncian (migrasi 0002), sesi idle 60 menit, reset lewat email; diuji di browser + Mailpit. Diuji E2E T-307a (lulus 3/3, 12 TC-AUTH), bukti `e2e/evidence/T-008/` |
 | T-009a | Peta aksi per role dan pgTAP per role | T-008 | review | `can(role, action)` + 20 uji pgTAP (venues, features, closures, profiles) untuk 5 role |
 | T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | review | Undang/ubah role/nonaktifkan; guard Super Admin terakhir + audit (migrasi 0003); diuji browser, 2 test integrasi, 7 pgTAP |
 | T-010 | Pengaturan sistem | T-009 | review | Tab Sistem, password SMTP di Vault, email uji lewat Edge Function; diuji browser + Mailpit. Lihat pertanyaan terbuka soal SMTP GoTrue |
@@ -112,9 +112,13 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 
 Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … (status: menunggu jawaban)`
 
-Tidak ada. Pemilik (2026-09-30): pertanyaan diputuskan langsung sesuai dokumen, lalu dicatat di "Catatan keputusan".
+- [2026-10-02] T-008 — Pesan "Akun terkunci…" hanya muncul untuk email terdaftar, sehingga orang lain bisa menebak email Admin dan sekaligus mengunci akun 15 menit (temuan security-reviewer T-307a). Opsi: A) saat terkunci tampilkan pesan umum "Email atau password salah." dan beri tahu pemilik akun lewat email; B) pertahankan pesan (lebih jelas bagi pengguna), tambah captcha atau perketat batas laju login. Rekomendasi: A. (status: menunggu jawaban)
+
+Pemilik (2026-09-30): pertanyaan lain diputuskan langsung sesuai dokumen, lalu dicatat di "Catatan keputusan".
 
 ## Catatan keputusan
+
+- [2026-10-02] T-307a/T-008 — Pekerjaan lanjutan dari tinjauan keamanan verifikasi T-008 (tidak diubah di verifikasi): migrasi baru `alter function app.hook_password_verification_attempt(jsonb) set search_path = ''` + pgTAP; T-411 menolak rahasia hook `send_email` bawaan repo; pesan galat GoTrue tak dikenal di halaman reset diganti pesan umum; pertimbangkan `secure_password_change = true` dan `max_frequency` reset ±60 detik. Spec E2E memakai akun undangan `…@e2e.test` (hilang saat `pnpm db:reset`); kuota email lokal 10/jam bisa membatasi run berulang.
 
 - [2026-10-02] T-313 — Konverter berjalan sebagai layanan terpisah tanpa akses data (hanya memeriksa sesi), sehingga tidak perlu kunci service role. Raster dibuat di browser dari SVG agar alurnya sama dengan PDF dan layanan tetap ringan. Berkas tanpa satuan tidak diberi skala awal (lebar footprint gedung dipakai). Temuan T-307a: `e2e/tests/visitor/search.spec.ts` masih mengharapkan "Rute ke sini" nonaktif (sudah aktif sejak T-215), sehingga gagal.
 
