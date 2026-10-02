@@ -5,7 +5,7 @@ import {
   sampleSnapshotSource,
 } from '@indoor/domain/fixtures/snapshot-source.ts';
 import { describe, expect, it } from 'vitest';
-import { originView, placeOfTarget } from './origin-model';
+import { originView, placeOfTarget, tapFloorId } from './origin-model';
 
 const snapshot = buildSnapshot(sampleSnapshotSource());
 const index = indexSnapshot(snapshot);
@@ -52,5 +52,25 @@ describe('titik asal Visitor', () => {
     });
     expect(originView(snapshot, index, { kind: 'feature', featureId: 'hilang' })).toBeNull();
     expect(originView(snapshot, index, { kind: 'point', lng: 1, lat: 2, floorId: 'x' })).toBeNull();
+  });
+});
+
+describe('lantai ketukan', () => {
+  it('di dalam footprint: lantai gedung; di luar pada lantai dasar: Area Luar', () => {
+    const lobbyFloor = lobby?.floorId ?? '';
+    const outdoor = snapshot.floors.find((f) => f.isOutdoor)?.id;
+    const building = snapshot.buildings.find(
+      (b) => b.id === snapshot.floors.find((f) => f.id === lobbyFloor)?.buildingId,
+    );
+    const [[x0, y0] = [0, 0], [x1, y1] = [0, 0]] = [
+      building?.footprint?.coordinates[0]?.[0],
+      building?.footprint?.coordinates[0]?.[2],
+    ];
+    const inside: [number, number] = [(x0 + x1) / 2, (y0 + y1) / 2];
+    expect(tapFloorId(snapshot, lobbyFloor, inside)).toBe(lobbyFloor);
+    expect(tapFloorId(snapshot, lobbyFloor, [x1 + 0.001, y1 + 0.001])).toBe(outdoor);
+    const upper =
+      snapshot.floors.find((f) => f.buildingId === building?.id && f.level > 0)?.id ?? '';
+    expect(tapFloorId(snapshot, upper, [x1 + 0.001, y1 + 0.001])).toBe(upper);
   });
 });

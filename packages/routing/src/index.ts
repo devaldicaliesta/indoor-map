@@ -34,6 +34,7 @@ export {
   activeClosures,
   closedFeatureNodes,
   closuresOnRoute,
+  insidePolygon,
   type Restrictions,
   type RouteClosure,
   type RouteOptions,

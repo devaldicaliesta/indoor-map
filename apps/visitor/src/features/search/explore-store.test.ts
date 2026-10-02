@@ -162,3 +162,28 @@ describe('keadaan awal dari tautan', () => {
     });
   });
 });
+
+describe('penutupan live di store', () => {
+  const closure = {
+    id: 'c1',
+    featureId: null,
+    edgeId: 'e1',
+    connectorId: null,
+    reason: 'Perawatan',
+    startsAt: '2026-10-01T00:00:00Z',
+    endsAt: null,
+  };
+
+  it('isi yang sama tidak mengganti array; isi baru mengembalikan mode langkah ke daftar', () => {
+    const store = createExploreStore({ origin: { kind: 'origin_point', code: 'x' } });
+    store.getState().requestRoute(location);
+    store.getState().setClosures([closure]);
+    const first = store.getState().closures;
+    store.getState().showStep(4);
+    store.getState().setClosures([{ ...closure }]);
+    expect(store.getState().closures).toBe(first);
+    expect(store.getState().activeStep).toBe(4);
+    store.getState().setClosures([]);
+    expect(store.getState()).toMatchObject({ closures: [], activeStep: null });
+  });
+});

@@ -18,6 +18,7 @@ import {
 } from '@indoor/map-core';
 import { useEffect, useMemo, useRef } from 'react';
 import { snapHeight } from '../../components/sheet-snap';
+import { tapFloorId } from '../origin/origin-model';
 import { useExplore, useExploreStore } from '../search/explore-context';
 import { type ExploreState, selectionOf } from '../search/explore-store';
 import { type CameraPadding, focusCamera, MAP_GAP_PX } from './camera';
@@ -123,7 +124,10 @@ export function useExploreMap({
         const state = store.getState();
         const floorId = latest.current.view.floorId;
         if (state.originMode === 'tap') {
-          if (floorId) state.setOrigin({ kind: 'point', lng: at[0], lat: at[1], floorId });
+          if (floorId) {
+            const tapped = tapFloorId(snapshot, floorId, at);
+            state.setOrigin({ kind: 'point', lng: at[0], lat: at[1], floorId: tapped });
+          }
           return;
         }
         const target = pick ? targetOfPick(index, pick) : null;
@@ -132,7 +136,7 @@ export function useExploreMap({
       },
     });
     return () => taps.destroy();
-  }, [map, index, store]);
+  }, [map, snapshot, index, store]);
 
   const markedFloors = useMemo(
     () =>

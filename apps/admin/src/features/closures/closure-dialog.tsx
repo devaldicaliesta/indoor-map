@@ -99,7 +99,12 @@ function ClosureForm({
           tanpa publish.
         </DialogDescription>
       </DialogHeader>
-      <Field id="closure-reason" label="Alasan" error={shown.reason}>
+      <Field
+        id="closure-reason"
+        label="Alasan"
+        hint="Tampil untuk pengunjung di Visitor saat rute memutar."
+        error={shown.reason}
+      >
         <Input
           id="closure-reason"
           value={reason}

@@ -5,8 +5,9 @@ import {
   type SnapshotFeature,
   type SnapshotIndex,
   type SnapshotPosition,
+  visibleFloorIds,
 } from '@indoor/domain';
-import type { RoutePlace } from '@indoor/routing';
+import { insidePolygon, type RoutePlace } from '@indoor/routing';
 
 /** Yang ditampilkan untuk titik asal: posisi penanda, lantai, arah hadap, dan nama. */
 export interface OriginView {
@@ -88,4 +89,20 @@ export function originView(
         ? { floorId: place.floorId, position: [place.lng, place.lat], headingDeg: null, name: null }
         : null;
   }
+}
+
+/**
+ * Lantai titik yang diketuk. Lantai dasar ikut menggambar Area Luar, jadi ketukan di luar
+ * footprint gedung adalah titik di Area Luar, bukan di lantai gedung.
+ */
+export function tapFloorId(
+  snapshot: Pick<Snapshot, 'floors' | 'buildings'>,
+  floorId: string,
+  [lng, lat]: SnapshotPosition,
+): string {
+  const floor = snapshot.floors.find((f) => f.id === floorId);
+  const footprint = snapshot.buildings.find((b) => b.id === floor?.buildingId)?.footprint;
+  const outdoor = visibleFloorIds(snapshot, floorId).find((id) => id !== floorId);
+  if (!footprint || !outdoor) return floorId;
+  return insidePolygon(footprint.coordinates, lng, lat) ? floorId : outdoor;
 }
