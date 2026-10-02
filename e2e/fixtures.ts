@@ -13,6 +13,7 @@ import { test as base, expect } from '@playwright/test';
 import { ACCOUNTS } from './accounts';
 import { env } from './env';
 import { LoginPage } from './pages/login-page';
+import { createVariedVenues } from './support/varied-venues';
 
 export interface TestVenue {
   venue: Venue;
@@ -73,6 +74,8 @@ interface Fixtures {
    * tangga, jalur luar, lokasi berbagai status, titik asal, Info Point); dihapus setelah test.
    */
   fullVenue: FullVenue;
+  /** Enam venue bervariasi (tipe, zona waktu, nama, branding, gedung, basement); dihapus setelah test. */
+  variedVenues: Venue[];
   /** Masuk ke Admin lewat halaman login sebagai role tertentu. */
   loginAs: (role: AppRole) => Promise<void>;
 }
@@ -124,6 +127,16 @@ export const test = base.extend<Fixtures>({
     } finally {
       await superAdmin.venues.remove(venue.venueId as Venue['id']);
       await db.auth.signOut();
+    }
+  },
+
+  variedVenues: async ({ superAdmin }, use, testInfo) => {
+    const tag = `V${testInfo.workerIndex}${Date.now().toString(36).slice(-4)}`;
+    const venues = await createVariedVenues(superAdmin, tag);
+    try {
+      await use(venues);
+    } finally {
+      for (const venue of venues) await superAdmin.venues.remove(venue.id);
     }
   },
 
