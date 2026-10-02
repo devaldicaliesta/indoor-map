@@ -60,12 +60,14 @@ function ConnectorDetails({
               size="sm"
               variant="danger"
               disabled={remove.isPending}
+              // mutateAsync: panel ikut hilang setelah node dihapus, dan callback per-mutate
+              // tidak dipanggil lagi setelah unmount.
               onClick={() =>
-                remove.mutate(connector, {
-                  onSuccess: () =>
-                    toast.success('Konektor dihapus', { description: connector.name }),
-                  onSettled: () => setConfirming(false),
-                })
+                remove
+                  .mutateAsync(connector)
+                  .then(() => toast.success('Konektor dihapus', { description: connector.name }))
+                  .catch(() => undefined)
+                  .finally(() => setConfirming(false))
               }
             >
               Hapus dari semua lantai
