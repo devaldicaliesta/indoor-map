@@ -108,7 +108,11 @@
 - **Bergantung pada:** T-306 (dikerjakan sebelum T-307)
 - **Konteks:** Banyak task R0–R3 berstatus `review` dengan catatan "belum diuji browser (tanpa Docker)". Sebelum T-307 dimulai, semua yang sudah dibuat dibuktikan di browser dengan Playwright, bertahap per task, beserta gambar hasil pengecekan. Jalankan dengan Supabase lokal (`supabase start`, `pnpm db:reset`). Pakai Page Object yang ada di `e2e/pages/` dan agent/skill `e2e-runner` / `/ecc-e2e`.
 - **Langkah:**
-  1. Ambil daftar task berstatus `review` di `docs/PROGRESS.md`, urut per rilis (R0 → R1 → R2 → R3). Kerjakan **satu task per langkah**; jangan lanjut ke task berikutnya sebelum task saat ini lulus atau temuannya dicatat.
+  1. Mulai dari **R0 Fondasi** (T-001), lalu lanjut berurutan per rilis sesuai urutan di bawah. Kerjakan **satu task per langkah**; jangan lanjut ke task berikutnya sebelum task saat ini lulus atau temuannya dicatat. Task tanpa UI (tooling, paket, skema) cukup dibuktikan lewat efeknya di aplikasi (mis. app jalan, data tampil) dan tetap diberi screenshot.
+     - **R0 Fondasi:** T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009a, T-009b, T-010, T-011, T-012
+     - **R1 Inti peta:** T-101, T-102, T-103, T-104, T-105, T-106, T-107, T-108, T-109, T-110, T-111, T-112, T-113, T-114, T-115, T-116, T-117, T-118, T-119, T-120
+     - **R2 Navigasi:** T-201 s.d. T-217
+     - **R3 Operasional:** T-301, T-302, T-303, T-304, T-305, T-306
   2. Per task, tulis spec Playwright di `e2e/tests/verify/T-xxx-slug.spec.ts` yang mencakup:
      - **CRUD:** buat, baca (tampil di daftar/peta), ubah, hapus untuk entitas task itu; termasuk penolakan (validasi formulir, role tanpa izin ditolak server, bukan hanya tombol tersembunyi).
      - **UI/UX:** sesuai `docs/05-desain-ui.md` — teks Admin Bahasa Indonesia, Visitor ID/EN, keadaan kosong/memuat/error, umpan balik setelah simpan, fokus dan navigasi keyboard, tampilan HP (390 × 844) untuk Visitor dan desktop (1440 × 900) untuk Admin.
