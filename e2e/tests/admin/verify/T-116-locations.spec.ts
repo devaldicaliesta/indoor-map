@@ -98,10 +98,7 @@ test.describe('T-116 Lokasi dasar, kategori, tautan unit', () => {
     // Tambah: nama kosong ditolak, lalu isi dengan kategori dan unit.
     await page.getByRole('button', { name: 'Tambah lokasi' }).click();
     const sheet = page.getByRole('dialog', { name: /Tambah lokasi/ });
-    await sheet
-      .getByRole('button', { name: /Simpan|Tambah/ })
-      .last()
-      .click();
+    await sheet.getByRole('button', { name: 'Tambah lokasi', exact: true }).click();
     await expect(sheet.getByText('Nama lokasi wajib diisi.')).toBeVisible();
     await capture(page, '06-error-nama');
     await sheet.getByLabel('Nama').fill('Klinik Mata Ümmü & Optik');
@@ -119,10 +116,7 @@ test.describe('T-116 Lokasi dasar, kategori, tautan unit', () => {
       .click();
     await expect(sheet.getByRole('button', { name: 'Lepas unit GF-A05' })).toBeVisible();
     await capture(page, '02b-form-terisi');
-    await sheet
-      .getByRole('button', { name: /Simpan|Tambah/ })
-      .last()
-      .click();
+    await sheet.getByRole('button', { name: 'Tambah lokasi', exact: true }).click();
     await expect(page.getByText('Lokasi ditambahkan')).toBeVisible();
     const row = page.getByRole('row').filter({ hasText: 'Klinik Mata Ümmü & Optik' });
     await expect(row).toContainText('GF-A05');
@@ -137,10 +131,7 @@ test.describe('T-116 Lokasi dasar, kategori, tautan unit', () => {
     await row.getByRole('button', { name: 'Ubah' }).click();
     const edit = page.getByRole('dialog', { name: /Ubah|Klinik Mata/ });
     await edit.getByLabel('Nama').fill('Klinik Mata');
-    await edit
-      .getByRole('button', { name: /Simpan/ })
-      .last()
-      .click();
+    await edit.getByRole('button', { name: 'Simpan lokasi', exact: true }).click();
     await expect(page.getByText('Lokasi disimpan')).toBeVisible();
     await expect(page.getByRole('row').filter({ hasText: 'MATA-01' })).toContainText('Klinik Mata');
     await capture(page, '04-diubah');

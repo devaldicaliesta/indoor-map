@@ -24,7 +24,7 @@ test.describe('T-119 Visitor: cari, kategori, detail, A–Z', () => {
     await visitor.search.fill('RAD-01');
     await expect(visitor.results.filter({ hasText: 'Radiologi' })).toHaveCount(1);
     await visitor.search.fill('GF-A0');
-    await expect(visitor.results.first()).toBeVisible();
+    await expect(visitor.results.filter({ hasText: /GF-A0\d/ }).first()).toBeVisible();
     await page.screenshot({ path: shot('02-kode-unit') });
 
     // Detail lokasi.
@@ -51,9 +51,13 @@ test.describe('T-119 Visitor: cari, kategori, detail, A–Z', () => {
     const directory = visitor.list('Semua lokasi A–Z');
     await expect(directory).toBeVisible();
     const names = await directory
+      .getByRole('listitem')
       .getByRole('button')
-      .evaluateAll((els) => els.map((el) => el.querySelector('span')?.textContent?.trim() ?? ''));
+      .evaluateAll((els) =>
+        els.map((el) => (el as HTMLElement).innerText.split('\n')[0]?.trim() ?? ''),
+      );
     expect(names.length).toBeGreaterThan(2);
+    expect(names.every(Boolean)).toBe(true);
     expect(names).toEqual([...names].sort(collator.compare));
     await expect(directory).not.toContainText('Apotek Lama');
     await page.screenshot({ path: shot('05-direktori-az') });
