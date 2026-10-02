@@ -10,6 +10,7 @@ import {
   createDisplaySettingsRepository,
   type DisplaySettingsRepository,
 } from './repositories/display-settings';
+import { createEditLocksRepository, type EditLocksRepository } from './repositories/edit-locks';
 import {
   createFacilityTypesRepository,
   type FacilityTypesRepository,
@@ -57,6 +58,7 @@ export interface DataClient {
   closures: ClosuresRepository;
   connectors: ConnectorsRepository;
   displaySettings: DisplaySettingsRepository;
+  editLocks: EditLocksRepository;
   facilityTypes: FacilityTypesRepository;
   features: FeaturesRepository;
   floorPlans: FloorPlansRepository;
@@ -74,7 +76,8 @@ export interface DataClient {
   venues: VenuesRepository;
 }
 
-export function createRepositories(db: Db): DataClient {
+/** `endpoint` dipakai pelepasan kunci saat tab ditutup; test yang hanya memberi `db` tidak membutuhkannya. */
+export function createRepositories(db: Db, endpoint?: DataClientConfig): DataClient {
   const profiles = createProfilesRepository(db);
   return {
     audit: createAuditRepository(db),
@@ -84,6 +87,7 @@ export function createRepositories(db: Db): DataClient {
     closures: createClosuresRepository(db),
     connectors: createConnectorsRepository(db),
     displaySettings: createDisplaySettingsRepository(db),
+    editLocks: createEditLocksRepository(db, endpoint),
     facilityTypes: createFacilityTypesRepository(db),
     features: createFeaturesRepository(db),
     floorPlans: createFloorPlansRepository(db),
@@ -103,5 +107,5 @@ export function createRepositories(db: Db): DataClient {
 }
 
 export function createDataClient(config: DataClientConfig): DataClient {
-  return createRepositories(createClient<Database>(config.url, config.anonKey));
+  return createRepositories(createClient<Database>(config.url, config.anonKey), config);
 }

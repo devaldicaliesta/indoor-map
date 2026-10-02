@@ -10,6 +10,7 @@ export const AUDIT_LABELS: Record<AuditAction, string> = {
   rollback: 'Rollback',
   license_changed: 'Lisensi berubah',
   settings_changed: 'Pengaturan diubah',
+  edit_lock_taken_over: 'Kunci edit diambil alih',
 };
 
 const FAILURE_REASONS: Record<string, string> = {

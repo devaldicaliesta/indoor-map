@@ -13,6 +13,7 @@ export const AUDIT_ACTIONS = [
   'rollback',
   'license_changed',
   'settings_changed',
+  'edit_lock_taken_over',
 ] as const;
 export const AuditActionSchema = z.enum(AUDIT_ACTIONS);
 export type AuditAction = z.infer<typeof AuditActionSchema>;

@@ -4,8 +4,8 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
-**Rilis aktif:** R2 Navigasi selesai dikerjakan, menunggu review (R1 menunggu review)
-**Task berikutnya:** R3 (R2 menunggu review)
+**Rilis aktif:** R3 Operasional (R1 dan R2 menunggu review)
+**Task berikutnya:** T-303
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -77,7 +77,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
 | T-313 | Konversi denah CAD | T-105 | siap | Keputusan lisensi (disetujui 2026-10-02): DXF dikonversi dengan ezdxf (MIT) di `services/cad-converter`; DWG tidak dikonversi, Admin menolaknya dengan arahan simpan sebagai DXF/PDF dari software CAD atau DWG TrueView (gratis). ODA File Converter/SDK dan Aspose tidak dipakai (redistribusi berbayar). LibreDWG (GPLv3, proses terpisah) dipertimbangkan nanti bila klien butuh DWG langsung, setelah persetujuan legal. Kriteria "DWG terkonversi" berubah menjadi "DWG ditolak dengan arahan" |
-| T-301 | Kunci edit per lantai | R2 | menunggu | |
+| T-301 | Kunci edit per lantai | R2 | review | Migrasi 0014: `acquire_edit_lock` (ambil/perpanjang atomik, `for update`; kunci lepas setelah 30 menit tanpa aktivitas, `app.edit_lock_ttl()`), `release_edit_lock`, `take_over_edit_lock` (Super Admin, audit `edit_lock_taken_over`). Penegakan server: policy insert/update/delete `features`, `nav_nodes`, `nav_edges` kini juga mensyaratkan `app.floor_writable(floor_id)` (tidak dikunci orang lain); lantai lain tetap bebas. Editor: `useEditLock` mengambil kunci saat lantai dibuka, heartbeat tiap menit hanya bila ada aktivitas dalam 30 menit terakhir, mencoba lagi tiap menit saat dalam mode baca, melepas saat ganti lantai/keluar, dan saat tab ditutup memakai `fetch` keepalive (bukan `sendBeacon` yang tidak bisa membawa header Authorization). Banner "Sedang diedit oleh X sejak 10.12" + "Ambil alih kunci" (Super Admin). 12 pgTAP ditulis; belum dijalankan dan belum diuji browser (tanpa Docker) |
 | T-303 | Tipe lokasi dan field kustom | R2 | menunggu | |
 | T-302 | Tipe venue dan template industri | T-303 | menunggu | |
 | T-304 | Status dan jam operasional | T-303 | menunggu | |
