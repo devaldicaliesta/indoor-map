@@ -14,6 +14,7 @@ Playbook ini membawa proyek dari repo kosong sampai produk siap dijual, dalam ur
 | `04-model-data.md` | Entitas, aturan integritas, skema SQL lengkap | Task database atau `packages/data` |
 | `05-desain-ui.md` | Arah visual, token, tata letak, larangan | Task yang membuat UI |
 | `06-alur-kerja.md` | Siklus task, branch, PR, test, definisi selesai | Pertama kali; saat membuka PR |
+| `07-aturan-branch.md` | Satu branch kerja `claude/vibrant-davinci-uyrrka`, tanpa branch baru | Setiap sesi, sebelum commit |
 | `10-R0-fondasi.md` | Task T-001 s.d. T-012 | Rilis 0 |
 | `11-R1-inti-peta.md` | Task T-101 s.d. T-120 | Rilis 1 |
 | `12-R2-navigasi.md` | Task T-201 s.d. T-217 | Rilis 2 |
