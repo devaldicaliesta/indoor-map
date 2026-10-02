@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { type AuthRepository, createAuthRepository } from './auth';
 import type { Database } from './database.types';
+import { type AliasesRepository, createAliasesRepository } from './repositories/aliases';
 import { type AuditRepository, createAuditRepository } from './repositories/audit';
 import { type BuildingsRepository, createBuildingsRepository } from './repositories/buildings';
 import { type CategoriesRepository, createCategoriesRepository } from './repositories/categories';
@@ -55,6 +56,7 @@ export interface DataClientConfig {
 
 /** Pintu tunggal app ke database. Klien Supabase mentah tidak pernah diekspos. */
 export interface DataClient {
+  aliases: AliasesRepository;
   audit: AuditRepository;
   auth: AuthRepository;
   buildings: BuildingsRepository;
@@ -85,6 +87,7 @@ export interface DataClient {
 export function createRepositories(db: Db, endpoint?: DataClientConfig): DataClient {
   const profiles = createProfilesRepository(db);
   return {
+    aliases: createAliasesRepository(db),
     audit: createAuditRepository(db),
     auth: createAuthRepository(db, profiles),
     buildings: createBuildingsRepository(db),

@@ -7,6 +7,7 @@ export {
 } from './auth';
 export { createDataClient, type DataClient, type DataClientConfig } from './client';
 export { DataError, type DataErrorKind } from './errors';
+export { type AliasesRepository, aliasKey } from './repositories/aliases';
 export type { AuditRepository } from './repositories/audit';
 export type { BuildingsRepository, OutdoorLayer } from './repositories/buildings';
 export type { CategoriesRepository, CategoryWithUsage } from './repositories/categories';

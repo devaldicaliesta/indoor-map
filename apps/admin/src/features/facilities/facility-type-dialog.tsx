@@ -13,6 +13,7 @@ import {
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
 import { Field } from '../../app/components/field';
+import { AliasField, useAliasDraft } from '../aliases/alias-field';
 import { FormNotice } from '../auth/auth-layout';
 import {
   type IconChoice,
@@ -46,12 +47,14 @@ export function FacilityTypeDialog({
   const [choice, setChoice] = useState<IconChoice>(() => initialIconChoice(type?.icon ?? null));
   const [nameError, setNameError] = useState<string>();
   const [reading, setReading] = useState(false);
+  const aliases = useAliasDraft(venueId, 'facility_type', type?.id ?? null, name);
+  const [aliasError, setAliasError] = useState<string>();
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const problem = checkFacilityTypeName(name, others, type?.id ?? null)[0];
     setNameError(problem ? NAME_MESSAGES[problem] : undefined);
-    if (problem) return;
+    if (problem || aliases.error) return;
     save.mutate(
       {
         id: type?.id ?? null,
@@ -59,7 +62,13 @@ export function FacilityTypeDialog({
         iconPng: iconChoicePng(choice),
       },
       {
-        onSuccess: (saved) => {
+        onSuccess: async (saved) => {
+          try {
+            await aliases.save(saved.id);
+          } catch (error) {
+            setAliasError(error instanceof Error ? error.message : 'Alias tidak tersimpan.');
+            return;
+          }
           toast.success(type ? 'Jenis fasilitas disimpan' : 'Jenis fasilitas ditambahkan', {
             description: saved.name,
           });
@@ -113,7 +122,9 @@ export function FacilityTypeDialog({
               </label>
             }
           />
+          <AliasField id="facility-type-aliases" draft={aliases} disabled={save.isPending} />
           {save.error ? <FormNotice tone="error">{save.error.message}</FormNotice> : null}
+          {aliasError ? <FormNotice tone="error">{aliasError}</FormNotice> : null}
           <DialogFooter>
             <Button type="submit" variant="primary" disabled={save.isPending || reading}>
               {save.isPending ? 'Menyimpan…' : type ? 'Simpan jenis' : 'Tambah jenis'}
