@@ -6,6 +6,7 @@ import {
   groundFloor,
   initialMapView,
   initialViewMode,
+  linkedMapView,
   visibleFloorIds,
 } from '../src';
 import { sampleSnapshotSource } from './fixtures/snapshot-source';
@@ -71,6 +72,33 @@ describe('tampilan awal', () => {
       buildingId: null,
       floorId: outdoor?.id,
     });
+  });
+
+  it('tautan dengan lantai membuka lantai itu di gedungnya', () => {
+    const l1 = floorNamed(main?.id, 'L1');
+    expect(linkedMapView(snapshot, { floorId: l1?.id, buildingId: east?.id })).toEqual({
+      buildingId: main?.id,
+      floorId: l1?.id,
+    });
+  });
+
+  it('tautan dengan gedung saja membuka lantai default gedung itu', () => {
+    expect(linkedMapView(snapshot, { buildingId: east?.id })).toEqual({
+      buildingId: east?.id,
+      floorId: floorNamed(east?.id, 'GF')?.id,
+    });
+  });
+
+  it('lantai Area Luar dari tautan tanpa gedung', () => {
+    expect(linkedMapView(snapshot, { floorId: outdoor?.id })).toEqual({
+      buildingId: null,
+      floorId: outdoor?.id,
+    });
+  });
+
+  it('gedung atau lantai yang tidak ada diabaikan', () => {
+    expect(linkedMapView(snapshot, { buildingId: 'tidak-ada', floorId: 'tidak-ada' })).toBeNull();
+    expect(linkedMapView(snapshot, {})).toBeNull();
   });
 
   it('mode 3D hanya bila fitur 3d ada di snapshot', () => {

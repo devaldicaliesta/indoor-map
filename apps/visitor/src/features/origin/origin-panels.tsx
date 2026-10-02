@@ -11,7 +11,12 @@ export function useOriginName(): string | null {
   const origin = useExploreStore((s) => s.origin);
   if (!origin) return null;
   const view = originView(snapshot, index, origin);
-  if (!view) return null;
+  // Lokasi tanpa unit di peta tetap disebut namanya; alasan gagal rute tampil terpisah.
+  if (!view) {
+    return origin.kind === 'location'
+      ? (index.locations.get(origin.locationId)?.name ?? null)
+      : null;
+  }
   return view.name ?? t('origin.mapPoint');
 }
 

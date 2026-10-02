@@ -4,6 +4,7 @@ import {
   buildingView,
   initialMapView,
   initialViewMode,
+  linkedMapView,
   type MapView,
   mapLabels,
   type Snapshot,
@@ -30,6 +31,7 @@ import { PEEK_HEIGHT_PX } from '../../components/sheet-snap';
 import { useClosureMap } from '../closures/use-closure-map';
 import { useOriginMap } from '../origin/use-origin-map';
 import { useRouteMap } from '../route/use-route-map';
+import { useExplore } from '../search/explore-context';
 import { BuildingPicker } from './building-picker';
 import {
   type CameraPadding,
@@ -80,7 +82,11 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
   paddingRef.current = padding;
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [map, setMap] = useState<MapInstance | null>(null);
-  const initialView = useMemo(() => initialMapView(snapshot), [snapshot]);
+  const { link } = useExplore();
+  const initialView = useMemo(
+    () => (link && linkedMapView(snapshot, link)) ?? initialMapView(snapshot),
+    [snapshot, link],
+  );
   const [view, setView] = useState<MapView>(initialView);
   const [mode, setMode] = useState<SnapshotDisplayMode>(() => initialViewMode(snapshot));
   const [bearing, setBearing] = useState(0);

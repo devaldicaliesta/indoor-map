@@ -177,7 +177,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-210 · Template instruksi — Ubah template instruksi ID/EN, pratinjau, kembali ke bawaan → `e2e/evidence/T-210/`
 - [x] T-211 · Penutupan dan role Operator — CRUD penutupan oleh Operator; Operator tidak bisa mengubah peta → `e2e/evidence/T-211/`
 - [x] T-212 · QR titik asal — CRUD titik asal + unduh QR; QR membuka Visitor di titik itu → `e2e/evidence/T-212/`
-- [ ] T-213 · Spesifikasi deep link — Deep link lokasi/rute/bahasa terbuka dengan keadaan benar → `e2e/evidence/T-213/`
+- [x] T-213 · Spesifikasi deep link — Deep link lokasi/rute/bahasa terbuka dengan keadaan benar → `e2e/evidence/T-213/`
 - [ ] T-214 · Visitor: titik asal — Visitor: pilih "Anda di sini" (QR, ketuk peta, daftar) → `e2e/evidence/T-214/`
 - [ ] T-215 · Visitor: rute dan instruksi — Visitor: rute + langkah + lintas lantai + aksesibel → `e2e/evidence/T-215/`
 - [ ] T-216 · Visitor: penutupan live — Penutupan baru muncul di Visitor tanpa muat ulang; rute dihitung ulang → `e2e/evidence/T-216/`
