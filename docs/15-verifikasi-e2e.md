@@ -152,7 +152,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-108 · Editor: kanvas, alat gambar, draft — Gambar poligon/garis/titik, draft tersimpan, simpan/buang → `e2e/evidence/T-108/`
 - [x] T-109 · Jenis fitur dan atribut unit — Ubah jenis fitur dan atribut unit (kode, status, tinggi); kode ganda ditolak → `e2e/evidence/T-109/`
 - [x] T-110 · Edit geometri, multi-select, snapping — Edit titik, multi-select, snapping, hapus fitur → `e2e/evidence/T-110/`
-- [ ] T-111 · Undo/redo — Undo/redo lewat tombol dan keyboard → `e2e/evidence/T-111/`
+- [x] T-111 · Undo/redo — Undo/redo lewat tombol dan keyboard → `e2e/evidence/T-111/`
 - [ ] T-112 · Fasilitas dan jenis fasilitas — CRUD fasilitas dan jenis fasilitas (ikon), fasilitas keselamatan → `e2e/evidence/T-112/`
 - [ ] T-113 · Panel daftar fitur — Panel daftar fitur: cari, pilih → peta fokus → `e2e/evidence/T-113/`
 - [ ] T-114 · Validasi geometri — Validasi geometri: temuan tampil, klik menuju fitur → `e2e/evidence/T-114/`
