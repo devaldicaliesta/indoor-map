@@ -144,7 +144,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 
 - [x] T-101 · Venue dan multi-venue — CRUD venue (buat lewat wizard, ubah, hapus), pindah venue, logo → `e2e/evidence/T-101/`
 - [x] T-102 · Gedung dan Area Luar — CRUD gedung + footprint; Area Luar tidak bisa dihapus → `e2e/evidence/T-102/`
-- [ ] T-103 · Lantai dan default tampilan — CRUD lantai, urutan level, lantai default → `e2e/evidence/T-103/`
+- [x] T-103 · Lantai dan default tampilan — CRUD lantai, urutan level, lantai default → `e2e/evidence/T-103/`
 - [ ] T-104 · Fondasi peta (map-core) — Peta tampil, zoom/rotasi/2D–3D, kontrol peta → `e2e/evidence/T-104/`
 - [ ] T-105 · Unggah denah PNG/JPG/PDF — Unggah PNG/JPG/PDF (pilih halaman), riwayat versi, tipe salah ditolak → `e2e/evidence/T-105/`
 - [ ] T-106 · Georeferensi dan opasitas — Georeferensi: geser, ukuran, rotasi, kalibrasi jarak, opasitas, simpan → `e2e/evidence/T-106/`
