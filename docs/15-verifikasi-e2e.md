@@ -54,6 +54,14 @@ Prinsip yang dipakai selama pengujian:
    - Daftar dan tabel: minimal 20–50 baris (lokasi, pengguna per role, kategori, penutupan, titik asal) sehingga gulir, pencarian, filter, dan urutan teruji; sertakan nama panjang, aksen/emoji, dan status campuran (aktif, segera buka, nonaktif).
    - Peta: lantai berisi puluhan unit dengan kode, warna per jenis, label, dan rute lintas lantai agar 2D/3D dan rute tampak nyata.
    - Data tambahan dibuat lewat fixture/repository di test (bukan `seed.sql` produksi) dan dihapus setelah test; tetap tanpa istilah industri di kode.
+   - **Variasi data** (setiap venue/daftar mencampur beberapa nilai, bukan satu jenis saja):
+     - Venue: tipe template berbeda (rumah sakit, kampus, perkantoran, bandara/stasiun, pabrik/gudang, pusat perbelanjaan, lainnya), zona waktu WIB/WITA/WIT, bahasa bawaan ID dan EN, dengan/tanpa logo, branding warna berbeda (terang, gelap, bawaan).
+     - Gedung dan lantai: satu gedung vs banyak gedung, lantai basement (level negatif), lantai default berbeda, lantai kosong, Area Luar berisi jalan/taman/parkir.
+     - Peta: semua jenis fitur (unit, koridor, dinding, pintu, lift, eskalator naik/turun, tangga, pintu keluar, non-akses, area luar, fasilitas, fasilitas keselamatan), status unit terisi/kosong/renovasi, tinggi dan warna override, denah PNG/JPG/PDF/DXF.
+     - Lokasi: semua status (aktif, segera buka dengan tanggal, nonaktif sementara, nonaktif permanen), satu dan dua unit, tanpa unit, keenam jenis field kustom terisi/kosong, jam operasional (biasa, 24 jam, lewat tengah malam, libur, tanggal khusus), kategori dan alias, logo/foto.
+     - Navigasi: edge aksesibel dan tidak, lift yang tidak melayani semua lantai, penutupan aktif/terjadwal/berakhir, beberapa titik asal QR dengan arah hadap berbeda.
+     - Pengguna: kelima role, aktif/nonaktif/terkunci, nama panjang dan beraksen.
+     - Teks: nama sangat pendek dan sangat panjang (batas maksimum), huruf beraksen (é, ü), emoji, angka di awal, karakter khusus (`&`, `'`, `<`), ID dan EN.
    - Ambil gambar keadaan kosong **dan** keadaan terisi penuh untuk layar yang sama.
 7. Ambil gambar **setelah layar siap**: tunggu elemen/teks hasil (`toBeVisible`, `toHaveAttribute('data-ready', 'true')`), jangan `waitForTimeout`. Peta Visitor punya `data-testid="venue-map"` dengan `data-ready`; peta georeferensi `georef-map`.
 8. Periksa setiap gambar dengan mata (bukan hanya lulus test): teks terpotong, elemen tumpang tindih, garis/ikon tak terlihat, warna kontras rendah dicatat sebagai temuan.
