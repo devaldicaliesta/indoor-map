@@ -61,7 +61,7 @@ export function linkedMapView(
 ): MapView | null {
   const floor = snapshot.floors.find((f) => f.id === link.floorId);
   if (floor) return { buildingId: floor.buildingId, floorId: floor.id };
-  if (snapshot.buildings.some((b) => b.id === link.buildingId) && link.buildingId) {
+  if (link.buildingId && snapshot.buildings.some((b) => b.id === link.buildingId)) {
     return buildingView(snapshot, link.buildingId);
   }
   return null;

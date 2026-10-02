@@ -47,13 +47,18 @@ test.describe('T-217 Visitor: bagikan', () => {
     await route.getByRole('checkbox', { name: /Accessible route/ }).check();
     await route.getByRole('button', { name: 'Share' }).click();
     const routeUrl = await lastShared(page);
-    expect(routeUrl).toMatch(/[?&]from=.*&to=.*&a11y=1&lang=en/);
+    const params = new URL(routeUrl).searchParams;
+    expect(params.get('from')).toBeTruthy();
+    expect(params.get('to')).toBeTruthy();
+    expect(params.get('a11y')).toBe('1');
+    expect(params.get('lang')).toBe('en');
     await page.screenshot({ path: shot('01-bagikan-rute') });
 
     // Perangkat lain (konteks baru, tanpa penyimpanan): keadaan sama.
     const other = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     const otherPage = await other.newPage();
     await otherPage.goto(routeUrl);
+    await expect(otherPage.locator('html')).toHaveAttribute('lang', 'en');
     const otherRoute = otherPage.getByRole('region', { name: 'Route' });
     await expect(otherRoute.getByRole('definition').first()).toHaveText('GF-B08');
     await expect(otherRoute.getByRole('definition').nth(1)).toHaveText('L1-B08');
@@ -74,9 +79,12 @@ test.describe('T-217 Visitor: bagikan', () => {
     await visitor.results.filter({ hasText: 'Radiologi' }).first().click();
     await visitor.profile.getByRole('button', { name: 'Share' }).click();
     const locationUrl = await lastShared(page);
-    expect(locationUrl).toMatch(/[?&]loc=/);
+    expect(new URL(locationUrl).searchParams.get('loc')).toBeTruthy();
     await otherPage.goto(locationUrl);
-    await expect(otherPage.locator('article')).toContainText('Radiologi');
+    await expect(new VisitorPage(otherPage).profile).toContainText('Radiologi');
+    await expect(
+      new VisitorPage(otherPage).profile.getByRole('button', { name: 'Directions to here' }),
+    ).toBeVisible();
     await otherPage.screenshot({ path: shot('03-lokasi-di-perangkat-lain') });
     await other.close();
 

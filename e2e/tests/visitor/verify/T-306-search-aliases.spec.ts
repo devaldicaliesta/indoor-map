@@ -49,12 +49,17 @@ test.describe('T-306 Alias pencarian', () => {
     };
 
     const visitor = new VisitorPage(page);
-    const found = async (query: string, name: string) => {
+    /** Hasil cari `query` yang memuat `name`; status hasil ditunggu dulu agar daftar sudah sesuai. */
+    const results = async (query: string, name: string) => {
       await visitor.goto(venueId);
       await visitor.search.fill(query);
       await expect(page.getByText(/^\d+ hasil$|^Tidak ada hasil untuk/).first()).toBeVisible();
-      return visitor.results.filter({ hasText: name }).count();
+      return visitor.results.filter({ hasText: name });
     };
+    const expectFound = async (query: string, name: string) =>
+      expect(await results(query, name)).not.toHaveCount(0);
+    const expectMissing = async (query: string, name: string) =>
+      expect(await results(query, name)).toHaveCount(0);
 
     // Tambah alias lokasi dan alias jenis fasilitas.
     await admin.goto('/locations');
@@ -70,27 +75,27 @@ test.describe('T-306 Alias pencarian', () => {
       .toEqual(expect.arrayContaining(['Rontgen', 'sinar tembus', 'WC', 'kamar kecil']));
 
     // Belum publish: Visitor belum mengenal alias.
-    expect(await found('sinar tembus', 'Radiologi')).toBe(0);
-    expect(await found('kamar kecil', 'Toilet')).toBe(0);
+    await expectMissing('sinar tembus', 'Radiologi');
+    await expectMissing('kamar kecil', 'Toilet');
     await superAdmin.publications.publish(venueId);
-    expect(await found('sinar tembus', 'Radiologi')).toBe(1);
+    await expectFound('sinar tembus', 'Radiologi');
     await page.screenshot({ path: shot('02-cari-alias-lokasi') });
-    expect(await found('kamar kecil', 'Toilet')).toBeGreaterThan(0);
+    await expectFound('kamar kecil', 'Toilet');
     await page.screenshot({ path: shot('03-cari-alias-fasilitas') });
 
     // Ubah alias: "sinar tembus" diganti "pemindaian".
     await admin.goto('/locations');
     await editAliases('Radiologi', 'Ubah Radiologi', 'Rontgen, pemindaian', 'Simpan lokasi');
     await superAdmin.publications.publish(venueId);
-    expect(await found('pemindaian', 'Radiologi')).toBe(1);
-    expect(await found('sinar tembus', 'Radiologi')).toBe(0);
+    await expectFound('pemindaian', 'Radiologi');
+    await expectMissing('sinar tembus', 'Radiologi');
 
     // Hapus semua alias lokasi.
     await editAliases('Radiologi', 'Ubah Radiologi', '', 'Simpan lokasi');
     await expect.poll(aliases).not.toContain('Rontgen');
     await superAdmin.publications.publish(venueId);
-    expect(await found('rontgen', 'Radiologi')).toBe(0);
-    expect(await found('pemindaian', 'Radiologi')).toBe(0);
+    await expectMissing('rontgen', 'Radiologi');
+    await expectMissing('pemindaian', 'Radiologi');
     await page.screenshot({ path: shot('04-alias-dihapus') });
     await adminContext.close();
   });

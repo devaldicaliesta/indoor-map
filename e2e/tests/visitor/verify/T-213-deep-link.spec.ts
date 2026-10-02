@@ -1,4 +1,4 @@
-import type { Venue } from '@indoor/domain';
+import { linkedMapView, type Venue } from '@indoor/domain';
 import { expect, test } from '../../../fixtures';
 import { VisitorPage } from '../../../pages/visitor-page';
 
@@ -66,6 +66,9 @@ test.describe('T-213 Spesifikasi deep link', () => {
     if (!east) throw new Error('Gedung Timur tidak ada di snapshot');
     await open(`b=${east.id}`);
     await expect(page.getByRole('combobox', { name: 'Gedung' })).toHaveText('Gedung Timur');
+    // Gedung Timur satu lantai: pemilih lantai tidak tampil, lantai yang dibuka lantai gedung itu.
+    expect(linkedMapView(snapshot, { buildingId: east.id })?.buildingId).toBe(east.id);
+    await expect(visitor.floors.getByRole('button')).toHaveCount(0);
 
     // Parameter rusak dibuang satu per satu; sisanya tetap dipakai.
     await open(`loc=bukan-uuid&lang=xx&a11y=2&f=${floorL1.id}`);
