@@ -6,6 +6,7 @@ import {
   instructionText,
   type RouteStep,
   roundStepDistance,
+  unknownPlaceholders,
 } from '../src';
 import { DEFAULT_TEMPLATES } from './fixtures/instruction-templates';
 import { BUILDINGS, FLOORS, m } from './fixtures/route-legs';
@@ -105,6 +106,20 @@ describe('instructionText', () => {
       'building',
       'origin',
       'destination',
+    ]);
+  });
+});
+
+describe('unknownPlaceholders', () => {
+  it('menemukan placeholder yang tidak dikenal atau tidak tersedia untuk aksinya', () => {
+    expect(unknownPlaceholders('straight', 'Jalan {distance} m ke {destination}')).toEqual([]);
+    expect(unknownPlaceholders('turn_left', 'Belok kiri {distance} m')).toEqual(['distance']);
+    expect(unknownPlaceholders('arrive', 'Tiba di {tujuan} {} {tujuan}')).toEqual(['tujuan', '']);
+    expect(unknownPlaceholders('start', 'Mulai tanpa placeholder')).toEqual([]);
+    // Spasi atau tanda lain di dalam kurung tidak diganti instructionText, jadi ikut ditolak.
+    expect(unknownPlaceholders('elevator_up', 'Naik ke { floor } {lantai-2}')).toEqual([
+      ' floor ',
+      'lantai-2',
     ]);
   });
 });

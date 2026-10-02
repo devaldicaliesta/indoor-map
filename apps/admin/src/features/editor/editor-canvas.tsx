@@ -1,5 +1,5 @@
 import type { FloorFeatures } from '@indoor/data';
-import type { FacilityType, FloorId, VenueId } from '@indoor/domain';
+import type { ClosureTarget, FacilityType, FloorId, VenueId } from '@indoor/domain';
 import {
   buildSnapIndex,
   type Corners,
@@ -9,11 +9,9 @@ import {
   type FeatureEditor,
   featureBounds,
   focusFeature,
-  graphElementAt,
   type LngLat,
   type MapDisplay,
   type MapInstance,
-  PICK_TOLERANCE_PX,
   type SnapIndex,
   setFacilityIcons,
   setFloorData,
@@ -26,16 +24,19 @@ import {
 } from '@indoor/map-core';
 import { type MapControlLabels, MapControls } from '@indoor/ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useClosureDialog } from '../closures/closure-dialog-store';
 import { facilityIconSpecs } from '../facilities/icons';
+import { closureTargetAt, interceptCanvasClick } from './canvas-clicks';
 import { useConnectorDialog } from './connectors/connector-dialog-store';
+import { useConnectors } from './connectors/queries';
 import { EntranceLayer } from './graph/entrance-layer';
-import { useEntranceStore } from './graph/entrance-store';
 import { GraphLayer } from './graph/graph-layer';
 import { GraphLegend } from './graph/graph-legend';
 import { useGraphStatus } from './graph/graph-status';
 import { graphSnapFeatures } from './graph/graph-views';
 import { ReferenceLayer } from './reference-layer';
 import { featureList, singleSelected, useEditorStore } from './store/editor-store';
+import { RouteLayer } from './test-route/route-layer';
 import type { EditorSession } from './use-editor-session';
 import { ValidationOverlay } from './validation-overlay';
 
@@ -43,6 +44,12 @@ export interface PlanBackground {
   imageUrl: string;
   corners: Corners;
   opacity: number;
+}
+
+interface ClosureMenu {
+  x: number;
+  y: number;
+  target: ClosureTarget;
 }
 
 const FALLBACK_CENTER: LngLat = [106.8272, -6.1754];
@@ -71,6 +78,7 @@ export function EditorCanvas({
   facilityTypes,
   issueFeatureIds,
   display,
+  canManageClosures,
   onCursor,
 }: {
   venueId: VenueId;
@@ -80,6 +88,8 @@ export function EditorCanvas({
   /** Tinggi dan warna venue agar pratinjau 3D sesuai pengaturan. */
   display: MapDisplay;
   canEdit: boolean;
+  /** Klik kanan elemen membuka "Tutup sementara" (Admin dan Operator). */
+  canManageClosures: boolean;
   plan: PlanBackground | null;
   center: LngLat | null;
   referenceFloorId: FloorId | null;
@@ -108,6 +118,12 @@ export function EditorCanvas({
   onCursorRef.current = onCursor;
   const initialCenter = useRef(center ?? FALLBACK_CENTER);
   const graphStatus = useGraphStatus(venueId);
+  const connectors = useConnectors(venueId).data;
+  const connectorsRef = useRef(connectors ?? []);
+  connectorsRef.current = connectors ?? [];
+  const canCloseRef = useRef(canManageClosures);
+  canCloseRef.current = canManageClosures;
+  const [menu, setMenu] = useState<ClosureMenu | null>(null);
 
   useEffect(() => {
     if (!container.current) return;
@@ -137,6 +153,14 @@ export function EditorCanvas({
     });
     instance.on('mouseout', () => onCursorRef.current(null));
     instance.on('rotate', () => setBearing(instance.getBearing()));
+    instance.on('contextmenu', (e) => {
+      if (!canCloseRef.current) return;
+      e.preventDefault();
+      const target = closureTargetAt(instance, e.point, connectorsRef.current);
+      setMenu(target ? { x: e.point.x, y: e.point.y, target } : null);
+    });
+    instance.on('movestart', () => setMenu(null));
+    instance.on('click', () => setMenu(null));
     instance.once('load', () => {
       editor.current = createFeatureEditor(instance, {
         onDraw: (geometry) => sessionRef.current.draw(geometry),
@@ -149,19 +173,8 @@ export function EditorCanvas({
         onDrawPath: (coordinates) => sessionRef.current.graph.drawPath(coordinates),
         onPlaceConnector: (at) => useConnectorDialog.getState().openNew(at),
         onPickGraph: (element) => useEditorStore.getState().selectGraph(element),
-        // Menyambung titik masuk manual: klik berikutnya di jalur membuat titik masuknya.
-        interceptClick: (at, point) => {
-          const entrances = useEntranceStore.getState();
-          if (!entrances.linkingId) return false;
-          if (!graphElementAt(instance, point, PICK_TOLERANCE_PX + 2)) {
-            entrances.setLinkingMessage('Klik tepat pada garis jalur.');
-          } else if (sessionRef.current.graph.linkEntrance(entrances.linkingId, at)) {
-            entrances.stopLinking();
-          } else {
-            entrances.setLinkingMessage('Titik masuk tidak bisa dibuat di sini.');
-          }
-          return true;
-        },
+        interceptClick: (at, point) =>
+          interceptCanvasClick(instance, sessionRef.current, at, point),
         snap: {
           enabled: () => useEditorStore.getState().snapEnabled,
           // Jalur menempel ke node dan edge graf; alat lain ke fitur lantai.
@@ -290,7 +303,29 @@ export function EditorCanvas({
       <ReferenceLayer map={map} floorId={referenceFloorId} />
       <GraphLayer map={map} session={session} canEdit={canEdit} status={graphStatus} />
       <EntranceLayer map={map} />
+      <RouteLayer map={map} />
       <ValidationOverlay map={map} featureIds={issueFeatureIds} />
+      {menu ? (
+        <div
+          role="menu"
+          className="absolute z-10 rounded-sm bg-surface p-1 shadow-(--shadow-float)"
+          style={{ left: menu.x, top: menu.y }}
+        >
+          <button
+            type="button"
+            role="menuitem"
+            ref={(button) => button?.focus()}
+            className="rounded-sm px-3 py-1.5 text-left cursor-pointer hover:bg-canvas focus-visible:bg-canvas"
+            onKeyDown={(e) => (e.key === 'Escape' ? setMenu(null) : null)}
+            onClick={() => {
+              useClosureDialog.getState().open(menu.target);
+              setMenu(null);
+            }}
+          >
+            Tutup sementara
+          </button>
+        </div>
+      ) : null}
       <MapControls
         className="absolute right-3 bottom-3"
         labels={CONTROL_LABELS}

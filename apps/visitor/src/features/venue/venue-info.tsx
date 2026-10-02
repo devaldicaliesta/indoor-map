@@ -1,4 +1,4 @@
-import type { Snapshot } from '@indoor/domain';
+import { brandDisplayName, type Snapshot } from '@indoor/domain';
 import {
   cn,
   Dialog,
@@ -41,7 +41,9 @@ export function VenueInfo({ snapshot, className }: { snapshot: Snapshot; classNa
       </DialogTrigger>
       <DialogContent closeLabel={t('info.close')}>
         <DialogHeader>
-          <DialogTitle>{snapshot.venue.name}</DialogTitle>
+          <DialogTitle>
+            {brandDisplayName(snapshot.venue.name, snapshot.venue.branding)}
+          </DialogTitle>
           <DialogDescription>{t('info.description')}</DialogDescription>
         </DialogHeader>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">

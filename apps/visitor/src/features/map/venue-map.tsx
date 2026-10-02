@@ -27,6 +27,9 @@ import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '../../app/use-media-query';
 import { DESKTOP_QUERY, MOBILE_HEADER_PX } from '../../app/visitor-shell';
 import { PEEK_HEIGHT_PX } from '../../components/sheet-snap';
+import { useClosureMap } from '../closures/use-closure-map';
+import { useOriginMap } from '../origin/use-origin-map';
+import { useRouteMap } from '../route/use-route-map';
 import { BuildingPicker } from './building-picker';
 import {
   type CameraPadding,
@@ -99,6 +102,9 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
     padding,
     isDesktop,
   });
+  useOriginMap({ map, snapshot, view, setView, padding, isDesktop });
+  useRouteMap({ map, snapshot, view, setView, padding, isDesktop });
+  useClosureMap(map, snapshot, floorIds);
   const labels = useMemo(
     () => mapLabels(snapshot, floorIds, labelIds),
     [snapshot, floorIds, labelIds],

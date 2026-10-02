@@ -1,0 +1,3 @@
+# Semua berlisensi permisif: ezdxf (MIT), Pillow (MIT-CMU), numpy (BSD-3), fonttools (MIT).
+ezdxf==1.4.4
+pillow==12.3.0

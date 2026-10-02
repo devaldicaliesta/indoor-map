@@ -38,6 +38,8 @@ export function toSystemSettingsUpdate(
 
 export interface SystemSettingsRepository {
   get(): Promise<SystemSettings>;
+  /** URL publik Visitor untuk QR; bisa dibaca semua staf, tidak seperti pengaturan lainnya. */
+  publicVisitorUrl(): Promise<string | null>;
   update(patch: SystemSettingsPatch): Promise<SystemSettings>;
   /** Password SMTP ada di Vault; nilainya tidak pernah dikirim ke klien. */
   smtpPasswordIsSet(): Promise<boolean>;
@@ -51,6 +53,11 @@ export interface SystemSettingsRepository {
 // terlihat atau tidak berubah selalu berarti pengguna tidak berhak.
 export function createSystemSettingsRepository(db: Db): SystemSettingsRepository {
   return {
+    async publicVisitorUrl() {
+      const { data, error } = await db.rpc('public_visitor_url');
+      if (error) throw toDataError(error);
+      return data || null;
+    },
     async get() {
       const { data, error } = await db
         .from('system_settings')

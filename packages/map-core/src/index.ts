@@ -54,6 +54,12 @@ export {
   type GraphInteractionOptions,
   type GraphNodeDrag,
 } from './graph-interactions';
+export {
+  CLOSURE_LAYER_IDS,
+  type ClosureMarks,
+  closureCollection,
+  setClosureMarks,
+} from './layers/closures';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
 export {
   type GraphEdgeView,
@@ -100,6 +106,12 @@ export {
 } from './layers/labels';
 export { MUTED_LAYER_IDS, mutedLayers, setMutedFeatures } from './layers/muted';
 export {
+  ORIGIN_LAYER_IDS,
+  type OriginMarker,
+  originCollection,
+  setOriginMarkers,
+} from './layers/origin';
+export {
   REFERENCE_LAYER_IDS,
   REFERENCE_OPACITY,
   type ReferenceFloor,
@@ -107,6 +119,14 @@ export {
   setReferenceFloor,
   VERTICAL_CONNECTOR_KINDS,
 } from './layers/reference';
+export {
+  ROUTE_COLOR,
+  ROUTE_LAYER_IDS,
+  type RouteView,
+  routeCollection,
+  routeLayers,
+  setRoute,
+} from './layers/route';
 export { ISSUE_COLOR, ISSUE_LAYER_IDS, setIssueHighlight } from './layers/validation';
 export {
   type CreateMapOptions,
@@ -123,6 +143,7 @@ export {
 } from './map';
 export {
   createTapInteractions,
+  floorFeatureAt,
   type MapPick,
   PICK_TOLERANCE_PX,
   pickAt,

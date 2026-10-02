@@ -16,8 +16,11 @@
   --danger: #c8321e;
   --ok: #12805c;
   --warn: #b26a00; /* hanya elemen non-teks: 4,24:1 di atas --surface */
-  /* Teks di atas --route dan --danger; --signal selalu memakai --ink. */
+  /* Teks di atas --route dan --danger */
   --on-strong: #ffffff;
+  /* Teks di atas --signal dan --route; branding venue bisa menggantinya (apply-branding.ts) */
+  --on-signal: var(--ink);
+  --on-route: var(--on-strong);
 
   /* Bentuk */
   --float-shadow: 0 1px 2px rgb(0 0 0 / 0.12), 0 4px 12px rgb(0 0 0 / 0.08);

@@ -12,6 +12,7 @@ describe('AUDIT_ACTIONS', () => {
       'rollback',
       'license_changed',
       'settings_changed',
+      'edit_lock_taken_over',
     ]);
   });
 

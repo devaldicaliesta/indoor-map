@@ -1,3 +1,5 @@
+import { parseBranding } from './branding.ts';
+import { hasOpeningHours, type OpeningHours } from './hours.ts';
 /**
  * Builder snapshot dari data draft venue. Dijalankan Edge Function `publish` di Deno, jadi
  * hanya mengimpor modul tanpa dependensi dengan ekstensi `.ts` (lihat `snapshot.ts`).
@@ -42,11 +44,12 @@ const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const MAX_HEIGHT_M = 100;
 
 const round = (value: number) => Math.round(value * SCALE) / SCALE;
-const roundPosition = (p: readonly number[]): SnapshotPosition => [
+/** Posisi dengan presisi snapshot (7 desimal). */
+export const snapshotPosition = (p: readonly number[]): SnapshotPosition => [
   round(p[0] ?? 0),
   round(p[1] ?? 0),
 ];
-const roundRing = (ring: readonly (readonly number[])[]) => ring.map(roundPosition);
+const roundRing = (ring: readonly (readonly number[])[]) => ring.map(snapshotPosition);
 const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -56,7 +59,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 export function snapshotGeometry(geometry: SnapshotGeometry): SnapshotGeometry {
   switch (geometry.type) {
     case 'Point':
-      return { type: 'Point', coordinates: roundPosition(geometry.coordinates) };
+      return { type: 'Point', coordinates: snapshotPosition(geometry.coordinates) };
     case 'LineString':
       return { type: 'LineString', coordinates: roundRing(geometry.coordinates) };
     case 'Polygon':
@@ -90,7 +93,7 @@ function toCamera(value: unknown): SnapshotCamera | null {
   if (!numbers.every((n) => typeof n === 'number' && Number.isFinite(n))) return null;
   const [cLng, cLat, zoom, pitch, bearing] = numbers as number[];
   return {
-    center: roundPosition([cLng ?? 0, cLat ?? 0]),
+    center: snapshotPosition([cLng ?? 0, cLat ?? 0]),
     zoom: zoom ?? 0,
     pitch: pitch ?? 0,
     bearing: bearing ?? 0,
@@ -112,6 +115,7 @@ function toVenue(source: SnapshotSource): SnapshotVenue {
       heights: pickKinds(display?.heights, isHeight),
       colors: pickKinds(display?.colors, isColor),
     },
+    branding: parseBranding(display?.branding),
   };
 }
 
@@ -182,6 +186,19 @@ function toLocation(l: SourceLocation, visibleKeys: ReadonlySet<string>): Snapsh
     logoPath: l.logoPath,
     photoPaths: [...l.photoPaths],
     fields,
+    hours: hasOpeningHours(l.hours) ? sortedHours(l.hours) : null,
+  };
+}
+
+/** Tanggal khusus berurutan agar snapshot yang sama menghasilkan berkas yang sama. */
+function sortedHours(hours: OpeningHours): OpeningHours {
+  return {
+    weekly: hours.weekly.map((spans) => [...spans]),
+    special: Object.fromEntries(
+      Object.keys(hours.special)
+        .sort()
+        .map((date) => [date, [...(hours.special[date] ?? [])]]),
+    ),
   };
 }
 
@@ -198,7 +215,8 @@ function toLocationType(t: SourceLocationType): SnapshotLocationType {
   };
 }
 
-function toInstructionTemplates(
+/** Template per aksi untuk ke-15 aksi; aksi tanpa baris berisi teks kosong. */
+export function snapshotInstructionTemplates(
   rows: SnapshotSource['instructionTemplates'],
 ): Record<InstructionAction, InstructionText> {
   const byAction = new Map(rows.map((r) => [r.action, r]));
@@ -210,12 +228,16 @@ function toInstructionTemplates(
   return templates;
 }
 
-function toGraph(graph: SnapshotSource['graph']): SnapshotGraph {
+/**
+ * Graf snapshot: urut id dan koordinat node 7 desimal. Uji rute Admin memakai fungsi yang sama
+ * untuk graf draft agar hasilnya sama dengan rute pengunjung setelah publish.
+ */
+export function snapshotGraph(graph: SnapshotSource['graph']): SnapshotGraph {
   return {
     nodes: [...graph.nodes].sort(byId).map((n) => ({
       id: n.id,
       floorId: n.floorId,
-      coordinates: roundPosition(n.coordinates),
+      coordinates: snapshotPosition(n.coordinates),
       role: n.role,
       featureId: n.featureId,
     })),
@@ -238,12 +260,12 @@ function toGraph(graph: SnapshotSource['graph']): SnapshotGraph {
   };
 }
 
-function toOriginPoint(o: SnapshotOriginPoint): SnapshotOriginPoint {
+export function snapshotOriginPoint(o: SnapshotOriginPoint): SnapshotOriginPoint {
   return {
     id: o.id,
     floorId: o.floorId,
     name: o.name,
-    coordinates: roundPosition(o.coordinates),
+    coordinates: snapshotPosition(o.coordinates),
     headingDeg: o.headingDeg,
     nodeId: o.nodeId,
     code: o.code,
@@ -256,7 +278,7 @@ function toInfoPoint(p: SnapshotInfoPoint): SnapshotInfoPoint {
     code: p.code,
     name: p.name,
     floorId: p.floorId,
-    coordinates: roundPosition(p.coordinates),
+    coordinates: snapshotPosition(p.coordinates),
     headingDeg: p.headingDeg,
     defaultMode: p.defaultMode,
     force2d: p.force2d,
@@ -287,7 +309,8 @@ export function buildSnapshot(source: SnapshotSource): Snapshot {
   const searchableKeys = new Map(
     locationTypes.map((t) => [
       t.id,
-      new Set(t.fields.filter((f) => f.isSearchable).map((f) => f.key)),
+      // Field tersembunyi tidak masuk indeks pencarian publik walau ditandai dapat dicari.
+      new Set(t.fields.filter((f) => f.isSearchable && f.isVisible).map((f) => f.key)),
     ]),
   );
   const locations = source.locations
@@ -332,9 +355,9 @@ export function buildSnapshot(source: SnapshotSource): Snapshot {
       aliases: source.aliases,
       searchableKeys,
     }),
-    graph: toGraph(source.graph),
-    instructionTemplates: toInstructionTemplates(source.instructionTemplates),
-    originPoints: [...source.originPoints].sort(byId).map(toOriginPoint),
+    graph: snapshotGraph(source.graph),
+    instructionTemplates: snapshotInstructionTemplates(source.instructionTemplates),
+    originPoints: [...source.originPoints].sort(byId).map(snapshotOriginPoint),
     infoPoints: [...source.infoPoints].sort(byId).map(toInfoPoint),
     enabledFeatures: [...new Set(source.enabledFeatures)].sort(),
   };

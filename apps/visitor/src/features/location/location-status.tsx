@@ -2,6 +2,7 @@ import type { SnapshotLocation } from '@indoor/domain';
 import { StatusDot } from '@indoor/ui';
 import { useTranslation } from 'react-i18next';
 import { intlLocale } from '../../i18n';
+import { OpenStatus } from './open-status';
 
 /** Tanggal `YYYY-MM-DD` apa adanya, tanpa geser zona waktu. */
 function formatDate(date: string, language: string | undefined): string {
@@ -14,14 +15,14 @@ function formatDate(date: string, language: string | undefined): string {
 }
 
 /**
- * Status lokasi yang perlu diketahui pengunjung: segera buka (dengan tanggalnya) atau tutup
- * sementara. Lokasi aktif tidak diberi label; buka/tutup menurut jam operasional menyusul di T-304.
+ * Status lokasi yang perlu diketahui pengunjung: segera buka (dengan tanggalnya), tutup
+ * sementara, atau buka/tutup menurut jam operasional. Lokasi aktif tanpa jadwal tidak diberi label.
  */
 export function LocationStatus({
   location,
   className,
 }: {
-  location: Pick<SnapshotLocation, 'status' | 'openingDate'>;
+  location: Pick<SnapshotLocation, 'status' | 'openingDate' | 'hours'>;
   className?: string;
 }) {
   const { t, i18n } = useTranslation();
@@ -43,5 +44,5 @@ export function LocationStatus({
       </StatusDot>
     );
   }
-  return null;
+  return location.hours ? <OpenStatus hours={location.hours} className={className} /> : null;
 }

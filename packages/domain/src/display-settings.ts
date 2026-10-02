@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Branding } from './branding';
 import type { FeatureKind } from './feature';
 import type { VenueId } from './ids';
 
@@ -58,6 +59,7 @@ export interface DisplaySettings {
   /** Warna per jenis `#rrggbb`; jenis yang tidak disebut memakai warna default. */
   colors: Partial<Record<ColorKind, string>>;
   camera: CameraView | null;
+  branding: Branding;
 }
 
 export type DisplaySettingsPatch = Partial<Omit<DisplaySettings, 'venueId'>>;

@@ -46,11 +46,22 @@ export function pickAt(map: MapLibreMap, point: { x: number; y: number }): MapPi
   return id ? { layer: 'floor', id } : null;
 }
 
+/**
+ * Fitur lantai teratas di titik layar, termasuk koridor dan Area Luar yang tidak bisa diketuk
+ * pengunjung. Dipakai Admin untuk memilih area yang ditutup sementara.
+ */
+export function floorFeatureAt(map: MapLibreMap, point: { x: number; y: number }): string | null {
+  const layers = [...FLOOR_PICK_LAYERS, LAYER_IDS.flat].filter((id) => map.getLayer(id));
+  if (!layers.length) return null;
+  const [hit] = map.queryRenderedFeatures([point.x, point.y], { layers });
+  return idOf(hit?.properties);
+}
+
 export interface TapInteractionOptions {
   /** Sasaran yang membuka sesuatu; kursor berubah menjadi penunjuk di atasnya. */
   isTarget(pick: MapPick): boolean;
-  /** Ketukan atau klik (bukan geser); `null` bila tidak mengenai apa pun. */
-  onTap(pick: MapPick | null): void;
+  /** Ketukan atau klik (bukan geser); `null` bila tidak mengenai apa pun. `at` = [lng, lat]. */
+  onTap(pick: MapPick | null, at: [number, number]): void;
 }
 
 /** Ketuk untuk membuka detail, dan kursor penunjuk di atas sasaran pada perangkat bertetikus. */
@@ -58,7 +69,8 @@ export function createTapInteractions(
   map: MapLibreMap,
   options: TapInteractionOptions,
 ): { destroy(): void } {
-  const onClick = (e: MapMouseEvent) => options.onTap(pickAt(map, e.point));
+  const onClick = (e: MapMouseEvent) =>
+    options.onTap(pickAt(map, e.point), [e.lngLat.lng, e.lngLat.lat]);
   const onMove = (e: MapMouseEvent) => {
     const pick = pickAt(map, e.point);
     map.getCanvas().style.cursor = pick && options.isTarget(pick) ? 'pointer' : '';

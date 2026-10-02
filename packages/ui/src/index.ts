@@ -25,3 +25,11 @@ export {
 export { cn } from './lib/utils';
 export { Pictogram, pictogramSvg } from './pictograms/pictogram';
 export { PICTOGRAM_SHAPES, type PictogramPart } from './pictograms/shapes';
+export {
+  applyBranding,
+  BRAND_DEFAULTS,
+  brandingTokens,
+  type ContrastCheck,
+  primaryTextCheck,
+  routeLineCheck,
+} from './theme/apply-branding';

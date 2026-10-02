@@ -1,3 +1,4 @@
+import type { OpeningHours } from './hours.ts';
 /**
  * Data draft venue yang menjadi masukan builder snapshot. Dimuat Edge Function `publish`
  * di Deno, jadi hanya mengimpor tipe dengan ekstensi `.ts` (lihat `snapshot.ts`).
@@ -54,7 +55,9 @@ export interface SourceLocationType extends Omit<SnapshotLocationType, 'fields'>
   fields: readonly SourceField[];
 }
 
-export interface SourceLocation extends Omit<SnapshotLocation, 'status' | 'fields'> {
+export interface SourceLocation extends Omit<SnapshotLocation, 'status' | 'fields' | 'hours'> {
+  /** Jadwal dari tabel `opening_hours`; jadwal kosong tidak diterbitkan. */
+  hours: OpeningHours;
   status: SnapshotLocationStatus | 'inactive_permanent';
   /** Isi kolom `custom_fields` apa adanya. */
   customFields: Readonly<Record<string, unknown>>;
@@ -73,7 +76,13 @@ export interface SnapshotSource {
   defaultLanguage: SnapshotLanguage;
   enabledFeatures: readonly string[];
   venue: Omit<SnapshotVenue, 'defaultLanguage' | 'camera' | 'display'>;
-  display: { defaultMode: string; heights: unknown; colors: unknown; camera: unknown } | null;
+  display: {
+    defaultMode: string;
+    heights: unknown;
+    colors: unknown;
+    camera: unknown;
+    branding: unknown;
+  } | null;
   buildings: readonly (SnapshotBuilding & Ordered)[];
   floors: readonly (SnapshotFloor & Ordered)[];
   features: readonly SourceFeature[];

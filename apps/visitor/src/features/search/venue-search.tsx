@@ -21,7 +21,13 @@ export function openHit(hit: SearchHit, store: StoreApi<ExploreState>) {
 }
 
 /** Kolom cari venue: hasil dicari di perangkat dari indeks snapshot, tanpa server. */
-export function VenueSearch({ className }: { className?: string }) {
+export function VenueSearch({
+  className,
+  placeholder,
+}: {
+  className?: string;
+  placeholder?: string | undefined;
+}) {
   const { store, search } = useExplore();
   const [text, setText] = useState(() => store.getState().query);
   const debounced = useDebouncedValue(text.trim(), SEARCH_DEBOUNCE_MS);
@@ -58,6 +64,7 @@ export function VenueSearch({ className }: { className?: string }) {
   return (
     <SearchField
       className={className}
+      placeholder={placeholder}
       value={text}
       onValueChange={setText}
       onKeyDown={onKeyDown}

@@ -1,5 +1,6 @@
 import type { FacilityIcon } from './facility';
 import type { UnitStatus } from './feature';
+import type { OpeningHours } from './hours';
 import type {
   BuildingId,
   CategoryId,
@@ -11,6 +12,7 @@ import type {
 } from './ids';
 import { checkUniqueName, type NameProblem, sortByOrder } from './names';
 import { normalizeSearchText } from './search';
+import type { SnapshotFieldValue } from './snapshot';
 
 /** Sama dengan enum `location_status` di migrasi 0001. Status diubah lewat T-304. */
 export const LOCATION_STATUSES = [
@@ -102,6 +104,11 @@ export interface Location {
   status: LocationStatus;
   categoryIds: CategoryId[];
   units: LocationUnit[];
+  /** Nilai field kustom per kunci (`locations.custom_fields`). */
+  customFields: Record<string, SnapshotFieldValue>;
+  /** Tanggal `YYYY-MM-DD` untuk status segera buka. */
+  openingDate: string | null;
+  hours: OpeningHours;
 }
 
 /** Lokasi yang menempati sebuah unit (panel properti unit di editor). */
@@ -119,6 +126,27 @@ export interface LocationInput {
   unitIds: FeatureId[];
   /** Unit utama; tanpa pilihan, unit pertama yang menjadi utama. */
   primaryUnitId: FeatureId | null;
+  /** Nilai field kustom tipe lokasinya, sudah divalidasi `parseCustomFieldInputs`. */
+  customFields: Record<string, SnapshotFieldValue>;
+  status: LocationStatus;
+  /** Wajib untuk status segera buka; diabaikan untuk status lain. */
+  openingDate: string | null;
+  hours: OpeningHours;
+}
+
+/**
+ * Unit yang menjadi kosong bila lokasi ini dinonaktifkan permanen: unit yang tidak ditempati
+ * lokasi aktif lain.
+ */
+export function unitsLeftEmpty(
+  locationId: string | null,
+  unitIds: readonly string[],
+  units: readonly Pick<VenueUnit, 'featureId' | 'unitCode' | 'holders'>[],
+): string[] {
+  return units
+    .filter((u) => unitIds.includes(u.featureId))
+    .filter((u) => !u.holders.some((h) => h.locationId !== locationId))
+    .map((u) => u.unitCode);
 }
 
 export const LOCATION_NAME_MAX = 120;

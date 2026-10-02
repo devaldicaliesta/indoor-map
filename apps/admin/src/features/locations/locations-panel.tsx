@@ -25,12 +25,13 @@ import { TriangleAlertIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Can, useRole } from '../../app/auth/can';
+import { ImportDialog } from '../import/import-dialog';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
 import { DeleteLocationDialog } from './delete-location-dialog';
 import { buildingNames, floorNames, LOCATION_STATUS_LABELS, LOCATION_STATUS_TONE } from './labels';
 import { LocationFilters } from './location-filters';
 import { LocationSheet } from './location-sheet';
-import { useCategories, useDefaultLocationType, useLocations, useVenueUnits } from './queries';
+import { useCategories, useLocations, useLocationTypes, useVenueUnits } from './queries';
 
 const PAGE_SIZE = 50;
 
@@ -84,7 +85,9 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
   const canEdit = role !== null && can(role, 'location.edit');
   const locations = useLocations(venueId);
   const categories = useCategories(venueId);
-  const type = useDefaultLocationType(venueId);
+  const types = useLocationTypes(venueId);
+  const [importing, setImporting] = useState(false);
+  const typeName = (id: string) => types.data?.find((t) => t.id === id)?.name ?? '';
   const units = useVenueUnits(venueId);
   const buildings = useBuildings(venueId);
   const outdoorName = useOutdoorLayer(venueId).data?.name ?? 'Area Luar';
@@ -116,9 +119,12 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
           />
         </div>
         <Can action="location.edit">
+          <Button disabled={!types.data?.length} onClick={() => setImporting(true)}>
+            Import
+          </Button>
           <Button
             variant="primary"
-            disabled={!type.data}
+            disabled={!types.data?.length}
             onClick={() => setOpen({ kind: 'form', location: null, unitId: null })}
           >
             Tambah lokasi
@@ -164,7 +170,7 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
                         <span className="block text-ink-muted text-sm">{categoryText}</span>
                       ) : null}
                     </TableCell>
-                    <TableCell>{type.data?.name ?? 'Lokasi'}</TableCell>
+                    <TableCell>{typeName(location.locationTypeId)}</TableCell>
                     <TableCell>
                       {buildingNames(location.units, outdoorName).join(', ') || '—'}
                     </TableCell>
@@ -229,11 +235,11 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
           </div>
         </>
       )}
-      {open?.kind === 'form' && type.data ? (
+      {open?.kind === 'form' && types.data ? (
         <LocationSheet
           key={open.location?.id ?? `new-${open.unitId ?? ''}`}
           venueId={venueId}
-          typeId={type.data.id}
+          types={types.data}
           location={open.location}
           initialUnitId={open.unitId}
           readOnly={!canEdit}
@@ -243,6 +249,9 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
           outdoorName={outdoorName}
           onClose={() => setOpen(null)}
         />
+      ) : null}
+      {importing && types.data ? (
+        <ImportDialog venueId={venueId} types={types.data} onClose={() => setImporting(false)} />
       ) : null}
       {open?.kind === 'delete' ? (
         <DeleteLocationDialog

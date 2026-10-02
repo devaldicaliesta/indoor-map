@@ -10,13 +10,16 @@ export function BottomSheet({
   children,
   snap: controlledSnap,
   onSnapChange,
+  initialSnap = 'peek',
 }: {
   children: ReactNode;
+  /** Tinggi awal bila tidak dikendalikan halaman. */
+  initialSnap?: SheetSnap;
   snap?: SheetSnap | undefined;
   onSnapChange?: ((snap: SheetSnap) => void) | undefined;
 }) {
   const { t } = useTranslation();
-  const [ownSnap, setOwnSnap] = useState<SheetSnap>('peek');
+  const [ownSnap, setOwnSnap] = useState<SheetSnap>(initialSnap);
   const snap = controlledSnap ?? ownSnap;
   const setSnap = (next: SheetSnap) => {
     setOwnSnap(next);

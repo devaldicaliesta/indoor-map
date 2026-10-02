@@ -10,7 +10,7 @@ const badgeVariants = cva(
         neutral: 'border-line bg-surface text-ink',
         signal: 'border-signal bg-signal-soft text-ink',
         danger: 'border-danger bg-danger text-on-strong',
-        route: 'border-route bg-route text-on-strong',
+        route: 'border-route bg-route text-on-route',
       },
     },
     defaultVariants: { variant: 'neutral' },

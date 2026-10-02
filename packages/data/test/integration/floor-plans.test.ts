@@ -113,5 +113,30 @@ describe.runIf(url && anonKey && serviceKey)('denah lantai (Supabase lokal)', ()
         source: new File(['MZ'], 'setup.exe', { type: 'application/x-msdownload' }),
       }),
     ).rejects.toMatchObject({ kind: 'invalid' });
+
+    // DXF: berkas asli disimpan sebagai image/vnd.dxf, raster PNG dipakai di peta.
+    const dxf = new File(['0\nSECTION\n0\nEOF\n'], 'denah.dxf', { type: '' });
+    await expect(data.floorPlans.upload(floor.id, { source: dxf })).rejects.toMatchObject({
+      kind: 'invalid',
+    });
+    const cad = await data.floorPlans.upload(floor.id, {
+      source: dxf,
+      raster: new Blob([PNG], { type: 'image/png' }),
+      cadLayers: ['DINDING', 'PINTU'],
+      naturalWidthM: 42.5,
+    });
+    expect(cad).toMatchObject({
+      isActive: true,
+      sourceFormat: 'dxf',
+      cadLayers: ['DINDING', 'PINTU'],
+      naturalWidthM: 42.5,
+    });
+    expect(cad.sourcePath).toMatch(/-source\.dxf$/);
+    expect(cad.rasterPath).toMatch(/-raster\.png$/);
+    await expect(
+      data.floorPlans.upload(floor.id, {
+        source: new File(['AC1032'], 'denah.dwg', { type: '' }),
+      }),
+    ).rejects.toMatchObject({ kind: 'invalid', message: expect.stringContaining('DXF atau PDF') });
   });
 });

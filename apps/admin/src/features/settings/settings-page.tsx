@@ -5,7 +5,9 @@ import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
 import { FacilityTypesPanel } from '../facilities/facility-types-panel';
 import { AuditLog } from './audit-log';
+import { BrandingPanel } from './branding/branding-settings';
 import { DisplaySettingsPanel } from './display/display-settings';
+import { InstructionsPanel } from './instructions/instructions-panel';
 import { SystemSettingsForm } from './system-settings-form';
 
 export function SettingsPage() {
@@ -21,6 +23,8 @@ export function SettingsPage() {
             <TabsList>
               <TabsTrigger value="facility-types">Jenis fasilitas</TabsTrigger>
               <TabsTrigger value="display">Tampilan</TabsTrigger>
+              <TabsTrigger value="branding">Branding</TabsTrigger>
+              <TabsTrigger value="instructions">Instruksi</TabsTrigger>
               {system ? <TabsTrigger value="system">Sistem</TabsTrigger> : null}
               {system ? <TabsTrigger value="audit">Catatan</TabsTrigger> : null}
             </TabsList>
@@ -41,6 +45,26 @@ export function SettingsPage() {
                 <EmptyState
                   title="Belum ada venue"
                   description="Buat venue di menu Venue untuk mengatur tampilannya."
+                />
+              )}
+            </TabsContent>
+            <TabsContent value="branding">
+              {venue ? (
+                <BrandingPanel venueId={venue.id} />
+              ) : (
+                <EmptyState
+                  title="Belum ada venue"
+                  description="Buat venue di menu Venue untuk mengatur branding-nya."
+                />
+              )}
+            </TabsContent>
+            <TabsContent value="instructions">
+              {venue ? (
+                <InstructionsPanel venueId={venue.id} />
+              ) : (
+                <EmptyState
+                  title="Belum ada venue"
+                  description="Buat venue di menu Venue untuk mengatur teks instruksinya."
                 />
               )}
             </TabsContent>

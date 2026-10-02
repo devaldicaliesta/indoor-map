@@ -35,6 +35,7 @@ export function GeoreferenceMap({
   const container = useRef<HTMLDivElement>(null);
   const georef = useRef<Georeferencer | null>(null);
   const [map, setMap] = useState<MapInstance | null>(null);
+  const [ready, setReady] = useState(false);
   const start = useRef(state.placement);
   const onChange = useRef(state.change);
   onChange.current = state.change;
@@ -79,6 +80,8 @@ export function GeoreferenceMap({
       editable,
       onChange: (next) => onChange.current(next),
     });
+    // Penanda untuk test E2E: denah sudah tergambar di peta.
+    map.once('idle', () => setReady(true));
     return () => {
       georef.current?.destroy();
       georef.current = null;
@@ -111,7 +114,12 @@ export function GeoreferenceMap({
 
   return (
     <>
-      <div ref={container} className="size-full" data-testid="georef-map" />
+      <div
+        ref={container}
+        className="size-full"
+        data-testid="georef-map"
+        data-ready={ready ? 'true' : undefined}
+      />
       <ReferenceLayer map={map} floorId={referenceFloorId} beforeId={GEOREF_LAYER_IDS.frameHit} />
     </>
   );

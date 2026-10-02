@@ -3,8 +3,8 @@ import type { FloorId, FloorPlanId } from './ids';
 export const FLOOR_PLAN_FORMATS = ['png', 'jpg', 'pdf', 'dwg', 'dxf'] as const;
 export type FloorPlanFormat = (typeof FLOOR_PLAN_FORMATS)[number];
 
-/** Format yang bisa diunggah sekarang; DWG/DXF menunggu konversi CAD (T-313). */
-export type UploadableFloorPlanFormat = Extract<FloorPlanFormat, 'png' | 'jpg' | 'pdf'>;
+/** DWG tidak bisa diunggah: konverternya berlisensi berbayar (keputusan T-313). */
+export type UploadableFloorPlanFormat = Exclude<FloorPlanFormat, 'dwg'>;
 
 /** Batas yang sama ditegakkan bucket Storage. */
 export const MAX_FLOOR_PLAN_BYTES = 50 * 1024 * 1024;
@@ -19,6 +19,10 @@ export interface FloorPlan {
   /** Gambar yang ditampilkan di peta: raster PDF, atau file asli untuk PNG/JPG. */
   rasterPath: string | null;
   pdfPage: number | null;
+  /** Layer DXF yang dirender; kosong untuk gambar dan PDF. */
+  cadLayers: string[];
+  /** Lebar gambar sebenarnya (m) dari satuan berkas CAD; skala awal georeferensi. */
+  naturalWidthM: number | null;
   /** Sudut TL, TR, BR, BL sebagai [lng, lat]; kosong sebelum georeferensi. */
   corners: [number, number][] | null;
   opacity: number;
@@ -26,18 +30,24 @@ export interface FloorPlan {
   createdAt: string;
 }
 
-export type FloorPlanFileProblem = 'empty' | 'too_large' | 'cad_later' | 'unsupported_type';
+export type FloorPlanFileProblem = 'empty' | 'too_large' | 'dwg_unsupported' | 'unsupported_type';
 
 const MIME_FORMATS: Record<string, UploadableFloorPlanFormat> = {
   'image/png': 'png',
   'image/jpeg': 'jpg',
   'application/pdf': 'pdf',
+  // Tidak ada MIME resmi untuk DXF; browser dan OS mengirim salah satu dari ini.
+  'image/vnd.dxf': 'dxf',
+  'application/dxf': 'dxf',
+  'image/x-dxf': 'dxf',
+  'application/octet-stream': 'dxf',
 };
 const EXTENSION_FORMATS: Record<string, UploadableFloorPlanFormat> = {
   png: 'png',
   jpg: 'jpg',
   jpeg: 'jpg',
   pdf: 'pdf',
+  dxf: 'dxf',
 };
 
 const extensionOf = (name: string) => name.split('.').pop()?.toLowerCase() ?? '';
@@ -56,13 +66,35 @@ export function checkFloorPlanFile(file: {
   size: number;
 }): FloorPlanFileCheck {
   const extension = extensionOf(file.name);
-  if (extension === 'dwg' || extension === 'dxf') return { ok: false, problem: 'cad_later' };
+  if (extension === 'dwg') return { ok: false, problem: 'dwg_unsupported' };
   const byExtension = EXTENSION_FORMATS[extension];
   const byMime = file.type ? MIME_FORMATS[file.type] : byExtension;
   if (!byExtension || byMime !== byExtension) return { ok: false, problem: 'unsupported_type' };
   if (file.size === 0) return { ok: false, problem: 'empty' };
   if (file.size > MAX_FLOOR_PLAN_BYTES) return { ok: false, problem: 'too_large' };
   return { ok: true, format: byExtension };
+}
+
+/** Denah lebih lebar dari ini hampir pasti salah satuan (misalnya milimeter tercatat meter). */
+const MAX_NATURAL_WIDTH_M = 10_000;
+
+/**
+ * Lebar gambar DXF dalam meter dari batas gambar `[minX, minY, maxX, maxY]` dan faktor satuan
+ * berkas; `null` bila berkas tanpa satuan atau hasilnya tidak masuk akal.
+ */
+export function naturalWidthM(
+  extents: readonly number[] | null,
+  metersPerUnit: number | null,
+): number | null {
+  if (!extents || extents.length !== 4 || !metersPerUnit) return null;
+  const width = ((extents[2] ?? 0) - (extents[0] ?? 0)) * metersPerUnit;
+  if (!(width > 0) || width > MAX_NATURAL_WIDTH_M) return null;
+  return Math.round(width * 1000) / 1000;
+}
+
+/** Layer yang dicentang saat DXF dibuka: semua yang berisi gambar. */
+export function defaultCadLayers(layers: readonly { name: string; entities: number }[]): string[] {
+  return layers.filter((layer) => layer.entities > 0).map((layer) => layer.name);
 }
 
 /**

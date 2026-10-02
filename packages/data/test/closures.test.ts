@@ -1,6 +1,10 @@
 import type { VenueId } from '@indoor/domain';
 import { describe, expect, it } from 'vitest';
-import { createClosuresRepository, mapClosureRow } from '../src/repositories/closures';
+import {
+  createClosuresRepository,
+  mapClosureRow,
+  toClosureInsert,
+} from '../src/repositories/closures';
 import type { Db } from '../src/supabase';
 
 const row = {
@@ -54,5 +58,26 @@ describe('penutupan', () => {
     expect(calls).toContainEqual(['from', 'closures']);
     expect(calls).toContainEqual(['eq', 'venue_id', venueId]);
     expect(calls).toContainEqual(['or', 'ends_at.is.null,ends_at.gt."2026-10-01T10:00:00.000Z"']);
+  });
+});
+
+describe('penutupan baru', () => {
+  it('sasaran mengisi tepat satu kolom; alasan dirapikan', () => {
+    expect(
+      toClosureInsert('10000000-0000-4000-8000-000000000001' as VenueId, {
+        target: { kind: 'connector', id: 'k' },
+        reason: '  Perawatan lift ',
+        startsAt: '2026-10-01T08:00:00Z',
+        endsAt: null,
+      }),
+    ).toEqual({
+      venue_id: '10000000-0000-4000-8000-000000000001',
+      feature_id: null,
+      edge_id: null,
+      connector_id: 'k',
+      reason: 'Perawatan lift',
+      starts_at: '2026-10-01T08:00:00Z',
+      ends_at: null,
+    });
   });
 });

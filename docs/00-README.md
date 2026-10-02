@@ -13,12 +13,15 @@ Playbook ini membawa proyek dari repo kosong sampai produk siap dijual, dalam ur
 | `03-arsitektur.md` | Struktur paket, aliran data, snapshot, routing, portabilitas | Task yang menyentuh lebih dari satu paket |
 | `04-model-data.md` | Entitas, aturan integritas, skema SQL lengkap | Task database atau `packages/data` |
 | `05-desain-ui.md` | Arah visual, token, tata letak, larangan | Task yang membuat UI |
-| `06-alur-kerja.md` | Siklus task, branch, PR, test, definisi selesai | Pertama kali; saat membuka PR |
+| `06-alur-kerja.md` | Siklus task, PR, test, definisi selesai (aturan branch: lihat `07`) | Pertama kali; saat membuka PR |
+| `07-aturan-branch.md` | Satu branch kerja `claude/vibrant-davinci-uyrrka`, tanpa branch baru | Setiap sesi, sebelum commit |
 | `10-R0-fondasi.md` | Task T-001 s.d. T-012 | Rilis 0 |
 | `11-R1-inti-peta.md` | Task T-101 s.d. T-120 | Rilis 1 |
 | `12-R2-navigasi.md` | Task T-201 s.d. T-217 | Rilis 2 |
-| `13-R3-operasional.md` | Task T-301 s.d. T-313 | Rilis 3 |
+| ~~`13-R3-operasional.md`~~ | Dihapus; status task R3 tetap di `PROGRESS.md`, spesifikasi T-307 s.d. T-313 ada di riwayat git | Rilis 3 |
 | `14-R4-komersial.md` | Task T-401 s.d. T-412 | Rilis 4 |
+| `16-test-case.md` | Katalog test case QA: fungsi, CRUD, UI/UX, keamanan, NFR | Sebelum dan selama T-307a |
+| `15-verifikasi-e2e.md` | T-307a: verifikasi E2E CRUD & UI/UX semua task `review` | Sebelum T-307 |
 | `spec/` | Spesifikasi lengkap (FR, user flow, proses bisnis, kriteria penerimaan) — sumber kebenaran perilaku | Saat task menyebut ID FR dan butuh detail |
 | `PROGRESS.md` | Status setiap task, pertanyaan terbuka, catatan keputusan | Awal dan akhir setiap sesi |
 | `templates/task.md` | Format task baru | Saat menambah task |
@@ -37,10 +40,10 @@ Task di rilis berikutnya tidak dimulai sebelum gerbang rilis sebelumnya lolos, k
 
 ## Cara memakai dengan agen (Claude Code)
 
-Satu sesi = satu task. Perintah pembuka yang disarankan:
+Satu sesi = satu task, di branch `claude/vibrant-davinci-uyrrka` (tanpa branch baru). Task berikutnya T-307a:
 
 ```
-/kerjakan-task T-101
+/kerjakan-task T-307a
 ```
 
 Perintah itu (didefinisikan di `.claude/commands/kerjakan-task.md`) membuat agen membaca `PROGRESS.md`, task yang diminta, dan dokumen yang dirujuk task, lalu mengerjakan dan menutupnya sesuai `06-alur-kerja.md`.
@@ -48,7 +51,7 @@ Perintah itu (didefinisikan di `.claude/commands/kerjakan-task.md`) membuat agen
 Tanpa slash command, gunakan:
 
 ```
-Kerjakan T-101 dari docs/11-R1-inti-peta.md. Ikuti CLAUDE.md dan docs/06-alur-kerja.md.
+Kerjakan T-307a dari docs/15-verifikasi-e2e.md. Ikuti CLAUDE.md dan docs/07-aturan-branch.md.
 Baca hanya dokumen yang dirujuk task. Selesai jika semua kriteria tercentang dan pnpm check hijau.
 ```
 
@@ -58,8 +61,8 @@ Baca hanya dokumen yang dirujuk task. Selesai jika semua kriteria tercentang dan
 | --- | --- |
 | Membuat repo, menyambungkan ke Claude | Menulis kode, migrasi, test |
 | `supabase start`, `pnpm install`, `npx shadcn add` bila agen tidak bisa menjalankan Docker | Menjalankan `pnpm check` |
-| Uji visual dan uji manual di browser | Memperbaiki berdasarkan laporan error Anda |
-| Review diff dan merge PR | Memperbarui `PROGRESS.md` |
+| Memeriksa screenshot di `e2e/evidence/` | Uji E2E Playwright + screenshot, memperbaiki berdasarkan laporan error Anda |
+| Review diff di `claude/vibrant-davinci-uyrrka` dan merge ke `main` | Memperbarui `PROGRESS.md` |
 | Keputusan produk (menjawab "Pertanyaan terbuka") | Mengusulkan opsi beserta dampaknya |
 
 Lingkungan cloud sering tidak bisa menjalankan Docker atau mengakses internet bebas. Jika `supabase start` gagal di sana, agen menulis migrasi dan test untuk paket murni, lalu Anda menjalankan database dan aplikasi di laptop.

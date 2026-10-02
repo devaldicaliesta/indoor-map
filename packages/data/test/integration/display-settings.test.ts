@@ -54,6 +54,7 @@ describe.runIf(url && anonKey && serviceKey)('pengaturan tampilan (Supabase loka
       heights: { unit: 4, wall: 5, corridor: 0, outdoor_area: 0 },
       colors: {},
       camera: null,
+      branding: { displayName: null, primaryColor: null, routeColor: null },
     });
 
     const camera = {
@@ -77,5 +78,14 @@ describe.runIf(url && anonKey && serviceKey)('pengaturan tampilan (Supabase loka
     ).rejects.toMatchObject({ kind: 'forbidden' });
 
     expect((await admin.displaySettings.update(venue.id, { camera: null })).camera).toBeNull();
+
+    const branding = { displayName: 'RS Kenari', primaryColor: '#0b1f4d', routeColor: null };
+    expect((await admin.displaySettings.update(venue.id, { branding })).branding).toEqual(branding);
+    expect((await editor.displaySettings.get(venue.id)).branding).toEqual(branding);
+    await expect(
+      editor.displaySettings.update(venue.id, {
+        branding: { ...branding, displayName: 'Bukan Editor' },
+      }),
+    ).rejects.toMatchObject({ kind: 'forbidden' });
   });
 });

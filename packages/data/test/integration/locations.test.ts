@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { FeatureId, FloorId, LocationInput, Polygon, VenueId } from '@indoor/domain';
+import { EMPTY_OPENING_HOURS } from '@indoor/domain';
 import { createClient } from '@supabase/supabase-js';
 import { afterAll, describe, expect, it } from 'vitest';
 import { createRepositories, type DataClient } from '../../src/client';
@@ -122,6 +123,10 @@ describe.runIf(url && anonKey && serviceKey)('lokasi dan kategori (Supabase loka
       code: '',
       name: 'Lokasi',
       description: '',
+      customFields: {},
+      status: 'active',
+      openingDate: null,
+      hours: EMPTY_OPENING_HOURS,
       categoryIds: [],
       unitIds: [],
       primaryUnitId: null,

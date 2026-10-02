@@ -1,0 +1,656 @@
+
+> indoor-nav@ check /home/user/indoor-map
+> turbo run typecheck lint test
+
+
+   • turbo 2.11.5
+   • Packages in scope: //, @indoor/admin, @indoor/data, @indoor/domain, @indoor/e2e, @indoor/map-core, @indoor/routing, @indoor/ui, @indoor/visitor
+   • Running typecheck, lint, test in 9 packages
+   • Remote caching disabled
+
+//:lint: cache bypass, force executing cb96ccb53bfbe463
+@indoor/admin:lint: cache hit, replaying logs 23be85642574c112
+@indoor/e2e:lint: cache hit, replaying logs 28f9e76e692ec416
+@indoor/admin:lint: 
+@indoor/admin:lint: > @indoor/admin@0.0.0 lint /home/user/indoor-map/apps/admin
+@indoor/e2e:lint: 
+@indoor/admin:lint: > biome check .
+@indoor/admin:lint: 
+@indoor/admin:lint: src/features/locations/location-sheet.tsx:3:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━
+@indoor/admin:lint: 
+@indoor/admin:lint:   ! Several of these imports are unused.
+@indoor/admin:lint:   
+@indoor/admin:lint:      1 │ import type { CategoryWithUsage } from '@indoor/data';
+@indoor/admin:lint:      2 │ import {
+@indoor/admin:lint:    > 3 │   type CategoryId,
+@indoor/admin:lint:        │   ^^^^^^^^^^^^^^^^
+@indoor/admin:lint:    > 4 │   checkLocationInput,
+@indoor/admin:lint:         ...
+@indoor/admin:lint:   > 14 │   type LocationType,
+@indoor/admin:lint:   > 15 │   type LocationTypeId,
+@indoor/admin:lint:        │   ^^^^^^^^^^^^^^^^^^^
+@indoor/admin:lint:     16 │   type OpeningHours,
+@indoor/admin:lint:     17 │   parseCustomFieldInputs,
+@indoor/admin:lint:   
+@indoor/admin:lint:   i Unused imports might be the result of an incomplete refactoring.
+@indoor/admin:lint:   
+@indoor/admin:lint:   i Unsafe fix: Remove the unused imports.
+@indoor/admin:lint:   
+@indoor/admin:lint:       1   1 │   import type { CategoryWithUsage } from '@indoor/data';
+@indoor/admin:lint:       2   2 │   import {
+@indoor/admin:lint:       3     │ - ··type·CategoryId,
+@indoor/admin:lint:       4   3 │     checkLocationInput,
+@indoor/admin:lint:       5   4 │     checkOpeningHours,
+@indoor/admin:lint:       6     │ - ··customFieldInput,
+@indoor/admin:lint:       7   5 │     EMPTY_OPENING_HOURS,
+@indoor/admin:lint:       8   6 │     type FeatureId,
+@indoor/admin:lint:       9     │ - ··keepFieldsOf,
+@indoor/admin:lint:      10   7 │     LOCATION_DESCRIPTION_MAX,
+@indoor/admin:lint:      11   8 │     type Location,
+@indoor/admin:lint:     ······· │ 
+@indoor/admin:lint:      13  10 │     type LocationStatus,
+@indoor/admin:lint:      14  11 │     type LocationType,
+@indoor/admin:lint:      15     │ - ··type·LocationTypeId,
+@indoor/admin:lint:      16  12 │     type OpeningHours,
+@indoor/admin:lint:      17  13 │     parseCustomFieldInputs,
+@indoor/admin:lint:   
+@indoor/admin:lint: 
+@indoor/admin:lint: src/features/locations/location-sheet.tsx:25:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+@indoor/admin:lint: 
+@indoor/admin:lint:   ! Several of these imports are unused.
+@indoor/admin:lint:   
+@indoor/admin:lint:     23 │   Button,
+@indoor/admin:lint:     24 │   Input,
+@indoor/admin:lint:   > 25 │   Select,
+@indoor/admin:lint:        │   ^^^^^^^
+@indoor/admin:lint:   > 26 │   SelectContent,
+@indoor/admin:lint:   > 27 │   SelectItem,
+@indoor/admin:lint:   > 28 │   SelectTrigger,
+@indoor/admin:lint:   > 29 │   SelectValue,
+@indoor/admin:lint:        │   ^^^^^^^^^^^
+@indoor/admin:lint:     30 │   Sheet,
+@indoor/admin:lint:     31 │   SheetContent,
+@indoor/admin:lint:   
+@indoor/admin:lint:   i Unused imports might be the result of an incomplete refactoring.
+@indoor/admin:lint:   
+@indoor/admin:lint:   i Unsafe fix: Remove the unused imports.
+@indoor/admin:lint:   
+@indoor/admin:lint:      23  23 │     Button,
+@indoor/admin:lint:      24  24 │     Input,
+@indoor/admin:lint:      25     │ - ··Select,
+@indoor/admin:lint:      26     │ - ··SelectContent,
+@indoor/admin:lint:      27     │ - ··SelectItem,
+@indoor/admin:lint:      28     │ - ··SelectTrigger,
+@indoor/admin:lint:      29     │ - ··SelectValue,
+@indoor/admin:lint:      30  25 │     Sheet,
+@indoor/admin:lint:      31  26 │     SheetContent,
+@indoor/admin:lint:   
+@indoor/admin:lint: 
+@indoor/admin:lint: src/features/locations/location-sheet.tsx:43:29 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+@indoor/admin:lint: 
+@indoor/admin:lint:   ! Several of these imports are unused.
+@indoor/admin:lint:   
+@indoor/admin:lint:     41 │ import { FormNotice } from '../auth/auth-layout';
+@indoor/admin:lint:     42 │ import { CategoryChecklist } from './category-checklist';
+@indoor/admin:lint:   > 43 │ import { CustomFieldInputs, type FieldDraft } from './custom-field-inputs';
+@indoor/admin:lint:        │                             ^^^^^^^^^^^^^^^
+@indoor/admin:lint:     44 │ import { HoursEditor } from './hours-editor';
+@indoor/admin:lint:     45 │ import { codeMessage, NAME_MESSAGES } from './labels';
+@indoor/admin:lint:   
+@indoor/admin:lint:   i Unused imports might be the result of an incomplete refactoring.
+@indoor/admin:lint:   
+@indoor/admin:lint:   i Unsafe fix: Remove the unused imports.
+@indoor/admin:lint:   
+@indoor/admin:lint:     43 │ import·{·CustomFieldInputs,·type·FieldDraft·}·from·'./custom-field-inputs';
+@indoor/admin:lint:        │                             ----------------                               
+@indoor/admin:lint: 
+@indoor/admin:lint: Checked 211 files in 914ms. No fixes applied.
+@indoor/admin:lint: Found 3 warnings.
+@indoor/domain:test: cache miss, executing ca8a817aec8fad56
+@indoor/ui:test: cache hit, replaying logs 76df7b4a5bace935
+@indoor/ui:test: 
+@indoor/ui:test: > @indoor/ui@0.0.0 test /home/user/indoor-map/packages/ui
+@indoor/ui:test: > vitest run --passWithNoTests
+@indoor/ui:test: 
+@indoor/ui:test: 
+@indoor/ui:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.2 [39m[90m/home/user/indoor-map/packages/ui[39m
+@indoor/ui:test: 
+@indoor/ui:test:  [32m✓[39m test/contrast.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+@indoor/ui:test:  [32m✓[39m test/apply-branding.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+@indoor/ui:test:  [32m✓[39m test/pictograms.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@indoor/ui:test: 
+@indoor/ui:test: [2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+@indoor/ui:test: [2m      Tests [22m [1m[32m38 passed[39m[22m[90m (38)[39m
+@indoor/ui:test: [2m   Start at [22m 05:35:14
+@indoor/ui:test: [2m   Duration [22m 18.80s[2m (import 61%, transform 37%, worker 1%, tests 1%)[22m
+@indoor/ui:test: 
+@indoor/ui:test: [2m  Transform [22m [33mtransforming modules took 6.57s[39m[2m · 37% of tracked time, re-done on every run[22m
+@indoor/ui:test: [2m            [22m [2mpersist transforms across runs with [22m[33mfsModuleCache: true[39m
+@indoor/ui:test: [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#caching-between-reruns[22m
+@indoor/ui:test: 
+@indoor/e2e:lint: > @indoor/e2e@0.0.0 lint /home/user/indoor-map/e2e
+@indoor/e2e:lint: > biome check .
+@indoor/e2e:lint: 
+@indoor/e2e:lint: Checked 18 files in 48ms. No fixes applied.
+@indoor/map-core:test: cache hit, replaying logs 0af494481bfa8025
+@indoor/map-core:test: 
+@indoor/map-core:test: > @indoor/map-core@0.0.0 test /home/user/indoor-map/packages/map-core
+@indoor/map-core:test: > vitest run --passWithNoTests
+@indoor/map-core:test: 
+@indoor/map-core:test: 
+@indoor/map-core:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.2 [39m[90m/home/user/indoor-map/packages/map-core[39m
+@indoor/map-core:test: 
+@indoor/map-core:test:  [32m✓[39m test/graph.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/style.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/transform.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/highlight.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/snap.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/labels.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/camera.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/snap-index.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/extrude.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/georef.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/sprites.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/reference.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/origin.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/muted.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/route.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/closures.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+@indoor/map-core:test:  [32m✓[39m test/pick.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@indoor/map-core:test: 
+@indoor/map-core:test: [2m Test Files [22m [1m[32m17 passed[39m[22m[90m (17)[39m
+@indoor/map-core:test: [2m      Tests [22m [1m[32m91 passed[39m[22m[90m (91)[39m
+@indoor/map-core:test: [2m   Start at [22m 05:35:14
+@indoor/map-core:test: [2m   Duration [22m 21.19s[2m (import 73%, transform 26%, worker 1%, tests 1%)[22m
+@indoor/map-core:test: 
+@indoor/map-core:test: [2m  Transform [22m [33mtransforming modules took 11.37s[39m[2m · 26% of tracked time, re-done on every run[22m
+@indoor/map-core:test: [2m            [22m [2mpersist transforms across runs with [22m[33mfsModuleCache: true[39m
+@indoor/map-core:test: [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#caching-between-reruns[22m
+@indoor/map-core:test: 
+@indoor/visitor:test: cache hit, replaying logs ede439f06de18939
+@indoor/visitor:test: 
+@indoor/visitor:test: > @indoor/visitor@0.0.0 test /home/user/indoor-map/apps/visitor
+@indoor/visitor:test: > vitest run --passWithNoTests
+@indoor/visitor:test: 
+@indoor/visitor:test: 
+@indoor/visitor:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.2 [39m[90m/home/user/indoor-map/apps/visitor[39m
+@indoor/visitor:test: 
+@indoor/visitor:test:  [32m✓[39m src/features/origin/origin-model.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m src/features/share/share-model.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m src/features/venue/venue-brand.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m src/features/map/explore-map.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m src/features/map/camera.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m test/i18n.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m src/features/search/explore-store.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m src/workspace-packages.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m src/features/route/route-model.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m src/components/sheet-snap.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@indoor/visitor:test:  [32m✓[39m src/features/closures/closure-model.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@indoor/visitor:test: 
+@indoor/visitor:test: [2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+@indoor/visitor:test: [2m      Tests [22m [1m[32m48 passed[39m[22m[90m (48)[39m
+@indoor/visitor:test: [2m   Start at [22m 05:43:37
+@indoor/visitor:test: [2m   Duration [22m 6.42s[2m (transform 72%, import 26%, tests 2%, worker 1%)[22m
+@indoor/visitor:test: 
+@indoor/visitor:test: [2m  Transform [22m [33mtransforming modules took 10.34s[39m[2m · 72% of tracked time, re-done on every run[22m
+@indoor/visitor:test: [2m            [22m [2mpersist transforms across runs with [22m[33mfsModuleCache: true[39m
+@indoor/visitor:test: [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#caching-between-reruns[22m
+@indoor/visitor:test: 
+@indoor/admin:test: cache hit, replaying logs 8186f0286ebe9043
+@indoor/admin:test: 
+@indoor/admin:test: > @indoor/admin@0.0.0 test /home/user/indoor-map/apps/admin
+@indoor/admin:test: > vitest run --passWithNoTests
+@indoor/admin:test: 
+@indoor/admin:test: 
+@indoor/admin:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.2 [39m[90m/home/user/indoor-map/apps/admin[39m
+@indoor/admin:test: 
+@indoor/admin:test:  [32m✓[39m src/features/import/xlsx.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/editor/graph/graph-save-queue.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/editor/test-route/failure-text.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/closures/closure-model.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/editor/store/editor-store.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/origin-points/qr-print.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/settings/display/display-form-model.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/settings/system-form-model.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/editor/store/save-queue.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/editor/connectors/connector-form.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/editor/store/history.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/settings/branding/branding-form-model.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/editor/feature-list-model.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/editor/test-route/place-options.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/workspace-packages.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 30[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/settings/audit-format.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 88[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/auth/redirect-error.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@indoor/admin:test:  [32m✓[39m src/features/settings/instructions/instructions-model.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+@indoor/admin:test: 
+@indoor/admin:test: [2m Test Files [22m [1m[32m18 passed[39m[22m[90m (18)[39m
+@indoor/admin:test: [2m      Tests [22m [1m[32m80 passed[39m[22m[90m (80)[39m
+@indoor/admin:test: [2m   Start at [22m 05:56:13
+@indoor/admin:test: [2m   Duration [22m 12.80s[2m (transform 55%, import 40%, tests 4%, worker 2%)[22m
+@indoor/admin:test: 
+@indoor/admin:test: [2m     Import [22m [33m157 modules were evaluated 507 times[39m[2m · 10.46s total, 40% of tracked time[22m
+@indoor/admin:test: [2m            [22m [2m~1.49s faster with [22m[33misolate: false[39m[2m — shared modules are evaluated once per worker instead of once per file[22m
+@indoor/admin:test: [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-isolation[22m
+@indoor/admin:test: 
+@indoor/domain:lint: cache hit, replaying logs f0336019878ad266
+@indoor/domain:lint: 
+@indoor/domain:lint: > @indoor/domain@0.0.0 lint /home/user/indoor-map/packages/domain
+@indoor/domain:lint: > biome check .
+@indoor/domain:lint: 
+@indoor/domain:lint: src/floor-plan.ts:89:7 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@indoor/domain:lint: 
+@indoor/domain:lint:   ! Change to an optional chain.
+@indoor/domain:lint:   
+@indoor/domain:lint:     87 │   metersPerUnit: number | null,
+@indoor/domain:lint:     88 │ ): number | null {
+@indoor/domain:lint:   > 89 │   if (!extents || extents.length !== 4 || !metersPerUnit) return null;
+@indoor/domain:lint:        │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@indoor/domain:lint:     90 │   const width = ((extents[2] ?? 0) - (extents[0] ?? 0)) * metersPerUnit;
+@indoor/domain:lint:     91 │   if (!(width > 0) || width > MAX_NATURAL_WIDTH_M) return null;
+@indoor/domain:lint:   
+@indoor/domain:lint:   i Unsafe fix: Change to an optional chain.
+@indoor/domain:lint:   
+@indoor/domain:lint:      87  87 │     metersPerUnit: number | null,
+@indoor/domain:lint:      88  88 │   ): number | null {
+@indoor/domain:lint:      89     │ - ··if·(!extents·||·extents.length·!==·4·||·!metersPerUnit)·return·null;
+@indoor/domain:lint:          89 │ + ··if·(extents?.length·!==·4·||·!metersPerUnit)·return·null;
+@indoor/domain:lint:      90  90 │     const width = ((extents[2] ?? 0) - (extents[0] ?? 0)) * metersPerUnit;
+@indoor/domain:lint:      91  91 │     if (!(width > 0) || width > MAX_NATURAL_WIDTH_M) return null;
+@indoor/domain:lint:   
+@indoor/domain:lint: 
+@indoor/domain:lint: Checked 122 files in 373ms. No fixes applied.
+@indoor/domain:lint: Found 1 warning.
+@indoor/map-core:lint: cache hit, replaying logs ae809d73ff85ef5c
+@indoor/map-core:lint: 
+@indoor/map-core:lint: > @indoor/map-core@0.0.0 lint /home/user/indoor-map/packages/map-core
+@indoor/map-core:lint: > biome check .
+@indoor/map-core:lint: 
+@indoor/map-core:lint: src/style.ts:84:17 lint/complexity/noFlatMapIdentity  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@indoor/map-core:lint: 
+@indoor/map-core:lint:   i Avoid unnecessary callback in flatMap call.
+@indoor/map-core:lint:   
+@indoor/map-core:lint:     82 │   fallback: string | number,
+@indoor/map-core:lint:     83 │ ): ExpressionSpecification {
+@indoor/map-core:lint:   > 84 │   const pairs = Object.entries(values).flatMap(([k, v]) => [k, v]);
+@indoor/map-core:lint:        │                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@indoor/map-core:lint:     85 │   // `match` butuh minimal satu pasangan; label mustahil dipakai saat tidak ada entri.
+@indoor/map-core:lint:     86 │   const body = pairs.length ? pairs : ['__none__', fallback];
+@indoor/map-core:lint:   
+@indoor/map-core:lint:   i You can just use flat to flatten the array.
+@indoor/map-core:lint:   
+@indoor/map-core:lint:   i Unsafe fix: Replace unnecessary flatMap call to flat instead.
+@indoor/map-core:lint:   
+@indoor/map-core:lint: Checked 49 files in 216ms. No fixes applied.
+@indoor/map-core:lint: Found 1 info.
+@indoor/map-core:lint:      82  82 │     fallback: string | number,
+@indoor/map-core:lint:      83  83 │   ): ExpressionSpecification {
+@indoor/map-core:lint:      84     │ - ··const·pairs·=·Object.entries(values).flatMap(([k,·v])·=>·[k,·v]);
+@indoor/map-core:lint:          84 │ + ··const·pairs·=·Object.entries(values).flat();
+@indoor/map-core:lint:      85  85 │     // `match` butuh minimal satu pasangan; label mustahil dipakai saat tidak ada entri.
+@indoor/map-core:lint:      86  86 │     const body = pairs.length ? pairs : ['__none__', fallback];
+@indoor/map-core:lint:   
+@indoor/map-core:lint: 
+@indoor/ui:lint: cache hit, replaying logs 37d4fffd3793e387
+@indoor/ui:lint: 
+@indoor/ui:lint: > @indoor/ui@0.0.0 lint /home/user/indoor-map/packages/ui
+@indoor/ui:lint: > biome check .
+@indoor/ui:lint: 
+@indoor/ui:lint: Checked 33 files in 154ms. No fixes applied.
+@indoor/domain:typecheck: cache hit, replaying logs 896ecafc101ff90e
+@indoor/domain:typecheck: 
+@indoor/domain:typecheck: > @indoor/domain@0.0.0 typecheck /home/user/indoor-map/packages/domain
+@indoor/domain:typecheck: > tsc --noEmit
+@indoor/domain:typecheck: 
+@indoor/data:test: cache miss, executing b83858a282a64b4d
+@indoor/data:typecheck: cache miss, executing 0bc014eabd6177fd
+@indoor/routing:test: cache hit, replaying logs 98b91ef01c001ba7
+@indoor/routing:test: 
+@indoor/routing:test: > @indoor/routing@0.0.0 test /home/user/indoor-map/packages/routing
+@indoor/routing:test: > vitest run --passWithNoTests
+@indoor/routing:test: 
+@indoor/routing:test: 
+@indoor/routing:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.2 [39m[90m/home/user/indoor-map/packages/routing[39m
+@indoor/routing:test: 
+@indoor/routing:test:  [32m✓[39m test/instruction-steps.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 267[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/scenarios.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 620[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/route-plan.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 1100[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/route-gap.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 123[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/connectors.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/closed-elements.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/astar.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 948[2mms[22m[39m
+@indoor/routing:test:    [32m✓[39m A* sama dengan Dijkstra rujukan [2m(5)[22m
+@indoor/routing:test:      [33m[2m✓[22m[39m 200 pasang node acak di tiga graf acak (termasuk bagian yang terputus)[33m 788[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/instruction-text.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/find-route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/options.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/graph.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/closure-impact.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/domain-link.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 37[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/route-floor.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+@indoor/routing:test:  [32m✓[39m test/benchmark.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 881[2mms[22m[39m
+@indoor/routing:test:    [32m✓[39m benchmark [2m(1)[22m
+@indoor/routing:test:      [33m[2m✓[22m[39m rute terjauh di graf 20.000 edge < 50 ms[33m 829[2mms[22m[39m
+@indoor/routing:test: 
+@indoor/routing:test: [2m Test Files [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+@indoor/routing:test: [2m      Tests [22m [1m[32m110 passed[39m[22m[90m (110)[39m
+@indoor/routing:test: [2m   Start at [22m 04:15:12
+@indoor/routing:test: [2m   Duration [22m 20.62s[2m (transform 44%, import 43%, tests 12%, worker 1%)[22m
+@indoor/routing:test: 
+@indoor/routing:test: [2m  Transform [22m [33mtransforming modules took 17.69s[39m[2m · 44% of tracked time, re-done on every run[22m
+@indoor/routing:test: [2m            [22m [2mpersist transforms across runs with [22m[33mfsModuleCache: true[39m
+@indoor/routing:test: [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#caching-between-reruns[22m
+@indoor/routing:test: 
+@indoor/visitor:lint: cache hit, replaying logs 00be4825c67b0ed1
+@indoor/visitor:lint: 
+@indoor/visitor:lint: > @indoor/visitor@0.0.0 lint /home/user/indoor-map/apps/visitor
+@indoor/visitor:lint: > biome check .
+@indoor/visitor:lint: 
+@indoor/visitor:lint: Checked 78 files in 219ms. No fixes applied.
+@indoor/ui:typecheck: cache miss, executing aa0c90e529ea0d10
+@indoor/routing:typecheck: cache miss, executing 564bb9c5a716a549
+@indoor/routing:lint: cache hit, replaying logs 42b12b84b0a799ba
+@indoor/routing:lint: 
+@indoor/routing:lint: > @indoor/routing@0.0.0 lint /home/user/indoor-map/packages/routing
+@indoor/routing:lint: > biome check .
+@indoor/routing:lint: 
+@indoor/routing:lint: Checked 41 files in 275ms. No fixes applied.
+@indoor/map-core:typecheck: cache miss, executing 34688d4b841a76c7
+@indoor/data:lint: cache hit, replaying logs 77a365cc73abbd74
+@indoor/data:lint: 
+@indoor/data:lint: > @indoor/data@0.0.0 lint /home/user/indoor-map/packages/data
+@indoor/data:lint: > biome check .
+@indoor/data:lint: 
+@indoor/data:lint: Checked 84 files in 404ms. No fixes applied.
+@indoor/ui:typecheck: 
+@indoor/ui:typecheck: > @indoor/ui@0.0.0 typecheck /home/user/indoor-map/packages/ui
+@indoor/ui:typecheck: > tsc --noEmit
+@indoor/ui:typecheck: 
+@indoor/map-core:typecheck: 
+@indoor/map-core:typecheck: > @indoor/map-core@0.0.0 typecheck /home/user/indoor-map/packages/map-core
+@indoor/map-core:typecheck: > tsc --noEmit
+@indoor/map-core:typecheck: 
+@indoor/domain:test: 
+@indoor/domain:test: > @indoor/domain@0.0.0 test /home/user/indoor-map/packages/domain
+@indoor/domain:test: > vitest run --passWithNoTests
+@indoor/domain:test: 
+@indoor/data:typecheck: 
+@indoor/data:typecheck: > @indoor/data@0.0.0 typecheck /home/user/indoor-map/packages/data
+@indoor/data:typecheck: > tsc --noEmit
+@indoor/data:typecheck: 
+@indoor/routing:typecheck: 
+@indoor/routing:typecheck: > @indoor/routing@0.0.0 typecheck /home/user/indoor-map/packages/routing
+@indoor/routing:typecheck: > tsc --noEmit
+@indoor/routing:typecheck: 
+//:lint: 
+//:lint: > indoor-nav@ lint /home/user/indoor-map
+//:lint: > biome check .
+//:lint: 
+@indoor/data:test: 
+@indoor/data:test: > @indoor/data@0.0.0 test /home/user/indoor-map/packages/data
+@indoor/data:test: > vitest run --passWithNoTests
+@indoor/data:test: 
+@indoor/domain:test: 
+@indoor/domain:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.2 [39m[90m/home/user/indoor-map/packages/domain[39m
+@indoor/domain:test: 
+@indoor/data:test: 
+@indoor/data:test: [1m[30m[46m RUN [49m[39m[22m [36mv5.0.2 [39m[90m/home/user/indoor-map/packages/data[39m
+@indoor/data:test: 
+//:lint: packages/map-core/src/style.ts:84:17 lint/complexity/noFlatMapIdentity  FIXABLE  ━━━━━━━━━━━━━━━━━━━
+//:lint: 
+//:lint:   i Avoid unnecessary callback in flatMap call.
+//:lint:   
+//:lint:     82 │   fallback: string | number,
+//:lint:     83 │ ): ExpressionSpecification {
+//:lint:   > 84 │   const pairs = Object.entries(values).flatMap(([k, v]) => [k, v]);
+//:lint:        │                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//:lint:     85 │   // `match` butuh minimal satu pasangan; label mustahil dipakai saat tidak ada entri.
+//:lint:     86 │   const body = pairs.length ? pairs : ['__none__', fallback];
+//:lint:   
+//:lint:   i You can just use flat to flatten the array.
+//:lint:   
+//:lint:   i Unsafe fix: Replace unnecessary flatMap call to flat instead.
+//:lint:   
+//:lint:      82  82 │     fallback: string | number,
+//:lint:      83  83 │   ): ExpressionSpecification {
+//:lint:      84     │ - ··const·pairs·=·Object.entries(values).flatMap(([k,·v])·=>·[k,·v]);
+//:lint:          84 │ + ··const·pairs·=·Object.entries(values).flat();
+//:lint:      85  85 │     // `match` butuh minimal satu pasangan; label mustahil dipakai saat tidak ada entri.
+//:lint:      86  86 │     const body = pairs.length ? pairs : ['__none__', fallback];
+//:lint:   
+//:lint: 
+//:lint: apps/admin/src/features/locations/location-sheet.tsx:3:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+//:lint: 
+//:lint:   ! Several of these imports are unused.
+//:lint:   
+//:lint:      1 │ import type { CategoryWithUsage } from '@indoor/data';
+//:lint:      2 │ import {
+//:lint:    > 3 │   type CategoryId,
+//:lint:        │   ^^^^^^^^^^^^^^^^
+//:lint:    > 4 │   checkLocationInput,
+//:lint:         ...
+//:lint:   > 14 │   type LocationType,
+//:lint:   > 15 │   type LocationTypeId,
+//:lint:        │   ^^^^^^^^^^^^^^^^^^^
+//:lint:     16 │   type OpeningHours,
+//:lint:     17 │   parseCustomFieldInputs,
+//:lint:   
+//:lint:   i Unused imports might be the result of an incomplete refactoring.
+//:lint:   
+//:lint:   i Unsafe fix: Remove the unused imports.
+//:lint:   
+//:lint:       1   1 │   import type { CategoryWithUsage } from '@indoor/data';
+//:lint:       2   2 │   import {
+//:lint:       3     │ - ··type·CategoryId,
+//:lint:       4   3 │     checkLocationInput,
+//:lint:       5   4 │     checkOpeningHours,
+//:lint:       6     │ - ··customFieldInput,
+//:lint:       7   5 │     EMPTY_OPENING_HOURS,
+//:lint:       8   6 │     type FeatureId,
+//:lint:       9     │ - ··keepFieldsOf,
+//:lint:      10   7 │     LOCATION_DESCRIPTION_MAX,
+//:lint:      11   8 │     type Location,
+//:lint:     ······· │ 
+//:lint:      13  10 │     type LocationStatus,
+//:lint:      14  11 │     type LocationType,
+//:lint:      15     │ - ··type·LocationTypeId,
+//:lint:      16  12 │     type OpeningHours,
+//:lint:      17  13 │     parseCustomFieldInputs,
+//:lint:   
+//:lint: 
+//:lint: apps/admin/src/features/locations/location-sheet.tsx:25:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+//:lint: 
+//:lint:   ! Several of these imports are unused.
+//:lint:   
+//:lint:     23 │   Button,
+//:lint:     24 │   Input,
+//:lint:   > 25 │   Select,
+//:lint:        │   ^^^^^^^
+//:lint:   > 26 │   SelectContent,
+//:lint:   > 27 │   SelectItem,
+//:lint:   > 28 │   SelectTrigger,
+//:lint:   > 29 │   SelectValue,
+//:lint:        │   ^^^^^^^^^^^
+//:lint:     30 │   Sheet,
+//:lint:     31 │   SheetContent,
+//:lint:   
+//:lint:   i Unused imports might be the result of an incomplete refactoring.
+//:lint:   
+//:lint:   i Unsafe fix: Remove the unused imports.
+//:lint:   
+//:lint:      23  23 │     Button,
+//:lint:      24  24 │     Input,
+//:lint:      25     │ - ··Select,
+//:lint:      26     │ - ··SelectContent,
+//:lint:      27     │ - ··SelectItem,
+//:lint:      28     │ - ··SelectTrigger,
+//:lint:      29     │ - ··SelectValue,
+//:lint:      30  25 │     Sheet,
+//:lint:      31  26 │     SheetContent,
+//:lint:   
+//:lint: 
+//:lint: apps/admin/src/features/locations/location-sheet.tsx:43:29 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+//:lint: 
+//:lint:   ! Several of these imports are unused.
+//:lint:   
+//:lint:     41 │ import { FormNotice } from '../auth/auth-layout';
+//:lint:     42 │ import { CategoryChecklist } from './category-checklist';
+//:lint:   > 43 │ import { CustomFieldInputs, type FieldDraft } from './custom-field-inputs';
+//:lint:        │                             ^^^^^^^^^^^^^^^
+//:lint:     44 │ import { HoursEditor } from './hours-editor';
+//:lint:     45 │ import { codeMessage, NAME_MESSAGES } from './labels';
+//:lint:   
+//:lint:   i Unused imports might be the result of an incomplete refactoring.
+//:lint:   
+//:lint:   i Unsafe fix: Remove the unused imports.
+//:lint:   
+//:lint:     43 │ import·{·CustomFieldInputs,·type·FieldDraft·}·from·'./custom-field-inputs';
+//:lint:        │                             ----------------                               
+//:lint: 
+//:lint: packages/domain/src/floor-plan.ts:89:7 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━━━━━━━━━
+//:lint: 
+//:lint:   ! Change to an optional chain.
+//:lint:   
+//:lint:     87 │   metersPerUnit: number | null,
+//:lint:     88 │ ): number | null {
+//:lint:   > 89 │   if (!extents || extents.length !== 4 || !metersPerUnit) return null;
+//:lint:        │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//:lint:     90 │   const width = ((extents[2] ?? 0) - (extents[0] ?? 0)) * metersPerUnit;
+//:lint:     91 │   if (!(width > 0) || width > MAX_NATURAL_WIDTH_M) return null;
+//:lint:   
+//:lint:   i Unsafe fix: Change to an optional chain.
+//:lint:   
+//:lint:      87  87 │     metersPerUnit: number | null,
+//:lint:      88  88 │   ): number | null {
+//:lint:      89     │ - ··if·(!extents·||·extents.length·!==·4·||·!metersPerUnit)·return·null;
+//:lint:          89 │ + ··if·(extents?.length·!==·4·||·!metersPerUnit)·return·null;
+//:lint:      90  90 │     const width = ((extents[2] ?? 0) - (extents[0] ?? 0)) * metersPerUnit;
+//:lint:      91  91 │     if (!(width > 0) || width > MAX_NATURAL_WIDTH_M) return null;
+//:lint:   
+//:lint: 
+//:lint: Checked 653 files in 3s. No fixes applied.
+//:lint: Found 4 warnings.
+//:lint: Found 1 info.
+@indoor/e2e:typecheck: cache miss, executing 0cce4b9859b53a01
+@indoor/visitor:typecheck: cache miss, executing 2188b08ca51d0fff
+@indoor/admin:typecheck: cache miss, executing 993cca1ed69e0ff2
+@indoor/e2e:typecheck: 
+@indoor/e2e:typecheck: > @indoor/e2e@0.0.0 typecheck /home/user/indoor-map/e2e
+@indoor/e2e:typecheck: > tsc --noEmit
+@indoor/e2e:typecheck: 
+@indoor/admin:typecheck: 
+@indoor/admin:typecheck: > @indoor/admin@0.0.0 typecheck /home/user/indoor-map/apps/admin
+@indoor/admin:typecheck: > tsc --noEmit && tsc --noEmit -p tsconfig.node.json
+@indoor/admin:typecheck: 
+@indoor/visitor:typecheck: 
+@indoor/visitor:typecheck: > @indoor/visitor@0.0.0 typecheck /home/user/indoor-map/apps/visitor
+@indoor/visitor:typecheck: > tsc --noEmit && tsc --noEmit -p tsconfig.node.json
+@indoor/visitor:typecheck: 
+@indoor/domain:test:  [32m✓[39m test/qr.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1011[2mms[22m[39m
+@indoor/domain:test:    [32m✓[39m encodeQr [2m(5)[22m
+@indoor/domain:test:      [33m[2m✓[22m[39m versi terkecil yang muat: ukuran 21 + 4 per versi[33m 637[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/origin-points.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/deep-link.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1446[2mms[22m[39m
+@indoor/domain:test:    [32m✓[39m deep link [2m(6)[22m
+@indoor/domain:test:      [33m[2m✓[22m[39m decode(encode(x)) = x untuk semua kombinasi parameter[33m 1397[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/graph-edit.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 2191[2mms[22m[39m
+@indoor/domain:test:    [32m✓[39m moveNode dan mergeNodes [2m(5)[22m
+@indoor/domain:test:      [33m[2m✓[22m[39m graf tetap terhubung setelah pindah dan gabung acak[33m 2048[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/snapshot-size.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 396[2mms[22m[39m
+@indoor/data:test:    [32m✓[39m ukuran snapshot [2m(2)[22m
+@indoor/data:test:      [33m[2m✓[22m[39m venue 2.000 fitur di bawah 1,5 MB setelah gzip[33m 351[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/cad-converter.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 335[2mms[22m[39m
+@indoor/data:test:    [32m✓[39m klien konversi CAD [2m(3)[22m
+@indoor/data:test:      [33m[2m✓[22m[39m inspect dan render mengirim berkas dengan token sesi[33m 307[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/snapshots.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 324[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/validation/geometry.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 441[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/snapshot.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 410[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/geometry.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/route-sources.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/graph-connectivity.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/repositories.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/import-rows.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/explore.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/map-labels.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/venues.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/nav-graph.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m src/search.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 122[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/pagination.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/snapshot-search.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/facility-types.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/label-point.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/templates.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/location-types.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m src/facility.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/display-settings.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/custom-fields.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/locations.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/hours.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/errors.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m src/display-settings.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/auth.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m src/location.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/entrances.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 152[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/permissions.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/connectors.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/audit.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/aliases.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 26[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/edit-locks.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m src/feature-draft.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/closures.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@indoor/data:test:  [32m✓[39m test/edge-function-imports.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+@indoor/data:test: 
+@indoor/data:test: [2m Test Files [22m [1m[32m22 passed[39m[22m[90m (22)[39m
+@indoor/data:test: [2m      Tests [22m [1m[32m79 passed[39m[22m[90m (79)[39m
+@indoor/data:test: [2m   Start at [22m 06:25:22
+@indoor/data:test: [2m   Duration [22m 12.95s[2m (transform 54%, import 38%, tests 6%, worker 1%)[22m
+@indoor/data:test: 
+@indoor/data:test: [2m     Import [22m [33m117 modules were evaluated 872 times[39m[2m · 9.49s total, 38% of tracked time[22m
+@indoor/data:test: [2m            [22m [2m~2.21s faster with [22m[33misolate: false[39m[2m — shared modules are evaluated once per worker instead of once per file[22m
+@indoor/data:test: [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-isolation[22m
+@indoor/data:test: 
+@indoor/domain:test:  [32m✓[39m test/fixture.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/system-settings.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m src/floor-plan.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m src/area.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/origin-point.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/location-detail.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/connector.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/csv.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/floor.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/closure.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/venue.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/map-view.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/directory.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/distance.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/profile.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/geometry.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m src/image.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/edit-lock.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/branding.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/auth.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/validation/planar.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m src/feature.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/audit.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/aliases.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/ids.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/building.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@indoor/domain:test:  [32m✓[39m test/language.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@indoor/domain:test: 
+@indoor/domain:test: [2m Test Files [22m [1m[32m48 passed[39m[22m[90m (48)[39m
+@indoor/domain:test: [2m      Tests [22m [1m[32m324 passed[39m[22m[90m (324)[39m
+@indoor/domain:test: [2m   Start at [22m 06:25:21
+@indoor/domain:test: [2m   Duration [22m 16.77s[2m (import 46%, transform 28%, tests 23%, worker 2%)[22m
+@indoor/domain:test: 
+@indoor/domain:test: [2m  Transform [22m [33mtransforming modules took 8.70s[39m[2m · 28% of tracked time, re-done on every run[22m
+@indoor/domain:test: [2m            [22m [2mpersist transforms across runs with [22m[33mfsModuleCache: true[39m
+@indoor/domain:test: [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#caching-between-reruns[22m
+@indoor/domain:test: 
+
+ Tasks:    24 successful, 24 total
+Cached:    14 cached, 24 total
+  Time:    20.324s 
+
+
+real	0m21.285s
+user	1m2.751s
+sys	0m10.981s

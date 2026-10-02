@@ -45,8 +45,8 @@ function loadImageSize(url: string): Promise<[number, number]> {
 }
 
 /**
- * Posisi awal: yang tersimpan, atau (belum pernah ditempatkan) seukuran footprint
- * gedung di tengahnya, dengan rasio gambar asli.
+ * Posisi awal: yang tersimpan, atau (belum pernah ditempatkan) di tengah footprint gedung
+ * dengan rasio gambar asli.
  */
 async function startingPlacement(
   plan: FloorPlanVersion,
@@ -59,7 +59,9 @@ async function startingPlacement(
   const box = footprintBox(building);
   const center = box?.center ?? (venueCenter?.coordinates as LngLat | undefined) ?? FALLBACK_CENTER;
   const [w, h] = await loadImageSize(plan.imageUrl);
-  return initialPlacement(center, box?.widthM || FALLBACK_WIDTH_M, w, h);
+  // Denah DXF bersatuan sudah tahu ukuran sebenarnya; selebihnya selebar footprint gedung.
+  const widthM = plan.naturalWidthM ?? (box?.widthM || FALLBACK_WIDTH_M);
+  return initialPlacement(center, widthM, w, h);
 }
 
 export function useGeoreference(
