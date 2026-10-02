@@ -53,7 +53,9 @@ export async function renderSummary(
         `<tr><td>${r.id}</td><td>${escapeHtml(r.check)}</td><td class="${r.ok ? 'ok' : 'no'}">${r.ok ? 'Lulus' : 'Gagal'}</td></tr>`,
     )
     .join('');
-  const blocks = logs.map((l) => `<h3>${escapeHtml(l.name)}</h3><pre>${escapeHtml(l.text)}</pre>`).join('');
+  const blocks = logs
+    .map((l) => `<h3>${escapeHtml(l.name)}</h3><pre>${escapeHtml(l.text)}</pre>`)
+    .join('');
   await page.setContent(`<!doctype html><html lang="id"><meta charset="utf-8"><style>
     body{font:14px system-ui;margin:24px;color:#111418}table{border-collapse:collapse;width:100%}
     td,th{border:1px solid #d5d9de;padding:6px 8px;text-align:left}.ok{color:#12805c;font-weight:700}
