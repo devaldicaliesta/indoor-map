@@ -187,7 +187,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 
 - [x] T-301 · Kunci edit per lantai — Dua pengguna di lantai sama: satu baca saja, ambil alih kunci (Super Admin) → `e2e/evidence/T-301/`
 - [x] T-302 · Tipe venue dan template industri — Wizard venue dengan template industri; isi tipe/kategori/fasilitas tersalin → `e2e/evidence/T-302/`
-- [ ] T-303 · Tipe lokasi dan field kustom — CRUD tipe lokasi dan field kustom (6 jenis), urutan, field wajib → `e2e/evidence/T-303/`
+- [x] T-303 · Tipe lokasi dan field kustom — CRUD tipe lokasi dan field kustom (6 jenis), urutan, field wajib → `e2e/evidence/T-303/`
 - [ ] T-304 · Status dan jam operasional — Status lokasi, jam operasional, tanggal khusus; label buka/tutup di Visitor → `e2e/evidence/T-304/`
 - [ ] T-305 · Import CSV/Excel — Import CSV/XLSX: template, pratinjau baru/perbarui/gagal, simpan baris valid → `e2e/evidence/T-305/`
 - [ ] T-306 · Alias pencarian — Alias pencarian: tambah/ubah/hapus, cari alias di Visitor setelah publish → `e2e/evidence/T-306/`
