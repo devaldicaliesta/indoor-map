@@ -95,7 +95,7 @@ Pakai Page Object di `e2e/pages/` (tambah bila perlu) dan agent `e2e-runner` ata
 - [ ] T-216 · Visitor: penutupan live → `e2e/evidence/T-216/`
 - [ ] T-217 · Visitor: bagikan → `e2e/evidence/T-217/`
 
-### R3 · Operasional (`13-R3-operasional.md`)
+### R3 · Operasional
 
 - [ ] T-301 · Kunci edit per lantai → `e2e/evidence/T-301/`
 - [ ] T-302 · Tipe venue dan template industri → `e2e/evidence/T-302/`
