@@ -22,4 +22,6 @@ export const env = {
   password: required('SEED_ADMIN_PASSWORD'),
   adminUrl: process.env.E2E_ADMIN_URL ?? 'http://localhost:5173',
   visitorUrl: process.env.E2E_VISITOR_URL ?? 'http://localhost:5174',
+  /** Mailpit Supabase lokal (`supabase status`), penampung email reset dan undangan. */
+  mailpitUrl: process.env.E2E_MAILPIT_URL ?? 'http://127.0.0.1:54324',
 };
