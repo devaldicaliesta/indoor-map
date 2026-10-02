@@ -49,13 +49,19 @@ Prinsip yang dipakai selama pengujian:
 4. Task tanpa UI (tooling, paket, skema) dibuktikan lewat efeknya di aplikasi (app jalan, data tampil, akses ditolak) dan tetap diberi screenshot; bila memang tidak ada yang tampil, tulis alasannya di README.
 5. **Gambar wajib**, langsung ke folder bukti (bukan `test-results/`, yang dikosongkan setiap run):
    `page.screenshot({ path: 'evidence/T-xxx/NN-langkah.png', fullPage: true })` (path relatif ke `e2e/`), mis. `01-daftar-kosong.png`, `02-form-isi.png`, `03-tersimpan.png`, `04-diubah.png`, `05-dihapus.png`, `06-error.png`, `07-role-ditolak.png`.
-6. Ambil gambar **setelah layar siap**: tunggu elemen/teks hasil (`toBeVisible`, `toHaveAttribute('data-ready', 'true')`), jangan `waitForTimeout`. Peta Visitor punya `data-testid="venue-map"` dengan `data-ready`; peta georeferensi `georef-map`.
-7. Periksa setiap gambar dengan mata (bukan hanya lulus test): teks terpotong, elemen tumpang tindih, garis/ikon tak terlihat, warna kontras rendah dicatat sebagai temuan.
-8. Sebelum melapor ke pemilik, tinjau test dan perbaikan yang ditulis dengan agent `code-reviewer`; untuk task yang menyentuh auth, RLS, Storage, Edge Function, unggahan, atau snapshot, jalankan juga `security-reviewer` (dengan kategori OWASP). Bila `pnpm check` merah, pakai `build-error-resolver`. Temuan KRITIS/TINGGI diselesaikan atau dicatat sebelum task dinyatakan lulus.
-9. Ringkasan per task di `e2e/evidence/T-xxx/README.md`: spec, hasil (lulus/gagal), tabel gambar (ditautkan), temuan.
-10. Bug kecil di file task itu diperbaiki di commit yang sama beserta test-nya; bug besar dicatat di `docs/PROGRESS.md` sebagai pekerjaan lanjutan.
-11. Setelah task terverifikasi: centang di daftar bawah, tambahkan "diuji E2E, bukti `e2e/evidence/T-xxx/`" di catatan task itu di `PROGRESS.md`, commit `T-307a: verifikasi E2E T-xxx`.
-12. Jangan: menggabungkan beberapa task dalam satu spec/commit, memakai `waitForTimeout`, atau melemahkan/menghapus test agar hijau. Test lama yang salah (mis. harapan yang sudah tidak berlaku) diperbaiki dengan alasan di README.
+6. **Pakai data yang banyak dan realistis** agar hasil pengerjaan terlihat jelas di gambar (bukan layar kosong atau satu baris):
+   - Venue: fixture `fullVenue` (2 gedung, 4 lantai + Area Luar, unit dan fasilitas, lift/eskalator/tangga, jalur luar, lokasi berbagai status, alias, titik asal, Info Point), ditambah minimal 3 venue lain agar pemilih venue dan daftar terisi.
+   - Daftar dan tabel: minimal 20–50 baris (lokasi, pengguna per role, kategori, penutupan, titik asal) sehingga gulir, pencarian, filter, dan urutan teruji; sertakan nama panjang, aksen/emoji, dan status campuran (aktif, segera buka, nonaktif).
+   - Peta: lantai berisi puluhan unit dengan kode, warna per jenis, label, dan rute lintas lantai agar 2D/3D dan rute tampak nyata.
+   - Data tambahan dibuat lewat fixture/repository di test (bukan `seed.sql` produksi) dan dihapus setelah test; tetap tanpa istilah industri di kode.
+   - Ambil gambar keadaan kosong **dan** keadaan terisi penuh untuk layar yang sama.
+7. Ambil gambar **setelah layar siap**: tunggu elemen/teks hasil (`toBeVisible`, `toHaveAttribute('data-ready', 'true')`), jangan `waitForTimeout`. Peta Visitor punya `data-testid="venue-map"` dengan `data-ready`; peta georeferensi `georef-map`.
+8. Periksa setiap gambar dengan mata (bukan hanya lulus test): teks terpotong, elemen tumpang tindih, garis/ikon tak terlihat, warna kontras rendah dicatat sebagai temuan.
+9. Sebelum melapor ke pemilik, tinjau test dan perbaikan yang ditulis dengan agent `code-reviewer`; untuk task yang menyentuh auth, RLS, Storage, Edge Function, unggahan, atau snapshot, jalankan juga `security-reviewer` (dengan kategori OWASP). Bila `pnpm check` merah, pakai `build-error-resolver`. Temuan KRITIS/TINGGI diselesaikan atau dicatat sebelum task dinyatakan lulus.
+10. Ringkasan per task di `e2e/evidence/T-xxx/README.md`: spec, hasil (lulus/gagal), tabel gambar (ditautkan), temuan.
+11. Bug kecil di file task itu diperbaiki di commit yang sama beserta test-nya; bug besar dicatat di `docs/PROGRESS.md` sebagai pekerjaan lanjutan.
+12. Setelah task terverifikasi: centang di daftar bawah, tambahkan "diuji E2E, bukti `e2e/evidence/T-xxx/`" di catatan task itu di `PROGRESS.md`, commit `T-307a: verifikasi E2E T-xxx`.
+13. Jangan: menggabungkan beberapa task dalam satu spec/commit, memakai `waitForTimeout`, atau melemahkan/menghapus test agar hijau. Test lama yang salah (mis. harapan yang sudah tidak berlaku) diperbaiki dengan alasan di README.
 
 ## Contoh README bukti
 
