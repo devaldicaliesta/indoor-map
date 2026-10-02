@@ -23,7 +23,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | review | Undang/ubah role/nonaktifkan; guard Super Admin terakhir + audit (migrasi 0003); diuji browser, 2 test integrasi, 7 pgTAP  Diuji E2E T-307a, bukti `e2e/evidence/T-009b/`; perbaikan: keluar hanya sesi ini (`signOut` scope `local`). |
 | T-010 | Pengaturan sistem | T-009 | review | Tab Sistem, password SMTP di Vault, email uji lewat Edge Function; diuji browser + Mailpit. Lihat pertanyaan terbuka soal SMTP GoTrue  Diuji E2E T-307a, bukti `e2e/evidence/T-010/`. |
 | T-011 | Kerangka Visitor | T-002, T-006 | review | Layout HP/desktop, bottom sheet 3 tinggi (drag + keyboard), i18next ID/EN, PWA installable; tanpa cookie & request pihak ketiga  Diuji E2E T-307a, bukti `e2e/evidence/T-011/`; perbaikan: Enter/Spasi pada pegangan sheet memutar tinggi. |
-| T-012 | Catatan peristiwa penting | T-009 | review | Tab Catatan (Super Admin), 200 terakhir + filter; login, gagal masuk, role, nonaktif, pengaturan tercatat |
+| T-012 | Catatan peristiwa penting | T-009 | review | Tab Catatan (Super Admin), 200 terakhir + filter; login, gagal masuk, role, nonaktif, pengaturan tercatat  Diuji E2E T-307a, bukti `e2e/evidence/T-012/`; perbaikan: peristiwa tentang pengguna menyebut pengguna sasaran. |
 
 ## R1 · Inti peta (`11-R1-inti-peta.md`)
 

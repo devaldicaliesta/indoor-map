@@ -21,12 +21,20 @@ export type AuditAction = z.infer<typeof AuditActionSchema>;
 /** Batas baris yang ditampilkan di tab Catatan. */
 export const AUDIT_LOG_LIMIT = 200;
 
+export interface AuditPerson {
+  userId: string;
+  name: string;
+  email: string;
+}
+
 export interface AuditEvent {
   id: number;
   occurredAt: string;
   action: AuditAction;
   /** Pelaku; `null` untuk proses sistem. Untuk login, pelaku = akun yang mencoba masuk. */
-  actor: { userId: string; name: string; email: string } | null;
+  actor: AuditPerson | null;
+  /** Pengguna yang dikenai peristiwa (role diubah, dinonaktifkan); `null` bila bukan tentang pengguna. */
+  target: AuditPerson | null;
   entityId: string | null;
   details: Record<string, unknown>;
 }
