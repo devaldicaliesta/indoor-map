@@ -41,14 +41,14 @@ test.describe('T-104 Fondasi peta', () => {
     expect(zoomed.equals(start)).toBe(false);
     await page.screenshot({ path: shot('02-diperbesar') });
     await page.getByRole('button', { name: 'Perkecil' }).click();
-    await idle(map);
+    expect((await mapImage(page, map)).equals(zoomed)).toBe(false);
 
     // Rotasi lewat keyboard di kanvas; ikon kompas ikut berputar, lalu kembali ke utara.
     const compass = page.getByRole('button', { name: 'Arahkan ke utara' }).locator('svg');
     await map.locator('canvas').first().focus();
     for (let i = 0; i < 3; i++) await page.keyboard.press('Shift+ArrowLeft');
     await idle(map);
-    await expect(compass).not.toHaveAttribute('style', /rotate\((-?0)deg\)/);
+    await expect(compass).toHaveAttribute('style', /rotate\(-?[1-9][\d.]*deg\)/);
     await page.screenshot({ path: shot('03-diputar') });
     await page.getByRole('button', { name: 'Arahkan ke utara' }).click();
     await idle(map);
@@ -73,7 +73,7 @@ test.describe('T-104 Fondasi peta', () => {
     const panned = await mapImage(page, map);
     expect(panned.equals(start)).toBe(false);
     await page.getByRole('button', { name: 'Kembali ke tampilan awal' }).click();
-    await idle(map);
+    expect((await mapImage(page, map)).equals(panned)).toBe(false);
     await page.screenshot({ path: shot('05-tampilan-awal') });
 
     // Semua kontrol peta ≥ 44 px.

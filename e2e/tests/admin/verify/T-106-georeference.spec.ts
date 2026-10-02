@@ -44,7 +44,7 @@ test.describe('T-106 Georeferensi dan opasitas', () => {
     // Rotasi dan opasitas.
     await rotation.fill('15');
     await rotation.press('Enter');
-    await expect(rotation).toHaveValue(/^15/);
+    await expect(rotation).toHaveValue(/^15([,.]0+)?$/);
     const opacity = page.getByLabel('Opasitas denah');
     await opacity.fill('40');
     await expect(page.locator('output[for="georef-opacity"]')).toHaveText('40%');
@@ -103,7 +103,7 @@ test.describe('T-106 Georeferensi dan opasitas', () => {
     await page.reload();
     await expect(map).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
     await expect(width).toHaveValue(savedWidth);
-    await expect(rotation).toHaveValue(/^15/);
+    await expect(rotation).toHaveValue(/^15([,.]0+)?$/);
     await expect(page.locator('output[for="georef-opacity"]')).toHaveText('40%');
   });
 });

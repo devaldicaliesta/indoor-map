@@ -148,7 +148,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-104 · Fondasi peta (map-core) — Peta tampil, zoom/rotasi/2D–3D, kontrol peta → `e2e/evidence/T-104/`
 - [x] T-105 · Unggah denah PNG/JPG/PDF — Unggah PNG/JPG/PDF (pilih halaman), riwayat versi, tipe salah ditolak → `e2e/evidence/T-105/`
 - [x] T-106 · Georeferensi dan opasitas — Georeferensi: geser, ukuran, rotasi, kalibrasi jarak, opasitas, simpan → `e2e/evidence/T-106/`
-- [ ] T-107 · Lapisan acuan lantai lain — Lapisan acuan lantai lain tampil samar dan tidak bisa disunting → `e2e/evidence/T-107/`
+- [x] T-107 · Lapisan acuan lantai lain — Lapisan acuan lantai lain tampil samar dan tidak bisa disunting → `e2e/evidence/T-107/`
 - [ ] T-108 · Editor: kanvas, alat gambar, draft — Gambar poligon/garis/titik, draft tersimpan, simpan/buang → `e2e/evidence/T-108/`
 - [ ] T-109 · Jenis fitur dan atribut unit — Ubah jenis fitur dan atribut unit (kode, status, tinggi); kode ganda ditolak → `e2e/evidence/T-109/`
 - [ ] T-110 · Edit geometri, multi-select, snapping — Edit titik, multi-select, snapping, hapus fitur → `e2e/evidence/T-110/`

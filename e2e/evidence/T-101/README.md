@@ -20,3 +20,5 @@ Test case: TC-VEN (CRUD venue lewat wizard, logo, zona waktu, hapus dengan konfi
 - [SEDANG] **Nama venue panjang mendorong kolom Aksi keluar layar** di 1440 px: tombol "Ubah"/"Hapus" terpotong dan hanya bisa dicapai dengan gulir mendatar. **Diperbaiki** (kolom Nama membungkus, `min-w-48 whitespace-normal`); dijaga cek lebar kontainer tabel.
 - [RENDAH] Pesan galat formulir baru hilang saat dikirim ulang, bukan saat kolom diperbaiki (perilaku sama di formulir lain). Dicatat.
 - [Catatan test] Venue `variedVenues` dari run yang dihentikan paksa tertinggal di daftar (fixture tidak sempat membersihkan); hilang saat `pnpm db:reset`.
+
+Tinjauan code-reviewer (T-101–T-106): Perlu perbaikan → **diperbaiki**: keadaan kosong kini memeriksa "Belum ada gedung" (sebelumnya hanya tombol yang selalu ada); T-103 urutan level dikunci `[2, 1, 0, -1]` dan default dicek pada gedung uji; T-104 perkecil, kembali ke tampilan awal, dan kompas kini punya asersi nyata; T-105 aktivasi JPG menunggu riwayat dan DB; T-106 regex rotasi ketat.
