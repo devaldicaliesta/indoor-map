@@ -110,7 +110,8 @@ export interface AuthRepository {
 
 export function createAuthRepository(db: Db, profiles: ProfilesRepository): AuthRepository {
   async function signOut() {
-    const { error } = await db.auth.signOut();
+    // Hanya sesi ini; bawaan supabase-js (`global`) ikut mengeluarkan perangkat lain.
+    const { error } = await db.auth.signOut({ scope: 'local' });
     if (error) throw toDataError(error);
   }
 

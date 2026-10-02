@@ -79,6 +79,20 @@ describe.runIf(url && anonKey && serviceKey)('login lewat Auth Hook (Supabase lo
     expect(profile?.locked_until).not.toBeNull();
   });
 
+  it('keluar di satu perangkat tidak mengeluarkan perangkat lain', async () => {
+    const { email } = await createUser('viewer');
+    const laptop = createRepositories(newDb(anonKey)).auth;
+    const phoneDb = newDb(anonKey);
+    await laptop.signIn(email, PASSWORD);
+    await createRepositories(phoneDb).auth.signIn(email, PASSWORD);
+    await laptop.signOut();
+    expect(await laptop.hasSession()).toBe(false);
+    // getUser memeriksa sesi ke server (JWT saja tetap sah sampai kedaluwarsa).
+    const { data, error } = await phoneDb.auth.getUser();
+    expect(error).toBeNull();
+    expect(data.user?.email).toBe(email);
+  });
+
   it('pengguna nonaktif tidak bisa masuk', async () => {
     const { id, email } = await createUser('viewer');
     await service.from('profiles').update({ is_active: false }).eq('user_id', id);

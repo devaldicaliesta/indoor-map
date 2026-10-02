@@ -20,7 +20,7 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-007 | Kerangka Admin | T-002, T-005, T-006 | review | Layout, menu per role dari `permissions.ts`, pemilih venue (Zustand), guard sesi; diuji di browser dengan 5 akun seed. Diuji E2E T-307a (menu 5 role, 7 venue bervariasi, elipsis nama panjang di Select diperbaiki), bukti `e2e/evidence/T-007/` |
 | T-008 | Login, logout, reset password | T-007 | review | Auth Hook penguncian (migrasi 0002), sesi idle 60 menit, reset lewat email; diuji di browser + Mailpit. Akun terkunci tanpa pesan khusus + email pemberitahuan (migrasi 0021, keputusan T-307a). Diuji E2E T-307a (lulus 3/3, 12 TC-AUTH), bukti `e2e/evidence/T-008/` |
 | T-009a | Peta aksi per role dan pgTAP per role | T-008 | review | `can(role, action)` + 20 uji pgTAP (venues, features, closures, profiles) untuk 5 role. Diuji E2E T-307a (5 role: tombol sesuai `can()`, 19 percobaan buat/ubah/hapus ditolak server, DB tetap), bukti `e2e/evidence/T-009a/` |
-| T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | review | Undang/ubah role/nonaktifkan; guard Super Admin terakhir + audit (migrasi 0003); diuji browser, 2 test integrasi, 7 pgTAP |
+| T-009b | Halaman Pengguna, Edge Function `admin-users`, `<Can>` | T-009a | review | Undang/ubah role/nonaktifkan; guard Super Admin terakhir + audit (migrasi 0003); diuji browser, 2 test integrasi, 7 pgTAP  Diuji E2E T-307a, bukti `e2e/evidence/T-009b/`; perbaikan: keluar hanya sesi ini (`signOut` scope `local`). |
 | T-010 | Pengaturan sistem | T-009 | review | Tab Sistem, password SMTP di Vault, email uji lewat Edge Function; diuji browser + Mailpit. Lihat pertanyaan terbuka soal SMTP GoTrue |
 | T-011 | Kerangka Visitor | T-002, T-006 | review | Layout HP/desktop, bottom sheet 3 tinggi (drag + keyboard), i18next ID/EN, PWA installable; tanpa cookie & request pihak ketiga |
 | T-012 | Catatan peristiwa penting | T-009 | review | Tab Catatan (Super Admin), 200 terakhir + filter; login, gagal masuk, role, nonaktif, pengaturan tercatat |
@@ -117,6 +117,8 @@ Tidak ada.
 Pemilik (2026-09-30): pertanyaan diputuskan langsung sesuai dokumen, lalu dicatat di "Catatan keputusan".
 
 ## Catatan keputusan
+
+- [2026-10-02] T-307a/T-009b — "Keluar" kini hanya mencabut sesi perangkat ini (`signOut({ scope: 'local' })`); bawaan supabase-js `global` mengeluarkan semua perangkat akun itu, bertentangan dengan TC-AUTH-34. Untuk "keluar dari semua perangkat" (bila dibutuhkan) perlu aksi terpisah. Temuan RENDAH: tombol ghost ("Aktifkan", "Ubah waktu selesai") tampak seperti teks; baris Super Admin terakhir tetap menawarkan aksi yang pasti ditolak; halaman Pengguna tanpa pencarian.
 
 - [2026-10-02] T-307a/T-009a — Temuan verifikasi (RENDAH, dicatat): tombol "Ubah waktu selesai" di Penutupan bergaya ghost sehingga tidak tampak bisa diklik; header tabel Penutupan dibaca Chromium sebagai `cell`, perlu cek komponen `Table`. Catatan security-reviewer untuk pemilik: semua staf termasuk Viewer bisa membaca seluruh profil pengguna (`profiles_read`), dan Editor bisa mengubah Info Point yang tidak tercantum di matriks 9.1 `16-test-case.md`.
 
