@@ -3,6 +3,7 @@ import type { FeatureKind, MapFeatureProperties } from '@indoor/domain';
 import { describe, expect, it } from 'vitest';
 import {
   buildRows,
+  firstMatch,
   GROUP_ROW_PX,
   ITEM_ROW_PX,
   type ListItem,
@@ -48,6 +49,14 @@ describe('item daftar fitur', () => {
       item(feature({ id: 'c', kind: 'facility', facilityTypeId: 't1', name: 'Sayap barat' })),
     ).toMatchObject({ label: 'Sayap barat', detail: 'Toilet Pria' });
     expect(item(feature({ id: 'd', kind: 'wall' })).label).toBe('wall tanpa nama');
+  });
+});
+
+describe('firstMatch', () => {
+  it('hasil pertama untuk teks saat ini, urut seperti daftar', () => {
+    expect(firstMatch(units, 'gu-l1')?.label).toBe('GU-L1-002');
+    expect(firstMatch(units, 'GF-021')?.label).toBe('GU-GF-021');
+    expect(firstMatch(units, 'tidak-ada')).toBeUndefined();
   });
 });
 

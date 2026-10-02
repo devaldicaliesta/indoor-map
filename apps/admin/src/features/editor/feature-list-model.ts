@@ -86,6 +86,12 @@ export function buildRows(
   return rows;
 }
 
+/** Fitur pertama yang cocok dengan teks pencarian, dalam urutan daftar. */
+export function firstMatch(items: readonly ListItem[], query: string): ListItem | undefined {
+  const row = buildRows(items, { query, isExpanded: () => true }).find((r) => r.type === 'item');
+  return row?.type === 'item' ? row : undefined;
+}
+
 export const rowHeight = (row: ListRow) => (row.type === 'group' ? GROUP_ROW_PX : ITEM_ROW_PX);
 
 /** Posisi atas setiap baris; elemen terakhir adalah tinggi total daftar. */

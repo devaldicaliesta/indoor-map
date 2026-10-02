@@ -12,6 +12,7 @@ import {
 } from 'react';
 import {
   buildRows,
+  firstMatch,
   type ListRow,
   revealScrollTop,
   rowHeight,
@@ -187,9 +188,10 @@ export function FeatureList({
       event.stopPropagation();
       setQuery('');
     } else if (event.key === 'Enter') {
-      // Enter memilih hasil pertama, berguna saat mencari kode unit yang persis.
-      const first = rows.find((r) => r.type === 'item');
-      if (first?.type === 'item') focus(first.id);
+      // Enter memilih hasil pertama, berguna saat mencari kode unit yang persis. Disaring dari
+      // teks saat ini, bukan daftar tampil (`useDeferredValue`) yang bisa tertinggal saat tempel + Enter.
+      const first = firstMatch(items, query);
+      if (first) focus(first.id);
     }
   }
 

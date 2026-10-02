@@ -150,7 +150,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-106 · Georeferensi dan opasitas — Georeferensi: geser, ukuran, rotasi, kalibrasi jarak, opasitas, simpan → `e2e/evidence/T-106/`
 - [x] T-107 · Lapisan acuan lantai lain — Lapisan acuan lantai lain tampil samar dan tidak bisa disunting → `e2e/evidence/T-107/`
 - [x] T-108 · Editor: kanvas, alat gambar, draft — Gambar poligon/garis/titik, draft tersimpan, simpan/buang → `e2e/evidence/T-108/`
-- [ ] T-109 · Jenis fitur dan atribut unit — Ubah jenis fitur dan atribut unit (kode, status, tinggi); kode ganda ditolak → `e2e/evidence/T-109/`
+- [x] T-109 · Jenis fitur dan atribut unit — Ubah jenis fitur dan atribut unit (kode, status, tinggi); kode ganda ditolak → `e2e/evidence/T-109/`
 - [ ] T-110 · Edit geometri, multi-select, snapping — Edit titik, multi-select, snapping, hapus fitur → `e2e/evidence/T-110/`
 - [ ] T-111 · Undo/redo — Undo/redo lewat tombol dan keyboard → `e2e/evidence/T-111/`
 - [ ] T-112 · Fasilitas dan jenis fasilitas — CRUD fasilitas dan jenis fasilitas (ikon), fasilitas keselamatan → `e2e/evidence/T-112/`
