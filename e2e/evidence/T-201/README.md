@@ -1,6 +1,6 @@
 # T-201 · Routing: graf dan A* — bukti E2E
 
-Spec: `e2e/tests/admin/verify/T-201-routing-astar.spec.ts` (helper `e2e/support/test-route.ts`, fixture `fullVenue`, Editor Peta → Uji rute). Hasil: **lulus 3 run beruntun** (2026-10-02). Unit test paket `@indoor/routing` lulus (lihat jumlah di commit).
+Spec: `e2e/tests/admin/verify/T-201-routing-astar.spec.ts` (helper `e2e/support/test-route.ts`, fixture `fullVenue`, Editor Peta → Uji rute). Hasil: **lulus 3 run beruntun** (2026-10-02). Unit test paket `@indoor/routing`: 110 lulus.
 
 | Gambar | Langkah |
 | --- | --- |
