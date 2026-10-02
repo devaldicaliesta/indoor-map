@@ -27,6 +27,8 @@ test.describe('T-204 Routing: instruksi', () => {
     const en = await route.stepTexts();
     expect(en).toHaveLength(id.length);
     expect(en.join(' | ')).not.toMatch(/Jalan lurus|Belok|Tiba di/);
+    expect(en[0]).toMatch(/^Start/);
+    expect(en.join(' | ')).toMatch(/Go straight for \d/);
     expect(en.at(-1)).toMatch(/L1-B08/);
     await page.screenshot({ path: shot('02-instruksi-en') });
 

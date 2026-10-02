@@ -19,8 +19,7 @@ test.describe('T-209 Test route di Admin', () => {
     await expect(route.summary).toBeVisible();
     const steps = (await route.stepTexts()).join(' | ');
     expect(steps).toMatch(/tangga/i);
-    expect(steps).toMatch(/L2/);
-    await expect(route.steps.first()).toContainText('GF');
+    await expect(route.steps.filter({ hasText: /GU L2/ }).first()).toBeVisible();
     await expect(route.steps.last()).toContainText('L2-B08');
     await page.screenshot({ path: shot('01-rute-lintas-lantai') });
 
@@ -31,8 +30,12 @@ test.describe('T-209 Test route di Admin', () => {
     await expect(route.summary).toBeVisible();
     await page.screenshot({ path: shot('02-langkah-di-L2') });
     // Langkah sebelumnya/berikutnya.
+    const total = await route.steps.count();
     await route.panel.getByRole('button', { name: 'Langkah sebelumnya' }).click();
-    await expect(route.steps.locator('[aria-current="step"]')).toHaveCount(1);
+    await expect(route.steps.nth(total - 2).getByRole('button')).toHaveAttribute(
+      'aria-current',
+      'step',
+    );
 
     // Kursi roda: GF → L2 tidak ada rute aksesibel (lift hanya GF–L1).
     await route.accessible(true);
@@ -48,8 +51,10 @@ test.describe('T-209 Test route di Admin', () => {
       .getByRole('radiogroup', { name: 'Bahasa instruksi' })
       .getByRole('radio', { name: 'en' })
       .click();
-    await expect.poll(async () => (await route.stepTexts()).join(' | ')).toMatch(/elevator|lift/i);
     await expect.poll(async () => (await route.stepTexts()).at(-1) ?? '').toMatch(/arrive/i);
+    await expect
+      .poll(async () => (await route.stepTexts()).join(' | '))
+      .toMatch(/Take the elevator/);
     await page.screenshot({ path: shot('04-instruksi-en') });
   });
 });

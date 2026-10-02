@@ -1,5 +1,5 @@
 import type { Connector, Floor, NavNode, VenueId } from '@indoor/domain';
-import { Button, toast } from '@indoor/ui';
+import { Button } from '@indoor/ui';
 import { useState } from 'react';
 import { useVenueSelection } from '../../../app/venue-store';
 import { useConnectorDialog } from './connector-dialog-store';
@@ -60,15 +60,7 @@ function ConnectorDetails({
               size="sm"
               variant="danger"
               disabled={remove.isPending}
-              // mutateAsync: panel ikut hilang setelah node dihapus, dan callback per-mutate
-              // tidak dipanggil lagi setelah unmount.
-              onClick={() =>
-                remove
-                  .mutateAsync(connector)
-                  .then(() => toast.success('Konektor dihapus', { description: connector.name }))
-                  .catch(() => undefined)
-                  .finally(() => setConfirming(false))
-              }
+              onClick={() => remove.mutate(connector, { onSettled: () => setConfirming(false) })}
             >
               Hapus dari semua lantai
             </Button>

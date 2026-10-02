@@ -30,7 +30,7 @@ test.describe('T-203 Routing: aksesibel, penutupan, titik masuk', () => {
     // GF → L2 hanya lewat tangga: tidak ada rute aksesibel, alasan ditampilkan.
     await route.pick('Ke', 'L2-B08');
     const alert = route.panel.getByRole('alert');
-    await expect(alert).toBeVisible();
+    await expect(alert).toContainText(/L2/);
     await page.screenshot({ path: shot('02-tanpa-rute-aksesibel') });
 
     // Penutupan lift: rute kursi roda GF → L1 tidak lagi bisa lewat lift.
@@ -48,7 +48,10 @@ test.describe('T-203 Routing: aksesibel, penutupan, titik masuk', () => {
     await page.getByRole('tab', { name: 'Uji rute' }).click();
     await route.accessible(true);
     await route.route('GF-A01', 'L1-B08');
-    await expect(alert.or(route.panel.getByText(/Memutar: .*Perawatan lift/))).toBeVisible();
+    // Penutupan harus disebut, baik sebagai alasan gagal maupun catatan memutar.
+    await expect(alert.or(route.panel.getByText(/Memutar: .*Perawatan lift/))).toContainText(
+      'Perawatan lift',
+    );
     await expect(route.steps.filter({ hasText: /lift/i })).toHaveCount(0);
     await page.screenshot({ path: shot('03-lift-ditutup') });
 

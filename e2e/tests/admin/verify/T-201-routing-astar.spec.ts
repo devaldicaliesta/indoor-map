@@ -23,7 +23,8 @@ test.describe('T-201 Routing: graf dan A*', () => {
 
     // Tukar asal dan tujuan: jarak sama.
     await route.panel.getByRole('button', { name: 'Tukar asal dan tujuan' }).click();
-    await expect(route.summary).toBeVisible();
+    // Tunggu langkah benar-benar berbalik sebelum membandingkan jarak.
+    await expect(route.steps.last()).toContainText('GF-A01');
     await expect.poll(() => route.distance()).toBeCloseTo(far, 0);
 
     // Tujuan bersebelahan lebih dekat.

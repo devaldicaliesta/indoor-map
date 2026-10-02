@@ -17,7 +17,6 @@ test.describe('T-202 Routing: konektor', () => {
     await expect(route.summary).toBeVisible();
     const toL1 = (await route.stepTexts()).join(' | ');
     expect(toL1).toMatch(/lift|eskalator|tangga/i);
-    expect(toL1).toMatch(/L1/);
     await expect(route.steps.filter({ hasText: /GU L1/ }).first()).toBeVisible();
     await page.screenshot({ path: shot('01-gf-ke-l1') });
 
@@ -32,6 +31,9 @@ test.describe('T-202 Routing: konektor', () => {
     // Lintas gedung lewat jalur Area Luar.
     await route.pick('Ke', 'GT-B03');
     await expect.poll(async () => (await route.stepTexts()).join(' | ')).toMatch(/GT-B03/);
+    expect((await route.stepTexts()).join(' | ')).toMatch(
+      /Keluar dari Gedung Utama[\s\S]*Masuk ke Gedung Timur/,
+    );
     await page.screenshot({ path: shot('03-lintas-gedung') });
   });
 });
