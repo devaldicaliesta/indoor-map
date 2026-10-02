@@ -174,7 +174,7 @@ Format: task · judul — **fokus cek** → folder bukti.
 - [x] T-207 · Editor konektor dan aksesibilitas — CRUD konektor + arah eskalator + aksesibilitas → `e2e/evidence/T-207/`
 - [x] T-208 · Tampilan graf — Tampilan graf: tampil/sembunyi, warna aksesibel → `e2e/evidence/T-208/`
 - [x] T-209 · Test route — Test route di Admin: asal/tujuan, langkah, mode aksesibel → `e2e/evidence/T-209/`
-- [ ] T-210 · Template instruksi — Ubah template instruksi ID/EN, pratinjau, kembali ke bawaan → `e2e/evidence/T-210/`
+- [x] T-210 · Template instruksi — Ubah template instruksi ID/EN, pratinjau, kembali ke bawaan → `e2e/evidence/T-210/`
 - [ ] T-211 · Penutupan dan role Operator — CRUD penutupan oleh Operator; Operator tidak bisa mengubah peta → `e2e/evidence/T-211/`
 - [ ] T-212 · QR titik asal — CRUD titik asal + unduh QR; QR membuka Visitor di titik itu → `e2e/evidence/T-212/`
 - [ ] T-213 · Spesifikasi deep link — Deep link lokasi/rute/bahasa terbuka dengan keadaan benar → `e2e/evidence/T-213/`
