@@ -401,6 +401,10 @@ SEND_EMAIL_HOOK_SECRET = "v1,whsec_z0/ZtG1axd3HvU9VjunIb/lgBMvIYwC6Ypk28OzYsmI="
 [functions.auth-email]
 verify_jwt = false
 
+# Dipanggil database lewat pg_net tanpa JWT; hanya mengirim pemberitahuan yang tercatat.
+[functions.account-notice]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
