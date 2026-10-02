@@ -35,6 +35,12 @@ const roleLabel = (role: unknown) =>
 
 /** Keterangan singkat per peristiwa; tidak pernah berisi nilai rahasia. */
 export function describeAuditDetails(event: AuditEvent): string {
+  const subject = event.target ? `${event.target.name} (${event.target.email})` : '';
+  const detail = describeDetails(event);
+  return [subject, detail].filter(Boolean).join(' · ');
+}
+
+function describeDetails(event: AuditEvent): string {
   const { details } = event;
   switch (event.action) {
     case 'login_failed': {

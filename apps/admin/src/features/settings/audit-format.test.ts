@@ -7,9 +7,12 @@ const event = (action: AuditEvent['action'], details: Record<string, unknown>): 
   occurredAt: '2026-09-29T10:00:00Z',
   action,
   actor: null,
+  target: null,
   entityId: null,
   details,
 });
+
+const target = { userId: 'u-2', name: 'Renée Ümmü', email: 'renee@contoh.id' };
 
 describe('describeAuditDetails', () => {
   it('gagal masuk menyebut alasan dan hitungan', () => {
@@ -23,6 +26,13 @@ describe('describeAuditDetails', () => {
     expect(describeAuditDetails(event('role_changed', { from: 'editor', to: 'viewer' }))).toBe(
       'Editor → Viewer',
     );
+  });
+
+  it('peristiwa tentang pengguna lain menyebut pengguna itu', () => {
+    const changed = { ...event('role_changed', { from: 'viewer', to: 'editor' }), target };
+    expect(describeAuditDetails(changed)).toBe('Renée Ümmü (renee@contoh.id) · Viewer → Editor');
+    const deactivated = { ...event('user_deactivated', {}), target };
+    expect(describeAuditDetails(deactivated)).toBe('Renée Ümmü (renee@contoh.id)');
   });
 
   it('publish menyebut nomor versi dan venue', () => {
