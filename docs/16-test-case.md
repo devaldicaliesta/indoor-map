@@ -13,6 +13,7 @@ Katalog ini adalah daftar test case yang wajib dijalankan **sebelum dan selama**
   - **M**: manual/eksplorasi (dicatat di README bukti)
 - **Prioritas**: **P1** blokir rilis (data hilang, keamanan, alur utama), **P2** fungsi penting, **P3** kosmetik/kenyamanan.
 - Hasil dicatat di README bukti task: `Lulus`, `Gagal (langkah reproduksi)`, atau `Ditunda (alasan)`.
+- **Satu task per putaran:** setiap selesai menguji satu task, laporkan hasilnya ke pemilik dan tunggu konfirmasi sebelum menguji task berikutnya (lihat `15-verifikasi-e2e.md` aturan 1).
 - Urutan eksekusi: U → D → I → E → keamanan → NFR. Test E2E tidak dimulai sebelum U/D/I untuk task yang sama hijau.
 
 ## 2. Lingkungan dan data uji

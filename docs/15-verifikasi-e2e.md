@@ -21,6 +21,7 @@ pnpm test:e2e                  # Playwright menyalakan Admin :5173 dan Visitor :
 ## Aturan pengerjaan
 
 1. Mulai dari **R0 Fondasi (T-001)**, lanjut berurutan sesuai daftar di bawah. **Satu task per langkah**: task berikutnya baru dimulai setelah task saat ini lulus atau temuannya dicatat.
+   - **Wajib berhenti dan konfirmasi ke pemilik setiap selesai satu task.** Setelah satu task diuji, laporkan hasilnya (lulus/gagal, test case yang dijalankan, temuan, dan gambar di `e2e/evidence/T-xxx/`), lalu **tunggu persetujuan pemilik** sebelum memulai task berikutnya. Jangan langsung lanjut otomatis, walaupun semua test lulus.
 2. Per task satu spec, di folder yang memang dijalankan konfigurasi Playwright (`testMatch` hanya `admin/**` dan `visitor/**`):
    - `e2e/tests/admin/verify/T-xxx-slug.spec.ts` untuk Admin (desktop 1440 × 900)
    - `e2e/tests/visitor/verify/T-xxx-slug.spec.ts` untuk Visitor (HP 360 × 740); buka halaman tambahan 1280 × 800 untuk desktop
