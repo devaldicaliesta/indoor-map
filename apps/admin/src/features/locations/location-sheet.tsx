@@ -37,6 +37,7 @@ import {
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
 import { Field } from '../../app/components/field';
+import { AliasField, useAliasDraft } from '../aliases/alias-field';
 import { FormNotice } from '../auth/auth-layout';
 import { CategoryChecklist } from './category-checklist';
 import { CustomFieldInputs, type FieldDraft } from './custom-field-inputs';
@@ -102,6 +103,7 @@ export function LocationSheet({
   );
   const [problems, setProblems] = useState<LocationInputProblems>({});
   const [picking, setPicking] = useState(false);
+  const aliases = useAliasDraft(venueId, 'location', location?.id ?? null, name);
   const busy = save.isPending || uploading;
   const typeCategories = categories.filter((c) => c.locationTypeId === typeId);
 
@@ -122,7 +124,8 @@ export function LocationSheet({
     if (
       Object.keys(found).length > 0 ||
       Object.keys(parsed.errors).length > 0 ||
-      Object.keys(details).length > 0
+      Object.keys(details).length > 0 ||
+      aliases.error
     ) {
       return;
     }
@@ -157,7 +160,15 @@ export function LocationSheet({
         images: toLocationImages(images, location?.logoPath ?? null),
       },
       {
-        onSuccess: () => {
+        onSuccess: async (savedId) => {
+          try {
+            await aliases.save(savedId);
+          } catch (error) {
+            setFieldErrors({
+              upload: `Lokasi tersimpan, tetapi alias tidak: ${error instanceof Error ? error.message : 'galat'}`,
+            });
+            return;
+          }
           toast.success(location ? 'Lokasi disimpan' : 'Lokasi ditambahkan', {
             description: name.trim(),
           });
@@ -230,6 +241,7 @@ export function LocationSheet({
               className="w-full rounded-sm border border-ink-muted bg-surface px-3 py-2 text-ink disabled:cursor-not-allowed disabled:opacity-50"
             />
           </Field>
+          <AliasField id="location-aliases" draft={aliases} disabled={readOnly || busy} />
           <CustomFieldInputs
             fields={type?.fields ?? []}
             draft={draft}

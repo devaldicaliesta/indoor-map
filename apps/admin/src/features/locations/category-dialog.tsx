@@ -13,6 +13,7 @@ import {
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
 import { Field } from '../../app/components/field';
+import { AliasField, useAliasDraft } from '../aliases/alias-field';
 import { FormNotice } from '../auth/auth-layout';
 import {
   type IconChoice,
@@ -42,13 +43,15 @@ export function CategoryDialog({
   const [choice, setChoice] = useState<IconChoice>(() => initialIconChoice(category?.icon ?? null));
   const [nameError, setNameError] = useState<string>();
   const [reading, setReading] = useState(false);
+  const aliases = useAliasDraft(venueId, 'category', category?.id ?? null, name);
+  const [aliasError, setAliasError] = useState<string>();
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const sameType = others.filter((c) => c.locationTypeId === typeId);
     const problem = checkCategoryName(name, sameType, category?.id ?? null)[0];
     setNameError(problem ? CATEGORY_NAME_MESSAGES[problem] : undefined);
-    if (problem) return;
+    if (problem || aliases.error) return;
     save.mutate(
       {
         id: category?.id ?? null,
@@ -58,7 +61,13 @@ export function CategoryDialog({
         iconPng: iconChoicePng(choice),
       },
       {
-        onSuccess: (saved) => {
+        onSuccess: async (saved) => {
+          try {
+            await aliases.save(saved.id);
+          } catch (error) {
+            setAliasError(error instanceof Error ? error.message : 'Alias tidak tersimpan.');
+            return;
+          }
           toast.success(category ? 'Kategori disimpan' : 'Kategori ditambahkan', {
             description: saved.name,
           });
@@ -95,7 +104,9 @@ export function CategoryDialog({
             onBusyChange={setReading}
             disabled={save.isPending}
           />
+          <AliasField id="category-aliases" draft={aliases} disabled={save.isPending} />
           {save.error ? <FormNotice tone="error">{save.error.message}</FormNotice> : null}
+          {aliasError ? <FormNotice tone="error">{aliasError}</FormNotice> : null}
           <DialogFooter>
             <Button type="submit" variant="primary" disabled={save.isPending || reading}>
               {save.isPending ? 'Menyimpan…' : category ? 'Simpan kategori' : 'Tambah kategori'}

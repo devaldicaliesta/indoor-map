@@ -1482,6 +1482,15 @@ export type Database = {
       };
       publish_commit: { Args: { p_publication_id: string }; Returns: undefined };
       release_edit_lock: { Args: { p_floor_id: string }; Returns: undefined };
+      set_search_aliases: {
+        Args: {
+          p_keywords: string[];
+          p_target_id: string;
+          p_target_kind: string;
+          p_venue_id: string;
+        };
+        Returns: undefined;
+      };
       save_connector: {
         Args: {
           p_direction?: Database['public']['Enums']['escalator_direction'];
