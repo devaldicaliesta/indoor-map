@@ -60,12 +60,35 @@ function paintOf(snapshot: Snapshot) {
   return paint;
 }
 
+/**
+ * Pelat lantai dari footprint gedung, digambar di bawah unit seperti lantai pada peta indoor
+ * komersial. Bukan fitur snapshot, jadi tidak bisa diketuk.
+ */
+function floorSlabs(
+  snapshot: Snapshot,
+  floorIds: readonly string[],
+): FloorFeatureCollection['features'] {
+  const footprints = new Map(snapshot.buildings.map((b) => [b.id, b.footprint]));
+  return snapshot.floors.flatMap((floor) => {
+    const footprint = floor.buildingId ? footprints.get(floor.buildingId) : null;
+    if (!footprint || !floorIds.includes(floor.id)) return [];
+    const id = `slab-${floor.id}`;
+    return [
+      {
+        type: 'Feature',
+        geometry: footprint,
+        properties: { id, kind: 'corridor', floorId: floor.id },
+      },
+    ];
+  });
+}
+
 function floorCollection(snapshot: Snapshot, floorIds: readonly string[]): FloorFeatureCollection {
   const visible = new Set(floorIds);
   const paint = paintOf(snapshot);
   return {
     type: 'FeatureCollection',
-    features: snapshot.features.features
+    features: [...floorSlabs(snapshot, floorIds), ...snapshot.features.features]
       .filter((f) => visible.has(f.properties.floorId))
       .map((f) => {
         const colors = paint.get(f.properties.id);
@@ -78,7 +101,8 @@ function floorCollection(snapshot: Snapshot, floorIds: readonly string[]): Floor
 
 function startCamera(snapshot: Snapshot, view: MapView, mode: SnapshotDisplayMode) {
   const floorIds = view.floorId ? visibleFloorIds(snapshot, view.floorId) : [];
-  return initialCamera(snapshot, floorCollection(snapshot, floorIds), mode);
+  const viewport = { width: window.innerWidth, height: window.innerHeight };
+  return initialCamera(snapshot, floorCollection(snapshot, floorIds), mode, viewport);
 }
 
 // Pemilih gedung di kiri atas dan kolom lantai/kontrol di kanan (lebar kontrol 44 px).

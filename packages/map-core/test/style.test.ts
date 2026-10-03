@@ -126,4 +126,13 @@ describe('gaya per jenis (T-109)', () => {
     expect(points).toContain('"exit",4.5');
     expect(points).toContain('#1b7f4b');
   });
+
+  it('3D: cahaya lembut dan tepi atas ruang terang', () => {
+    const style = buildStyle();
+    expect(style.light).toMatchObject({ anchor: 'viewport', intensity: 0.32 });
+    const edges = style.layers.find((l) => l.id === LAYER_IDS.extrusionEdges);
+    expect(edges?.type === 'fill-extrusion' ? edges.paint?.['fill-extrusion-color'] : null).toBe(
+      '#f7f8fa',
+    );
+  });
 });
