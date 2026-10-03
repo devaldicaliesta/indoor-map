@@ -29,9 +29,10 @@ test.describe('T-002 Scaffold Visitor', () => {
     await expect(page.getByText(/Tanyakan ke petugas/)).toBeInViewport();
     await page.screenshot({ path: shot('06-visitor-venue-tidak-ada') });
 
+    // Tanpa venue di URL, layar Info Point tidak bisa dimuat (mode lengkapnya di T-408).
     await page.goto('/ip/IP-LOBI');
-    await expect(page.locator('[data-info-point-code="IP-LOBI"]')).toBeVisible();
-    await page.screenshot({ path: shot('07-info-point-placeholder') });
+    await expect(page.getByText('Info Point tidak ditemukan')).toBeVisible();
+    await page.screenshot({ path: shot('07-info-point-tanpa-venue') });
 
     await page.goto('/halaman-yang-tidak-ada');
     await expect(page.getByText('Halaman tidak ditemukan')).toBeVisible();

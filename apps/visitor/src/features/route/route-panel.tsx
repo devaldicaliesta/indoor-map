@@ -4,6 +4,7 @@ import { ArrowUpDownIcon, ChevronLeftIcon, ChevronRightIcon, ListIcon } from 'lu
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { intlLocale } from '../../i18n';
+import { useInfoPointMode } from '../../infopoint/info-point-mode';
 import { placeOfTarget } from '../origin/origin-model';
 import { useOriginName } from '../origin/origin-panels';
 import { detailTitle } from '../search/detail-title';
@@ -148,6 +149,8 @@ export function RoutePanel() {
   const activeStep = useExploreStore((s) => s.activeStep);
   // Fungsi aksi store tidak pernah berganti, jadi cukup dibaca sekali tanpa berlangganan.
   const { chooseOrigin, closeRoute, setAccessible, swap, showStep } = store.getState();
+  // Info Point: titik asal tetap, jadi tidak bisa diganti atau ditukar.
+  const infoPoint = useInfoPointMode();
   const from = useOriginName();
   const plan = useRoutePlan();
   const to = destination ? detailTitle(index, destination) : '';
@@ -175,21 +178,25 @@ export function RoutePanel() {
         <dl className="grid min-w-0 flex-1 grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2">
           <dt className="text-ink-muted">{t('route.from')}</dt>
           <dd className="min-w-0 truncate font-bold">{from}</dd>
-          <Button size="sm" variant="ghost" onClick={chooseOrigin}>
-            {t('origin.change')}
-          </Button>
+          {infoPoint ? null : (
+            <Button size="sm" variant="ghost" onClick={chooseOrigin}>
+              {t('origin.change')}
+            </Button>
+          )}
           <dt className="text-ink-muted">{t('route.to')}</dt>
           <dd className="col-span-2 min-w-0 truncate font-bold">{to}</dd>
         </dl>
-        <Button
-          size="icon"
-          variant="ghost"
-          aria-label={t('route.swap')}
-          disabled={!swapTarget}
-          onClick={() => swapTarget && swap(placeOfTarget(destination), swapTarget)}
-        >
-          <ArrowUpDownIcon aria-hidden="true" strokeWidth={1.75} />
-        </Button>
+        {infoPoint ? null : (
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label={t('route.swap')}
+            disabled={!swapTarget}
+            onClick={() => swapTarget && swap(placeOfTarget(destination), swapTarget)}
+          >
+            <ArrowUpDownIcon aria-hidden="true" strokeWidth={1.75} />
+          </Button>
+        )}
       </div>
       <label className="flex cursor-pointer items-center gap-2">
         <input

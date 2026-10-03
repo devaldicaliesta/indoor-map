@@ -54,7 +54,12 @@
     "serviceInactiveDescription": "This venue’s digital map is currently unavailable. Ask the nearest staff member for directions."
   },
   "infoPoint": {
-    "title": "Info Point {{code}}"
+    "notFoundTitle": "Info Point not found",
+    "notFoundDescription": "This screen is not registered in the published map. Contact the building management.",
+    "keyboard": "On-screen keyboard",
+    "space": "Space",
+    "backspace": "Delete letter",
+    "search": "Search"
   },
   "info": {
     "open": "Map information",

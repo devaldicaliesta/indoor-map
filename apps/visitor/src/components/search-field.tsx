@@ -14,6 +14,8 @@ export function SearchField({
   onValueChange,
   onKeyDown,
   controls,
+  virtualKeyboard = false,
+  onFocus,
 }: {
   className?: string | undefined;
   /** Bawaan "Cari lokasi…"; halaman venue menyebut nama venue. */
@@ -23,6 +25,9 @@ export function SearchField({
   onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
   /** Id daftar hasil yang dikendalikan kolom ini. */
   controls?: string;
+  /** Info Point: keyboard sistem operasi tidak dimunculkan; isian lewat keyboard layar. */
+  virtualKeyboard?: boolean;
+  onFocus?: () => void;
 }) {
   const { t } = useTranslation();
   return (
@@ -42,6 +47,8 @@ export function SearchField({
         onChange={onValueChange ? (e) => onValueChange(e.target.value) : undefined}
         onKeyDown={onKeyDown}
         autoComplete="off"
+        inputMode={virtualKeyboard ? 'none' : undefined}
+        onFocus={onFocus}
         enterKeyHint="search"
       />
       {value && onValueChange ? (
