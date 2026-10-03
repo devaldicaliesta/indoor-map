@@ -135,6 +135,31 @@ function Form({ settings, passwordIsSet }: { settings: SystemSettings; passwordI
       </Section>
 
       <Section
+        title="Peta dasar (opsional)"
+        description="Jalan dan lingkungan di sekitar gedung di bawah peta Visitor, dari server tile XYZ yang disediakan klien. Kosongkan agar Visitor tetap berjalan tanpa internet. Berlaku setelah publish berikutnya."
+      >
+        <div className="col-span-2">
+          <Field
+            id="basemapTileUrl"
+            label="URL tile"
+            hint="Contoh: https://tile.openstreetmap.org/{z}/{x}/{y}.png. Pastikan izin pemakaian server tile."
+            error={errors.basemapTileUrl}
+          >
+            <Input
+              {...input('basemapTileUrl')}
+              placeholder="https://tile.contoh.id/{z}/{x}/{y}.png"
+              className="font-mono"
+            />
+          </Field>
+        </div>
+        <div className="col-span-2">
+          <Field id="basemapAttribution" label="Atribusi" error={errors.basemapAttribution}>
+            <Input {...input('basemapAttribution')} placeholder="© OpenStreetMap contributors" />
+          </Field>
+        </div>
+      </Section>
+
+      <Section
         title="Server email (SMTP)"
         description="Untuk email sistem seperti undangan dan email uji."
       >

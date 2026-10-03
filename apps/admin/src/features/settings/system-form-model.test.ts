@@ -10,6 +10,8 @@ const base: SystemFormValues = {
   smtpUsername: 'noreply',
   smtpPassword: '',
   smtpFrom: 'Peta RS Harapan <noreply@rs-harapan.id>',
+  basemapTileUrl: '',
+  basemapAttribution: '',
 };
 
 describe('validate', () => {
@@ -46,6 +48,24 @@ describe('toPatch', () => {
       smtpPort: 587,
       smtpUsername: null,
       smtpFrom: 'Peta RS Harapan <noreply@rs-harapan.id>',
+      basemapTileUrl: null,
+      basemapAttribution: null,
     });
+  });
+});
+
+describe('peta dasar', () => {
+  it('kosong = tanpa peta dasar; URL tile wajib {z}/{x}/{y} dan atribusi', () => {
+    expect(validate(base)).toEqual({});
+    const errors = validate({ ...base, basemapTileUrl: 'https://tile.contoh.id/{z}.png' });
+    expect(errors.basemapTileUrl).toContain('{z}, {x}, dan {y}');
+    expect(errors.basemapAttribution).toContain('atribusi');
+    expect(
+      validate({
+        ...base,
+        basemapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        basemapAttribution: '© OpenStreetMap contributors',
+      }),
+    ).toEqual({});
   });
 });

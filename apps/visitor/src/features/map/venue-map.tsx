@@ -18,6 +18,7 @@ import {
   type FloorFeatureCollection,
   type MapDisplay,
   type MapInstance,
+  setBasemap,
   setFacilityIcons,
   setFloorData,
   setLabels,
@@ -196,6 +197,7 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
       container.dataset.camera = 'idle';
     });
     instance.once('load', () => {
+      if (snapshot.basemap) setBasemap(instance, snapshot.basemap);
       if (camera) moveCamera(instance, camera, { animate: false, padding: paddingRef.current });
       const icons = [
         ...facilityIconSpecs(snapshot.facilityTypes),

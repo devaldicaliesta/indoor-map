@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkPublicVisitorUrl, isValidPort, isValidTimezone } from '../src';
+import { checkBasemapTileUrl, checkPublicVisitorUrl, isValidPort, isValidTimezone } from '../src';
 
 describe('checkPublicVisitorUrl', () => {
   it('menerima https tanpa garis miring akhir, termasuk dengan path', () => {
@@ -35,5 +35,18 @@ describe('isValidPort dan isValidTimezone', () => {
   it('zona waktu IANA', () => {
     expect(isValidTimezone('Asia/Makassar')).toBe(true);
     expect(isValidTimezone('WITA')).toBe(false);
+  });
+});
+
+describe('URL tile peta dasar', () => {
+  it('menerima URL XYZ https dengan {z}, {x}, {y}', () => {
+    expect(checkBasemapTileUrl('https://tile.openstreetmap.org/{z}/{x}/{y}.png')).toBeNull();
+    expect(checkBasemapTileUrl('http://localhost:8080/tiles/{z}/{x}/{y}.png')).toBeNull();
+  });
+
+  it('menolak URL rusak, http di luar localhost, dan tanpa placeholder', () => {
+    expect(checkBasemapTileUrl('bukan url')).toBe('invalid');
+    expect(checkBasemapTileUrl('http://tile.contoh.id/{z}/{x}/{y}.png')).toBe('not_https');
+    expect(checkBasemapTileUrl('https://tile.contoh.id/{z}/{x}.png')).toBe('missing_placeholders');
   });
 });

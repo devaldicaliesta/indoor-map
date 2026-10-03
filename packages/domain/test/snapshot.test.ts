@@ -282,3 +282,18 @@ describe('tipe snapshot sama dengan enum domain', () => {
     expectTypeOf<SnapshotNodeRole>().toEqualTypeOf<NavNodeRole>();
   });
 });
+
+describe('peta dasar di snapshot', () => {
+  it('ikut terbit bila diisi; snapshot tanpa peta dasar tetap valid', () => {
+    const basemap = {
+      tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '© OpenStreetMap contributors',
+    };
+    const withBasemap = buildSnapshot({ ...sampleSnapshotSource(), basemap });
+    expect(withBasemap.basemap).toEqual(basemap);
+    expect(SnapshotSchema.safeParse(withBasemap).success).toBe(true);
+    const without = buildSnapshot({ ...sampleSnapshotSource(), basemap: null });
+    expect('basemap' in without).toBe(false);
+    expect(SnapshotSchema.safeParse(without).success).toBe(true);
+  });
+});

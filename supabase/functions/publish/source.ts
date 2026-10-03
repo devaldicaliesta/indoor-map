@@ -29,13 +29,24 @@ const point = (geom: unknown): SnapshotPosition => {
   return Array.isArray(coordinates) ? [num(coordinates[0]), num(coordinates[1])] : [0, 0];
 };
 
-/** Bahasa default instalasi; tabelnya hanya bisa dibaca Super Admin, jadi dibaca server. */
-async function defaultLanguage(): Promise<SnapshotLanguage> {
-  const response = await fetch(`${url}/rest/v1/system_settings?select=default_language`, {
-    headers: serviceHeaders,
-  });
+/**
+ * Bahasa default dan peta dasar instalasi; tabelnya hanya bisa dibaca Super Admin, jadi
+ * dibaca server.
+ */
+async function installation(): Promise<{
+  language: SnapshotLanguage;
+  basemap: SnapshotSource['basemap'];
+}> {
+  const response = await fetch(
+    `${url}/rest/v1/system_settings?select=default_language,basemap_tile_url,basemap_attribution`,
+    { headers: serviceHeaders },
+  );
   const [row] = response.ok ? ((await response.json()) as Row[]) : [];
-  return row?.default_language === 'en' ? 'en' : 'id';
+  const tileUrl = strOrNull(row?.basemap_tile_url);
+  return {
+    language: row?.default_language === 'en' ? 'en' : 'id',
+    basemap: tileUrl ? { tileUrl, attribution: str(row?.basemap_attribution) } : null,
+  };
 }
 
 function toFeature(r: Row): SourceFeature {
@@ -116,7 +127,7 @@ export async function readSource(
   const [
     venues,
     display,
-    language,
+    install,
     buildings,
     floors,
     features,
@@ -139,7 +150,7 @@ export async function readSource(
       'display_settings',
       `select=default_mode,heights,colors,camera,branding&${byVenue}&order=venue_id`,
     ),
-    defaultLanguage(),
+    installation(),
     rest.select<Row>(
       'buildings',
       `select=id,name,code,footprint,default_floor_id,sort_order&${byVenue}&order=id`,
@@ -205,7 +216,8 @@ export async function readSource(
   return {
     version: meta.version,
     publishedAt: meta.publishedAt,
-    defaultLanguage: language,
+    defaultLanguage: install.language,
+    basemap: install.basemap,
     enabledFeatures: meta.enabledFeatures,
     venue: {
       id: str(venue.id),
