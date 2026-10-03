@@ -242,9 +242,14 @@ function reach(net: Network, seeds: Iterable<string>): Set<string> {
   return seen;
 }
 
-/** Tanpa titik asal di graf, jaringan terbesar menjadi acuan (Visitor bisa memilih asal di peta). */
+/**
+ * Acuan: titik asal QR dan Info Point yang menempel ke graf. Tanpa keduanya, jaringan terbesar
+ * menjadi acuan (Visitor bisa memilih asal di peta).
+ */
 function reachableNodes(source: SnapshotSource, net: Network): Set<string> {
-  const seeds = source.originPoints.flatMap((o) => (o.nodeId ? [o.nodeId] : []));
+  const seeds = [...source.originPoints, ...source.infoPoints].flatMap((o) =>
+    o.nodeId ? [o.nodeId] : [],
+  );
   if (seeds.some((id) => net.nodes.has(id))) return reach(net, seeds);
   let largest = new Set<string>();
   const visited = new Set<string>();
