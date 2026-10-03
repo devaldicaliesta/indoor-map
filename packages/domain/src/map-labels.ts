@@ -17,6 +17,8 @@ export type MapLabel =
       id: string;
       floorId: string;
       name: string;
+      /** Kategori pertama lokasi: ikon dan warna penanda POI; `null` = tanpa ikon. */
+      categoryId: string | null;
       position: Position;
       priority: number;
     }
@@ -105,6 +107,7 @@ export function mapLabels(
         id: location.id,
         floorId,
         name: location.name,
+        categoryId: location.categoryIds[0] ?? null,
         position: labelPoint(polygon.coordinates),
         priority: selected.has(location.id) ? LABEL_PRIORITY.selected : LABEL_PRIORITY.location,
       });

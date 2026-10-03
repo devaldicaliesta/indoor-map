@@ -43,7 +43,7 @@ import {
   moveCamera,
 } from './camera';
 import { useExploreMap } from './explore-map';
-import { facilityIconSpecs } from './facility-icons';
+import { categoryIconSpecs, facilityIconSpecs } from './facility-icons';
 import { LABEL_FONT } from './label-font';
 
 /** Isi pastel dan tepi per unit dari warna kategori lokasinya (dihitung sekali per snapshot). */
@@ -173,7 +173,11 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
     });
     instance.once('load', () => {
       if (camera) moveCamera(instance, camera, { animate: false, padding: paddingRef.current });
-      void setFacilityIcons(instance, facilityIconSpecs(snapshot.facilityTypes), {
+      const icons = [
+        ...facilityIconSpecs(snapshot.facilityTypes),
+        ...categoryIconSpecs(snapshot.categories, snapshot.locationTypes),
+      ];
+      void setFacilityIcons(instance, icons, {
         background: snapshot.venue.display.colors.facility,
       });
       setMap(instance);

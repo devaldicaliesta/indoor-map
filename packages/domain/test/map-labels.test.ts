@@ -80,4 +80,12 @@ describe('label peta', () => {
     const labels = locationLabels(mapLabels(snapshot, floors));
     expect(labels.some((l) => l.id === IDS.lab)).toBe(false);
   });
+
+  it('label lokasi membawa kategori pertamanya untuk ikon POI', () => {
+    const snapshot = buildSnapshot(sampleSnapshotSource());
+    const floors = snapshot.floors.map((f) => f.id);
+    const labels = mapLabels(snapshot, floors, new Set());
+    const radiology = labels.find((l) => l.kind === 'location' && l.name === 'Radiologi');
+    expect(radiology).toMatchObject({ categoryId: IDS.examCategory });
+  });
 });
