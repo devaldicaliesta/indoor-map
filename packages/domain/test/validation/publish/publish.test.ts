@@ -44,7 +44,12 @@ describe('validasi publish: Error', () => {
         : f,
     );
     const f = findingOf(s, 'polygon_self_intersection');
-    expect(f).toMatchObject({ severity: 'error', floorId: ID.gf, featureIds: [ID.u1] });
+    expect(f).toMatchObject({
+      severity: 'error',
+      floorId: ID.gf,
+      buildingId: ID.building,
+      featureIds: [ID.u1],
+    });
   });
 
   it('unit tumpang tindih', () => {

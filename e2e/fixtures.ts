@@ -4,10 +4,13 @@ import {
   type AppRole,
   type Building,
   EMPTY_OPENING_HOURS,
+  type FeatureId,
   FeatureIdSchema,
   type Floor,
+  type FloorId,
   type Polygon,
   type Venue,
+  type VenueId,
 } from '@indoor/domain';
 import { test as base, expect } from '@playwright/test';
 import { ACCOUNTS } from './accounts';
@@ -38,6 +41,57 @@ const FOOTPRINT: Polygon = {
 };
 
 /** Persegi unit di sebelah barat (dx < 0) atau timur (dx > 0) pusat gedung uji, ±22 × 22 m. */
+/**
+ * Jalur mendatar di bawah unit uji dan satu titik masuk per unit, agar venue lolos validasi
+ * publish (unit tanpa titik masuk adalah Error).
+ */
+async function linkUnitsToPath(
+  data: DataClient,
+  venueId: VenueId,
+  floorId: FloorId,
+  units: readonly { id: FeatureId; dx: number }[],
+) {
+  const below = TEST_CENTER[1] - 0.00015;
+  const nodes = units.flatMap(({ id, dx }) => {
+    const x = TEST_CENTER[0] + dx;
+    return [
+      {
+        id: crypto.randomUUID(),
+        floorId,
+        coordinates: [x, below] as [number, number],
+        role: 'path' as const,
+        featureId: null,
+      },
+      {
+        id: crypto.randomUUID(),
+        floorId,
+        coordinates: [x, TEST_CENTER[1] - 0.0001] as [number, number],
+        role: 'entrance' as const,
+        featureId: id,
+      },
+    ];
+  });
+  const edge = (from: string, to: string) => ({
+    id: crypto.randomUUID(),
+    floorId,
+    from,
+    to,
+    lengthM: 6,
+    accessible: true,
+  });
+  const paths = nodes.filter((n) => n.role === 'path');
+  const edges = [
+    ...units.map((_, i) => edge(nodes[i * 2]?.id ?? '', nodes[i * 2 + 1]?.id ?? '')),
+    ...paths.slice(1).map((p, i) => edge(paths[i]?.id ?? '', p.id)),
+  ];
+  await data.navGraph.apply(venueId, {
+    saveNodes: nodes,
+    removeNodeIds: [],
+    saveEdges: edges,
+    removeEdgeIds: [],
+  });
+}
+
 function unitSquare(dx: number): Polygon {
   const [x, y] = [TEST_CENTER[0] + dx, TEST_CENTER[1]];
   const h = 0.0001;
@@ -178,6 +232,10 @@ export const test = base.extend<Fixtures>({
       },
       { keepPhotoPaths: [], newPhotos: [] },
     );
+    await linkUnitsToPath(superAdmin, venue.id, floor.id, [
+      { id: radiologyUnitId, dx: -0.0001 },
+      { id: vacantUnitId, dx: 0.0001 },
+    ]);
     await superAdmin.publications.publish(venue.id);
     await use({ ...testVenue, radiologyUnitId, vacantUnitId });
   },

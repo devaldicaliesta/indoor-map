@@ -1,5 +1,6 @@
 import { can } from '@indoor/domain';
 import { EmptyState, Tabs, TabsContent, TabsList, TabsTrigger } from '@indoor/ui';
+import { useSearchParams } from 'react-router';
 import { useRole } from '../../app/auth/can';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
@@ -15,11 +16,14 @@ export function SettingsPage() {
   const { venue } = useSelectedVenue();
   // Sistem dan Catatan berlaku untuk seluruh instalasi, jadi hanya untuk Super Admin.
   const system = role !== null && can(role, 'settings.system');
+  // Tab di URL agar tautan (misalnya dari temuan validasi publish) membuka tab yang tepat.
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('tab') ?? 'facility-types';
   return (
     <ModuleRoute module="settings">
       {(access) => (
         <ModulePage module="settings" access={access}>
-          <Tabs defaultValue="facility-types">
+          <Tabs value={tab} onValueChange={(value) => setParams({ tab: value }, { replace: true })}>
             <TabsList>
               <TabsTrigger value="facility-types">Jenis fasilitas</TabsTrigger>
               <TabsTrigger value="display">Tampilan</TabsTrigger>
