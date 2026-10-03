@@ -1,7 +1,7 @@
 import type { Snapshot } from '@indoor/domain';
 import { type FloorFeatureCollection, PITCH_3D } from '@indoor/map-core';
 import { describe, expect, it } from 'vitest';
-import { initialCamera } from './camera';
+import { fitBearing, initialCamera } from './camera';
 
 const venue = (camera: Snapshot['venue']['camera']) =>
   ({ venue: { camera } }) as Pick<Snapshot, 'venue'>;
@@ -55,7 +55,28 @@ describe('kamera awal Visitor', () => {
         [106.8268, -6.1755],
         [106.8276, -6.1751],
       ],
+      bearing: 0,
     });
+  });
+
+  it('HP tegak dan lantai memanjang (±88 × 44 m): peta diputar agar lantai mengisi layar', () => {
+    const portrait = { width: 390, height: 844 };
+    expect(initialCamera(venue(null), features, '2d', portrait)).toMatchObject({ bearing: 90 });
+    expect(initialCamera(venue(null), features, '2d', { width: 1280, height: 800 })).toMatchObject({
+      bearing: 0,
+    });
+  });
+
+  it('lantai hampir persegi tidak diputar di HP', () => {
+    expect(
+      fitBearing(
+        [
+          [106.8268, -6.1755],
+          [106.8272, -6.1751],
+        ],
+        { width: 390, height: 844 },
+      ),
+    ).toBe(0);
   });
 
   it('lantai kosong tanpa kamera tersimpan: tidak ada kamera awal', () => {

@@ -126,7 +126,17 @@ export function venueHeights(display: MapDisplay): Partial<Record<FeatureKind, n
   return { ...DEFAULT_HEIGHTS, ...display.heights };
 }
 
-const EDGE_COLOR = '#8a929b';
+// Tepi atas ruang terang seperti dinding pemisah putih pada peta indoor komersial; sisi
+// ekstrusi tetap terbaca karena cahaya miring (`LIGHT_3D`).
+const EDGE_COLOR = '#f7f8fa';
+
+/** Cahaya lembut dari kiri atas layar: sisi ruang sedikit lebih gelap dari atapnya. */
+export const LIGHT_3D = {
+  anchor: 'viewport',
+  color: '#ffffff',
+  intensity: 0.32,
+  position: [1.15, 210, 35],
+} as const;
 
 /** Warna bawaan per jenis untuk isian Pengaturan → Tampilan (isi, garis dinding, titik, latar ikon). */
 export function defaultKindColor(featureKind: FeatureKind): string {
@@ -274,6 +284,7 @@ export function buildStyle(
   );
   return {
     version: 8,
+    light: { ...LIGHT_3D, position: [...LIGHT_3D.position] },
     ...(labelFont ? { 'font-faces': labelFontFaces(labelFont) } : {}),
     sources: {
       [FLOOR_SOURCE_ID]: { type: 'geojson', data: emptyCollection() },

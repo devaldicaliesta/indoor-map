@@ -9,7 +9,26 @@ import {
 
 export type InitialCamera =
   | { kind: 'view'; center: [number, number]; zoom: number; pitch: number; bearing: number }
-  | { kind: 'bounds'; bounds: [[number, number], [number, number]] };
+  | { kind: 'bounds'; bounds: [[number, number], [number, number]]; bearing: number };
+
+/** Lantai minimal sekian kali lebih lebar dari tingginya diputar di layar tegak. */
+const ELONGATED = 1.8;
+
+/**
+ * Arah peta saat membingkai lantai: di layar tegak (HP), lantai yang sangat memanjang ke
+ * timur–barat diputar 90° agar mengisi layar, bukan menjadi pita kecil; selain itu utara di atas.
+ */
+export function fitBearing(
+  bounds: [[number, number], [number, number]],
+  viewport: { width: number; height: number },
+): number {
+  const [[west, south], [east, north]] = bounds;
+  const lat = ((south + north) / 2) * (Math.PI / 180);
+  const widthM = (east - west) * Math.cos(lat);
+  const heightM = north - south;
+  const portrait = viewport.height > viewport.width * 1.2;
+  return portrait && heightM > 0 && widthM / heightM >= ELONGATED ? 90 : 0;
+}
 
 /** Ruang di tepi peta yang tertutup kontrol, agar lantai dibingkai di area yang terlihat. */
 export interface CameraPadding {
@@ -27,6 +46,7 @@ export function initialCamera(
   snapshot: Pick<Snapshot, 'venue'>,
   features: FloorFeatureCollection,
   mode: SnapshotDisplayMode,
+  viewport: { width: number; height: number } = { width: 1, height: 1 },
 ): InitialCamera | null {
   const camera = snapshot.venue.camera;
   if (camera) {
@@ -39,7 +59,7 @@ export function initialCamera(
     };
   }
   const bounds = featureBounds(features);
-  return bounds ? { kind: 'bounds', bounds } : null;
+  return bounds ? { kind: 'bounds', bounds, bearing: fitBearing(bounds, viewport) } : null;
 }
 
 export function moveCamera(
@@ -55,7 +75,7 @@ export function moveCamera(
     map.fitBounds(camera.bounds, {
       padding: options.padding,
       duration,
-      bearing: map.getBearing(),
+      bearing: camera.bearing,
       maxZoom: MAX_FIT_ZOOM,
     });
   }
