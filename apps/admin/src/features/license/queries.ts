@@ -1,4 +1,5 @@
 import type { FirstAdminInput } from '@indoor/data';
+import type { PaidFeature } from '@indoor/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { data } from '../../app/data-client';
 
@@ -71,4 +72,14 @@ export function useCheckIn() {
     mutationFn: () => data.license.checkIn(),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['license'] }),
   });
+}
+
+/** `true` bila fitur dibuka lisensi; selama dimuat dianggap terkunci agar tidak berkedip. */
+export function useFeature(feature: PaidFeature): boolean {
+  const features = useQuery({
+    queryKey: ['license', 'features'],
+    queryFn: () => data.license.features(),
+    staleTime: 5 * 60_000,
+  });
+  return features.data?.includes(feature) ?? false;
 }

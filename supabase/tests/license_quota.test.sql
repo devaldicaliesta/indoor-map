@@ -22,7 +22,7 @@ language sql as $$
   update public.licenses set is_current = false where is_current;
   insert into public.licenses (license_id, payload, signature, status, source)
   values ('LIC-KUOTA', jsonb_build_object(
-    'validFrom', '2020-01-01T00:00:00Z', 'validUntil', '2099-01-01T00:00:00Z',
+    'validFrom', '2020-01-01T00:00:00Z', 'validUntil', '2099-01-01T00:00:00Z', 'features', jsonb_build_array('info_point'),
     'quota', jsonb_build_object(
       'venues', app.quota_used('venues') + p_venues,
       'buildings', app.quota_used('buildings') + p_buildings,

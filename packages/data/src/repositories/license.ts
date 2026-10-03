@@ -1,4 +1,4 @@
-import { QUOTA_KINDS, type QuotaUsage } from '@indoor/domain';
+import { enabledFeatures, type PaidFeature, QUOTA_KINDS, type QuotaUsage } from '@indoor/domain';
 import { type LicensePayload, readLicensePayload } from '@indoor/domain/license';
 import { DataError, toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
@@ -69,6 +69,8 @@ export interface LicenseRepository {
   usage(): Promise<QuotaUsage[]>;
   /** Lisensi berlaku beserta keadaan check-in; `null` tanpa lisensi. Hanya Super Admin. */
   details(): Promise<LicenseDetails | null>;
+  /** Fitur berbayar yang dibuka lisensi berlaku. */
+  features(): Promise<PaidFeature[]>;
 }
 
 const STATES: readonly LicenseState[] = [
@@ -128,6 +130,12 @@ export function createLicenseRepository(db: Db): LicenseRepository {
         const row = data.find((r) => r.kind === kind);
         return { kind, used: row?.used ?? 0, quota: row?.quota ?? null };
       });
+    },
+
+    async features() {
+      const { data, error } = await db.rpc('license_features');
+      if (error) throw toDataError(error);
+      return enabledFeatures(data ?? []);
     },
 
     async details() {

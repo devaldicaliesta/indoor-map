@@ -1552,6 +1552,7 @@ export type Database = {
         Args: { p_license_id: string; p_server_time: string };
         Returns: string;
       };
+      license_features: { Args: Record<PropertyKey, never>; Returns: string[] };
       license_install: {
         Args: {
           p_license_id: string;

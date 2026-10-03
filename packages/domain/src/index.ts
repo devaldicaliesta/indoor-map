@@ -15,6 +15,7 @@ export * from './directory';
 export * from './display-settings';
 export * from './distance';
 export * from './edit-lock';
+export * from './entitlements';
 export * from './entrances';
 export * from './explore';
 export * from './facility';

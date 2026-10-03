@@ -1,5 +1,12 @@
 import type { LicenseDetails } from '@indoor/data';
-import { daysRemaining, isQuotaFull, QUOTA_LABELS, type QuotaUsage } from '@indoor/domain';
+import {
+  daysRemaining,
+  FEATURE_LABELS,
+  isQuotaFull,
+  type PaidFeature,
+  QUOTA_LABELS,
+  type QuotaUsage,
+} from '@indoor/domain';
 import {
   Button,
   Skeleton,
@@ -20,7 +27,6 @@ import { useCheckIn, useLicenseDetails, useLicenseUsage } from './queries';
 const date = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 const dateTime = new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 
-const FEATURE_LABELS: Record<string, string> = { '3d': 'Tampilan 3D', info_point: 'Info Point' };
 const CHECKIN_RESULTS = {
   renewed: 'Lisensi baru dari vendor dipasang.',
   unchanged: 'Lisensi sudah yang terbaru.',
@@ -69,7 +75,7 @@ function Summary({ details }: { details: LicenseDetails }) {
     [
       'Fitur',
       license.features.length
-        ? license.features.map((f) => FEATURE_LABELS[f] ?? f).join(', ')
+        ? license.features.map((f) => FEATURE_LABELS[f as PaidFeature] ?? f).join(', ')
         : 'Fitur dasar',
     ],
     [
