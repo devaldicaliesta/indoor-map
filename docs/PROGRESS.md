@@ -110,8 +110,8 @@ Acuan: tampilan peta indoor Situm (ruang berwarna per kategori, ikon POI, 3D, ru
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
 | T-410 | Branding Visitor | T-117 | review | Pengaturan → Branding: logo (memakai logo venue; ganti/hapus, `venues.removeLogo` baru), nama tampilan (≤ 60), warna utama dan warna rute dengan pratinjau Visitor langsung serta catatan kontras. Disimpan di `display_settings.branding` (tanpa migrasi), masuk snapshot sebagai `venue.branding` opsional (snapshot lama tetap terbaca). `packages/ui/src/theme/apply-branding.ts` menghitung `--signal`, `--signal-soft`, `--on-signal` (--ink atau putih, mana yang lolos AA), `--route`, `--on-route`; tombol utama kini `text-on-signal`. Visitor: logo + nama di header desktop, logo di header HP, judul tab, warna garis rute di peta. Info Point memakai `useVenueBranding` yang sama saat dibuat di T-408. Ikut diperbaiki: impor `./hours` tanpa `.ts` (T-304) membuat Edge Function `publish` gagal boot; kini ada test penjaga impor Edge Function. Diuji: unit, 43 integrasi, E2E `branding.spec.ts` + gambar di `e2e/evidence/T-410/` |
-| T-401 | Format lisensi dan license-cli | R3 | menunggu | model besar |
-| T-402 | Aktivasi online dan manual | T-401 | menunggu | |
+| T-401 | Format lisensi dan license-cli | R3 | review | `packages/domain/src/license.ts` (tanpa zod, siap Deno): `canonicalize` (kunci terurut, tanpa spasi), `readLicensePayload` (bentuk persis, kunci tambahan ditolak), `verifyLicense` Ed25519 WebCrypto → `malformed`/`bad_signature`/`wrong_instance`/`not_yet_valid`/`expired`; 11 test (ubah 1 karakter di 5 tempat + tanda tangan, instance lain, kedaluwarsa, kunci lain). Kunci publik vendor ditanam di `license.publicKey.ts`. `tools/license-cli` (keygen/issue/inspect, 6 test). Dikerjakan di atas R3 yang masih review atas izin pemilik |
+| T-402 | Aktivasi online dan manual | T-401 | siap | |
 | T-403 | Check-in, pencabutan, proteksi waktu | T-402 | menunggu | |
 | T-404 | Status lisensi dan kuota | T-402 | menunggu | |
 | T-405 | Fitur per paket | T-404 | menunggu | |
@@ -145,6 +145,12 @@ Pemilik (2026-09-30): pertanyaan diputuskan langsung sesuai dokumen, lalu dicata
 - [2026-10-02] T-313 — Konverter berjalan sebagai layanan terpisah tanpa akses data (hanya memeriksa sesi), sehingga tidak perlu kunci service role. Raster dibuat di browser dari SVG agar alurnya sama dengan PDF dan layanan tetap ringan. Berkas tanpa satuan tidak diberi skala awal (lebar footprint gedung dipakai). Temuan T-307a: `e2e/tests/visitor/search.spec.ts` masih mengharapkan "Rute ke sini" nonaktif (sudah aktif sejak T-215), sehingga gagal.
 
 - [2026-10-02] T-410 — Logo branding = logo venue (satu logo per venue), bukan kolom terpisah. Mengganti/menghapus logo langsung menghapus berkas lama, sehingga Visitor versi terbit bisa kehilangan logonya sampai publish berikutnya (Visitor jatuh ke tanda bawaan); penyimpanan aset per versi diputuskan di T-310. Di HP placeholder kolom cari tetap generik karena nama venue terpotong.
+
+- [2026-10-03] T-401 — Lisensi diimpor lewat `@indoor/domain/license`, bukan indeks paket: butuh WebCrypto, dan paket tanpa lib DOM (`routing`) tidak perlu ikut memeriksanya. Domain hanya mendeklarasikan bagian WebCrypto yang dipakai (`web-crypto.d.ts`). `plan` teks bebas (nama paket dari Vendor Portal; isi paket ada di `quota` dan `features`). Kunci publik ditanam di kode, bukan konfigurasi, karena klien on-premise mengendalikan konfigurasinya. Kunci privat untuk kunci publik yang sekarang tidak disimpan di mana pun: sebelum menguji T-402 secara lokal atau rilis, jalankan `license-cli keygen` dan ganti `license.publicKey.ts`.
+
+- [2026-10-03] T-309 — Visitor `/preview` menerima snapshot hanya dari jendela induk (`event.source === window.parent`) dan memvalidasinya dengan skema snapshot; asal induk tidak dikonfigurasi karena halaman lain yang membingkai Visitor hanya bisa menampilkan datanya sendiri, dan lencana "Preview draft" selalu tampil. Admin hanya mengirim ke asal URL publik Visitor. Snapshot preview memakai nomor versi berikutnya (skema menolak 0).
+
+- [2026-10-03] T-312 — Matriks akses tabel (`TABLE_ACCESS`) mengikuti policy yang ada; tidak ada policy yang diubah. Temuan yang sama dengan catatan T-307a tetap berlaku: semua staf membaca seluruh profil, Editor bisa mengubah Info Point.
 
 Format: `- [tanggal] T-xxx — keputusan — alasan`
 

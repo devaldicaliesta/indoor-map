@@ -2,6 +2,7 @@ packages:
   - apps/*
   - packages/*
   - e2e
+  - tools/*
 
 # pnpm 10 memblokir skrip install; supabase perlu postinstall untuk mengunduh binary CLI.
 onlyBuiltDependencies:
