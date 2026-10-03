@@ -91,6 +91,20 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-311 | Visitor: pembaruan versi | T-310 | menunggu | |
 | T-312 | Role Viewer dan matriks otorisasi | T-310 | menunggu | |
 
+## Visitor bergaya peta indoor komersial (permintaan pemilik 2026-10-03)
+
+Acuan: tampilan peta indoor Situm (ruang berwarna per kategori, ikon POI, 3D, rute beranimasi). Keputusan pemilik: tetap ada pilihan 2D/3D; peta dasar jalan opsional dan bisa dimatikan (on-premise tetap berjalan offline); data uji tiga venue (mal, rumah sakit, kampus). Spesifikasi task di baris ini (tidak ada file rilis).
+
+| Task | Judul | Bergantung pada | Status | Catatan |
+| --- | --- | --- | --- | --- |
+| T-314 | Data uji kaya: mal, rumah sakit, kampus | T-307 | dikerjakan | Generator di `packages/data/test/support/demo-venues/` membuat tiga venue lengkap yang lolos validasi publish (unit, lokasi berkategori, fasilitas, jalur, titik masuk, konektor, titik asal); skrip seed lokal dan fixture E2E. Selesai jika: ketiganya lolos `validateVenue` tanpa Error, bisa di-seed ke Supabase lokal dengan satu perintah, dan dipakai test |
+| T-315 | Warna kategori dan unit berwarna | T-314 | menunggu | Kolom `categories.color` (migrasi baru), isian warna di dialog kategori, `color` di snapshot kategori; Visitor mewarnai unit menurut kategori lokasi utamanya (lalu warna tipe, lalu bawaan) dengan legenda |
+| T-316 | Ikon POI di peta Visitor | T-315 | menunggu | Lokasi tampil sebagai ikon bundar berwarna kategori + nama, menyembunyikan yang bertumpuk; ketuk ikon membuka detail |
+| T-317 | 3D lebih realistis | T-315 | menunggu | Tinggi unit/dinding/koridor berbeda, warna sisi lebih gelap, kamera miring awal di mode 3D; pilihan 2D/3D tetap |
+| T-318 | Rute beranimasi | T-314 | menunggu | Garis rute dengan panah arah bergerak, penanda asal/tujuan jelas, hormati `prefers-reduced-motion` |
+| T-319 | Peta dasar opsional | T-314 | menunggu | URL tile (XYZ) dan atribusi di Pengaturan Sistem, mati bawaan; Visitor dan editor menampilkan di bawah gedung bila diisi; tetap jalan tanpa internet |
+| T-320 | Validasi ulang tampilan dengan data kaya | T-315 s.d. T-319 | menunggu | E2E dan screenshot ketiga venue di HP dan desktop, 2D dan 3D; suite penuh 3 run hijau |
+
 ## R4 · Komersial (`14-R4-komersial.md`)
 
 | Task | Judul | Bergantung pada | Status | Catatan |

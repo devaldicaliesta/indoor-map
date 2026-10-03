@@ -115,6 +115,31 @@ describe('validasi publish: Error', () => {
     expect(findingOf(s, 'unreachable').featureIds).toEqual([ID.u3]);
   });
 
+  it('Info Point yang menempel ke graf ikut menjadi acuan keterjangkauan', () => {
+    const s = validSource();
+    // L1 terputus dari titik asal di GF, tetapi dijangkau Info Point di L1.
+    s.graph = { ...s.graph, edges: s.graph.edges.filter((e) => e.id !== 'p2-c-gf') };
+    s.infoPoints = [
+      {
+        id: 'ip-1',
+        code: 'IP1',
+        name: 'Info L1',
+        floorId: ID.l1,
+        coordinates: at(5, -5),
+        headingDeg: 0,
+        defaultMode: '2d',
+        force2d: false,
+        defaultLanguage: 'id',
+        idleSeconds: 60,
+        nodeId: 'p3',
+      },
+    ] as SnapshotSource['infoPoints'];
+    const floors = validateVenue(s, CONTEXT)
+      .filter((f) => f.code === 'unreachable')
+      .map((f) => f.floorId);
+    expect(floors).toEqual([]);
+  });
+
   it('titik asal tidak terhubung graf', () => {
     const s = validSource();
     s.originPoints = [{ ...s.originPoints[0], nodeId: null } as (typeof s.originPoints)[0]];
