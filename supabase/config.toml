@@ -412,6 +412,10 @@ verify_jwt = false
 [functions.license-checkin]
 verify_jwt = false
 
+# Dipanggil database lewat pg_net; hanya menerapkan keadaan lisensi yang dibaca dari database.
+[functions.license-service]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

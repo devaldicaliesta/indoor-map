@@ -793,6 +793,7 @@ export type Database = {
           instance_id: string;
           last_checkin_at: string | null;
           last_seen_at: string | null;
+          service_suspended: boolean;
         };
         Insert: {
           checkin_error?: string | null;
@@ -802,6 +803,7 @@ export type Database = {
           instance_id?: string;
           last_checkin_at?: string | null;
           last_seen_at?: string | null;
+          service_suspended?: boolean;
         };
         Update: {
           checkin_error?: string | null;
@@ -811,6 +813,7 @@ export type Database = {
           instance_id?: string;
           last_checkin_at?: string | null;
           last_seen_at?: string | null;
+          service_suspended?: boolean;
         };
         Relationships: [];
       };
@@ -1562,6 +1565,15 @@ export type Database = {
         };
         Returns: undefined;
       };
+      license_service_mark: { Args: { p_suspended: boolean }; Returns: undefined };
+      license_service_state: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          active: boolean;
+          venue_id: string;
+          version: number;
+        }[];
+      };
       license_status: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -1578,6 +1590,7 @@ export type Database = {
           used: number;
         }[];
       };
+      license_valid_until: { Args: Record<PropertyKey, never>; Returns: string };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {
