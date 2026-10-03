@@ -32,6 +32,8 @@ async function toPublishError(response: Response): Promise<PublishError> {
   switch (body.code) {
     case '42501':
       return new PublishError(403, 'forbidden', message);
+    case '22023':
+      return new PublishError(400, 'invalid', message);
     case 'P0002':
       return new PublishError(404, 'not_found', message);
     case 'IM409':

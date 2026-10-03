@@ -1,8 +1,8 @@
 // Edge Function publish: Admin/Super Admin menerbitkan draft venue sebagai snapshot JSON di
-// bucket `snapshots`, setelah lolos validasi (`mode: "validate"` hanya mengembalikan temuan).
-// `mode: "diff"` mengembalikan ringkasan perubahan draft terhadap versi aktif. Riwayat dan
-// rollback menyusul (T-310). `mode: "preview"` mengembalikan snapshot draft di memori untuk preview
-// Admin; tidak pernah ditulis ke Storage.
+// bucket `snapshots` setelah lolos validasi, dengan catatan rilis opsional. Mode lain:
+// `validate` (temuan saja), `diff` (ringkasan perubahan terhadap versi aktif), `preview`
+// (snapshot draft di memori, tidak pernah ditulis ke Storage), dan `rollback` (isi versi lama
+// diterbitkan ulang sebagai versi baru).
 import { diffSnapshot } from '../../../packages/domain/src/diff.ts';
 import type { Snapshot } from '../../../packages/domain/src/snapshot.ts';
 import { buildSnapshot } from '../../../packages/domain/src/snapshot-builder.ts';
@@ -70,16 +70,20 @@ async function activeVersion(rest: CallerRest, venueId: string): Promise<number 
   return active?.version ?? null;
 }
 
-async function activeSnapshot(rest: CallerRest, venueId: string): Promise<Snapshot | null> {
-  const version = await activeVersion(rest, venueId);
-  if (version === null) return null;
+/** Snapshot versi tertentu di bucket, dibaca dengan kunci layanan. */
+async function readSnapshot(venueId: string, version: number): Promise<Snapshot> {
   const response = await fetch(`${url}/storage/v1/object/snapshots/${venueId}/v${version}.json`, {
     headers: serviceHeaders,
   });
   if (!response.ok) {
-    throw new PublishError(502, 'unknown', `Versi aktif v${version} tidak bisa dibaca.`);
+    throw new PublishError(502, 'unknown', `Snapshot v${version} tidak bisa dibaca.`);
   }
   return (await response.json()) as Snapshot;
+}
+
+async function activeSnapshot(rest: CallerRest, venueId: string): Promise<Snapshot | null> {
+  const version = await activeVersion(rest, venueId);
+  return version === null ? null : readSnapshot(venueId, version);
 }
 
 /** Perubahan draft sejak versi aktif; tidak disimpan, dihitung ulang setiap diminta. */
@@ -95,19 +99,35 @@ class BlockedError extends PublishError {
   }
 }
 
-async function publish(rest: CallerRest, venueId: string) {
-  // Pemesanan versi lebih dulu: izin Admin/Super Admin diperiksa di sana. Publish yang ditolak
-  // validasi membatalkan pesanannya, sehingga nomor versi dipakai lagi oleh publish berikutnya.
-  const [reservation] = await rest.rpc<Reservation[]>('publish_begin', { p_venue_id: venueId });
+interface Release {
+  notes: string | null;
+  /** Versi lama yang diaktifkan kembali; `null` untuk publish draft. */
+  sourceVersion: number | null;
+}
+
+/**
+ * Pesan nomor versi, tulis `v{n}.json`, aktifkan, lalu perbarui `latest.json`. Pemesanan lebih
+ * dulu: izin Admin/Super Admin diperiksa di sana. Kegagalan sebelum aktif membatalkan pesanan,
+ * sehingga nomor versinya dipakai lagi dan versi aktif tidak berubah.
+ */
+async function release(
+  rest: CallerRest,
+  venueId: string,
+  { notes, sourceVersion }: Release,
+  snapshotBody: (version: number, publishedAt: string) => Promise<string>,
+) {
+  const [reservation] = await rest.rpc<Reservation[]>('publish_begin', {
+    p_venue_id: venueId,
+    p_notes: notes,
+    p_source_version: sourceVersion,
+  });
   if (!reservation) throw new PublishError(502, 'unknown', 'Nomor versi tidak didapat.');
   const { publication_id: id, version } = reservation;
   const publishedAt = new Date(reservation.published_at).toISOString();
 
   let body: string;
   try {
-    const { source, findings } = await validate(rest, venueId);
-    if (hasBlockingFindings(findings)) throw new BlockedError(findings);
-    body = JSON.stringify(buildSnapshot({ ...source, version, publishedAt }));
+    body = await snapshotBody(version, publishedAt);
     await upload(`${venueId}/v${version}.json`, body, IMMUTABLE);
     await rest.rpc('publish_commit', { p_publication_id: id });
   } catch (error) {
@@ -127,6 +147,23 @@ async function publish(rest: CallerRest, venueId: string) {
   return { version, publishedAt, sizeBytes: new TextEncoder().encode(body).length };
 }
 
+/** Draft yang lolos validasi diterbitkan sebagai versi baru. */
+function publish(rest: CallerRest, venueId: string, notes: string | null) {
+  return release(rest, venueId, { notes, sourceVersion: null }, async (version, publishedAt) => {
+    const { source, findings } = await validate(rest, venueId);
+    if (hasBlockingFindings(findings)) throw new BlockedError(findings);
+    return JSON.stringify(buildSnapshot({ ...source, version, publishedAt }));
+  });
+}
+
+/** Isi versi lama diterbitkan ulang sebagai versi baru; draft tidak disentuh. */
+function rollback(rest: CallerRest, venueId: string, sourceVersion: number, notes: string | null) {
+  return release(rest, venueId, { notes, sourceVersion }, async (version, publishedAt) => {
+    const old = await readSnapshot(venueId, sourceVersion);
+    return JSON.stringify({ ...old, version, publishedAt });
+  });
+}
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
   if (request.method !== 'POST') return fail(405, 'invalid', 'Metode tidak didukung.');
@@ -134,6 +171,8 @@ Deno.serve(async (request) => {
   const input = (await request.json().catch(() => null)) as {
     venueId?: unknown;
     mode?: unknown;
+    notes?: unknown;
+    sourceVersion?: unknown;
   } | null;
   const venueId = typeof input?.venueId === 'string' ? input.venueId : '';
   if (!UUID.test(venueId)) return fail(400, 'invalid', 'Venue yang akan diterbitkan tidak valid.');
@@ -153,7 +192,15 @@ Deno.serve(async (request) => {
       return reply(200, { snapshot: buildSnapshot({ ...source, version: (active ?? 0) + 1 }) });
     }
     if (input?.mode === 'diff') return reply(200, { changes: await changes(rest, venueId) });
-    return reply(200, await publish(rest, venueId));
+    const notes = typeof input?.notes === 'string' ? input.notes : null;
+    if (input?.mode === 'rollback') {
+      const source = input.sourceVersion;
+      if (typeof source !== 'number' || !Number.isInteger(source) || source < 1) {
+        return fail(400, 'invalid', 'Versi yang akan diaktifkan kembali tidak valid.');
+      }
+      return reply(200, await rollback(rest, venueId, source, notes));
+    }
+    return reply(200, await publish(rest, venueId, notes));
   } catch (error) {
     if (error instanceof BlockedError) {
       return reply(error.status, {

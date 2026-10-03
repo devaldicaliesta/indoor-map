@@ -73,7 +73,8 @@ test.describe('T-117 Snapshot minimal', () => {
     await loginAs('admin');
     await new AdminShell(page).selectVenue(venue.name);
     await page.goto('/publish');
-    await page.getByRole('button', { name: /Terbitkan/ }).click();
+    await page.getByRole('button', { name: 'Terbitkan', exact: true }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Terbitkan' }).click();
     await expect(page.getByText('Versi 2 diterbitkan')).toBeVisible();
     await page.screenshot({ path: shot('02-admin-publish') });
     expect((await superAdmin.publications.active(venue.id))?.version).toBe(2);
