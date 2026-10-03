@@ -33,6 +33,8 @@
 
 ### T-402 · Aktivasi online dan manual
 
+> Dipecah: **T-402a** server (kunci dev, lisensi seed, `app.license_active()` di fungsi izin tulis, `license_status()`, Edge Function `license-activate`, `tools/vendor-stub`) dan **T-402b** Admin (pengarahan ke `/aktivasi`, halaman aktivasi online/manual, form Super Admin pertama, E2E).
+
 - **Untuk:** FR-LIC-01
 - **Bergantung pada:** T-401
 - **Langkah:**

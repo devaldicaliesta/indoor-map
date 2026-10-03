@@ -6,6 +6,42 @@
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
+-- Lisensi dev: instance tetap agar lisensi bertanda tangan kunci dev
+-- (`tools/license-cli/dev-keys/`) lolos verifikasi di setiap reset. Dibuat dengan:
+--   license-cli issue --key tools/license-cli/dev-keys/license-private.pkcs8.b64
+--     --client "Pengembangan Lokal" --plan dev --instance 00000000-0000-4000-8000-0000000de701
+--     --from 2026-01-01 --until 2099-12-31 --venues 50 --buildings 100 --floors 500
+--     --info-points 100 --features 3d,info_point --id LIC-DEV-LOCAL
+-- ---------------------------------------------------------------------
+update public.installation set instance_id = '00000000-0000-4000-8000-0000000de701';
+insert into public.licenses (license_id, payload, signature, status, source)
+values (
+  'LIC-DEV-LOCAL',
+  $license${
+  "licenseId": "LIC-DEV-LOCAL",
+  "client": "Pengembangan Lokal",
+  "plan": "dev",
+  "validFrom": "2026-01-01T00:00:00Z",
+  "validUntil": "2099-12-31T00:00:00Z",
+  "quota": {
+    "venues": 50,
+    "buildings": 100,
+    "floors": 500,
+    "infoPoints": 100
+  },
+  "features": [
+    "3d",
+    "info_point"
+  ],
+  "instanceId": "00000000-0000-4000-8000-0000000de701",
+  "issuedAt": "2026-10-03T10:21:53Z"
+}$license$::jsonb,
+  '+sAa46eh6Lx3Ypn94+gi/k0ho7w68ZjzYWdvkSzZu9iEyTgztHaALyc+/PR6M/5Kdwwhdok7uOwD5JM+wiMDAA==',
+  'active',
+  'manual'
+);
+
+-- ---------------------------------------------------------------------
 -- Pengguna lokal, satu per role, semuanya memakai SEED_ADMIN_PASSWORD:
 --   admin@local.test (Super Admin), pengelola@local.test (Admin),
 --   editor@local.test, operator@local.test, viewer@local.test

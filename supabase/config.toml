@@ -396,6 +396,8 @@ deno_version = 2
 # Rahasia lokal yang sama dengan [auth.hook.send_email] untuk memverifikasi tanda tangan hook.
 [edge_runtime.secrets]
 SEND_EMAIL_HOOK_SECRET = "v1,whsec_z0/ZtG1axd3HvU9VjunIb/lgBMvIYwC6Ypk28OzYsmI="
+# Server vendor untuk aktivasi online; lokal memakai `tools/vendor-stub` di host (T-402).
+LICENSE_VENDOR_URL = "http://host.docker.internal:8091"
 
 # Dipanggil GoTrue tanpa JWT; keasliannya diperiksa lewat tanda tangan Standard Webhooks.
 [functions.auth-email]

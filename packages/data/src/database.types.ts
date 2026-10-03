@@ -1518,10 +1518,27 @@ export type Database = {
         Args: { p_location_type_id: string; p_rows: Json; p_venue_id: string };
         Returns: number;
       };
+      license_install: {
+        Args: {
+          p_license_id: string;
+          p_payload: Json;
+          p_signature: string;
+          p_source: Database['public']['Enums']['license_source'];
+        };
+        Returns: undefined;
+      };
+      license_status: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          instance_id: string;
+          needs_admin: boolean;
+          state: string;
+        }[];
+      };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {
-        Args: { p_venue_id: string };
+        Args: { p_notes?: string; p_source_version?: number; p_venue_id: string };
         Returns: {
           publication_id: string;
           published_at: string;
