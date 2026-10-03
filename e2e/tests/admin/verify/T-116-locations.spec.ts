@@ -144,9 +144,11 @@ test.describe('T-116 Lokasi dasar, kategori, tautan unit', () => {
       .click();
     await page.getByRole('dialog').getByRole('button', { name: /Hapus/ }).last().click();
     await expect(page.getByRole('row').filter({ hasText: 'MATA-01' })).toHaveCount(0);
-    expect((await superAdmin.locations.list(venueId)).some((l) => l.code === 'MATA-01')).toBe(
-      false,
-    );
+    await expect
+      .poll(async () =>
+        (await superAdmin.locations.list(venueId)).some((l) => l.code === 'MATA-01'),
+      )
+      .toBe(false);
     await capture(page, '05-dihapus');
   });
 });
