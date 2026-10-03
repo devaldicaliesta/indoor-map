@@ -197,5 +197,22 @@ describe.runIf(url && anonKey && serviceKey && dbUrl)('check-in lisensi', () => 
     expect((await admin.license.status()).state).toBe('revoked');
     expect(await adminCanWrite()).toBe(false);
     expect(await superAdmin.license.checkinOverdueSince()).toBeNull();
+
+    // Super Admin bisa membaca isi berkas dari tabel licenses; berkas itu tidak bisa dipasang ulang.
+    const { data: revoked } = await service
+      .from('licenses')
+      .select('payload, signature')
+      .eq('license_id', LICENSE_ID)
+      .eq('is_current', true)
+      .single();
+    const file = {
+      ...(revoked?.payload as Record<string, unknown>),
+      signature: revoked?.signature,
+    };
+    const error = await superAdmin.license.activateManual(file).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(DataError);
+    expect((error as DataError).kind).toBe('conflict');
+    expect((error as DataError).message).toContain('sudah dicabut vendor');
+    expect((await admin.license.status()).state).toBe('revoked');
   });
 });
