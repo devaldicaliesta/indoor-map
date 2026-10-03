@@ -66,6 +66,17 @@ export default defineConfig({
         },
       },
     },
+    {
+      // Mengubah lisensi instalasi (berlaku untuk semua test), jadi berjalan setelah proyek lain.
+      name: 'license',
+      testMatch: 'license/**/*.spec.ts',
+      dependencies: ['admin', 'visitor'],
+      fullyParallel: false,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1440, height: 900 },
+      },
+    },
   ],
   webServer: [
     {
