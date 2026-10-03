@@ -5,6 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./license": "./src/license.ts",
+    "./license-public-key": "./src/license.publicKey.ts",
     "./fixtures/*": "./test/fixtures/*"
   },
   "scripts": {
