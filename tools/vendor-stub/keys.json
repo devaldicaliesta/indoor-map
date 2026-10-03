@@ -1,0 +1,16 @@
+{
+  "DEV-ONLINE-0001": {
+    "client": "RS Uji Aktivasi Online",
+    "plan": "professional",
+    "days": 365,
+    "quota": { "venues": 3, "buildings": 10, "floors": 60, "infoPoints": 10 },
+    "features": ["3d", "info_point"]
+  },
+  "DEV-STARTER-0002": {
+    "client": "Kampus Uji Starter",
+    "plan": "starter",
+    "days": 30,
+    "quota": { "venues": 1, "buildings": 2, "floors": 10, "infoPoints": 0 },
+    "features": []
+  }
+}

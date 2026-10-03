@@ -28,6 +28,7 @@ import {
   createInstructionTemplatesRepository,
   type InstructionTemplatesRepository,
 } from './repositories/instruction-templates';
+import { createLicenseRepository, type LicenseRepository } from './repositories/license';
 import {
   createLocationTypesRepository,
   type LocationTypesRepository,
@@ -77,6 +78,7 @@ export interface DataClient {
   floorPlans: FloorPlansRepository;
   floors: FloorsRepository;
   infoPoints: InfoPointsRepository;
+  license: LicenseRepository;
   instructionTemplates: InstructionTemplatesRepository;
   locations: LocationsRepository;
   locationTypes: LocationTypesRepository;
@@ -112,6 +114,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     floorPlans: createFloorPlansRepository(db),
     floors: createFloorsRepository(db),
     infoPoints: createInfoPointsRepository(db),
+    license: createLicenseRepository(db),
     instructionTemplates: createInstructionTemplatesRepository(db),
     locations: createLocationsRepository(db),
     locationTypes: createLocationTypesRepository(db),

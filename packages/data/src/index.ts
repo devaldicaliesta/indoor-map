@@ -39,6 +39,13 @@ export {
 export type { FloorsRepository } from './repositories/floors';
 export type { InfoPointsRepository } from './repositories/info-points';
 export type { InstructionTemplatesRepository } from './repositories/instruction-templates';
+export type {
+  ActivatedLicense,
+  FirstAdminInput,
+  LicenseRepository,
+  LicenseState,
+  LicenseStatus,
+} from './repositories/license';
 export type { LocationTypesRepository } from './repositories/location-types';
 export type { LocationImages, LocationsRepository } from './repositories/locations';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';

@@ -118,8 +118,9 @@ insert into public.edit_locks (floor_id, user_id) values ('${id(4)}', '${LOCK_OW
 insert into public.publications (id, venue_id, version, snapshot_path, is_active)
   values ('${id(20)}', '${VENUE}', 1, '${VENUE}/v1.json', true);
 insert into public.audit_events (action, entity, details) values ('publish', 'venue', '{"matrix": true}');
-insert into public.licenses (id, license_id, payload, signature, status, source)
-  values ('${id(22)}', 'MATRIX', '{}', 'x', 'active', 'manual');
+-- Bukan lisensi berlaku (instalasi sudah punya satu dari seed); hanya baris untuk diuji.
+insert into public.licenses (id, license_id, payload, signature, status, source, is_current)
+  values ('${id(22)}', 'MATRIX', '{}', 'x', 'active', 'manual', false);
 
 -- Uji insert menyalin baris fixture dengan id baru.
 create function pg_temp.attempt(p_op text, p_table text, p_where text, p_column text)

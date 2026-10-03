@@ -51,6 +51,12 @@ async function isActiveSuperAdmin(userId: string): Promise<boolean> {
   return profile?.role === 'super_admin' && profile.is_active;
 }
 
+/** Pemanggil bila Super Admin aktif; `null` untuk tamu, sesi tidak sah, atau role lain. */
+export async function activeSuperAdmin(request: Request): Promise<Caller | null> {
+  const caller = await callerFromToken(request.headers.get('Authorization') ?? '');
+  return caller && (await isActiveSuperAdmin(caller.id)) ? caller : null;
+}
+
 /** Mengembalikan pemanggil jika Super Admin aktif, atau Response 401/403 yang siap dikirim. */
 export async function requireSuperAdmin(
   request: Request,
