@@ -54,6 +54,7 @@ export {
   type GraphInteractionOptions,
   type GraphNodeDrag,
 } from './graph-interactions';
+export { BASEMAP_LAYER_ID, type Basemap, setBasemap } from './layers/basemap';
 export {
   CLOSURE_LAYER_IDS,
   type ClosureMarks,

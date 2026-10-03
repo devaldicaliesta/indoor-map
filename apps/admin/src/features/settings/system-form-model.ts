@@ -1,4 +1,5 @@
 import {
+  checkBasemapTileUrl,
   checkPublicVisitorUrl,
   isValidPort,
   isValidTimezone,
@@ -16,6 +17,8 @@ export interface SystemFormValues {
   smtpUsername: string;
   smtpPassword: string;
   smtpFrom: string;
+  basemapTileUrl: string;
+  basemapAttribution: string;
 }
 
 export type SystemFormErrors = Partial<Record<keyof SystemFormValues, string>>;
@@ -30,6 +33,8 @@ export function toFormValues(settings: SystemSettings): SystemFormValues {
     smtpUsername: settings.smtpUsername ?? '',
     smtpPassword: '',
     smtpFrom: settings.smtpFrom ?? '',
+    basemapTileUrl: settings.basemapTileUrl ?? '',
+    basemapAttribution: settings.basemapAttribution ?? '',
   };
 }
 
@@ -38,6 +43,12 @@ const URL_MESSAGES = {
   not_https: 'Gunakan https agar QR dan tautan bagikan aman.',
   trailing_slash: 'Hapus garis miring (/) di akhir alamat.',
   has_query: 'Alamat tidak boleh berisi ? atau #.',
+} as const;
+
+const BASEMAP_MESSAGES = {
+  invalid: 'Isi URL tile lengkap, misalnya https://tile.openstreetmap.org/{z}/{x}/{y}.png.',
+  not_https: 'Gunakan https; http hanya untuk server tile di localhost.',
+  missing_placeholders: 'URL tile harus memuat {z}, {x}, dan {y}.',
 } as const;
 
 const EMAIL_IN_FROM = /^(?:[^<>]*<)?[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+>?$/;
@@ -55,6 +66,13 @@ export function validate(values: SystemFormValues): SystemFormErrors {
   if (values.smtpFrom.trim() && !EMAIL_IN_FROM.test(values.smtpFrom.trim())) {
     errors.smtpFrom = 'Contoh: Peta RS Harapan <noreply@rs-harapan.id>';
   }
+  const tiles = values.basemapTileUrl.trim();
+  const tileProblem = tiles ? checkBasemapTileUrl(tiles) : null;
+  if (tileProblem) errors.basemapTileUrl = BASEMAP_MESSAGES[tileProblem];
+  if (tiles && !values.basemapAttribution.trim()) {
+    errors.basemapAttribution =
+      'Tulis atribusi penyedia tile, misalnya © OpenStreetMap contributors.';
+  }
   return errors;
 }
 
@@ -69,5 +87,7 @@ export function toPatch(values: SystemFormValues): SystemSettingsPatch {
     smtpPort: values.smtpPort.trim() ? Number(values.smtpPort) : null,
     smtpUsername: orNull(values.smtpUsername),
     smtpFrom: orNull(values.smtpFrom),
+    basemapTileUrl: orNull(values.basemapTileUrl),
+    basemapAttribution: orNull(values.basemapAttribution),
   };
 }

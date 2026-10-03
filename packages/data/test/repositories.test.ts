@@ -51,6 +51,8 @@ describe('pengaturan sistem', () => {
     smtp_from: 'Peta <noreply@contoh.id>',
     default_timezone: 'Asia/Jakarta',
     default_language: 'id' as const,
+    basemap_tile_url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    basemap_attribution: '© OpenStreetMap contributors',
     updated_at: '2026-09-29T08:00:00+00:00',
   };
 
@@ -63,6 +65,8 @@ describe('pengaturan sistem', () => {
       smtpFrom: 'Peta <noreply@contoh.id>',
       defaultTimezone: 'Asia/Jakarta',
       defaultLanguage: 'id',
+      basemapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      basemapAttribution: '© OpenStreetMap contributors',
       updatedAt: '2026-09-29T08:00:00+00:00',
     });
   });

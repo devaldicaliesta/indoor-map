@@ -208,6 +208,7 @@ export const SnapshotSchema = z.object({
   originPoints: z.array(OriginPointSchema),
   infoPoints: z.array(InfoPointSchema),
   enabledFeatures: z.array(text),
+  basemap: z.object({ tileUrl: text, attribution: z.string() }).exactOptional(),
 }) satisfies z.ZodType<Snapshot>;
 
 export function parseSnapshot(value: unknown): Snapshot {

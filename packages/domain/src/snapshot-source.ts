@@ -6,6 +6,7 @@ import type { OpeningHours } from './hours.ts';
 import type {
   InstructionText,
   SearchTargetKind,
+  SnapshotBasemap,
   SnapshotBuilding,
   SnapshotCategory,
   SnapshotConnector,
@@ -101,4 +102,6 @@ export interface SnapshotSource {
   instructionTemplates: readonly ({ action: string } & InstructionText)[];
   originPoints: readonly SnapshotOriginPoint[];
   infoPoints: readonly SnapshotInfoPoint[];
+  /** Peta dasar instalasi dari Pengaturan Sistem; tidak ada/`null` = tanpa peta dasar. */
+  basemap?: SnapshotBasemap | null;
 }

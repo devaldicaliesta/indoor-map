@@ -1404,6 +1404,8 @@ export type Database = {
       };
       system_settings: {
         Row: {
+          basemap_attribution: string | null;
+          basemap_tile_url: string | null;
           default_language: Database['public']['Enums']['language_code'];
           default_timezone: string;
           id: boolean;
@@ -1415,6 +1417,8 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          basemap_attribution?: string | null;
+          basemap_tile_url?: string | null;
           default_language?: Database['public']['Enums']['language_code'];
           default_timezone?: string;
           id?: boolean;
@@ -1426,6 +1430,8 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          basemap_attribution?: string | null;
+          basemap_tile_url?: string | null;
           default_language?: Database['public']['Enums']['language_code'];
           default_timezone?: string;
           id?: boolean;

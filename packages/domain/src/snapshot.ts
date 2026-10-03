@@ -340,4 +340,11 @@ export interface Snapshot {
   infoPoints: SnapshotInfoPoint[];
   /** Fitur lisensi yang aktif, misalnya `3d` dan `info_point`. */
   enabledFeatures: string[];
+  /** Peta dasar opsional (tile XYZ); tidak ada di snapshot lama atau bila dimatikan. */
+  basemap?: SnapshotBasemap;
+}
+
+export interface SnapshotBasemap {
+  tileUrl: string;
+  attribution: string;
 }

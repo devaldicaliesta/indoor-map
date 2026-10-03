@@ -366,5 +366,6 @@ export function buildSnapshot(source: SnapshotSource): Snapshot {
     originPoints: [...source.originPoints].sort(byId).map(snapshotOriginPoint),
     infoPoints: [...source.infoPoints].sort(byId).map(toInfoPoint),
     enabledFeatures: [...new Set(source.enabledFeatures)].sort(),
+    ...(source.basemap ? { basemap: { ...source.basemap } } : {}),
   };
 }
