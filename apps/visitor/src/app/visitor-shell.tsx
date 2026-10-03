@@ -1,9 +1,11 @@
+import { cn } from '@indoor/ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BottomSheet } from '../components/bottom-sheet';
 import { LanguagePicker } from '../components/language-picker';
 import { SearchField } from '../components/search-field';
 import type { SheetSnap } from '../components/sheet-snap';
+import { useInfoPointMode } from '../infopoint/info-point-mode';
 import { useMediaQuery } from './use-media-query';
 
 // Lebar panel kiri desktop mengikuti pola Visitor di 05-desain-ui.md.
@@ -69,7 +71,45 @@ export function VisitorShell({
 }) {
   const { t } = useTranslation();
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const portrait = useMediaQuery('(orientation: portrait)');
+  const infoPoint = useInfoPointMode();
   const name = title ?? t('app.name');
+
+  if (infoPoint) {
+    // Info Point (05-desain-ui.md): potret = peta di atas, panel selebar layar di bawah;
+    // lanskap = peta kiri, panel kanan selebar keyboard layar (10 tombol 60 px).
+    const panel = (
+      <aside
+        className={cn(
+          'flex min-h-0 flex-col gap-4 bg-surface p-(--panel-padding)',
+          portrait ? 'border-line border-t' : 'border-line border-l',
+        )}
+      >
+        <header className="flex items-center justify-between gap-3">
+          <Brand name={name} logoUrl={logoUrl} />
+          <div className="flex shrink-0 gap-2">
+            {actions}
+            <LanguagePicker />
+          </div>
+        </header>
+        {search ?? <SearchField />}
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
+      </aside>
+    );
+    return (
+      <div
+        className={cn(
+          'grid h-dvh bg-canvas',
+          portrait ? 'grid-rows-[minmax(0,1fr)_minmax(0,55dvh)]' : 'grid-cols-[1fr_760px]',
+        )}
+      >
+        <main className="min-h-0 min-w-0">
+          <MapArea>{map}</MapArea>
+        </main>
+        {panel}
+      </div>
+    );
+  }
 
   if (isDesktop) {
     return (

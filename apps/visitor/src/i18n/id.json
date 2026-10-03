@@ -54,7 +54,12 @@
     "serviceInactiveDescription": "Peta digital venue ini sedang tidak tersedia. Tanyakan ke petugas terdekat untuk petunjuk arah."
   },
   "infoPoint": {
-    "title": "Info Point {{code}}"
+    "notFoundTitle": "Info Point tidak ditemukan",
+    "notFoundDescription": "Layar ini belum terdaftar di peta yang terbit. Hubungi pengelola gedung.",
+    "keyboard": "Keyboard di layar",
+    "space": "Spasi",
+    "backspace": "Hapus huruf",
+    "search": "Cari"
   },
   "info": {
     "open": "Informasi peta",

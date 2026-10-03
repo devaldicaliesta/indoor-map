@@ -1,6 +1,7 @@
 import { Button } from '@indoor/ui';
 import { MapPinIcon, NavigationIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useInfoPointMode } from '../../infopoint/info-point-mode';
 import { useExplore, useExploreStore } from '../search/explore-context';
 import { originView } from './origin-model';
 
@@ -61,6 +62,8 @@ export function OriginRow() {
   const { t } = useTranslation();
   const name = useOriginName();
   const chooseOrigin = useExploreStore((s) => s.chooseOrigin);
+  // Info Point: titik asal tetap di layar itu.
+  const infoPoint = useInfoPointMode();
   if (!name) return null;
   return (
     <div className="flex items-center gap-2">
@@ -69,9 +72,11 @@ export function OriginRow() {
         <span className="text-ink-muted">{t('origin.youAreHere')}: </span>
         <span className="font-bold">{name}</span>
       </p>
-      <Button size="sm" variant="ghost" onClick={chooseOrigin}>
-        {t('origin.change')}
-      </Button>
+      {infoPoint ? null : (
+        <Button size="sm" variant="ghost" onClick={chooseOrigin}>
+          {t('origin.change')}
+        </Button>
+      )}
     </div>
   );
 }
