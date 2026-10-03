@@ -21,6 +21,9 @@ export function LicenseGate({
   if (status.error) return <RouteError error={status.error} />;
   const { state, needsAdmin } = status.data;
   if (needsAdmin) return <Navigate to="/aktivasi" replace />;
-  if (state !== 'active' && !allowWithoutLicense) return <Navigate to="/aktivasi" replace />;
+  // Masa tenggang: Admin tetap terbuka hanya-baca (server menolak penulisan) dengan banner.
+  if (state !== 'active' && state !== 'grace' && !allowWithoutLicense) {
+    return <Navigate to="/aktivasi" replace />;
+  }
   return children;
 }

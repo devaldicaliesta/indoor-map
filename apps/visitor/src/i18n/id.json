@@ -49,7 +49,9 @@
     "unavailableDescription": "Venue ini belum menerbitkan peta. Tanyakan ke petugas terdekat untuk petunjuk arah.",
     "loadFailedTitle": "Peta tidak bisa dimuat",
     "loadFailedDescription": "Periksa koneksi internet, lalu coba lagi.",
-    "retry": "Coba lagi"
+    "retry": "Coba lagi",
+    "serviceInactiveTitle": "Layanan peta tidak aktif",
+    "serviceInactiveDescription": "Peta digital venue ini sedang tidak tersedia. Tanyakan ke petugas terdekat untuk petunjuk arah."
   },
   "infoPoint": {
     "title": "Info Point {{code}}"

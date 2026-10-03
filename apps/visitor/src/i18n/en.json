@@ -49,7 +49,9 @@
     "unavailableDescription": "This venue has not published its map yet. Ask the nearest staff member for directions.",
     "loadFailedTitle": "The map could not be loaded",
     "loadFailedDescription": "Check your internet connection, then try again.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "serviceInactiveTitle": "Map service unavailable",
+    "serviceInactiveDescription": "This venue’s digital map is currently unavailable. Ask the nearest staff member for directions."
   },
   "infoPoint": {
     "title": "Info Point {{code}}"

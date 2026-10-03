@@ -59,7 +59,7 @@ export type {
   PublicationsRepository,
   PublishResult,
 } from './repositories/publications';
-export type { SnapshotsRepository } from './repositories/snapshots';
+export { SERVICE_INACTIVE, type SnapshotsRepository } from './repositories/snapshots';
 export type { SystemSettingsRepository } from './repositories/system-settings';
 export type { InviteUserInput, UsersRepository } from './repositories/users';
 export type { VenuesRepository } from './repositories/venues';

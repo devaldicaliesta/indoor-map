@@ -22,6 +22,7 @@ const STATE_NOTICE: Record<Exclude<LicenseState, 'active'>, string> = {
   not_yet_valid: 'Lisensi terpasang belum berlaku.',
   expired: 'Lisensi sudah kedaluwarsa. Pasang lisensi baru untuk melanjutkan.',
   revoked: 'Lisensi dicabut vendor. Hubungi vendor lalu pasang lisensi baru.',
+  grace: 'Lisensi sudah berakhir dan sedang dalam masa tenggang.',
   clock_behind:
     'Jam server mundur lebih dari 24 jam dari waktu yang pernah tercatat, jadi lisensi tidak berlaku. Perbaiki jam server (sinkronkan dengan NTP); lisensi berlaku lagi setelah jam benar.',
 };

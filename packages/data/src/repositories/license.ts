@@ -11,7 +11,9 @@ export type LicenseState =
   | 'not_yet_valid'
   | 'expired'
   | 'revoked'
-  | 'clock_behind';
+  | 'clock_behind'
+  /** 14 hari setelah berakhir: Admin hanya-baca, Visitor tetap berjalan. */
+  | 'grace';
 
 export interface LicenseStatus {
   state: LicenseState;
@@ -71,6 +73,8 @@ export interface LicenseRepository {
   details(): Promise<LicenseDetails | null>;
   /** Fitur berbayar yang dibuka lisensi berlaku. */
   features(): Promise<PaidFeature[]>;
+  /** Tanggal berakhir lisensi berlaku untuk banner pengingat; `null` tanpa lisensi. */
+  validUntil(): Promise<string | null>;
 }
 
 const STATES: readonly LicenseState[] = [
@@ -80,6 +84,7 @@ const STATES: readonly LicenseState[] = [
   'expired',
   'revoked',
   'clock_behind',
+  'grace',
 ];
 
 export function createLicenseRepository(db: Db): LicenseRepository {
@@ -130,6 +135,12 @@ export function createLicenseRepository(db: Db): LicenseRepository {
         const row = data.find((r) => r.kind === kind);
         return { kind, used: row?.used ?? 0, quota: row?.quota ?? null };
       });
+    },
+
+    async validUntil() {
+      const { data, error } = await db.rpc('license_valid_until');
+      if (error) throw toDataError(error);
+      return data ?? null;
     },
 
     async features() {
