@@ -42,6 +42,7 @@ export * from './names';
 export * from './nav-graph';
 export * from './origin-point';
 export * from './permissions';
+export * from './preview-message';
 export * from './profile';
 export * from './qr';
 export * from './search';

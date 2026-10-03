@@ -161,5 +161,8 @@
     "title": "Something went wrong",
     "description": "The page could not be shown. Reload to try again.",
     "reload": "Reload"
+  },
+  "preview": {
+    "badge": "Draft preview · not published"
   }
 }

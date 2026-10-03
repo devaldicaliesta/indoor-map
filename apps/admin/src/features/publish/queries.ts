@@ -29,3 +29,8 @@ export function useValidateDraft(venueId: VenueId) {
 export function useDraftChanges(venueId: VenueId) {
   return useMutation({ mutationFn: () => data.publications.changes(venueId) });
 }
+
+/** Snapshot draft untuk preview; dibangun server di memori setiap diminta. */
+export function useDraftPreview(venueId: VenueId) {
+  return useMutation({ mutationFn: () => data.publications.preview(venueId) });
+}

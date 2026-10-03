@@ -1,7 +1,8 @@
 // Edge Function publish: Admin/Super Admin menerbitkan draft venue sebagai snapshot JSON di
 // bucket `snapshots`, setelah lolos validasi (`mode: "validate"` hanya mengembalikan temuan).
 // `mode: "diff"` mengembalikan ringkasan perubahan draft terhadap versi aktif. Riwayat dan
-// rollback menyusul (T-309, T-310).
+// rollback menyusul (T-310). `mode: "preview"` mengembalikan snapshot draft di memori untuk preview
+// Admin; tidak pernah ditulis ke Storage.
 import { diffSnapshot } from '../../../packages/domain/src/diff.ts';
 import type { Snapshot } from '../../../packages/domain/src/snapshot.ts';
 import { buildSnapshot } from '../../../packages/domain/src/snapshot-builder.ts';
@@ -138,6 +139,10 @@ Deno.serve(async (request) => {
     if (input?.mode === 'validate') {
       const { findings } = await validate(rest, venueId);
       return reply(200, { findings });
+    }
+    if (input?.mode === 'preview') {
+      const { source } = await validate(rest, venueId);
+      return reply(200, { snapshot: buildSnapshot(source) });
     }
     if (input?.mode === 'diff') return reply(200, { changes: await changes(rest, venueId) });
     return reply(200, await publish(rest, venueId));

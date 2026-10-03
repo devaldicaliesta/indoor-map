@@ -7,14 +7,22 @@ import { data } from '../../app/data-client';
 import { inVenueTime } from '../../app/format';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
+import { usePublicVisitorUrl } from '../origin-points/queries';
 import { ChangeSummary } from './change-summary';
-import { useActivePublication, useDraftChanges, usePublish, useValidateDraft } from './queries';
+import { Preview } from './preview';
+import {
+  useActivePublication,
+  useDraftChanges,
+  useDraftPreview,
+  usePublish,
+  useValidateDraft,
+} from './queries';
 import { ValidationPanel } from './validation-panel';
 
 const kilobytes = (bytes: number) =>
   `${new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 }).format(bytes / 1024)} KB`;
 
-// Sementara sampai alur publish lengkap (preview, riwayat) di T-309 dan T-310.
+// Sementara sampai alur publish lengkap (riwayat, catatan rilis) di T-310.
 function DevPublishButton({ venueId, onBlocked }: { venueId: VenueId; onBlocked: () => void }) {
   const publish = usePublish(venueId);
   return (
@@ -82,6 +90,8 @@ function ActiveVersion({ venueId }: { venueId: VenueId }) {
 function VenuePublish({ venueId }: { venueId: VenueId }) {
   const validation = useValidateDraft(venueId);
   const changes = useDraftChanges(venueId);
+  const preview = useDraftPreview(venueId);
+  const visitorUrl = usePublicVisitorUrl();
   return (
     <div className="grid gap-6">
       <Can action="publish.publish">
@@ -96,6 +106,14 @@ function VenuePublish({ venueId }: { venueId: VenueId }) {
           pending={changes.isPending}
           error={changes.error?.message ?? null}
           onLoad={() => changes.mutate()}
+        />
+        <Preview
+          venueId={venueId}
+          visitorUrl={visitorUrl.data ?? null}
+          snapshot={preview.data}
+          pending={preview.isPending || visitorUrl.isPending}
+          error={preview.error?.message ?? visitorUrl.error?.message ?? null}
+          onLoad={() => preview.mutate()}
         />
         <ValidationPanel
           findings={validation.data}

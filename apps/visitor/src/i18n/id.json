@@ -161,5 +161,8 @@
     "title": "Terjadi kesalahan",
     "description": "Halaman tidak bisa ditampilkan. Muat ulang untuk mencoba lagi.",
     "reload": "Muat ulang"
+  },
+  "preview": {
+    "badge": "Preview draft · belum dipublish"
   }
 }
