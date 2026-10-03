@@ -15,6 +15,7 @@ import {
   toast,
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
+import { ColorField, isColorValue } from '../../app/components/color-field';
 import { Field } from '../../app/components/field';
 import { FormNotice } from '../auth/auth-layout';
 import { PICTOGRAM_LABELS } from '../facilities/icons';
@@ -41,7 +42,7 @@ export function TypeDialog({
   const [color, setColor] = useState(type?.color ?? '');
   const [submitted, setSubmitted] = useState(false);
   const [problem] = checkLocationTypeName(name, others, type?.id ?? null);
-  const colorInvalid = color !== '' && !/^#[0-9a-f]{6}$/i.test(color);
+  const colorInvalid = !isColorValue(color);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -91,28 +92,13 @@ export function TypeDialog({
                 </SelectContent>
               </Select>
             </Field>
-            <Field
+            <ColorField
               id="type-color"
               label="Warna (opsional)"
-              error={submitted && colorInvalid ? 'Format warna #rrggbb.' : undefined}
-            >
-              <div className="flex gap-2">
-                <input
-                  type="color"
-                  aria-label="Pilih warna"
-                  value={colorInvalid || !color ? '#888888' : color}
-                  onChange={(e) => setColor(e.target.value)}
-                  className="size-(--control-height) cursor-pointer rounded-sm border border-ink-muted bg-surface p-0.5"
-                />
-                <Input
-                  id="type-color"
-                  className="font-mono"
-                  placeholder="#rrggbb"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                />
-              </div>
-            </Field>
+              value={color}
+              showError={submitted}
+              onChange={setColor}
+            />
           </div>
           {save.error ? <FormNotice tone="error">{save.error.message}</FormNotice> : null}
           <DialogFooter>

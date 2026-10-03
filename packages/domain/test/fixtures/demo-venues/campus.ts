@@ -9,14 +9,14 @@ export function campusVenue(): SnapshotSource {
   const office = v.locationType('office', 'Kantor', '#6b7280');
   const publicType = v.locationType('public', 'Fasilitas Umum', '#d9822b');
   const cats = {
-    class: v.category(classroom, 'kelas', 'Kelas'),
-    hall: v.category(classroom, 'aula', 'Aula'),
-    comp: v.category(lab, 'komputer', 'Lab Komputer'),
-    chem: v.category(lab, 'kimia', 'Lab Kimia'),
-    faculty: v.category(office, 'fakultas', 'Fakultas'),
-    admin: v.category(office, 'akademik', 'Administrasi Akademik'),
-    canteen: v.category(publicType, 'kantin', 'Kantin'),
-    library: v.category(publicType, 'perpustakaan', 'Perpustakaan'),
+    class: v.category(classroom, 'kelas', 'Kelas', '#3b6fb6'),
+    hall: v.category(classroom, 'aula', 'Aula', '#2f5f9e'),
+    comp: v.category(lab, 'komputer', 'Lab Komputer', '#7a5cc4'),
+    chem: v.category(lab, 'kimia', 'Lab Kimia', '#a54aa8'),
+    faculty: v.category(office, 'fakultas', 'Fakultas', '#6b7280'),
+    admin: v.category(office, 'akademik', 'Administrasi Akademik', '#4b5563'),
+    canteen: v.category(publicType, 'kantin', 'Kantin', '#d9822b'),
+    library: v.category(publicType, 'perpustakaan', 'Perpustakaan', '#4f8a3c'),
   };
   const toilet = v.facilityType('toilet', 'Toilet', 'toilet-accessible');
   const prayer = v.facilityType('prayer', 'Musala', 'prayer-room');

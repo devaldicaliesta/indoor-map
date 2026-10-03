@@ -193,7 +193,15 @@ export const SnapshotSchema = z.object({
   facilityTypes: z.array(z.object({ id, name: text, icon: nullableText, isSafety: z.boolean() })),
   locations: z.array(LocationSchema),
   locationTypes: z.array(LocationTypeSchema),
-  categories: z.array(z.object({ id, locationTypeId: id, name: text, icon: nullableText })),
+  categories: z.array(
+    z.object({
+      id,
+      locationTypeId: id,
+      name: text,
+      icon: nullableText,
+      color: nullableText.exactOptional(),
+    }),
+  ),
   searchIndex: z.array(z.object({ kind: z.enum(SEARCH_TARGET_KINDS), id, text })),
   graph: GraphSchema,
   instructionTemplates: z.record(z.enum(INSTRUCTION_ACTIONS), z.object({ id: text, en: text })),

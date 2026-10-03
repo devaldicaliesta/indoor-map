@@ -17,12 +17,12 @@ import { zeroRowsError } from '../mutations';
 import type { Db } from '../supabase';
 import { checkIconPng } from './facility-types';
 
-const COLUMNS = 'id, location_type_id, name, icon, sort_order';
+const COLUMNS = 'id, location_type_id, name, icon, color, sort_order';
 const ASSETS_BUCKET = 'public-assets';
 
 type CategoryRow = Pick<
   Tables<'categories'>,
-  'id' | 'location_type_id' | 'name' | 'icon' | 'sort_order'
+  'id' | 'location_type_id' | 'name' | 'icon' | 'color' | 'sort_order'
 >;
 
 /** Kategori beserta jumlah lokasi yang memakainya. */
@@ -36,6 +36,7 @@ export function mapCategoryRow(row: CategoryRow): Category {
     locationTypeId: LocationTypeIdSchema.parse(row.location_type_id),
     name: row.name,
     icon: parseFacilityIcon(row.icon),
+    color: row.color,
     sortOrder: row.sort_order,
   };
 }
@@ -133,6 +134,7 @@ export function createCategoriesRepository(db: Db): CategoriesRepository {
           location_type_id: typeId,
           name: input.name.trim(),
           icon: uploaded ?? facilityIconPath(input.icon),
+          color: input.color ?? null,
           sort_order: input.sortOrder,
         })
         .select(COLUMNS)
@@ -157,7 +159,11 @@ export function createCategoriesRepository(db: Db): CategoriesRepository {
       const icon = uploaded ?? facilityIconPath(input.icon);
       const { data, error } = await db
         .from('categories')
-        .update({ name: input.name.trim(), icon })
+        .update({
+          name: input.name.trim(),
+          icon,
+          ...(input.color === undefined ? {} : { color: input.color }),
+        })
         .eq('id', id)
         .select(COLUMNS);
       if (error || !data[0]) {

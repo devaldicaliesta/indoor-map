@@ -32,7 +32,7 @@ function HitRow({ hit }: { hit: SearchHit }) {
     const count = snapshot.locations.filter((l) => l.categoryIds.includes(hit.id)).length;
     return (
       <ListRow
-        icon={<EntityIcon icon={category.icon} />}
+        icon={<EntityIcon icon={category.icon} color={category.color} />}
         title={category.name}
         subtitle={t('search.categoryHit', { count })}
         onClick={open}

@@ -138,6 +138,7 @@ export type Database = {
       };
       categories: {
         Row: {
+          color: string | null;
           icon: string | null;
           id: string;
           location_type_id: string;
@@ -145,6 +146,7 @@ export type Database = {
           sort_order: number;
         };
         Insert: {
+          color?: string | null;
           icon?: string | null;
           id?: string;
           location_type_id: string;
@@ -152,6 +154,7 @@ export type Database = {
           sort_order?: number;
         };
         Update: {
+          color?: string | null;
           icon?: string | null;
           id?: string;
           location_type_id?: string;

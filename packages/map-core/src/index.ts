@@ -183,6 +183,7 @@ export {
   type MapDisplay,
   venueHeights,
 } from './style';
+export * from './tint';
 export {
   boundsCenter,
   positionsOf,

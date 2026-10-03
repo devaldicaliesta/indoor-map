@@ -51,6 +51,7 @@ export * from './snapshot-search';
 export type * from './snapshot-source';
 export * from './system-settings';
 export * from './templates';
+export * from './unit-colors';
 export * from './units';
 export * from './validation/geometry';
 export * from './validation/publish';

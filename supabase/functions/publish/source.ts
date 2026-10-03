@@ -197,7 +197,7 @@ export async function readSource(
   const categories = typeIds.length
     ? await rest.select<Row>(
         'categories',
-        `select=id,location_type_id,name,icon,sort_order&location_type_id=in.(${typeIds.join(',')})&order=id`,
+        `select=id,location_type_id,name,icon,color,sort_order&location_type_id=in.(${typeIds.join(',')})&order=id`,
       )
     : [];
   const settings = display[0];
@@ -254,6 +254,7 @@ export async function readSource(
       locationTypeId: str(c.location_type_id),
       name: str(c.name),
       icon: strOrNull(c.icon),
+      color: strOrNull(c.color),
       sortOrder: num(c.sort_order),
     })),
     locations: locations.map(toLocation),

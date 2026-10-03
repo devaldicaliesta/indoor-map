@@ -39,6 +39,8 @@ export interface Category {
   locationTypeId: LocationTypeId;
   name: string;
   icon: FacilityIcon | null;
+  /** `#rrggbb` untuk mewarnai unit di Visitor; `null` = warna tipe lokasi atau bawaan. */
+  color: string | null;
   sortOrder: number;
 }
 
@@ -46,6 +48,8 @@ export interface CategoryInput {
   name: string;
   /** Ikon unggahan diisi lewat repository setelah berkasnya tersimpan. */
   icon: FacilityIcon | null;
+  /** Tidak diisi saat mengubah = warna lama dipertahankan. */
+  color?: string | null;
 }
 
 export const CATEGORY_NAME_MAX = 60;
