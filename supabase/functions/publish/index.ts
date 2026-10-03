@@ -73,10 +73,9 @@ async function activeVersion(rest: CallerRest, venueId: string): Promise<number 
 async function activeSnapshot(rest: CallerRest, venueId: string): Promise<Snapshot | null> {
   const version = await activeVersion(rest, venueId);
   if (version === null) return null;
-  const response = await fetch(
-    `${url}/storage/v1/object/snapshots/${venueId}/v${version}.json`,
-    { headers: serviceHeaders },
-  );
+  const response = await fetch(`${url}/storage/v1/object/snapshots/${venueId}/v${version}.json`, {
+    headers: serviceHeaders,
+  });
   if (!response.ok) {
     throw new PublishError(502, 'unknown', `Versi aktif v${version} tidak bisa dibaca.`);
   }
