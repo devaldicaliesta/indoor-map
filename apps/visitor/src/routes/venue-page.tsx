@@ -1,5 +1,12 @@
 import { DataError } from '@indoor/data';
-import { decodeDeepLink, type Snapshot, type VenueId, VenueIdSchema } from '@indoor/domain';
+import {
+  type DeepLink,
+  decodeDeepLink,
+  type LanguageCode,
+  type Snapshot,
+  type VenueId,
+  VenueIdSchema,
+} from '@indoor/domain';
 import { Button, Skeleton } from '@indoor/ui';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -35,13 +42,7 @@ function VenueView({ venueId }: { venueId: VenueId }) {
   const location = useLocation();
   // Dibaca sekali per pembukaan: berpindah keadaan di dalam Visitor tidak mengubah URL.
   const [link] = useState(() => decodeDeepLink(`${location.pathname}${location.search}`));
-  const defaultLanguage = snapshot.data?.venue.defaultLanguage;
-
-  useEffect(() => {
-    // Bahasa di tautan bagikan berlaku untuk kunjungan ini tanpa mengganti pilihan tersimpan.
-    if (link?.language) showLanguage(link.language);
-    else if (defaultLanguage) applyVenueLanguage(defaultLanguage);
-  }, [defaultLanguage, link]);
+  useVisitLanguage(link, snapshot.data?.venue.defaultLanguage);
 
   if (snapshot.isPending) {
     return (
@@ -71,9 +72,29 @@ function VenueView({ venueId }: { venueId: VenueId }) {
     );
   }
 
+  return <SnapshotExplorer key={venueId} snapshot={snapshot.data} link={link} />;
+}
+
+/** Bahasa kunjungan: dari tautan bila ada, selain itu bahasa bawaan venue. */
+export function useVisitLanguage(link: DeepLink | null, defaultLanguage: LanguageCode | undefined) {
+  useEffect(() => {
+    // Bahasa di tautan bagikan berlaku untuk kunjungan ini tanpa mengganti pilihan tersimpan.
+    if (link?.language) showLanguage(link.language);
+    else if (defaultLanguage) applyVenueLanguage(defaultLanguage);
+  }, [defaultLanguage, link]);
+}
+
+/** Visitor untuk satu snapshot: published (`/v/:venueId`) atau draft dari preview Admin. */
+export function SnapshotExplorer({
+  snapshot,
+  link,
+}: {
+  snapshot: Snapshot;
+  link: DeepLink | null;
+}) {
   return (
-    <ExploreProvider key={venueId} snapshot={snapshot.data} link={link}>
-      <VenueExplorer snapshot={snapshot.data} />
+    <ExploreProvider snapshot={snapshot} link={link}>
+      <VenueExplorer snapshot={snapshot} />
     </ExploreProvider>
   );
 }

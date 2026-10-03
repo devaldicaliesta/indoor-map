@@ -1,4 +1,4 @@
-import type { PublishFinding, SnapshotDiff, VenueId } from '@indoor/domain';
+import type { PublishFinding, Snapshot, SnapshotDiff, VenueId } from '@indoor/domain';
 import { toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
@@ -31,6 +31,8 @@ export interface PublicationsRepository {
   validate(venueId: VenueId): Promise<PublishFinding[]>;
   /** Fitur, jalur, lokasi, dan titik asal yang berubah di draft sejak versi aktif. */
   changes(venueId: VenueId): Promise<SnapshotDiff>;
+  /** Snapshot draft yang dibangun server di memori untuk preview; tidak disimpan. */
+  preview(venueId: VenueId): Promise<Snapshot>;
 }
 
 export function createPublicationsRepository(db: Db): PublicationsRepository {
@@ -76,6 +78,15 @@ export function createPublicationsRepository(db: Db): PublicationsRepository {
       if (error) throw await fromFunctionError(error);
       if (!data) throw toDataError(new Error('Balasan ringkasan perubahan kosong.'));
       return data.changes;
+    },
+
+    async preview(venueId) {
+      const { data, error } = await db.functions.invoke<{ snapshot: Snapshot }>('publish', {
+        body: { venueId, mode: 'preview' },
+      });
+      if (error) throw await fromFunctionError(error);
+      if (!data) throw toDataError(new Error('Balasan preview kosong.'));
+      return data.snapshot;
     },
   };
 }
