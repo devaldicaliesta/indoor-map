@@ -157,7 +157,7 @@ test.describe('T-006 Sistem desain', () => {
       .filter((l) => l && !l.includes('.test.') && !l.includes('/dev/'))
       // Hanya komponen (.tsx): latar putih raster PDF/DXF/QR dan contoh di pesan galat bukan gaya UI.
       // Nilai awal <input type="color"> wajib hex; bukan gaya tampilan.
-      .filter((l) => !l.includes('type-dialog.tsx'));
+      .filter((l) => !l.includes('type-dialog.tsx') && !l.includes('color-field.tsx'));
     record('T006-hex', `warna lewat token (temuan: ${hits.length})`, hits.length === 0);
   });
 
