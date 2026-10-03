@@ -39,7 +39,7 @@ export function PreviewPage() {
     <div className="relative h-dvh">
       <p
         role="status"
-        className="pointer-events-none absolute top-2 left-1/2 z-50 -translate-x-1/2 rounded-full bg-ink px-3 py-1 font-bold text-canvas text-sm"
+        className="pointer-events-none absolute bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-ink px-3 py-1 font-bold text-canvas text-sm"
       >
         {t('preview.badge')}
       </p>
