@@ -1,3 +1,4 @@
+import { DEFAULT_INSTRUCTION_TEMPLATES } from '@indoor/domain';
 import { expect, test } from '../../../fixtures';
 import { AdminShell } from '../../../pages/admin-shell';
 import { EditorPage } from '../../../pages/editor-page';
@@ -67,10 +68,16 @@ test.describe('T-210 Template instruksi', () => {
     await expect(steps.last()).toContainText('You have reached GF-B08');
     await page.screenshot({ path: shot('04-test-route') });
 
-    // Kembali ke teks bawaan: isi ulang teks semula.
+    // Kembali ke bawaan: tombol per aksi mengisi teks bawaan, tersimpan lewat Simpan instruksi.
     await openInstructions();
-    await arriveId.fill(original.id);
-    await arriveEn.fill(original.en);
+    const resetArrive = page.getByRole('button', { name: 'Kembalikan Tiba ke bawaan' });
+    await expect(resetArrive).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Kembalikan Mulai ke bawaan' })).toBeDisabled();
+    await resetArrive.click();
+    await expect(arriveId).toHaveValue(DEFAULT_INSTRUCTION_TEMPLATES.arrive.id);
+    await expect(arriveEn).toHaveValue(DEFAULT_INSTRUCTION_TEMPLATES.arrive.en);
+    await expect(resetArrive).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Semua ke bawaan' })).toBeDisabled();
     await save.click();
     await expect(page.getByText('Instruksi disimpan')).toBeVisible();
     await page.reload();

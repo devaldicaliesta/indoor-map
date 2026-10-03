@@ -1,6 +1,7 @@
 import {
   type AppRole,
   can,
+  DEFAULT_INSTRUCTION_TEMPLATES,
   INSTRUCTION_ACTIONS,
   type InstructionAction,
   type InstructionText,
@@ -101,6 +102,12 @@ function InstructionsForm({
 
   const setText = (action: InstructionAction, language: SnapshotLanguage, value: string) =>
     setValues((v) => ({ ...v, [action]: { ...v[action], [language]: value } }));
+  const isDefault = (action: InstructionAction) =>
+    values[action].id === DEFAULT_INSTRUCTION_TEMPLATES[action].id &&
+    values[action].en === DEFAULT_INSTRUCTION_TEMPLATES[action].en;
+  // Hanya mengisi formulir; tersimpan lewat "Simpan instruksi" seperti perubahan lain.
+  const reset = (action: InstructionAction) =>
+    setValues((v) => ({ ...v, [action]: DEFAULT_INSTRUCTION_TEMPLATES[action] }));
 
   return (
     <form className="grid gap-4" onSubmit={submit} noValidate>
@@ -116,6 +123,7 @@ function InstructionsForm({
               <TableHead>Placeholder</TableHead>
               <TableHead>Bahasa Indonesia</TableHead>
               <TableHead>Bahasa Inggris</TableHead>
+              {canEdit ? <TableHead className="text-right">Aksi</TableHead> : null}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -138,6 +146,20 @@ function InstructionsForm({
                     onChange={(value) => setText(action, language, value)}
                   />
                 ))}
+                {canEdit ? (
+                  <TableCell className="text-right align-top">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      aria-label={`Kembalikan ${ACTION_LABELS[action]} ke bawaan`}
+                      disabled={isDefault(action)}
+                      onClick={() => reset(action)}
+                    >
+                      Bawaan
+                    </Button>
+                  </TableCell>
+                ) : null}
               </TableRow>
             ))}
           </TableBody>
@@ -152,6 +174,17 @@ function InstructionsForm({
           disabled={save.isPending || invalid || changes.length === 0}
         >
           {save.isPending ? 'Menyimpan…' : 'Simpan instruksi'}
+        </Button>
+      ) : null}
+      {canEdit ? (
+        <Button
+          type="button"
+          variant="ghost"
+          className="justify-self-start"
+          disabled={INSTRUCTION_ACTIONS.every(isDefault)}
+          onClick={() => setValues(DEFAULT_INSTRUCTION_TEMPLATES)}
+        >
+          Semua ke bawaan
         </Button>
       ) : null}
     </form>
