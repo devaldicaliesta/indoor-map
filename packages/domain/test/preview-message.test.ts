@@ -33,3 +33,10 @@ describe('withPreviewMode', () => {
     expect(value.venue.display.defaultMode).toBe(before);
   });
 });
+
+describe('readPreviewMessage versi', () => {
+  it('menolak snapshot bernomor versi 0: preview memakai nomor versi berikutnya', () => {
+    const value = { ...snapshot(), version: 0 };
+    expect(readPreviewMessage({ type: PREVIEW_SNAPSHOT, snapshot: value })).toBeNull();
+  });
+});

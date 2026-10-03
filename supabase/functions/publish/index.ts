@@ -61,19 +61,24 @@ async function validate(rest: CallerRest, venueId: string) {
 }
 
 /** Snapshot versi aktif dari bucket; `null` bila venue belum pernah menerbitkan peta. */
-async function activeSnapshot(rest: CallerRest, venueId: string): Promise<Snapshot | null> {
-  // Dibaca dengan JWT pemanggil (RLS); isi berkasnya lalu diambil dengan kunci layanan.
+/** Nomor versi aktif, dibaca dengan JWT pemanggil (RLS); `null` bila belum pernah publish. */
+async function activeVersion(rest: CallerRest, venueId: string): Promise<number | null> {
   const [active] = await rest.select<{ version: number }>(
     'publications',
     `select=version&venue_id=eq.${venueId}&is_active=eq.true&order=version.desc`,
   );
-  if (!active) return null;
+  return active?.version ?? null;
+}
+
+async function activeSnapshot(rest: CallerRest, venueId: string): Promise<Snapshot | null> {
+  const version = await activeVersion(rest, venueId);
+  if (version === null) return null;
   const response = await fetch(
-    `${url}/storage/v1/object/snapshots/${venueId}/v${active.version}.json`,
+    `${url}/storage/v1/object/snapshots/${venueId}/v${version}.json`,
     { headers: serviceHeaders },
   );
   if (!response.ok) {
-    throw new PublishError(502, 'unknown', `Versi aktif v${active.version} tidak bisa dibaca.`);
+    throw new PublishError(502, 'unknown', `Versi aktif v${version} tidak bisa dibaca.`);
   }
   return (await response.json()) as Snapshot;
 }
@@ -141,8 +146,12 @@ Deno.serve(async (request) => {
       return reply(200, { findings });
     }
     if (input?.mode === 'preview') {
-      const { source } = await validate(rest, venueId);
-      return reply(200, { snapshot: buildSnapshot(source) });
+      // Nomor versi yang akan dipakai bila draft ini dipublish (skema snapshot menolak 0).
+      const [{ source }, active] = await Promise.all([
+        validate(rest, venueId),
+        activeVersion(rest, venueId),
+      ]);
+      return reply(200, { snapshot: buildSnapshot({ ...source, version: (active ?? 0) + 1 }) });
     }
     if (input?.mode === 'diff') return reply(200, { changes: await changes(rest, venueId) });
     return reply(200, await publish(rest, venueId));
