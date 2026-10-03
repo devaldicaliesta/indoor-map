@@ -5,6 +5,7 @@ import type {
   LayerSpecification,
   Map as MapLibreMap,
 } from 'maplibre-gl';
+import { prefersReducedMotion } from '../camera';
 import { EDIT_COLORS } from '../defaults';
 import type { LngLat } from '../georef';
 
@@ -25,6 +26,7 @@ export const ROUTE_LAYER_IDS = {
   activeLine: 'route-active-line',
   casing: 'route-casing',
   line: 'route-line',
+  flow: 'route-flow',
   activePoint: 'route-active-point',
   transfers: 'route-transfers',
   origin: 'route-origin',
@@ -37,6 +39,34 @@ const ROUTE_WIDTH = 6;
 const CASING_WIDTH = 2;
 
 type Role = 'line' | 'active' | 'origin' | 'destination' | 'transfer';
+
+/**
+ * Pola putus garis aliran per langkah animasi: putusnya bergeser searah rute sehingga arah
+ * jalan terlihat tanpa panah (pola animasi garis MapLibre).
+ */
+const FLOW_DASHES: number[][] = [
+  [0, 4, 3],
+  [0.5, 4, 2.5],
+  [1, 4, 2],
+  [1.5, 4, 1.5],
+  [2, 4, 1],
+  [2.5, 4, 0.5],
+  [3, 4, 0],
+  [0, 0.5, 3, 3.5],
+  [0, 1, 3, 3],
+  [0, 1.5, 3, 2.5],
+  [0, 2, 3, 2],
+  [0, 2.5, 3, 1.5],
+  [0, 3, 3, 1],
+  [0, 3.5, 3, 0.5],
+];
+export const ROUTE_FLOW_STEPS = FLOW_DASHES.length;
+const FLOW_INTERVAL_MS = 70;
+const FLOW_DURATION_MS = 8000;
+
+export function routeFlowDash(step: number): number[] {
+  return FLOW_DASHES[((step % ROUTE_FLOW_STEPS) + ROUTE_FLOW_STEPS) % ROUTE_FLOW_STEPS] as number[];
+}
 
 const feature = (role: Role, coordinates: LngLat | LngLat[]): Feature => ({
   type: 'Feature',
@@ -99,6 +129,19 @@ export function routeLayers(color: string = ROUTE_COLOR): LayerSpecification[] {
       filter: is('line', 'LineString'),
       layout: round,
       paint: { 'line-color': color, 'line-width': ROUTE_WIDTH },
+    },
+    {
+      id: ROUTE_LAYER_IDS.flow,
+      type: 'line',
+      source: ROUTE_SOURCE_ID,
+      filter: is('line', 'LineString'),
+      layout: round,
+      paint: {
+        'line-color': paper,
+        'line-width': 2,
+        'line-opacity': 0.9,
+        'line-dasharray': routeFlowDash(0),
+      },
     },
     {
       id: ROUTE_LAYER_IDS.activePoint,
@@ -175,4 +218,30 @@ export function setRoute(
   const before = map.getStyle().layers.find((layer) => layer.id.startsWith('td-'))?.id;
   for (const id of Object.values(ROUTE_LAYER_IDS)) map.moveLayer(id, before);
   map.getSource<GeoJSONSource>(ROUTE_SOURCE_ID)?.setData(routeCollection(view));
+  if (view?.lines.length) startRouteFlow(map);
+}
+
+const flows = new WeakMap<MapLibreMap, { timer: number; until: number; step: number }>();
+
+/**
+ * Menggerakkan pola putus garis aliran selama beberapa detik setiap rute berganti, lalu diam
+ * agar peta tidak menggambar ulang terus (baterai HP). Tidak bergerak bila tab tersembunyi atau
+ * pengguna meminta gerak dikurangi (`prefers-reduced-motion`).
+ */
+function startRouteFlow(map: MapLibreMap): void {
+  if (typeof window === 'undefined' || prefersReducedMotion()) return;
+  const flow = flows.get(map);
+  const until = Date.now() + FLOW_DURATION_MS;
+  if (flow) {
+    flow.until = until;
+    return;
+  }
+  const state = { timer: 0, until, step: 0 };
+  state.timer = window.setInterval(() => {
+    if (Date.now() > state.until || document.hidden || !map.getLayer(ROUTE_LAYER_IDS.flow)) return;
+    state.step += 1;
+    map.setPaintProperty(ROUTE_LAYER_IDS.flow, 'line-dasharray', routeFlowDash(state.step));
+  }, FLOW_INTERVAL_MS);
+  flows.set(map, state);
+  map.once('remove', () => window.clearInterval(state.timer));
 }

@@ -121,9 +121,11 @@ export {
 } from './layers/reference';
 export {
   ROUTE_COLOR,
+  ROUTE_FLOW_STEPS,
   ROUTE_LAYER_IDS,
   type RouteView,
   routeCollection,
+  routeFlowDash,
   routeLayers,
   setRoute,
 } from './layers/route';

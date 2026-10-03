@@ -4,9 +4,11 @@ import { describe, expect, it } from 'vitest';
 import type { LngLat } from '../src/georef';
 import {
   ROUTE_COLOR,
+  ROUTE_FLOW_STEPS,
   ROUTE_LAYER_IDS,
   type RouteView,
   routeCollection,
+  routeFlowDash,
   routeLayers,
   setRoute,
 } from '../src/layers/route';
@@ -51,6 +53,7 @@ describe('lapisan rute', () => {
       ROUTE_LAYER_IDS.activeLine,
       ROUTE_LAYER_IDS.casing,
       ROUTE_LAYER_IDS.line,
+      ROUTE_LAYER_IDS.flow,
       ROUTE_LAYER_IDS.activePoint,
       ROUTE_LAYER_IDS.transfers,
       ROUTE_LAYER_IDS.origin,
@@ -87,7 +90,7 @@ describe('lapisan rute', () => {
     setRoute(map, view);
     setRoute(map, null);
     expect(calls.filter((call) => call === 'source')).toHaveLength(1);
-    expect(calls.filter((call) => call.startsWith('layer'))).toHaveLength(7);
+    expect(calls.filter((call) => call.startsWith('layer'))).toHaveLength(8);
     expect(calls).toContain(`move ${ROUTE_LAYER_IDS.destination} td-polygon`);
     expect(calls.filter((call) => call.startsWith('data'))).toEqual(['data 4', 'data 0']);
   });
@@ -118,5 +121,15 @@ describe('lapisan rute', () => {
       `${ROUTE_LAYER_IDS.destination} circle-color #0b1f4d`,
     ]);
     expect(paint(routeLayers('#0b1f4d')[2] as LayerSpecification)['line-color']).toBe('#0b1f4d');
+  });
+
+  it('garis aliran putih di atas rute; pola putusnya bergeser per langkah dan berulang', () => {
+    const flow = routeLayers().find((l) => l.id === ROUTE_LAYER_IDS.flow);
+    expect(flow?.type).toBe('line');
+    expect(paint(flow as LayerSpecification)['line-color']).toBe('#ffffff');
+    const ids = routeLayers().map((l) => l.id);
+    expect(ids.indexOf(ROUTE_LAYER_IDS.flow)).toBe(ids.indexOf(ROUTE_LAYER_IDS.line) + 1);
+    expect(routeFlowDash(0)).not.toEqual(routeFlowDash(1));
+    expect(routeFlowDash(ROUTE_FLOW_STEPS)).toEqual(routeFlowDash(0));
   });
 });
