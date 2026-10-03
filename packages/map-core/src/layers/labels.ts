@@ -7,7 +7,7 @@ import type {
   Map as MapLibreMap,
   SymbolLayerSpecification,
 } from 'maplibre-gl';
-import { FACILITY_ICON_PREFIX } from '../sprites';
+import { categoryIconTypeId, facilityIconId } from '../sprites';
 
 export const LABEL_SOURCE_ID = 'labels';
 export const LABEL_LAYER_ID = 'labels';
@@ -28,6 +28,11 @@ const TEXT_COLOR = '#111418';
 const HALO_COLOR = '#ffffff';
 
 const kind: ExpressionSpecification = ['get', 'kind'];
+const hasLocationIcon: ExpressionSpecification = [
+  'all',
+  ['==', kind, 'location'],
+  ['!=', ['get', 'icon'], ''],
+];
 
 export function labelFontFaces(font: LabelFont): FontFacesSpecification {
   return {
@@ -48,15 +53,13 @@ export function labelLayer(font: LabelFont): SymbolLayerSpecification {
     source: LABEL_SOURCE_ID,
     layout: {
       'symbol-sort-key': ['get', 'priority'],
-      'icon-image': [
-        'case',
-        ['==', kind, 'facility'],
-        ['concat', FACILITY_ICON_PREFIX, ['get', 'facilityTypeId']],
-        '',
-      ],
+      'icon-image': ['get', 'icon'],
       'icon-size': ['interpolate', ['linear'], ['zoom'], 15, 0.5, 18, 1],
       'icon-padding': 2,
       'text-field': ['case', ['==', kind, 'location'], ['get', 'name'], ''],
+      // Lokasi berikon: nama di bawah ikon kategorinya; tanpa ikon: nama di tengah unit.
+      'text-anchor': ['case', hasLocationIcon, 'top', 'center'],
+      'text-offset': ['case', hasLocationIcon, ['literal', [0, 0.9]], ['literal', [0, 0]]],
       'text-font': [font.name],
       'text-size': ['interpolate', ['linear'], ['zoom'], 17, 12, 20, 14],
       'text-max-width': 8,
@@ -80,11 +83,17 @@ export function labelCollection(labels: readonly MapLabel[]): FeatureCollection<
       geometry: { type: 'Point', coordinates: [...label.position] },
       properties:
         label.kind === 'location'
-          ? { kind: label.kind, id: label.id, name: label.name, priority: label.priority }
+          ? {
+              kind: label.kind,
+              id: label.id,
+              name: label.name,
+              icon: label.categoryId ? facilityIconId(categoryIconTypeId(label.categoryId)) : '',
+              priority: label.priority,
+            }
           : {
               kind: label.kind,
               id: label.id,
-              facilityTypeId: label.facilityTypeId,
+              icon: facilityIconId(label.facilityTypeId),
               priority: label.priority,
             },
     })),

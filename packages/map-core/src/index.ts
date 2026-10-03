@@ -160,6 +160,7 @@ export {
 export { closestOnSegment, type Px, SNAP_TOLERANCE_PX, type SnapKind, snapPoint } from './snap';
 export { type BBox, buildSnapIndex, type SnapCandidates, type SnapIndex } from './snap-index';
 export {
+  categoryIconTypeId,
   FACILITY_ICON_COLORS,
   FACILITY_ICON_FALLBACK,
   FACILITY_ICON_PREFIX,

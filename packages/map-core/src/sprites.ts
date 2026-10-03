@@ -8,6 +8,10 @@ export interface FacilityIconSpec {
   typeId: string;
   isSafety: boolean;
   source: IconSource | null;
+  /** Latar khusus ikon ini (misalnya warna kategori); selain itu latar bersama. */
+  background?: string | undefined;
+  /** Warna cincin khusus, misalnya putih untuk penanda POI di atas unit berwarna. */
+  ring?: string | undefined;
 }
 
 export const FACILITY_ICON_PREFIX = 'facility-';
@@ -28,6 +32,8 @@ export const FACILITY_ICON_COLORS = {
 } as const;
 
 export const facilityIconId = (typeId: string) => `${FACILITY_ICON_PREFIX}${typeId}`;
+/** Ikon penanda POI kategori ikut sprite fasilitas agar satu pemuatan dan satu pembersihan. */
+export const categoryIconTypeId = (categoryId: string) => `category-${categoryId}`;
 
 export interface Rect {
   x: number;
@@ -78,10 +84,14 @@ export function glyphColorOn(background: string): string {
 type IconColors = { background: string; ring: string; glyph: string };
 
 /** Keselamatan selalu merah; fasilitas lain memakai latar venue bila diatur. */
-function iconColors(isSafety: boolean, background?: string): IconColors {
+function iconColors(isSafety: boolean, background?: string, ring?: string): IconColors {
   if (isSafety) return FACILITY_ICON_COLORS.safety;
   if (!background) return FACILITY_ICON_COLORS.normal;
-  return { background, ring: FACILITY_ICON_COLORS.normal.ring, glyph: glyphColorOn(background) };
+  return {
+    background,
+    ring: ring ?? FACILITY_ICON_COLORS.normal.ring,
+    glyph: glyphColorOn(background),
+  };
 }
 
 function canvas2d(size: number): CanvasRenderingContext2D {
@@ -156,9 +166,10 @@ export async function renderFacilityIcon(
   source: IconSource | null,
   isSafety: boolean,
   background?: string,
+  ring?: string,
 ): Promise<ImageData> {
   const size = FACILITY_ICON_SIZE * PIXEL_RATIO;
-  const colors = iconColors(isSafety, background);
+  const colors = iconColors(isSafety, background, ring);
   const ctx = canvas2d(size);
   drawBadge(ctx, size, colors);
   const image = source ? await loadImage(source).catch(() => null) : null;
@@ -209,7 +220,9 @@ export async function setFacilityIcons(
   const version = (versions.get(map) ?? 0) + 1;
   versions.set(map, version);
   const images = await Promise.all(
-    specs.map((s) => renderFacilityIcon(s.source, s.isSafety, options.background)),
+    specs.map((s) =>
+      renderFacilityIcon(s.source, s.isSafety, s.background ?? options.background, s.ring),
+    ),
   );
   // Peta bisa sudah dilepas (komponen unmount) selama ikon dibuat; `style` lalu kosong.
   if (versions.get(map) !== version || !map.style) return;

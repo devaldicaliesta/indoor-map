@@ -46,6 +46,9 @@ describe('label Visitor', () => {
     expect(layout?.['text-font']).toEqual(['Atkinson Hyperlegible Bold']);
     const paint = label?.type === 'symbol' ? label.paint : undefined;
     expect(paint?.['text-halo-width']).toBe(1.5);
+    // Ikon POI lokasi di atas namanya, seperti penanda peta indoor komersial.
+    expect(layout?.['icon-image']).toEqual(['get', 'icon']);
+    expect(JSON.stringify(layout?.['text-anchor'])).toContain('top');
   });
 
   it('ikon fasilitas editor yang selalu tampil tidak dipakai Visitor', () => {
@@ -63,7 +66,17 @@ describe('label Visitor', () => {
         id: 'loc',
         floorId: 'f',
         name: 'Radiologi',
+        categoryId: 'cat',
         position: [106.8, -6.1],
+        priority: 2,
+      },
+      {
+        kind: 'location',
+        id: 'loc2',
+        floorId: 'f',
+        name: 'Gudang',
+        categoryId: null,
+        position: [106.7, -6.1],
         priority: 2,
       },
       {
@@ -79,12 +92,23 @@ describe('label Visitor', () => {
       {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [106.8, -6.1] },
-        properties: { kind: 'location', id: 'loc', name: 'Radiologi', priority: 2 },
+        properties: {
+          kind: 'location',
+          id: 'loc',
+          name: 'Radiologi',
+          icon: 'facility-category-cat',
+          priority: 2,
+        },
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [106.7, -6.1] },
+        properties: { kind: 'location', id: 'loc2', name: 'Gudang', icon: '', priority: 2 },
       },
       {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [106.9, -6.2] },
-        properties: { kind: 'facility', id: 'fac', facilityTypeId: 'ft', priority: 1 },
+        properties: { kind: 'facility', id: 'fac', icon: 'facility-ft', priority: 1 },
       },
     ]);
   });

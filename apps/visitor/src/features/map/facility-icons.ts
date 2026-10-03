@@ -1,5 +1,10 @@
-import { parseFacilityIcon, type SnapshotFacilityType } from '@indoor/domain';
-import type { FacilityIconSpec } from '@indoor/map-core';
+import {
+  parseFacilityIcon,
+  type SnapshotCategory,
+  type SnapshotFacilityType,
+  type SnapshotLocationType,
+} from '@indoor/domain';
+import { categoryIconTypeId, type FacilityIconSpec } from '@indoor/map-core';
 import { pictogramSvg } from '@indoor/ui';
 import { data } from '../../data/client';
 
@@ -10,6 +15,31 @@ export function facilityIconSpecs(types: readonly SnapshotFacilityType[]): Facil
     return {
       typeId: type.id,
       isSafety: type.isSafety,
+      source: !icon
+        ? null
+        : icon.kind === 'builtin'
+          ? { svg: pictogramSvg(icon.key) }
+          : { url: data.snapshots.assetUrl(icon.path) },
+    };
+  });
+}
+
+/**
+ * Penanda POI per kategori: lingkaran berwarna kategori dengan piktogramnya (atau titik),
+ * digambar bersama sprite fasilitas. Kategori tanpa warna memakai warna tipe lokasinya.
+ */
+export function categoryIconSpecs(
+  categories: readonly SnapshotCategory[],
+  types: readonly SnapshotLocationType[],
+): FacilityIconSpec[] {
+  const typeColor = new Map(types.map((t) => [t.id, t.color]));
+  return categories.map((category) => {
+    const icon = parseFacilityIcon(category.icon);
+    return {
+      typeId: categoryIconTypeId(category.id),
+      isSafety: false,
+      background: category.color ?? typeColor.get(category.locationTypeId) ?? undefined,
+      ring: '#ffffff',
       source: !icon
         ? null
         : icon.kind === 'builtin'
