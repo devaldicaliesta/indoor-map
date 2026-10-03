@@ -3,7 +3,7 @@ import {
   type Building,
   type FacilityType,
   type Floor,
-  type InfoPoint,
+  type InfoPointPlace,
   type Location,
   normalizeSearchText,
   type OriginPoint,
@@ -44,7 +44,7 @@ export interface PlaceSources {
   facilityTypes: readonly FacilityType[];
   locations: readonly Location[];
   originPoints: readonly OriginPoint[];
-  infoPoints: readonly InfoPoint[];
+  infoPoints: readonly InfoPointPlace[];
 }
 
 export function placeKey(place: RoutePlace): string {

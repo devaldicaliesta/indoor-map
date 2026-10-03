@@ -15,6 +15,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   toast,
 } from '@indoor/ui';
 import { useState } from 'react';
@@ -25,6 +29,7 @@ import { useSelectedVenue } from '../../app/venue-store';
 import { FormNotice } from '../auth/auth-layout';
 import { floorLabel } from '../closures/closure-model';
 import { useVenueFloors } from '../editor/connectors/queries';
+import { InfoPointsPanel } from '../info-points/info-points-panel';
 import { OriginDialog, type OriginDialogTarget } from './origin-dialog';
 import { downloadPdf, downloadPng, qrCard } from './qr-download';
 import { useOriginPoints, usePublicVisitorUrl, useRemoveOriginPoint } from './queries';
@@ -213,7 +218,18 @@ export function OriginPointsPage() {
       {(access) => (
         <ModulePage module="origin_points" access={access}>
           {venue ? (
-            <Origins key={venue.id} venue={venue} />
+            <Tabs key={venue.id} defaultValue="origins">
+              <TabsList>
+                <TabsTrigger value="origins">QR titik asal</TabsTrigger>
+                <TabsTrigger value="info-points">Info Point</TabsTrigger>
+              </TabsList>
+              <TabsContent value="origins" className="pt-4">
+                <Origins venue={venue} />
+              </TabsContent>
+              <TabsContent value="info-points" className="pt-4">
+                <InfoPointsPanel venue={venue} />
+              </TabsContent>
+            </Tabs>
           ) : (
             <EmptyState
               title="Belum ada venue"

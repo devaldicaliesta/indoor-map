@@ -34,7 +34,7 @@ export function useSavedGraph(venueId: VenueId) {
   });
 }
 
-function toChanges(patch: GraphPatch) {
+export function toChanges(patch: GraphPatch) {
   return {
     saveNodes: patch.nodes.flatMap((c) => (c.after ? [c.after] : [])),
     removeNodeIds: patch.nodes.flatMap((c) => (c.after ? [] : [c.id])),

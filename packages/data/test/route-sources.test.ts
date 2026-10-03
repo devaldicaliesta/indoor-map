@@ -40,6 +40,10 @@ describe('sumber uji rute', () => {
         geom: point,
         heading_deg: 180,
         node_id: 'n1',
+        default_mode: '2d',
+        force_2d: true,
+        default_language: 'en',
+        idle_seconds: 90,
       }),
     ).toEqual({
       id: 'i1',
@@ -49,6 +53,10 @@ describe('sumber uji rute', () => {
       coordinates: [106.8268, -6.17528085],
       headingDeg: 180,
       nodeId: 'n1',
+      defaultMode: '2d',
+      force2d: true,
+      defaultLanguage: 'en',
+      idleSeconds: 90,
     });
   });
 

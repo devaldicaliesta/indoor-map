@@ -43,7 +43,7 @@ export function OriginMap({
 }: {
   floorId: string;
   graph: NavGraph | undefined;
-  others: readonly OriginPoint[];
+  others: readonly Pick<OriginPoint, 'id' | 'floorId' | 'coordinates' | 'headingDeg'>[];
   position: Position | null;
   headingDeg: number;
   onPick: (position: Position) => void;
