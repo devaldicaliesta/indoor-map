@@ -97,7 +97,8 @@ export function VersionHistory({ venueId, timezone }: { venueId: VenueId; timezo
             {history.data.map((entry) => (
               <TableRow key={entry.version}>
                 <TableCell className="whitespace-nowrap font-bold font-mono">
-                  v{entry.version} {entry.isActive ? <Badge className="ml-1 font-sans">Aktif</Badge> : null}
+                  v{entry.version}{' '}
+                  {entry.isActive ? <Badge className="ml-1 font-sans">Aktif</Badge> : null}
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
                   {inVenueTime(entry.publishedAt, timezone)}
