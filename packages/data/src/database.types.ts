@@ -1569,6 +1569,14 @@ export type Database = {
           state: string;
         }[];
       };
+      license_usage: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          kind: string;
+          quota: number;
+          used: number;
+        }[];
+      };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {
