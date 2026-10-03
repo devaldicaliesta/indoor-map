@@ -52,22 +52,6 @@ export function checkPublicVisitorUrl(value: string): VisitorUrlProblem | null {
   return null;
 }
 
-export type BasemapUrlProblem = 'invalid' | 'not_https' | 'missing_placeholders';
-
-/** URL tile peta dasar: https (http hanya localhost) dengan placeholder `{z}`, `{x}`, dan `{y}`. */
-export function checkBasemapTileUrl(value: string): BasemapUrlProblem | null {
-  let url: ParsedUrl;
-  try {
-    url = new UrlConstructor(value);
-  } catch {
-    return 'invalid';
-  }
-  if (url.protocol !== 'https:' && !(url.protocol === 'http:' && LOCAL_HOSTS.has(url.hostname))) {
-    return url.protocol === 'http:' ? 'not_https' : 'invalid';
-  }
-  return ['{z}', '{x}', '{y}'].every((p) => value.includes(p)) ? null : 'missing_placeholders';
-}
-
 export function isValidPort(port: number): boolean {
   return Number.isInteger(port) && port >= 1 && port <= 65535;
 }

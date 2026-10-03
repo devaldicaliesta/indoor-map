@@ -61,6 +61,9 @@ describe('peta dasar', () => {
     expect(errors.basemapTileUrl).toContain('{z}, {x}, dan {y}');
     expect(errors.basemapAttribution).toContain('atribusi');
     expect(
+      validate({ ...base, basemapAttribution: '<a href="x">OSM</a>' }).basemapAttribution,
+    ).toContain('tanpa < atau >');
+    expect(
       validate({
         ...base,
         basemapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',

@@ -27,6 +27,9 @@ function fakeMap() {
       calls.push(`remove source ${id}`);
     },
     addControl: () => calls.push('attribution'),
+    getStyle: () => ({
+      layers: [{ id: LAYER_IDS.background }, ...[...layers].map((id) => ({ id }))],
+    }),
   } as unknown as MapLibreMap;
   return { map, calls };
 }

@@ -7,6 +7,7 @@ import {
   validateVenue,
   venueToday,
 } from '../../../src';
+import { mallVenue } from '../../fixtures/demo-venues';
 import { sampleSnapshotSource } from '../../fixtures/snapshot-source';
 import { at, ID, rect, validSource } from './fixture';
 
@@ -176,6 +177,37 @@ describe('validasi publish: Error', () => {
       severity: 'error',
       connectorId: 'esc',
     });
+  });
+
+  it('lift atau tangga dengan kurang dari dua pemberhentian', () => {
+    const s = validSource();
+    s.graph = {
+      ...s.graph,
+      connectors: [
+        {
+          ...s.graph.connectors[0],
+          stops: [{ floorId: ID.gf, nodeId: 'c-gf' }],
+        } as (typeof s.graph.connectors)[0],
+      ],
+    };
+    expect(findingOf(s, 'connector_stops')).toMatchObject({
+      severity: 'error',
+      connectorId: ID.lift,
+    });
+  });
+
+  it('pemberhentian konektor yang node-nya tidak ada di graf disebut hilang, bukan belum tersambung', () => {
+    const s = validSource();
+    s.graph = { ...s.graph, nodes: s.graph.nodes.filter((n) => n.id !== 'c-l1') };
+    s.graph = { ...s.graph, edges: s.graph.edges.filter((e) => e.from !== 'c-l1') };
+    const f = findingOf(s, 'connector_one_sided');
+    expect(f.message).toContain('hilang');
+  });
+
+  it('venue demo besar (mal 150 unit) divalidasi jauh di bawah 5 detik', () => {
+    const start = Date.now();
+    validateVenue(mallVenue(), CONTEXT);
+    expect(Date.now() - start).toBeLessThan(5000);
   });
 
   it('Error memblokir publish', () => {

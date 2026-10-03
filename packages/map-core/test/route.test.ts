@@ -1,6 +1,6 @@
 import type { FeatureCollection } from 'geojson';
 import type { LayerSpecification, Map as MapLibreMap } from 'maplibre-gl';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { LngLat } from '../src/georef';
 import {
   ROUTE_COLOR,
@@ -131,5 +131,43 @@ describe('lapisan rute', () => {
     expect(ids.indexOf(ROUTE_LAYER_IDS.flow)).toBe(ids.indexOf(ROUTE_LAYER_IDS.line) + 1);
     expect(routeFlowDash(0)).not.toEqual(routeFlowDash(1));
     expect(routeFlowDash(ROUTE_FLOW_STEPS)).toEqual(routeFlowDash(0));
+  });
+
+  it('animasi aliran berhenti (timer dilepas) setelah beberapa detik; rute baru menyalakannya lagi', () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('window', {
+      setInterval,
+      clearInterval,
+      matchMedia: () => ({ matches: false }),
+    });
+    vi.stubGlobal('document', { hidden: false });
+    try {
+      let added = false;
+      const dashes: unknown[] = [];
+      const map = {
+        getSource: () => (added ? { setData: () => undefined } : undefined),
+        addSource: () => {
+          added = true;
+        },
+        addLayer: () => undefined,
+        getLayer: () => ({}),
+        getStyle: () => ({ layers: [] }),
+        moveLayer: () => undefined,
+        once: () => undefined,
+        setPaintProperty: (_id: string, _name: string, value: unknown) => dashes.push(value),
+      } as unknown as MapLibreMap;
+      setRoute(map, view);
+      vi.advanceTimersByTime(1000);
+      expect(dashes.length).toBeGreaterThan(5);
+      vi.advanceTimersByTime(10_000);
+      expect(vi.getTimerCount()).toBe(0);
+      const before = dashes.length;
+      setRoute(map, view);
+      vi.advanceTimersByTime(500);
+      expect(dashes.length).toBeGreaterThan(before);
+    } finally {
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
   });
 });
