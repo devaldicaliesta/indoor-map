@@ -5,6 +5,8 @@ import { data } from '../../app/data-client';
 export const activePublicationKey = (venueId: VenueId) =>
   ['publications', venueId, 'active'] as const;
 
+const historyKey = (venueId: VenueId) => ['publications', venueId, 'history'] as const;
+
 export function useActivePublication(venueId: VenueId) {
   return useQuery({
     queryKey: activePublicationKey(venueId),
@@ -12,11 +14,33 @@ export function useActivePublication(venueId: VenueId) {
   });
 }
 
-export function usePublish(venueId: VenueId) {
+export function usePublicationHistory(venueId: VenueId) {
+  return useQuery({
+    queryKey: historyKey(venueId),
+    queryFn: () => data.publications.history(venueId),
+  });
+}
+
+/** Versi aktif dan riwayat berubah setelah publish atau rollback, berhasil maupun tidak. */
+function useRefreshPublications(venueId: VenueId) {
   const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: ['publications', venueId] });
+}
+
+export function usePublish(venueId: VenueId) {
+  const refresh = useRefreshPublications(venueId);
   return useMutation({
-    mutationFn: () => data.publications.publish(venueId),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: activePublicationKey(venueId) }),
+    mutationFn: (notes: string) => data.publications.publish(venueId, notes),
+    onSettled: refresh,
+  });
+}
+
+export function useRollback(venueId: VenueId) {
+  const refresh = useRefreshPublications(venueId);
+  return useMutation({
+    mutationFn: ({ version, notes }: { version: number; notes: string }) =>
+      data.publications.rollback(venueId, version, notes),
+    onSettled: refresh,
   });
 }
 

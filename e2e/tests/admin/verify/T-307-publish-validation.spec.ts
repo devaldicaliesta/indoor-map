@@ -79,11 +79,13 @@ test.describe('T-307 Validasi publish lengkap', () => {
     await page.screenshot({ path: shot('01-temuan-error') });
 
     // Publish ditolak server; tidak ada versi published.
-    await page.getByRole('button', { name: 'Terbitkan (dev)' }).click();
-    await expect(page.getByText('Gagal menerbitkan')).toBeVisible();
-    await expect(page.getByText(/Publish dibatalkan: \d+ Error validasi/)).toBeVisible();
+    await page.getByRole('button', { name: 'Terbitkan', exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('button', { name: 'Terbitkan' }).click();
+    await expect(dialog.getByText(/Publish dibatalkan: \d+ Error validasi/)).toBeVisible();
     expect(await superAdmin.publications.active(venue.id)).toBeNull();
     await page.screenshot({ path: shot('02-publish-ditolak') });
+    await dialog.getByRole('button', { name: 'Batal' }).click();
 
     // Klik temuan: editor di lantai itu dengan unit terpilih.
     await errors

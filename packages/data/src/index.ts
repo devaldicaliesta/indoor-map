@@ -46,6 +46,7 @@ export type { OriginPointsRepository } from './repositories/origin-points';
 export type { ProfilesRepository } from './repositories/profiles';
 export type {
   ActivePublication,
+  PublicationEntry,
   PublicationsRepository,
   PublishResult,
 } from './repositories/publications';
