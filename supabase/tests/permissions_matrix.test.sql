@@ -1,0 +1,914 @@
+-- DIBANGKITKAN dari packages/domain/src/table-access.ts oleh
+-- packages/data/test/permissions-matrix.test.ts. Jangan diedit langsung.
+-- Matriks role × tabel × operasi (T-312): setiap percobaan dibatalkan di subtransaksi.
+begin;
+create extension if not exists pgtap with schema extensions;
+
+select plan(720);
+
+insert into auth.users (id, email) values
+  ('f0000000-0000-4000-8000-000000000001', 'super_admin@matrix.test'),
+  ('f0000000-0000-4000-8000-000000000002', 'admin@matrix.test'),
+  ('f0000000-0000-4000-8000-000000000003', 'editor@matrix.test'),
+  ('f0000000-0000-4000-8000-000000000004', 'operator@matrix.test'),
+  ('f0000000-0000-4000-8000-000000000005', 'viewer@matrix.test'),
+  ('f0000000-0000-4000-8000-000000000006', 'lock_owner@matrix.test');
+insert into public.profiles (user_id, full_name, email, role) values
+  ('f0000000-0000-4000-8000-000000000001', 'super_admin', 'super_admin@matrix.test', 'super_admin'),
+  ('f0000000-0000-4000-8000-000000000002', 'admin', 'admin@matrix.test', 'admin'),
+  ('f0000000-0000-4000-8000-000000000003', 'editor', 'editor@matrix.test', 'editor'),
+  ('f0000000-0000-4000-8000-000000000004', 'operator', 'operator@matrix.test', 'operator'),
+  ('f0000000-0000-4000-8000-000000000005', 'viewer', 'viewer@matrix.test', 'viewer'),
+  ('f0000000-0000-4000-8000-000000000006', 'Pemegang kunci', 'lock_owner@matrix.test', 'editor');
+
+insert into public.venues (id, name) values ('f1000000-0000-4000-8000-000000000001', 'Venue Matriks');
+insert into public.buildings (id, venue_id, name, code) values ('f1000000-0000-4000-8000-000000000002', 'f1000000-0000-4000-8000-000000000001', 'Gedung', 'G');
+insert into public.floors (id, venue_id, building_id, name, level) values
+  ('f1000000-0000-4000-8000-000000000003', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000002', 'L1', 1),
+  ('f1000000-0000-4000-8000-000000000004', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000002', 'L2', 2);
+insert into public.floor_plans (id, floor_id, source_path, source_format)
+  values ('f1000000-0000-4000-8000-000000000005', 'f1000000-0000-4000-8000-000000000003', 'denah.png', 'png');
+insert into public.facility_types (id, venue_id, name) values ('f1000000-0000-4000-8000-000000000006', 'f1000000-0000-4000-8000-000000000001', 'Jenis Matriks');
+insert into public.instruction_templates (venue_id, action, text_id)
+  values ('f1000000-0000-4000-8000-000000000001', 'arrive', 'Tiba') on conflict do nothing;
+insert into public.features (id, venue_id, floor_id, kind, unit_code, geom) values
+  ('f1000000-0000-4000-8000-000000000007', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000003', 'unit', 'MTX-1', extensions.st_setsrid(extensions.st_geomfromtext(
+    'POLYGON((106.8 -6.2, 106.8001 -6.2, 106.8001 -6.2001, 106.8 -6.2001, 106.8 -6.2))'), 4326));
+insert into public.nav_nodes (id, venue_id, floor_id, geom) values
+  ('f1000000-0000-4000-8000-000000000008', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000003', extensions.st_setsrid(extensions.st_makepoint(106.8, -6.2), 4326)),
+  ('f1000000-0000-4000-8000-000000000009', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000003', extensions.st_setsrid(extensions.st_makepoint(106.80001, -6.2), 4326));
+insert into public.nav_edges (id, venue_id, floor_id, from_node_id, to_node_id, length_m)
+  values ('f1000000-0000-4000-8000-00000000000a', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000003', 'f1000000-0000-4000-8000-000000000008', 'f1000000-0000-4000-8000-000000000009', 1);
+insert into public.connectors (id, venue_id, kind, name, is_accessible)
+  values ('f1000000-0000-4000-8000-00000000000b', 'f1000000-0000-4000-8000-000000000001', 'stairs', 'Tangga', false);
+insert into public.connector_stops (connector_id, floor_id, node_id) values ('f1000000-0000-4000-8000-00000000000b', 'f1000000-0000-4000-8000-000000000003', 'f1000000-0000-4000-8000-000000000008');
+insert into public.info_points (id, venue_id, floor_id, code, name, geom)
+  values ('f1000000-0000-4000-8000-00000000000c', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000003', 'MATRIX-IP', 'Info Point', extensions.st_setsrid(extensions.st_makepoint(106.8, -6.2), 4326));
+insert into public.location_types (id, venue_id, name) values ('f1000000-0000-4000-8000-00000000000d', 'f1000000-0000-4000-8000-000000000001', 'Tipe Matriks');
+insert into public.field_definitions (id, location_type_id, key, label, field_type)
+  values ('f1000000-0000-4000-8000-00000000000e', 'f1000000-0000-4000-8000-00000000000d', 'catatan', 'Catatan', 'text');
+insert into public.categories (id, location_type_id, name) values ('f1000000-0000-4000-8000-00000000000f', 'f1000000-0000-4000-8000-00000000000d', 'Kategori');
+insert into public.locations (id, venue_id, location_type_id, name)
+  values ('f1000000-0000-4000-8000-000000000010', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-00000000000d', 'Lokasi Matriks');
+insert into public.location_units (location_id, feature_id) values ('f1000000-0000-4000-8000-000000000010', 'f1000000-0000-4000-8000-000000000007');
+insert into public.location_categories (location_id, category_id) values ('f1000000-0000-4000-8000-000000000010', 'f1000000-0000-4000-8000-00000000000f');
+insert into public.opening_hours (location_id, weekday, is_closed) values ('f1000000-0000-4000-8000-000000000010', 1, true);
+insert into public.search_aliases (id, venue_id, keyword, location_id)
+  values ('f1000000-0000-4000-8000-000000000011', 'f1000000-0000-4000-8000-000000000001', 'alias', 'f1000000-0000-4000-8000-000000000010');
+insert into public.origin_points (id, venue_id, floor_id, name, geom)
+  values ('f1000000-0000-4000-8000-000000000012', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000003', 'Lobi', extensions.st_setsrid(extensions.st_makepoint(106.8, -6.2), 4326));
+insert into public.closures (id, venue_id, connector_id, reason, starts_at)
+  values ('f1000000-0000-4000-8000-000000000013', 'f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-00000000000b', 'Perbaikan', now() - interval '1 hour');
+insert into public.edit_locks (floor_id, user_id) values ('f1000000-0000-4000-8000-000000000004', 'f0000000-0000-4000-8000-000000000006');
+insert into public.publications (id, venue_id, version, snapshot_path, is_active)
+  values ('f1000000-0000-4000-8000-000000000014', 'f1000000-0000-4000-8000-000000000001', 1, 'f1000000-0000-4000-8000-000000000001/v1.json', true);
+insert into public.audit_events (action, entity, details) values ('publish', 'venue', '{"matrix": true}');
+insert into public.licenses (id, license_id, payload, signature, status, source)
+  values ('f1000000-0000-4000-8000-000000000016', 'MATRIX', '{}', 'x', 'active', 'manual');
+
+-- Uji insert menyalin baris fixture dengan id baru.
+create function pg_temp.attempt(p_op text, p_table text, p_where text, p_column text)
+returns text
+language plpgsql as $$
+declare
+  v_rows integer := 0;
+  v_columns text;
+begin
+  begin
+    if p_op = 'select' then
+      execute format('select count(*) from public.%I where %s', p_table, p_where) into v_rows;
+    elsif p_op = 'update' then
+      execute format(
+        'with c as (update public.%I set %I = %I where %s returning 1) select count(*) from c',
+        p_table, p_column, p_column, p_where) into v_rows;
+    elsif p_op = 'delete' then
+      execute format(
+        'with c as (delete from public.%I where %s returning 1) select count(*) from c',
+        p_table, p_where) into v_rows;
+    elsif p_table = 'edit_locks' then
+      -- Pengedit hanya boleh mengunci lantai untuk dirinya sendiri.
+      insert into public.edit_locks (floor_id, user_id) values ('f1000000-0000-4000-8000-000000000003', app.current_user_id());
+      v_rows := 1;
+    else
+      -- Kolom identitas/terbangkitkan dibiarkan diisi database.
+      select string_agg(quote_ident(c.column_name), ', ' order by c.ordinal_position) into v_columns
+      from information_schema.columns c
+      where c.table_schema = 'public' and c.table_name = p_table
+        and c.is_generated = 'NEVER' and coalesce(c.identity_generation, '') <> 'ALWAYS';
+      execute format('insert into public.%I (%s) select %s from pg_temp.fixture_%s',
+        p_table, v_columns, v_columns, p_table);
+      v_rows := 1;
+    end if;
+    -- Membatalkan perubahan: hanya jumlah baris yang dibawa keluar.
+    raise exception using errcode = 'P0099';
+  exception
+    when sqlstate 'P0099' then
+      return case when v_rows > 0 then 'boleh' else 'ditolak' end;
+    -- Pelanggaran unik atau FK diperiksa setelah RLS: barisnya sudah lolos.
+    when unique_violation or foreign_key_violation then
+      return 'boleh';
+    when insufficient_privilege then
+      return 'ditolak';
+    -- Trigger BEFORE yang menolak (mis. tidak bisa membaca venue) juga menolak penulisan.
+    when others then
+      return case when p_op = 'insert' then 'ditolak' else 'galat ' || sqlstate end;
+  end;
+end
+$$;
+
+create temp table fixture_venues as select * from public.venues where id = 'f1000000-0000-4000-8000-000000000001';
+create temp table fixture_buildings as select * from public.buildings where id = 'f1000000-0000-4000-8000-000000000002';
+create temp table fixture_floors as select * from public.floors where id = 'f1000000-0000-4000-8000-000000000003';
+create temp table fixture_floor_plans as select * from public.floor_plans where id = 'f1000000-0000-4000-8000-000000000005';
+create temp table fixture_display_settings as select * from public.display_settings where venue_id = 'f1000000-0000-4000-8000-000000000001';
+create temp table fixture_facility_types as select * from public.facility_types where id = 'f1000000-0000-4000-8000-000000000006';
+create temp table fixture_instruction_templates as select * from public.instruction_templates where venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive';
+create temp table fixture_features as select * from public.features where id = 'f1000000-0000-4000-8000-000000000007';
+create temp table fixture_nav_nodes as select * from public.nav_nodes where id = 'f1000000-0000-4000-8000-000000000008';
+create temp table fixture_nav_edges as select * from public.nav_edges where id = 'f1000000-0000-4000-8000-00000000000a';
+create temp table fixture_connectors as select * from public.connectors where id = 'f1000000-0000-4000-8000-00000000000b';
+create temp table fixture_connector_stops as select * from public.connector_stops where connector_id = 'f1000000-0000-4000-8000-00000000000b';
+create temp table fixture_info_points as select * from public.info_points where id = 'f1000000-0000-4000-8000-00000000000c';
+create temp table fixture_location_types as select * from public.location_types where id = 'f1000000-0000-4000-8000-00000000000d';
+create temp table fixture_field_definitions as select * from public.field_definitions where id = 'f1000000-0000-4000-8000-00000000000e';
+create temp table fixture_categories as select * from public.categories where id = 'f1000000-0000-4000-8000-00000000000f';
+create temp table fixture_locations as select * from public.locations where id = 'f1000000-0000-4000-8000-000000000010';
+create temp table fixture_location_units as select * from public.location_units where location_id = 'f1000000-0000-4000-8000-000000000010';
+create temp table fixture_location_categories as select * from public.location_categories where location_id = 'f1000000-0000-4000-8000-000000000010';
+create temp table fixture_opening_hours as select * from public.opening_hours where location_id = 'f1000000-0000-4000-8000-000000000010';
+create temp table fixture_search_aliases as select * from public.search_aliases where id = 'f1000000-0000-4000-8000-000000000011';
+create temp table fixture_origin_points as select * from public.origin_points where id = 'f1000000-0000-4000-8000-000000000012';
+create temp table fixture_closures as select * from public.closures where id = 'f1000000-0000-4000-8000-000000000013';
+create temp table fixture_edit_locks as select * from public.edit_locks where floor_id = 'f1000000-0000-4000-8000-000000000004';
+create temp table fixture_publications as select * from public.publications where id = 'f1000000-0000-4000-8000-000000000014';
+create temp table fixture_profiles as select * from public.profiles where user_id = 'f0000000-0000-4000-8000-000000000006';
+create temp table fixture_audit_events as select * from public.audit_events where details @> '{"matrix": true}';
+create temp table fixture_system_settings as select * from public.system_settings where true;
+create temp table fixture_installation as select * from public.installation where true;
+create temp table fixture_licenses as select * from public.licenses where id = 'f1000000-0000-4000-8000-000000000016';
+do $$
+declare
+  t record;
+begin
+  for t in
+    select c.table_name from information_schema.columns c
+    where c.table_schema like 'pg_temp%' and c.column_name = 'id' and c.data_type = 'uuid'
+  loop
+    execute format('update pg_temp.%I set id = gen_random_uuid()', t.table_name);
+  end loop;
+end
+$$;
+grant select on all tables in schema pg_temp to authenticated, anon;
+
+-- super_admin
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"f0000000-0000-4000-8000-000000000001","role":"authenticated"}', true);
+select is(pg_temp.attempt('select', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'super_admin select venues');
+select is(pg_temp.attempt('insert', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'super_admin insert venues');
+select is(pg_temp.attempt('update', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'super_admin update venues');
+select is(pg_temp.attempt('delete', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'super_admin delete venues');
+select is(pg_temp.attempt('select', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'super_admin select buildings');
+select is(pg_temp.attempt('insert', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'super_admin insert buildings');
+select is(pg_temp.attempt('update', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'super_admin update buildings');
+select is(pg_temp.attempt('delete', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'super_admin delete buildings');
+select is(pg_temp.attempt('select', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'super_admin select floors');
+select is(pg_temp.attempt('insert', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'super_admin insert floors');
+select is(pg_temp.attempt('update', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'super_admin update floors');
+select is(pg_temp.attempt('delete', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'super_admin delete floors');
+select is(pg_temp.attempt('select', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'super_admin select floor_plans');
+select is(pg_temp.attempt('insert', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'super_admin insert floor_plans');
+select is(pg_temp.attempt('update', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'super_admin update floor_plans');
+select is(pg_temp.attempt('delete', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'super_admin delete floor_plans');
+select is(pg_temp.attempt('select', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'super_admin select display_settings');
+select is(pg_temp.attempt('insert', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'super_admin insert display_settings');
+select is(pg_temp.attempt('update', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'super_admin update display_settings');
+select is(pg_temp.attempt('delete', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'super_admin delete display_settings');
+select is(pg_temp.attempt('select', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'super_admin select facility_types');
+select is(pg_temp.attempt('insert', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'super_admin insert facility_types');
+select is(pg_temp.attempt('update', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'super_admin update facility_types');
+select is(pg_temp.attempt('delete', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'super_admin delete facility_types');
+select is(pg_temp.attempt('select', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'super_admin select instruction_templates');
+select is(pg_temp.attempt('insert', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'super_admin insert instruction_templates');
+select is(pg_temp.attempt('update', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'super_admin update instruction_templates');
+select is(pg_temp.attempt('delete', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'super_admin delete instruction_templates');
+select is(pg_temp.attempt('select', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'super_admin select features');
+select is(pg_temp.attempt('insert', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'super_admin insert features');
+select is(pg_temp.attempt('update', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'super_admin update features');
+select is(pg_temp.attempt('delete', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'super_admin delete features');
+select is(pg_temp.attempt('select', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'super_admin select nav_nodes');
+select is(pg_temp.attempt('insert', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'super_admin insert nav_nodes');
+select is(pg_temp.attempt('update', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'super_admin update nav_nodes');
+select is(pg_temp.attempt('delete', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'super_admin delete nav_nodes');
+select is(pg_temp.attempt('select', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'super_admin select nav_edges');
+select is(pg_temp.attempt('insert', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'super_admin insert nav_edges');
+select is(pg_temp.attempt('update', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'super_admin update nav_edges');
+select is(pg_temp.attempt('delete', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'super_admin delete nav_edges');
+select is(pg_temp.attempt('select', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'super_admin select connectors');
+select is(pg_temp.attempt('insert', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'super_admin insert connectors');
+select is(pg_temp.attempt('update', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'super_admin update connectors');
+select is(pg_temp.attempt('delete', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'super_admin delete connectors');
+select is(pg_temp.attempt('select', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'super_admin select connector_stops');
+select is(pg_temp.attempt('insert', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'super_admin insert connector_stops');
+select is(pg_temp.attempt('update', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'super_admin update connector_stops');
+select is(pg_temp.attempt('delete', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'super_admin delete connector_stops');
+select is(pg_temp.attempt('select', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'super_admin select info_points');
+select is(pg_temp.attempt('insert', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'super_admin insert info_points');
+select is(pg_temp.attempt('update', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'super_admin update info_points');
+select is(pg_temp.attempt('delete', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'super_admin delete info_points');
+select is(pg_temp.attempt('select', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'super_admin select location_types');
+select is(pg_temp.attempt('insert', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'super_admin insert location_types');
+select is(pg_temp.attempt('update', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'super_admin update location_types');
+select is(pg_temp.attempt('delete', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'super_admin delete location_types');
+select is(pg_temp.attempt('select', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'super_admin select field_definitions');
+select is(pg_temp.attempt('insert', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'super_admin insert field_definitions');
+select is(pg_temp.attempt('update', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'super_admin update field_definitions');
+select is(pg_temp.attempt('delete', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'super_admin delete field_definitions');
+select is(pg_temp.attempt('select', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'super_admin select categories');
+select is(pg_temp.attempt('insert', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'super_admin insert categories');
+select is(pg_temp.attempt('update', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'super_admin update categories');
+select is(pg_temp.attempt('delete', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'super_admin delete categories');
+select is(pg_temp.attempt('select', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'super_admin select locations');
+select is(pg_temp.attempt('insert', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'super_admin insert locations');
+select is(pg_temp.attempt('update', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'super_admin update locations');
+select is(pg_temp.attempt('delete', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'super_admin delete locations');
+select is(pg_temp.attempt('select', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'super_admin select location_units');
+select is(pg_temp.attempt('insert', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'super_admin insert location_units');
+select is(pg_temp.attempt('update', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'super_admin update location_units');
+select is(pg_temp.attempt('delete', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'super_admin delete location_units');
+select is(pg_temp.attempt('select', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'super_admin select location_categories');
+select is(pg_temp.attempt('insert', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'super_admin insert location_categories');
+select is(pg_temp.attempt('update', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'super_admin update location_categories');
+select is(pg_temp.attempt('delete', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'super_admin delete location_categories');
+select is(pg_temp.attempt('select', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'super_admin select opening_hours');
+select is(pg_temp.attempt('insert', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'super_admin insert opening_hours');
+select is(pg_temp.attempt('update', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'super_admin update opening_hours');
+select is(pg_temp.attempt('delete', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'super_admin delete opening_hours');
+select is(pg_temp.attempt('select', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'super_admin select search_aliases');
+select is(pg_temp.attempt('insert', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'super_admin insert search_aliases');
+select is(pg_temp.attempt('update', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'super_admin update search_aliases');
+select is(pg_temp.attempt('delete', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'super_admin delete search_aliases');
+select is(pg_temp.attempt('select', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'super_admin select origin_points');
+select is(pg_temp.attempt('insert', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'super_admin insert origin_points');
+select is(pg_temp.attempt('update', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'super_admin update origin_points');
+select is(pg_temp.attempt('delete', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'super_admin delete origin_points');
+select is(pg_temp.attempt('select', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'super_admin select closures');
+select is(pg_temp.attempt('insert', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'super_admin insert closures');
+select is(pg_temp.attempt('update', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'super_admin update closures');
+select is(pg_temp.attempt('delete', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'super_admin delete closures');
+select is(pg_temp.attempt('select', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'boleh', 'super_admin select edit_locks');
+select is(pg_temp.attempt('insert', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'boleh', 'super_admin insert edit_locks');
+select is(pg_temp.attempt('update', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'super_admin update edit_locks');
+select is(pg_temp.attempt('delete', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'boleh', 'super_admin delete edit_locks');
+select is(pg_temp.attempt('select', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'boleh', 'super_admin select publications');
+select is(pg_temp.attempt('insert', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'super_admin insert publications');
+select is(pg_temp.attempt('update', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'super_admin update publications');
+select is(pg_temp.attempt('delete', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'super_admin delete publications');
+select is(pg_temp.attempt('select', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'boleh', 'super_admin select profiles');
+select is(pg_temp.attempt('insert', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'boleh', 'super_admin insert profiles');
+select is(pg_temp.attempt('update', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'boleh', 'super_admin update profiles');
+select is(pg_temp.attempt('delete', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'boleh', 'super_admin delete profiles');
+select is(pg_temp.attempt('select', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'boleh', 'super_admin select audit_events');
+select is(pg_temp.attempt('insert', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'super_admin insert audit_events');
+select is(pg_temp.attempt('update', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'super_admin update audit_events');
+select is(pg_temp.attempt('delete', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'super_admin delete audit_events');
+select is(pg_temp.attempt('select', 'system_settings', $w$true$w$, 'id'), 'boleh', 'super_admin select system_settings');
+select is(pg_temp.attempt('insert', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'super_admin insert system_settings');
+select is(pg_temp.attempt('update', 'system_settings', $w$true$w$, 'id'), 'boleh', 'super_admin update system_settings');
+select is(pg_temp.attempt('delete', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'super_admin delete system_settings');
+select is(pg_temp.attempt('select', 'installation', $w$true$w$, 'id'), 'boleh', 'super_admin select installation');
+select is(pg_temp.attempt('insert', 'installation', $w$true$w$, 'id'), 'ditolak', 'super_admin insert installation');
+select is(pg_temp.attempt('update', 'installation', $w$true$w$, 'id'), 'ditolak', 'super_admin update installation');
+select is(pg_temp.attempt('delete', 'installation', $w$true$w$, 'id'), 'ditolak', 'super_admin delete installation');
+select is(pg_temp.attempt('select', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'boleh', 'super_admin select licenses');
+select is(pg_temp.attempt('insert', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'super_admin insert licenses');
+select is(pg_temp.attempt('update', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'super_admin update licenses');
+select is(pg_temp.attempt('delete', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'super_admin delete licenses');
+reset role;
+
+-- admin
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"f0000000-0000-4000-8000-000000000002","role":"authenticated"}', true);
+select is(pg_temp.attempt('select', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'admin select venues');
+select is(pg_temp.attempt('insert', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'admin insert venues');
+select is(pg_temp.attempt('update', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'admin update venues');
+select is(pg_temp.attempt('delete', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'admin delete venues');
+select is(pg_temp.attempt('select', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'admin select buildings');
+select is(pg_temp.attempt('insert', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'admin insert buildings');
+select is(pg_temp.attempt('update', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'admin update buildings');
+select is(pg_temp.attempt('delete', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'admin delete buildings');
+select is(pg_temp.attempt('select', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'admin select floors');
+select is(pg_temp.attempt('insert', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'admin insert floors');
+select is(pg_temp.attempt('update', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'admin update floors');
+select is(pg_temp.attempt('delete', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'admin delete floors');
+select is(pg_temp.attempt('select', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'admin select floor_plans');
+select is(pg_temp.attempt('insert', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'admin insert floor_plans');
+select is(pg_temp.attempt('update', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'admin update floor_plans');
+select is(pg_temp.attempt('delete', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'admin delete floor_plans');
+select is(pg_temp.attempt('select', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'admin select display_settings');
+select is(pg_temp.attempt('insert', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'admin insert display_settings');
+select is(pg_temp.attempt('update', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'admin update display_settings');
+select is(pg_temp.attempt('delete', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'admin delete display_settings');
+select is(pg_temp.attempt('select', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'admin select facility_types');
+select is(pg_temp.attempt('insert', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'admin insert facility_types');
+select is(pg_temp.attempt('update', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'admin update facility_types');
+select is(pg_temp.attempt('delete', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'admin delete facility_types');
+select is(pg_temp.attempt('select', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'admin select instruction_templates');
+select is(pg_temp.attempt('insert', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'admin insert instruction_templates');
+select is(pg_temp.attempt('update', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'admin update instruction_templates');
+select is(pg_temp.attempt('delete', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'admin delete instruction_templates');
+select is(pg_temp.attempt('select', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'admin select features');
+select is(pg_temp.attempt('insert', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'admin insert features');
+select is(pg_temp.attempt('update', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'admin update features');
+select is(pg_temp.attempt('delete', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'admin delete features');
+select is(pg_temp.attempt('select', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'admin select nav_nodes');
+select is(pg_temp.attempt('insert', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'admin insert nav_nodes');
+select is(pg_temp.attempt('update', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'admin update nav_nodes');
+select is(pg_temp.attempt('delete', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'admin delete nav_nodes');
+select is(pg_temp.attempt('select', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'admin select nav_edges');
+select is(pg_temp.attempt('insert', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'admin insert nav_edges');
+select is(pg_temp.attempt('update', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'admin update nav_edges');
+select is(pg_temp.attempt('delete', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'admin delete nav_edges');
+select is(pg_temp.attempt('select', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'admin select connectors');
+select is(pg_temp.attempt('insert', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'admin insert connectors');
+select is(pg_temp.attempt('update', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'admin update connectors');
+select is(pg_temp.attempt('delete', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'admin delete connectors');
+select is(pg_temp.attempt('select', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'admin select connector_stops');
+select is(pg_temp.attempt('insert', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'admin insert connector_stops');
+select is(pg_temp.attempt('update', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'admin update connector_stops');
+select is(pg_temp.attempt('delete', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'admin delete connector_stops');
+select is(pg_temp.attempt('select', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'admin select info_points');
+select is(pg_temp.attempt('insert', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'admin insert info_points');
+select is(pg_temp.attempt('update', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'admin update info_points');
+select is(pg_temp.attempt('delete', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'admin delete info_points');
+select is(pg_temp.attempt('select', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'admin select location_types');
+select is(pg_temp.attempt('insert', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'admin insert location_types');
+select is(pg_temp.attempt('update', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'admin update location_types');
+select is(pg_temp.attempt('delete', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'admin delete location_types');
+select is(pg_temp.attempt('select', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'admin select field_definitions');
+select is(pg_temp.attempt('insert', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'admin insert field_definitions');
+select is(pg_temp.attempt('update', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'admin update field_definitions');
+select is(pg_temp.attempt('delete', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'admin delete field_definitions');
+select is(pg_temp.attempt('select', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'admin select categories');
+select is(pg_temp.attempt('insert', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'admin insert categories');
+select is(pg_temp.attempt('update', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'admin update categories');
+select is(pg_temp.attempt('delete', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'admin delete categories');
+select is(pg_temp.attempt('select', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'admin select locations');
+select is(pg_temp.attempt('insert', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'admin insert locations');
+select is(pg_temp.attempt('update', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'admin update locations');
+select is(pg_temp.attempt('delete', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'admin delete locations');
+select is(pg_temp.attempt('select', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'admin select location_units');
+select is(pg_temp.attempt('insert', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'admin insert location_units');
+select is(pg_temp.attempt('update', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'admin update location_units');
+select is(pg_temp.attempt('delete', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'admin delete location_units');
+select is(pg_temp.attempt('select', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'admin select location_categories');
+select is(pg_temp.attempt('insert', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'admin insert location_categories');
+select is(pg_temp.attempt('update', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'admin update location_categories');
+select is(pg_temp.attempt('delete', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'admin delete location_categories');
+select is(pg_temp.attempt('select', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'admin select opening_hours');
+select is(pg_temp.attempt('insert', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'admin insert opening_hours');
+select is(pg_temp.attempt('update', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'admin update opening_hours');
+select is(pg_temp.attempt('delete', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'admin delete opening_hours');
+select is(pg_temp.attempt('select', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'admin select search_aliases');
+select is(pg_temp.attempt('insert', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'admin insert search_aliases');
+select is(pg_temp.attempt('update', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'admin update search_aliases');
+select is(pg_temp.attempt('delete', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'admin delete search_aliases');
+select is(pg_temp.attempt('select', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'admin select origin_points');
+select is(pg_temp.attempt('insert', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'admin insert origin_points');
+select is(pg_temp.attempt('update', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'admin update origin_points');
+select is(pg_temp.attempt('delete', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'admin delete origin_points');
+select is(pg_temp.attempt('select', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'admin select closures');
+select is(pg_temp.attempt('insert', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'admin insert closures');
+select is(pg_temp.attempt('update', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'admin update closures');
+select is(pg_temp.attempt('delete', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'admin delete closures');
+select is(pg_temp.attempt('select', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'boleh', 'admin select edit_locks');
+select is(pg_temp.attempt('insert', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'boleh', 'admin insert edit_locks');
+select is(pg_temp.attempt('update', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'admin update edit_locks');
+select is(pg_temp.attempt('delete', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'admin delete edit_locks');
+select is(pg_temp.attempt('select', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'boleh', 'admin select publications');
+select is(pg_temp.attempt('insert', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'admin insert publications');
+select is(pg_temp.attempt('update', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'admin update publications');
+select is(pg_temp.attempt('delete', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'admin delete publications');
+select is(pg_temp.attempt('select', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'boleh', 'admin select profiles');
+select is(pg_temp.attempt('insert', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'admin insert profiles');
+select is(pg_temp.attempt('update', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'admin update profiles');
+select is(pg_temp.attempt('delete', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'admin delete profiles');
+select is(pg_temp.attempt('select', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'admin select audit_events');
+select is(pg_temp.attempt('insert', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'admin insert audit_events');
+select is(pg_temp.attempt('update', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'admin update audit_events');
+select is(pg_temp.attempt('delete', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'admin delete audit_events');
+select is(pg_temp.attempt('select', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'admin select system_settings');
+select is(pg_temp.attempt('insert', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'admin insert system_settings');
+select is(pg_temp.attempt('update', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'admin update system_settings');
+select is(pg_temp.attempt('delete', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'admin delete system_settings');
+select is(pg_temp.attempt('select', 'installation', $w$true$w$, 'id'), 'ditolak', 'admin select installation');
+select is(pg_temp.attempt('insert', 'installation', $w$true$w$, 'id'), 'ditolak', 'admin insert installation');
+select is(pg_temp.attempt('update', 'installation', $w$true$w$, 'id'), 'ditolak', 'admin update installation');
+select is(pg_temp.attempt('delete', 'installation', $w$true$w$, 'id'), 'ditolak', 'admin delete installation');
+select is(pg_temp.attempt('select', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'admin select licenses');
+select is(pg_temp.attempt('insert', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'admin insert licenses');
+select is(pg_temp.attempt('update', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'admin update licenses');
+select is(pg_temp.attempt('delete', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'admin delete licenses');
+reset role;
+
+-- editor
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"f0000000-0000-4000-8000-000000000003","role":"authenticated"}', true);
+select is(pg_temp.attempt('select', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'editor select venues');
+select is(pg_temp.attempt('insert', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'editor insert venues');
+select is(pg_temp.attempt('update', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'editor update venues');
+select is(pg_temp.attempt('delete', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'editor delete venues');
+select is(pg_temp.attempt('select', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'editor select buildings');
+select is(pg_temp.attempt('insert', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'editor insert buildings');
+select is(pg_temp.attempt('update', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'editor update buildings');
+select is(pg_temp.attempt('delete', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'editor delete buildings');
+select is(pg_temp.attempt('select', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'editor select floors');
+select is(pg_temp.attempt('insert', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'editor insert floors');
+select is(pg_temp.attempt('update', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'editor update floors');
+select is(pg_temp.attempt('delete', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'editor delete floors');
+select is(pg_temp.attempt('select', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'editor select floor_plans');
+select is(pg_temp.attempt('insert', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'editor insert floor_plans');
+select is(pg_temp.attempt('update', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'editor update floor_plans');
+select is(pg_temp.attempt('delete', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'editor delete floor_plans');
+select is(pg_temp.attempt('select', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'editor select display_settings');
+select is(pg_temp.attempt('insert', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'editor insert display_settings');
+select is(pg_temp.attempt('update', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'editor update display_settings');
+select is(pg_temp.attempt('delete', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'editor delete display_settings');
+select is(pg_temp.attempt('select', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'editor select facility_types');
+select is(pg_temp.attempt('insert', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'editor insert facility_types');
+select is(pg_temp.attempt('update', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'editor update facility_types');
+select is(pg_temp.attempt('delete', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'editor delete facility_types');
+select is(pg_temp.attempt('select', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'editor select instruction_templates');
+select is(pg_temp.attempt('insert', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'editor insert instruction_templates');
+select is(pg_temp.attempt('update', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'editor update instruction_templates');
+select is(pg_temp.attempt('delete', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'editor delete instruction_templates');
+select is(pg_temp.attempt('select', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'editor select features');
+select is(pg_temp.attempt('insert', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'editor insert features');
+select is(pg_temp.attempt('update', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'editor update features');
+select is(pg_temp.attempt('delete', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'editor delete features');
+select is(pg_temp.attempt('select', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'editor select nav_nodes');
+select is(pg_temp.attempt('insert', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'editor insert nav_nodes');
+select is(pg_temp.attempt('update', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'editor update nav_nodes');
+select is(pg_temp.attempt('delete', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'editor delete nav_nodes');
+select is(pg_temp.attempt('select', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'editor select nav_edges');
+select is(pg_temp.attempt('insert', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'editor insert nav_edges');
+select is(pg_temp.attempt('update', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'editor update nav_edges');
+select is(pg_temp.attempt('delete', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'editor delete nav_edges');
+select is(pg_temp.attempt('select', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'editor select connectors');
+select is(pg_temp.attempt('insert', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'editor insert connectors');
+select is(pg_temp.attempt('update', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'editor update connectors');
+select is(pg_temp.attempt('delete', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'editor delete connectors');
+select is(pg_temp.attempt('select', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'editor select connector_stops');
+select is(pg_temp.attempt('insert', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'editor insert connector_stops');
+select is(pg_temp.attempt('update', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'editor update connector_stops');
+select is(pg_temp.attempt('delete', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'editor delete connector_stops');
+select is(pg_temp.attempt('select', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'editor select info_points');
+select is(pg_temp.attempt('insert', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'editor insert info_points');
+select is(pg_temp.attempt('update', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'editor update info_points');
+select is(pg_temp.attempt('delete', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'editor delete info_points');
+select is(pg_temp.attempt('select', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'editor select location_types');
+select is(pg_temp.attempt('insert', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'editor insert location_types');
+select is(pg_temp.attempt('update', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'editor update location_types');
+select is(pg_temp.attempt('delete', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'editor delete location_types');
+select is(pg_temp.attempt('select', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'editor select field_definitions');
+select is(pg_temp.attempt('insert', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'editor insert field_definitions');
+select is(pg_temp.attempt('update', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'editor update field_definitions');
+select is(pg_temp.attempt('delete', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'editor delete field_definitions');
+select is(pg_temp.attempt('select', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'editor select categories');
+select is(pg_temp.attempt('insert', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'editor insert categories');
+select is(pg_temp.attempt('update', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'editor update categories');
+select is(pg_temp.attempt('delete', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'editor delete categories');
+select is(pg_temp.attempt('select', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'editor select locations');
+select is(pg_temp.attempt('insert', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'editor insert locations');
+select is(pg_temp.attempt('update', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'editor update locations');
+select is(pg_temp.attempt('delete', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'editor delete locations');
+select is(pg_temp.attempt('select', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'editor select location_units');
+select is(pg_temp.attempt('insert', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'editor insert location_units');
+select is(pg_temp.attempt('update', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'editor update location_units');
+select is(pg_temp.attempt('delete', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'editor delete location_units');
+select is(pg_temp.attempt('select', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'editor select location_categories');
+select is(pg_temp.attempt('insert', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'editor insert location_categories');
+select is(pg_temp.attempt('update', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'editor update location_categories');
+select is(pg_temp.attempt('delete', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'editor delete location_categories');
+select is(pg_temp.attempt('select', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'editor select opening_hours');
+select is(pg_temp.attempt('insert', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'editor insert opening_hours');
+select is(pg_temp.attempt('update', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'editor update opening_hours');
+select is(pg_temp.attempt('delete', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'editor delete opening_hours');
+select is(pg_temp.attempt('select', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'editor select search_aliases');
+select is(pg_temp.attempt('insert', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'editor insert search_aliases');
+select is(pg_temp.attempt('update', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'editor update search_aliases');
+select is(pg_temp.attempt('delete', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'editor delete search_aliases');
+select is(pg_temp.attempt('select', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'editor select origin_points');
+select is(pg_temp.attempt('insert', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'editor insert origin_points');
+select is(pg_temp.attempt('update', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'editor update origin_points');
+select is(pg_temp.attempt('delete', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'editor delete origin_points');
+select is(pg_temp.attempt('select', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'editor select closures');
+select is(pg_temp.attempt('insert', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'ditolak', 'editor insert closures');
+select is(pg_temp.attempt('update', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'ditolak', 'editor update closures');
+select is(pg_temp.attempt('delete', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'ditolak', 'editor delete closures');
+select is(pg_temp.attempt('select', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'boleh', 'editor select edit_locks');
+select is(pg_temp.attempt('insert', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'boleh', 'editor insert edit_locks');
+select is(pg_temp.attempt('update', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'editor update edit_locks');
+select is(pg_temp.attempt('delete', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'editor delete edit_locks');
+select is(pg_temp.attempt('select', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'boleh', 'editor select publications');
+select is(pg_temp.attempt('insert', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'editor insert publications');
+select is(pg_temp.attempt('update', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'editor update publications');
+select is(pg_temp.attempt('delete', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'editor delete publications');
+select is(pg_temp.attempt('select', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'boleh', 'editor select profiles');
+select is(pg_temp.attempt('insert', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'editor insert profiles');
+select is(pg_temp.attempt('update', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'editor update profiles');
+select is(pg_temp.attempt('delete', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'editor delete profiles');
+select is(pg_temp.attempt('select', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'editor select audit_events');
+select is(pg_temp.attempt('insert', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'editor insert audit_events');
+select is(pg_temp.attempt('update', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'editor update audit_events');
+select is(pg_temp.attempt('delete', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'editor delete audit_events');
+select is(pg_temp.attempt('select', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'editor select system_settings');
+select is(pg_temp.attempt('insert', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'editor insert system_settings');
+select is(pg_temp.attempt('update', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'editor update system_settings');
+select is(pg_temp.attempt('delete', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'editor delete system_settings');
+select is(pg_temp.attempt('select', 'installation', $w$true$w$, 'id'), 'ditolak', 'editor select installation');
+select is(pg_temp.attempt('insert', 'installation', $w$true$w$, 'id'), 'ditolak', 'editor insert installation');
+select is(pg_temp.attempt('update', 'installation', $w$true$w$, 'id'), 'ditolak', 'editor update installation');
+select is(pg_temp.attempt('delete', 'installation', $w$true$w$, 'id'), 'ditolak', 'editor delete installation');
+select is(pg_temp.attempt('select', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'editor select licenses');
+select is(pg_temp.attempt('insert', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'editor insert licenses');
+select is(pg_temp.attempt('update', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'editor update licenses');
+select is(pg_temp.attempt('delete', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'editor delete licenses');
+reset role;
+
+-- operator
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"f0000000-0000-4000-8000-000000000004","role":"authenticated"}', true);
+select is(pg_temp.attempt('select', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'operator select venues');
+select is(pg_temp.attempt('insert', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'operator insert venues');
+select is(pg_temp.attempt('update', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'operator update venues');
+select is(pg_temp.attempt('delete', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'operator delete venues');
+select is(pg_temp.attempt('select', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'operator select buildings');
+select is(pg_temp.attempt('insert', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'operator insert buildings');
+select is(pg_temp.attempt('update', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'operator update buildings');
+select is(pg_temp.attempt('delete', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'operator delete buildings');
+select is(pg_temp.attempt('select', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'operator select floors');
+select is(pg_temp.attempt('insert', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'operator insert floors');
+select is(pg_temp.attempt('update', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'operator update floors');
+select is(pg_temp.attempt('delete', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'operator delete floors');
+select is(pg_temp.attempt('select', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'operator select floor_plans');
+select is(pg_temp.attempt('insert', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'operator insert floor_plans');
+select is(pg_temp.attempt('update', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'operator update floor_plans');
+select is(pg_temp.attempt('delete', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'operator delete floor_plans');
+select is(pg_temp.attempt('select', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'operator select display_settings');
+select is(pg_temp.attempt('insert', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'operator insert display_settings');
+select is(pg_temp.attempt('update', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'operator update display_settings');
+select is(pg_temp.attempt('delete', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'operator delete display_settings');
+select is(pg_temp.attempt('select', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'operator select facility_types');
+select is(pg_temp.attempt('insert', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'operator insert facility_types');
+select is(pg_temp.attempt('update', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'operator update facility_types');
+select is(pg_temp.attempt('delete', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'operator delete facility_types');
+select is(pg_temp.attempt('select', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'operator select instruction_templates');
+select is(pg_temp.attempt('insert', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'operator insert instruction_templates');
+select is(pg_temp.attempt('update', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'operator update instruction_templates');
+select is(pg_temp.attempt('delete', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'operator delete instruction_templates');
+select is(pg_temp.attempt('select', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'operator select features');
+select is(pg_temp.attempt('insert', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'operator insert features');
+select is(pg_temp.attempt('update', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'operator update features');
+select is(pg_temp.attempt('delete', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'operator delete features');
+select is(pg_temp.attempt('select', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'operator select nav_nodes');
+select is(pg_temp.attempt('insert', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'operator insert nav_nodes');
+select is(pg_temp.attempt('update', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'operator update nav_nodes');
+select is(pg_temp.attempt('delete', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'operator delete nav_nodes');
+select is(pg_temp.attempt('select', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'operator select nav_edges');
+select is(pg_temp.attempt('insert', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'operator insert nav_edges');
+select is(pg_temp.attempt('update', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'operator update nav_edges');
+select is(pg_temp.attempt('delete', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'operator delete nav_edges');
+select is(pg_temp.attempt('select', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'operator select connectors');
+select is(pg_temp.attempt('insert', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'operator insert connectors');
+select is(pg_temp.attempt('update', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'operator update connectors');
+select is(pg_temp.attempt('delete', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'operator delete connectors');
+select is(pg_temp.attempt('select', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'operator select connector_stops');
+select is(pg_temp.attempt('insert', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'operator insert connector_stops');
+select is(pg_temp.attempt('update', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'operator update connector_stops');
+select is(pg_temp.attempt('delete', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'operator delete connector_stops');
+select is(pg_temp.attempt('select', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'operator select info_points');
+select is(pg_temp.attempt('insert', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'operator insert info_points');
+select is(pg_temp.attempt('update', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'operator update info_points');
+select is(pg_temp.attempt('delete', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'operator delete info_points');
+select is(pg_temp.attempt('select', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'operator select location_types');
+select is(pg_temp.attempt('insert', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'operator insert location_types');
+select is(pg_temp.attempt('update', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'operator update location_types');
+select is(pg_temp.attempt('delete', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'operator delete location_types');
+select is(pg_temp.attempt('select', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'operator select field_definitions');
+select is(pg_temp.attempt('insert', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'operator insert field_definitions');
+select is(pg_temp.attempt('update', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'operator update field_definitions');
+select is(pg_temp.attempt('delete', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'operator delete field_definitions');
+select is(pg_temp.attempt('select', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'operator select categories');
+select is(pg_temp.attempt('insert', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'operator insert categories');
+select is(pg_temp.attempt('update', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'operator update categories');
+select is(pg_temp.attempt('delete', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'operator delete categories');
+select is(pg_temp.attempt('select', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'operator select locations');
+select is(pg_temp.attempt('insert', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'operator insert locations');
+select is(pg_temp.attempt('update', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'operator update locations');
+select is(pg_temp.attempt('delete', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'operator delete locations');
+select is(pg_temp.attempt('select', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'operator select location_units');
+select is(pg_temp.attempt('insert', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'operator insert location_units');
+select is(pg_temp.attempt('update', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'operator update location_units');
+select is(pg_temp.attempt('delete', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'operator delete location_units');
+select is(pg_temp.attempt('select', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'operator select location_categories');
+select is(pg_temp.attempt('insert', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'operator insert location_categories');
+select is(pg_temp.attempt('update', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'operator update location_categories');
+select is(pg_temp.attempt('delete', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'operator delete location_categories');
+select is(pg_temp.attempt('select', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'operator select opening_hours');
+select is(pg_temp.attempt('insert', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'operator insert opening_hours');
+select is(pg_temp.attempt('update', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'operator update opening_hours');
+select is(pg_temp.attempt('delete', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'operator delete opening_hours');
+select is(pg_temp.attempt('select', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'operator select search_aliases');
+select is(pg_temp.attempt('insert', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'operator insert search_aliases');
+select is(pg_temp.attempt('update', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'operator update search_aliases');
+select is(pg_temp.attempt('delete', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'operator delete search_aliases');
+select is(pg_temp.attempt('select', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'operator select origin_points');
+select is(pg_temp.attempt('insert', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'operator insert origin_points');
+select is(pg_temp.attempt('update', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'operator update origin_points');
+select is(pg_temp.attempt('delete', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'operator delete origin_points');
+select is(pg_temp.attempt('select', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'operator select closures');
+select is(pg_temp.attempt('insert', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'operator insert closures');
+select is(pg_temp.attempt('update', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'operator update closures');
+select is(pg_temp.attempt('delete', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'operator delete closures');
+select is(pg_temp.attempt('select', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'boleh', 'operator select edit_locks');
+select is(pg_temp.attempt('insert', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'operator insert edit_locks');
+select is(pg_temp.attempt('update', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'operator update edit_locks');
+select is(pg_temp.attempt('delete', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'operator delete edit_locks');
+select is(pg_temp.attempt('select', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'boleh', 'operator select publications');
+select is(pg_temp.attempt('insert', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'operator insert publications');
+select is(pg_temp.attempt('update', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'operator update publications');
+select is(pg_temp.attempt('delete', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'operator delete publications');
+select is(pg_temp.attempt('select', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'boleh', 'operator select profiles');
+select is(pg_temp.attempt('insert', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'operator insert profiles');
+select is(pg_temp.attempt('update', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'operator update profiles');
+select is(pg_temp.attempt('delete', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'operator delete profiles');
+select is(pg_temp.attempt('select', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'operator select audit_events');
+select is(pg_temp.attempt('insert', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'operator insert audit_events');
+select is(pg_temp.attempt('update', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'operator update audit_events');
+select is(pg_temp.attempt('delete', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'operator delete audit_events');
+select is(pg_temp.attempt('select', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'operator select system_settings');
+select is(pg_temp.attempt('insert', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'operator insert system_settings');
+select is(pg_temp.attempt('update', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'operator update system_settings');
+select is(pg_temp.attempt('delete', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'operator delete system_settings');
+select is(pg_temp.attempt('select', 'installation', $w$true$w$, 'id'), 'ditolak', 'operator select installation');
+select is(pg_temp.attempt('insert', 'installation', $w$true$w$, 'id'), 'ditolak', 'operator insert installation');
+select is(pg_temp.attempt('update', 'installation', $w$true$w$, 'id'), 'ditolak', 'operator update installation');
+select is(pg_temp.attempt('delete', 'installation', $w$true$w$, 'id'), 'ditolak', 'operator delete installation');
+select is(pg_temp.attempt('select', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'operator select licenses');
+select is(pg_temp.attempt('insert', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'operator insert licenses');
+select is(pg_temp.attempt('update', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'operator update licenses');
+select is(pg_temp.attempt('delete', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'operator delete licenses');
+reset role;
+
+-- viewer
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"f0000000-0000-4000-8000-000000000005","role":"authenticated"}', true);
+select is(pg_temp.attempt('select', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'boleh', 'viewer select venues');
+select is(pg_temp.attempt('insert', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'viewer insert venues');
+select is(pg_temp.attempt('update', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'viewer update venues');
+select is(pg_temp.attempt('delete', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'viewer delete venues');
+select is(pg_temp.attempt('select', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'boleh', 'viewer select buildings');
+select is(pg_temp.attempt('insert', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'viewer insert buildings');
+select is(pg_temp.attempt('update', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'viewer update buildings');
+select is(pg_temp.attempt('delete', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'viewer delete buildings');
+select is(pg_temp.attempt('select', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'boleh', 'viewer select floors');
+select is(pg_temp.attempt('insert', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'viewer insert floors');
+select is(pg_temp.attempt('update', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'viewer update floors');
+select is(pg_temp.attempt('delete', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'viewer delete floors');
+select is(pg_temp.attempt('select', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'boleh', 'viewer select floor_plans');
+select is(pg_temp.attempt('insert', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'viewer insert floor_plans');
+select is(pg_temp.attempt('update', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'viewer update floor_plans');
+select is(pg_temp.attempt('delete', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'viewer delete floor_plans');
+select is(pg_temp.attempt('select', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'boleh', 'viewer select display_settings');
+select is(pg_temp.attempt('insert', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'viewer insert display_settings');
+select is(pg_temp.attempt('update', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'viewer update display_settings');
+select is(pg_temp.attempt('delete', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'viewer delete display_settings');
+select is(pg_temp.attempt('select', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'boleh', 'viewer select facility_types');
+select is(pg_temp.attempt('insert', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'viewer insert facility_types');
+select is(pg_temp.attempt('update', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'viewer update facility_types');
+select is(pg_temp.attempt('delete', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'viewer delete facility_types');
+select is(pg_temp.attempt('select', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'boleh', 'viewer select instruction_templates');
+select is(pg_temp.attempt('insert', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'viewer insert instruction_templates');
+select is(pg_temp.attempt('update', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'viewer update instruction_templates');
+select is(pg_temp.attempt('delete', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'viewer delete instruction_templates');
+select is(pg_temp.attempt('select', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'boleh', 'viewer select features');
+select is(pg_temp.attempt('insert', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'viewer insert features');
+select is(pg_temp.attempt('update', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'viewer update features');
+select is(pg_temp.attempt('delete', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'viewer delete features');
+select is(pg_temp.attempt('select', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'boleh', 'viewer select nav_nodes');
+select is(pg_temp.attempt('insert', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'viewer insert nav_nodes');
+select is(pg_temp.attempt('update', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'viewer update nav_nodes');
+select is(pg_temp.attempt('delete', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'viewer delete nav_nodes');
+select is(pg_temp.attempt('select', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'boleh', 'viewer select nav_edges');
+select is(pg_temp.attempt('insert', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'viewer insert nav_edges');
+select is(pg_temp.attempt('update', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'viewer update nav_edges');
+select is(pg_temp.attempt('delete', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'viewer delete nav_edges');
+select is(pg_temp.attempt('select', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'boleh', 'viewer select connectors');
+select is(pg_temp.attempt('insert', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'viewer insert connectors');
+select is(pg_temp.attempt('update', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'viewer update connectors');
+select is(pg_temp.attempt('delete', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'viewer delete connectors');
+select is(pg_temp.attempt('select', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'boleh', 'viewer select connector_stops');
+select is(pg_temp.attempt('insert', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'viewer insert connector_stops');
+select is(pg_temp.attempt('update', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'viewer update connector_stops');
+select is(pg_temp.attempt('delete', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'viewer delete connector_stops');
+select is(pg_temp.attempt('select', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'boleh', 'viewer select info_points');
+select is(pg_temp.attempt('insert', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'viewer insert info_points');
+select is(pg_temp.attempt('update', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'viewer update info_points');
+select is(pg_temp.attempt('delete', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'viewer delete info_points');
+select is(pg_temp.attempt('select', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'boleh', 'viewer select location_types');
+select is(pg_temp.attempt('insert', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'viewer insert location_types');
+select is(pg_temp.attempt('update', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'viewer update location_types');
+select is(pg_temp.attempt('delete', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'viewer delete location_types');
+select is(pg_temp.attempt('select', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'boleh', 'viewer select field_definitions');
+select is(pg_temp.attempt('insert', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'viewer insert field_definitions');
+select is(pg_temp.attempt('update', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'viewer update field_definitions');
+select is(pg_temp.attempt('delete', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'viewer delete field_definitions');
+select is(pg_temp.attempt('select', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'boleh', 'viewer select categories');
+select is(pg_temp.attempt('insert', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'viewer insert categories');
+select is(pg_temp.attempt('update', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'viewer update categories');
+select is(pg_temp.attempt('delete', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'viewer delete categories');
+select is(pg_temp.attempt('select', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'viewer select locations');
+select is(pg_temp.attempt('insert', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'viewer insert locations');
+select is(pg_temp.attempt('update', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'viewer update locations');
+select is(pg_temp.attempt('delete', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'viewer delete locations');
+select is(pg_temp.attempt('select', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'viewer select location_units');
+select is(pg_temp.attempt('insert', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'viewer insert location_units');
+select is(pg_temp.attempt('update', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'viewer update location_units');
+select is(pg_temp.attempt('delete', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'viewer delete location_units');
+select is(pg_temp.attempt('select', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'boleh', 'viewer select location_categories');
+select is(pg_temp.attempt('insert', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'viewer insert location_categories');
+select is(pg_temp.attempt('update', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'viewer update location_categories');
+select is(pg_temp.attempt('delete', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'viewer delete location_categories');
+select is(pg_temp.attempt('select', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'boleh', 'viewer select opening_hours');
+select is(pg_temp.attempt('insert', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'viewer insert opening_hours');
+select is(pg_temp.attempt('update', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'viewer update opening_hours');
+select is(pg_temp.attempt('delete', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'viewer delete opening_hours');
+select is(pg_temp.attempt('select', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'boleh', 'viewer select search_aliases');
+select is(pg_temp.attempt('insert', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'viewer insert search_aliases');
+select is(pg_temp.attempt('update', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'viewer update search_aliases');
+select is(pg_temp.attempt('delete', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'viewer delete search_aliases');
+select is(pg_temp.attempt('select', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'boleh', 'viewer select origin_points');
+select is(pg_temp.attempt('insert', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'viewer insert origin_points');
+select is(pg_temp.attempt('update', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'viewer update origin_points');
+select is(pg_temp.attempt('delete', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'viewer delete origin_points');
+select is(pg_temp.attempt('select', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'viewer select closures');
+select is(pg_temp.attempt('insert', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'ditolak', 'viewer insert closures');
+select is(pg_temp.attempt('update', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'ditolak', 'viewer update closures');
+select is(pg_temp.attempt('delete', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'ditolak', 'viewer delete closures');
+select is(pg_temp.attempt('select', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'boleh', 'viewer select edit_locks');
+select is(pg_temp.attempt('insert', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'viewer insert edit_locks');
+select is(pg_temp.attempt('update', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'viewer update edit_locks');
+select is(pg_temp.attempt('delete', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'viewer delete edit_locks');
+select is(pg_temp.attempt('select', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'boleh', 'viewer select publications');
+select is(pg_temp.attempt('insert', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'viewer insert publications');
+select is(pg_temp.attempt('update', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'viewer update publications');
+select is(pg_temp.attempt('delete', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'viewer delete publications');
+select is(pg_temp.attempt('select', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'boleh', 'viewer select profiles');
+select is(pg_temp.attempt('insert', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'viewer insert profiles');
+select is(pg_temp.attempt('update', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'viewer update profiles');
+select is(pg_temp.attempt('delete', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'viewer delete profiles');
+select is(pg_temp.attempt('select', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'viewer select audit_events');
+select is(pg_temp.attempt('insert', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'viewer insert audit_events');
+select is(pg_temp.attempt('update', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'viewer update audit_events');
+select is(pg_temp.attempt('delete', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'viewer delete audit_events');
+select is(pg_temp.attempt('select', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'viewer select system_settings');
+select is(pg_temp.attempt('insert', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'viewer insert system_settings');
+select is(pg_temp.attempt('update', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'viewer update system_settings');
+select is(pg_temp.attempt('delete', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'viewer delete system_settings');
+select is(pg_temp.attempt('select', 'installation', $w$true$w$, 'id'), 'ditolak', 'viewer select installation');
+select is(pg_temp.attempt('insert', 'installation', $w$true$w$, 'id'), 'ditolak', 'viewer insert installation');
+select is(pg_temp.attempt('update', 'installation', $w$true$w$, 'id'), 'ditolak', 'viewer update installation');
+select is(pg_temp.attempt('delete', 'installation', $w$true$w$, 'id'), 'ditolak', 'viewer delete installation');
+select is(pg_temp.attempt('select', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'viewer select licenses');
+select is(pg_temp.attempt('insert', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'viewer insert licenses');
+select is(pg_temp.attempt('update', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'viewer update licenses');
+select is(pg_temp.attempt('delete', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'viewer delete licenses');
+reset role;
+
+-- anon
+set local role anon;
+select set_config('request.jwt.claims', '', true);
+select is(pg_temp.attempt('select', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'anon select venues');
+select is(pg_temp.attempt('insert', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'anon insert venues');
+select is(pg_temp.attempt('update', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'anon update venues');
+select is(pg_temp.attempt('delete', 'venues', $w$id = 'f1000000-0000-4000-8000-000000000001'$w$, 'id'), 'ditolak', 'anon delete venues');
+select is(pg_temp.attempt('select', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'anon select buildings');
+select is(pg_temp.attempt('insert', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'anon insert buildings');
+select is(pg_temp.attempt('update', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'anon update buildings');
+select is(pg_temp.attempt('delete', 'buildings', $w$id = 'f1000000-0000-4000-8000-000000000002'$w$, 'id'), 'ditolak', 'anon delete buildings');
+select is(pg_temp.attempt('select', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'anon select floors');
+select is(pg_temp.attempt('insert', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'anon insert floors');
+select is(pg_temp.attempt('update', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'anon update floors');
+select is(pg_temp.attempt('delete', 'floors', $w$id = 'f1000000-0000-4000-8000-000000000003'$w$, 'id'), 'ditolak', 'anon delete floors');
+select is(pg_temp.attempt('select', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'anon select floor_plans');
+select is(pg_temp.attempt('insert', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'anon insert floor_plans');
+select is(pg_temp.attempt('update', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'anon update floor_plans');
+select is(pg_temp.attempt('delete', 'floor_plans', $w$id = 'f1000000-0000-4000-8000-000000000005'$w$, 'id'), 'ditolak', 'anon delete floor_plans');
+select is(pg_temp.attempt('select', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'anon select display_settings');
+select is(pg_temp.attempt('insert', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'anon insert display_settings');
+select is(pg_temp.attempt('update', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'anon update display_settings');
+select is(pg_temp.attempt('delete', 'display_settings', $w$venue_id = 'f1000000-0000-4000-8000-000000000001'$w$, 'venue_id'), 'ditolak', 'anon delete display_settings');
+select is(pg_temp.attempt('select', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'anon select facility_types');
+select is(pg_temp.attempt('insert', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'anon insert facility_types');
+select is(pg_temp.attempt('update', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'anon update facility_types');
+select is(pg_temp.attempt('delete', 'facility_types', $w$id = 'f1000000-0000-4000-8000-000000000006'$w$, 'id'), 'ditolak', 'anon delete facility_types');
+select is(pg_temp.attempt('select', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'anon select instruction_templates');
+select is(pg_temp.attempt('insert', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'anon insert instruction_templates');
+select is(pg_temp.attempt('update', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'anon update instruction_templates');
+select is(pg_temp.attempt('delete', 'instruction_templates', $w$venue_id = 'f1000000-0000-4000-8000-000000000001' and action = 'arrive'$w$, 'venue_id'), 'ditolak', 'anon delete instruction_templates');
+select is(pg_temp.attempt('select', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'anon select features');
+select is(pg_temp.attempt('insert', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'anon insert features');
+select is(pg_temp.attempt('update', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'anon update features');
+select is(pg_temp.attempt('delete', 'features', $w$id = 'f1000000-0000-4000-8000-000000000007'$w$, 'id'), 'ditolak', 'anon delete features');
+select is(pg_temp.attempt('select', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'anon select nav_nodes');
+select is(pg_temp.attempt('insert', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'anon insert nav_nodes');
+select is(pg_temp.attempt('update', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'anon update nav_nodes');
+select is(pg_temp.attempt('delete', 'nav_nodes', $w$id = 'f1000000-0000-4000-8000-000000000008'$w$, 'id'), 'ditolak', 'anon delete nav_nodes');
+select is(pg_temp.attempt('select', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'anon select nav_edges');
+select is(pg_temp.attempt('insert', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'anon insert nav_edges');
+select is(pg_temp.attempt('update', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'anon update nav_edges');
+select is(pg_temp.attempt('delete', 'nav_edges', $w$id = 'f1000000-0000-4000-8000-00000000000a'$w$, 'id'), 'ditolak', 'anon delete nav_edges');
+select is(pg_temp.attempt('select', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'anon select connectors');
+select is(pg_temp.attempt('insert', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'anon insert connectors');
+select is(pg_temp.attempt('update', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'anon update connectors');
+select is(pg_temp.attempt('delete', 'connectors', $w$id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'id'), 'ditolak', 'anon delete connectors');
+select is(pg_temp.attempt('select', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'anon select connector_stops');
+select is(pg_temp.attempt('insert', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'anon insert connector_stops');
+select is(pg_temp.attempt('update', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'anon update connector_stops');
+select is(pg_temp.attempt('delete', 'connector_stops', $w$connector_id = 'f1000000-0000-4000-8000-00000000000b'$w$, 'connector_id'), 'ditolak', 'anon delete connector_stops');
+select is(pg_temp.attempt('select', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'anon select info_points');
+select is(pg_temp.attempt('insert', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'anon insert info_points');
+select is(pg_temp.attempt('update', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'anon update info_points');
+select is(pg_temp.attempt('delete', 'info_points', $w$id = 'f1000000-0000-4000-8000-00000000000c'$w$, 'id'), 'ditolak', 'anon delete info_points');
+select is(pg_temp.attempt('select', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'anon select location_types');
+select is(pg_temp.attempt('insert', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'anon insert location_types');
+select is(pg_temp.attempt('update', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'anon update location_types');
+select is(pg_temp.attempt('delete', 'location_types', $w$id = 'f1000000-0000-4000-8000-00000000000d'$w$, 'id'), 'ditolak', 'anon delete location_types');
+select is(pg_temp.attempt('select', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'anon select field_definitions');
+select is(pg_temp.attempt('insert', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'anon insert field_definitions');
+select is(pg_temp.attempt('update', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'anon update field_definitions');
+select is(pg_temp.attempt('delete', 'field_definitions', $w$id = 'f1000000-0000-4000-8000-00000000000e'$w$, 'id'), 'ditolak', 'anon delete field_definitions');
+select is(pg_temp.attempt('select', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'anon select categories');
+select is(pg_temp.attempt('insert', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'anon insert categories');
+select is(pg_temp.attempt('update', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'anon update categories');
+select is(pg_temp.attempt('delete', 'categories', $w$id = 'f1000000-0000-4000-8000-00000000000f'$w$, 'id'), 'ditolak', 'anon delete categories');
+select is(pg_temp.attempt('select', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'anon select locations');
+select is(pg_temp.attempt('insert', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'anon insert locations');
+select is(pg_temp.attempt('update', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'anon update locations');
+select is(pg_temp.attempt('delete', 'locations', $w$id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'anon delete locations');
+select is(pg_temp.attempt('select', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'anon select location_units');
+select is(pg_temp.attempt('insert', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'anon insert location_units');
+select is(pg_temp.attempt('update', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'anon update location_units');
+select is(pg_temp.attempt('delete', 'location_units', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'anon delete location_units');
+select is(pg_temp.attempt('select', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'anon select location_categories');
+select is(pg_temp.attempt('insert', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'anon insert location_categories');
+select is(pg_temp.attempt('update', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'anon update location_categories');
+select is(pg_temp.attempt('delete', 'location_categories', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'location_id'), 'ditolak', 'anon delete location_categories');
+select is(pg_temp.attempt('select', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'anon select opening_hours');
+select is(pg_temp.attempt('insert', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'anon insert opening_hours');
+select is(pg_temp.attempt('update', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'anon update opening_hours');
+select is(pg_temp.attempt('delete', 'opening_hours', $w$location_id = 'f1000000-0000-4000-8000-000000000010'$w$, 'id'), 'ditolak', 'anon delete opening_hours');
+select is(pg_temp.attempt('select', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'anon select search_aliases');
+select is(pg_temp.attempt('insert', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'anon insert search_aliases');
+select is(pg_temp.attempt('update', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'anon update search_aliases');
+select is(pg_temp.attempt('delete', 'search_aliases', $w$id = 'f1000000-0000-4000-8000-000000000011'$w$, 'id'), 'ditolak', 'anon delete search_aliases');
+select is(pg_temp.attempt('select', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'anon select origin_points');
+select is(pg_temp.attempt('insert', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'anon insert origin_points');
+select is(pg_temp.attempt('update', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'anon update origin_points');
+select is(pg_temp.attempt('delete', 'origin_points', $w$id = 'f1000000-0000-4000-8000-000000000012'$w$, 'id'), 'ditolak', 'anon delete origin_points');
+select is(pg_temp.attempt('select', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'boleh', 'anon select closures');
+select is(pg_temp.attempt('insert', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'ditolak', 'anon insert closures');
+select is(pg_temp.attempt('update', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'ditolak', 'anon update closures');
+select is(pg_temp.attempt('delete', 'closures', $w$id = 'f1000000-0000-4000-8000-000000000013'$w$, 'id'), 'ditolak', 'anon delete closures');
+select is(pg_temp.attempt('select', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'anon select edit_locks');
+select is(pg_temp.attempt('insert', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'anon insert edit_locks');
+select is(pg_temp.attempt('update', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'anon update edit_locks');
+select is(pg_temp.attempt('delete', 'edit_locks', $w$floor_id = 'f1000000-0000-4000-8000-000000000004'$w$, 'floor_id'), 'ditolak', 'anon delete edit_locks');
+select is(pg_temp.attempt('select', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'boleh', 'anon select publications');
+select is(pg_temp.attempt('insert', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'anon insert publications');
+select is(pg_temp.attempt('update', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'anon update publications');
+select is(pg_temp.attempt('delete', 'publications', $w$id = 'f1000000-0000-4000-8000-000000000014'$w$, 'id'), 'ditolak', 'anon delete publications');
+select is(pg_temp.attempt('select', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'anon select profiles');
+select is(pg_temp.attempt('insert', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'anon insert profiles');
+select is(pg_temp.attempt('update', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'anon update profiles');
+select is(pg_temp.attempt('delete', 'profiles', $w$user_id = 'f0000000-0000-4000-8000-000000000006'$w$, 'user_id'), 'ditolak', 'anon delete profiles');
+select is(pg_temp.attempt('select', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'anon select audit_events');
+select is(pg_temp.attempt('insert', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'anon insert audit_events');
+select is(pg_temp.attempt('update', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'anon update audit_events');
+select is(pg_temp.attempt('delete', 'audit_events', $w$details @> '{"matrix": true}'$w$, 'action'), 'ditolak', 'anon delete audit_events');
+select is(pg_temp.attempt('select', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'anon select system_settings');
+select is(pg_temp.attempt('insert', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'anon insert system_settings');
+select is(pg_temp.attempt('update', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'anon update system_settings');
+select is(pg_temp.attempt('delete', 'system_settings', $w$true$w$, 'id'), 'ditolak', 'anon delete system_settings');
+select is(pg_temp.attempt('select', 'installation', $w$true$w$, 'id'), 'ditolak', 'anon select installation');
+select is(pg_temp.attempt('insert', 'installation', $w$true$w$, 'id'), 'ditolak', 'anon insert installation');
+select is(pg_temp.attempt('update', 'installation', $w$true$w$, 'id'), 'ditolak', 'anon update installation');
+select is(pg_temp.attempt('delete', 'installation', $w$true$w$, 'id'), 'ditolak', 'anon delete installation');
+select is(pg_temp.attempt('select', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'anon select licenses');
+select is(pg_temp.attempt('insert', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'anon insert licenses');
+select is(pg_temp.attempt('update', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'anon update licenses');
+select is(pg_temp.attempt('delete', 'licenses', $w$id = 'f1000000-0000-4000-8000-000000000016'$w$, 'id'), 'ditolak', 'anon delete licenses');
+reset role;
+
+select * from finish();
+rollback;
