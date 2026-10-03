@@ -4,6 +4,7 @@ import { env } from '../../../env';
 import { expect, TEST_CENTER, test } from '../../../fixtures';
 import { AdminShell } from '../../../pages/admin-shell';
 import { EditorPage } from '../../../pages/editor-page';
+import { diagnoseWriteRejection } from '../../../support/write-diagnosis';
 
 const shot = (name: string) => `evidence/T-108/${name}.png`;
 
@@ -169,8 +170,12 @@ test.describe('T-108 Editor peta: kanvas, alat gambar, draft', () => {
           },
         });
     });
-    for (let i = 0; i < jobs.length; i += 50)
-      await Promise.all(jobs.slice(i, i + 50).map((job) => job()));
+    for (let i = 0; i < jobs.length; i += 50) {
+      await Promise.all(jobs.slice(i, i + 50).map((job) => job())).catch(async (error: Error) => {
+        // Pernah ditolak RLS hanya saat suite penuh paralel; keadaan dicatat untuk dilacak.
+        throw new Error(`${error.message} [${await diagnoseWriteRejection(superAdmin, floor.id)}]`);
+      });
+    }
 
     // Pembanding di lingkungan yang sama (kontainer tanpa GPU memakai SwiftShader): lantai L1
     // kosong. Lantai GF tidak dibuka dulu agar tidak terkunci untuk pengisian data di atas.
