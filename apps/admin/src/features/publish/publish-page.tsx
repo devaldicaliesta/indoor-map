@@ -7,13 +7,14 @@ import { data } from '../../app/data-client';
 import { inVenueTime } from '../../app/format';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
-import { useActivePublication, usePublish, useValidateDraft } from './queries';
+import { ChangeSummary } from './change-summary';
+import { useActivePublication, useDraftChanges, usePublish, useValidateDraft } from './queries';
 import { ValidationPanel } from './validation-panel';
 
 const kilobytes = (bytes: number) =>
   `${new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 }).format(bytes / 1024)} KB`;
 
-// Sementara sampai alur publish lengkap (ringkasan perubahan, riwayat) di T-308 s.d. T-310.
+// Sementara sampai alur publish lengkap (preview, riwayat) di T-309 dan T-310.
 function DevPublishButton({ venueId, onBlocked }: { venueId: VenueId; onBlocked: () => void }) {
   const publish = usePublish(venueId);
   return (
@@ -80,6 +81,7 @@ function ActiveVersion({ venueId }: { venueId: VenueId }) {
 
 function VenuePublish({ venueId }: { venueId: VenueId }) {
   const validation = useValidateDraft(venueId);
+  const changes = useDraftChanges(venueId);
   return (
     <div className="grid gap-6">
       <Can action="publish.publish">
@@ -89,6 +91,12 @@ function VenuePublish({ venueId }: { venueId: VenueId }) {
       </Can>
       <ActiveVersion venueId={venueId} />
       <Can action="publish.validate">
+        <ChangeSummary
+          changes={changes.data}
+          pending={changes.isPending}
+          error={changes.error?.message ?? null}
+          onLoad={() => changes.mutate()}
+        />
         <ValidationPanel
           findings={validation.data}
           pending={validation.isPending}
