@@ -211,7 +211,8 @@ export async function setFacilityIcons(
   const images = await Promise.all(
     specs.map((s) => renderFacilityIcon(s.source, s.isSafety, options.background)),
   );
-  if (versions.get(map) !== version) return;
+  // Peta bisa sudah dilepas (komponen unmount) selama ikon dibuat; `style` lalu kosong.
+  if (versions.get(map) !== version || !map.style) return;
   const wanted = new Set<string>();
   specs.forEach((spec, i) => {
     const id = facilityIconId(spec.typeId);

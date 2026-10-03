@@ -1,3 +1,4 @@
+import type { Map as MapLibreMap } from 'maplibre-gl';
 import { describe, expect, it } from 'vitest';
 import {
   FACILITY_ICON_COLORS,
@@ -6,6 +7,7 @@ import {
   fitContain,
   glyphColorOn,
   isOpaque,
+  setFacilityIcons,
 } from '../src/sprites';
 
 describe('sprite fasilitas', () => {
@@ -36,5 +38,16 @@ describe('sprite fasilitas', () => {
     expect(glyphColorOn('#ffe9a8')).toBe('#111418');
     expect(glyphColorOn('#1463ff')).toBe('#ffffff');
     expect(glyphColorOn('#111418')).toBe('#ffffff');
+  });
+
+  it('peta yang sudah dilepas saat ikon selesai dibuat tidak disentuh', async () => {
+    // MapLibre setelah remove(): `style` kosong dan akses gambar melempar galat.
+    const removed = {
+      style: undefined,
+      listImages: () => {
+        throw new TypeError("Cannot read properties of undefined (reading 'getImage')");
+      },
+    } as unknown as MapLibreMap;
+    await expect(setFacilityIcons(removed, [])).resolves.toBeUndefined();
   });
 });
