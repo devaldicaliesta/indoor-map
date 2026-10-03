@@ -88,8 +88,8 @@ Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblok
 | T-308 | Ringkasan perubahan | R2 | review | `diffSnapshot` di domain, Edge Function `publish` mode `diff` (dihitung ulang, tidak disimpan), panel Ringkasan perubahan; E2E `T-308-change-summary` |
 | T-309 | Preview | T-308 | review | Edge Function `publish` mode `preview` (snapshot draft di memori, nomor versi berikutnya); Visitor `/preview` menerima snapshot lewat `postMessage` dari jendela induk; Admin: HP 390×844, Info Point 1080×1920 diskalakan dari posisi Info Point, 2D/3D; butuh URL publik Visitor; E2E `T-309-preview` |
 | T-310 | Publish berversi dan rollback | T-307, T-308 | review | Migrasi 0026: `publish_begin(venue, notes, source_version)` (catatan rilis ≤ 500, rollback hanya ke versi lebih lama yang pernah terbit), `publish_commit` mencatat `publish`/`rollback`; pgTAP `publish_history`. Edge Function: catatan rilis dan `mode: "rollback"` (salin snapshot lama sebagai versi baru, perbarui `latest.json`; draft tidak berubah). Admin: dialog Terbitkan dengan catatan, Riwayat versi (nomor, waktu, penerbit, catatan, asal) dengan Aktifkan kembali; tombol dev dihapus. Integrasi: validasi + publish mal demo beberapa detik (≤ 60 s); E2E `T-310-publish-history`. Dikerjakan di atas T-307/T-308 yang masih review atas izin pemilik |
-| T-311 | Visitor: pembaruan versi | T-310 | menunggu | |
-| T-312 | Role Viewer dan matriks otorisasi | T-310 | menunggu | |
+| T-311 | Visitor: pembaruan versi | T-310 | review | Snapshot dimuat sekali per pembukaan (`staleTime` tak terbatas, tanpa refetch saat fokus) sehingga rute yang terbuka tidak berubah; `latest.json` diambil dengan `cache: 'no-cache'` (ETag) agar refresh memakai versi terbaru walau proxy on-premise membuang header. E2E `T-311-version-update`: publish v2 saat rute terbuka → rute sama, tanpa unduhan snapshot; refresh → lokasi baru muncul |
+| T-312 | Role Viewer dan matriks otorisasi | T-310 | siap | |
 
 ## Visitor bergaya peta indoor komersial (permintaan pemilik 2026-10-03)
 

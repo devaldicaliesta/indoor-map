@@ -38,6 +38,8 @@ describe('snapshot Visitor', () => {
     await expect(repo.latest(VENUE)).resolves.toEqual(snapshot);
     expect(fetchMock).toHaveBeenCalledWith(
       `https://peta.test/storage/v1/object/public/snapshots/${VENUE}/latest.json`,
+      // Selalu divalidasi ulang ke server agar versi baru terpakai setelah publish.
+      { cache: 'no-cache' },
     );
   });
 

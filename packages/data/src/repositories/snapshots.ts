@@ -25,7 +25,9 @@ export function createSnapshotsRepository(db: Db): SnapshotsRepository {
     async latest(venueId) {
       let response: Response;
       try {
-        response = await fetch(latestUrl(venueId));
+        // Selalu ditanyakan ulang ke server (ETag): proxy on-premise bisa membuang header
+        // `no-cache` dari Storage dan membuat browser memakai versi lama setelah publish.
+        response = await fetch(latestUrl(venueId), { cache: 'no-cache' });
       } catch (cause) {
         throw new DataError('network', { cause });
       }
