@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { normalizeUnitCode } from './unit-code.ts';
 
 /** Sama dengan enum `feature_kind` di migrasi 0001. */
 export const FEATURE_KINDS = [
@@ -100,9 +101,7 @@ export type UnitCodeProblem = 'required' | 'too_long' | 'format';
 export const UNIT_CODE_MAX = 32;
 
 /** Kode unit disimpan huruf besar; unik per venue tanpa membedakan huruf besar/kecil. */
-export function normalizeUnitCode(code: string): string {
-  return code.trim().toUpperCase();
-}
+export { normalizeUnitCode } from './unit-code.ts';
 
 export function checkUnitCode(code: string): UnitCodeProblem[] {
   const value = normalizeUnitCode(code);

@@ -69,6 +69,7 @@ function toLocationType(r: Row): SourceLocationType {
       options: Array.isArray(f.options) ? f.options.filter((o) => typeof o === 'string') : [],
       isVisible: f.is_visible === true,
       isSearchable: f.is_searchable === true,
+      isRequired: f.is_required === true,
       sortOrder: num(f.sort_order),
     })),
   };
@@ -157,7 +158,7 @@ export async function readSource(
     ),
     rest.select<Row>(
       'location_types',
-      `select=id,name,icon,color,sort_order,field_definitions(key,label,field_type,options,is_visible,is_searchable,sort_order)&${byVenue}&order=id`,
+      `select=id,name,icon,color,sort_order,field_definitions(key,label,field_type,options,is_visible,is_searchable,is_required,sort_order)&${byVenue}&order=id`,
     ),
     rest.select<Row>(
       'locations',
@@ -314,4 +315,20 @@ export async function readSource(
       nodeId: strOrNull(p.node_id),
     })),
   };
+}
+
+/** Denah aktif per lantai: tergeoreferensi bila sudah punya empat sudut. */
+export async function readFloorPlans(
+  rest: CallerRest,
+  floorIds: readonly string[],
+): Promise<{ floorId: string; georeferenced: boolean }[]> {
+  if (floorIds.length === 0) return [];
+  const plans = await rest.select<Row>(
+    'floor_plans',
+    `select=floor_id,corners&is_active=eq.true&floor_id=in.(${floorIds.join(',')})&order=floor_id`,
+  );
+  return plans.map((p) => ({
+    floorId: str(p.floor_id),
+    georeferenced: Array.isArray(p.corners) && p.corners.length === 4,
+  }));
 }

@@ -1,6 +1,9 @@
-import type { MapFeatureProperties } from '../feature';
-import { normalizeUnitCode } from '../feature';
-import type { Geometry, MultiPolygon, Polygon, Position } from '../geometry';
+// Dipakai juga Edge Function `publish` (Deno): hanya impor berekstensi `.ts` tanpa zod.
+import type { SnapshotGeometry as Geometry, SnapshotPosition as Position } from '../snapshot.ts';
+
+type Boundary = Extract<Geometry, { type: 'Polygon' | 'MultiPolygon' }>;
+
+import { normalizeUnitCode } from '../unit-code.ts';
 import {
   distanceToRing,
   openRing,
@@ -13,7 +16,7 @@ import {
   projector,
   ringSelfIntersects,
   segmentsCross,
-} from './planar';
+} from './planar.ts';
 
 export const OVERLAP_TOLERANCE_M2 = 0.5;
 /** Titik/ujung garis sejauh ini dari tepi footprint masih dianggap di dalam (dinding luar). */
@@ -39,12 +42,17 @@ export interface ValidationIssue {
 
 export interface ValidatedFeature {
   geometry: Geometry;
-  properties: Pick<MapFeatureProperties, 'id' | 'kind' | 'unitCode' | 'name'>;
+  properties: {
+    id: string;
+    kind: string;
+    unitCode?: string | null | undefined;
+    name?: string | null | undefined;
+  };
 }
 
 export interface GeometryValidationOptions {
   /** Batas lantai (footprint gedung); `null` = tidak diperiksa (Area Luar, footprint belum ada). */
-  boundary: Polygon | MultiPolygon | null;
+  boundary: Boundary | null;
 }
 
 const areaFormat = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 });
@@ -227,7 +235,7 @@ function overlapIssues(
 function outsideIssues(
   features: readonly ValidatedFeature[],
   valid: ReadonlyMap<string, PreparedPolygon[]>,
-  boundary: Polygon | MultiPolygon,
+  boundary: Boundary,
   project: (p: Position) => Pt,
 ): ValidationIssue[] {
   const checked = checkPolygon(boundary, project);

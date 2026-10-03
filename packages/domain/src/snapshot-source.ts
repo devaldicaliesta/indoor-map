@@ -49,6 +49,8 @@ export interface SourceFeature {
 export interface SourceField extends SnapshotField, Ordered {
   isVisible: boolean;
   isSearchable: boolean;
+  /** Hanya untuk validasi publish (peringatan field wajib kosong); tidak diterbitkan. */
+  isRequired: boolean;
 }
 
 export interface SourceLocationType extends Omit<SnapshotLocationType, 'fields'>, Ordered {

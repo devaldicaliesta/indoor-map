@@ -90,6 +90,55 @@ describe.runIf(url && anonKey && serviceKey)('publish minimal dan snapshot Visit
     expect((denied as DataError).kind).toBe('forbidden');
     await expect(visitor.snapshots.latest(venueId)).rejects.toMatchObject({ kind: 'not_found' });
 
+    // Unit tanpa titik masuk: Error validasi, publish ditolak tanpa memakai nomor versi.
+    const findings = await editor.publications.validate(venueId);
+    expect(findings).toContainEqual(
+      expect.objectContaining({
+        code: 'missing_entrance',
+        severity: 'error',
+        featureIds: [unitId],
+      }),
+    );
+    await expect(admin.publications.publish(venueId)).rejects.toMatchObject({
+      kind: 'invalid',
+      message: expect.stringContaining('Publish dibatalkan'),
+    });
+    const path = randomUUID();
+    const entrance = randomUUID();
+    await admin.navGraph.apply(venueId, {
+      saveNodes: [
+        {
+          id: path,
+          floorId: floor.id,
+          coordinates: [106.82718, -6.17542],
+          role: 'path',
+          featureId: null,
+        },
+        {
+          id: entrance,
+          floorId: floor.id,
+          coordinates: [106.82716, -6.17542],
+          role: 'entrance',
+          featureId: unitId,
+        },
+      ],
+      removeNodeIds: [],
+      saveEdges: [
+        {
+          id: randomUUID(),
+          floorId: floor.id,
+          from: path,
+          to: entrance,
+          lengthM: 2.2,
+          accessible: true,
+        },
+      ],
+      removeEdgeIds: [],
+    });
+    expect(
+      (await admin.publications.validate(venueId)).filter((f) => f.severity === 'error'),
+    ).toEqual([]);
+
     const result = await admin.publications.publish(venueId);
     expect(result.version).toBe(1);
 
