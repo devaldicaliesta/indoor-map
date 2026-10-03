@@ -30,6 +30,12 @@ const SETTING_FIELDS: Record<string, string> = {
   smtp_password: 'password SMTP',
 };
 
+const LICENSE_SOURCES: Record<string, string> = {
+  online: 'aktivasi online',
+  manual: 'unggah berkas',
+  checkin: 'check-in',
+};
+
 const roleLabel = (role: unknown) =>
   typeof role === 'string' && role in ROLE_LABELS ? ROLE_LABELS[role as AppRole] : String(role);
 
@@ -53,6 +59,15 @@ function describeDetails(event: AuditEvent): string {
       return [
         typeof details.version === 'number' ? `Versi ${details.version}` : '',
         typeof details.venue === 'string' ? details.venue : '',
+      ]
+        .filter(Boolean)
+        .join(' · ');
+    case 'license_changed':
+      return [
+        typeof details.license_id === 'string' ? details.license_id : '',
+        details.status === 'revoked'
+          ? 'dicabut vendor'
+          : (LICENSE_SOURCES[String(details.source)] ?? ''),
       ]
         .filter(Boolean)
         .join(' · ');

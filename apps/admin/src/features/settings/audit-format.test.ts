@@ -42,6 +42,18 @@ describe('describeAuditDetails', () => {
     expect(describeAuditDetails(event('publish', {}))).toBe('');
   });
 
+  it('perubahan lisensi menyebut id dan asalnya', () => {
+    expect(
+      describeAuditDetails(event('license_changed', { license_id: 'LIC-1', source: 'checkin' })),
+    ).toBe('LIC-1 · check-in');
+    expect(
+      describeAuditDetails(
+        event('license_changed', { license_id: 'LIC-1', source: 'checkin', status: 'revoked' }),
+      ),
+    ).toBe('LIC-1 · dicabut vendor');
+    expect(describeAuditDetails(event('license_changed', { license_id: 'LIC-2' }))).toBe('LIC-2');
+  });
+
   it('pengaturan menyebut kolom, bukan nilainya', () => {
     expect(
       describeAuditDetails(event('settings_changed', { fields: ['smtp_host', 'smtp_password'] })),

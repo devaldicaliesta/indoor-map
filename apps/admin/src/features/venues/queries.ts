@@ -15,6 +15,8 @@ export function useInvalidateVenues() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: venuesKey }),
       queryClient.invalidateQueries({ queryKey: detailedKey }),
+      // Pemakaian kuota paket ikut berubah.
+      queryClient.invalidateQueries({ queryKey: ['license', 'usage'] }),
     ]);
 }
 

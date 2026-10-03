@@ -41,7 +41,9 @@ export type { InfoPointsRepository } from './repositories/info-points';
 export type { InstructionTemplatesRepository } from './repositories/instruction-templates';
 export type {
   ActivatedLicense,
+  CheckinResult,
   FirstAdminInput,
+  LicenseDetails,
   LicenseRepository,
   LicenseState,
   LicenseStatus,

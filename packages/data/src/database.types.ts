@@ -786,19 +786,31 @@ export type Database = {
       };
       installation: {
         Row: {
+          checkin_error: string | null;
+          checkin_requested_at: string | null;
           created_at: string;
           id: boolean;
           instance_id: string;
+          last_checkin_at: string | null;
+          last_seen_at: string | null;
         };
         Insert: {
+          checkin_error?: string | null;
+          checkin_requested_at?: string | null;
           created_at?: string;
           id?: boolean;
           instance_id?: string;
+          last_checkin_at?: string | null;
+          last_seen_at?: string | null;
         };
         Update: {
+          checkin_error?: string | null;
+          checkin_requested_at?: string | null;
           created_at?: string;
           id?: boolean;
           instance_id?: string;
+          last_checkin_at?: string | null;
+          last_seen_at?: string | null;
         };
         Relationships: [];
       };
@@ -1518,6 +1530,29 @@ export type Database = {
         Args: { p_location_type_id: string; p_rows: Json; p_venue_id: string };
         Returns: number;
       };
+      license_checkin_claim: {
+        Args: { p_manual: boolean };
+        Returns: {
+          instance_id: string;
+          license_id: string;
+        }[];
+      };
+      license_checkin_confirmed: {
+        Args: {
+          p_license_id: string;
+          p_payload?: Json;
+          p_server_time: string;
+          p_signature?: string;
+        };
+        Returns: string;
+      };
+      license_checkin_failed: { Args: { p_error: string }; Returns: string };
+      license_checkin_overdue_since: { Args: Record<PropertyKey, never>; Returns: string };
+      license_checkin_revoked: {
+        Args: { p_license_id: string; p_server_time: string };
+        Returns: string;
+      };
+      license_features: { Args: Record<PropertyKey, never>; Returns: string[] };
       license_install: {
         Args: {
           p_license_id: string;
@@ -1533,6 +1568,14 @@ export type Database = {
           instance_id: string;
           needs_admin: boolean;
           state: string;
+        }[];
+      };
+      license_usage: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          kind: string;
+          quota: number;
+          used: number;
         }[];
       };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
@@ -1636,7 +1679,7 @@ export type Database = {
         | 'enter_building'
         | 'arrive';
       language_code: 'id' | 'en';
-      license_source: 'online' | 'manual';
+      license_source: 'online' | 'manual' | 'checkin';
       license_status: 'active' | 'grace' | 'expired' | 'revoked';
       location_status: 'active' | 'coming_soon' | 'inactive_temporary' | 'inactive_permanent';
       node_role: 'path' | 'entrance' | 'origin' | 'info_point' | 'connector';
@@ -1806,7 +1849,7 @@ export const Constants = {
         'arrive',
       ],
       language_code: ['id', 'en'],
-      license_source: ['online', 'manual'],
+      license_source: ['online', 'manual', 'checkin'],
       license_status: ['active', 'grace', 'expired', 'revoked'],
       location_status: ['active', 'coming_soon', 'inactive_temporary', 'inactive_permanent'],
       node_role: ['path', 'entrance', 'origin', 'info_point', 'connector'],

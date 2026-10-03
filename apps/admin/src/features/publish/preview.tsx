@@ -1,4 +1,5 @@
 import {
+  allows3d,
   PREVIEW_READY,
   PREVIEW_SNAPSHOT,
   type Snapshot,
@@ -149,15 +150,18 @@ export function Preview({
               ]}
               onChange={setDevice}
             />
-            <Choice
-              label="Mode"
-              value={mode}
-              options={[
-                { value: '2d', label: '2D' },
-                { value: '3d', label: '3D' },
-              ]}
-              onChange={setMode}
-            />
+            {/* Snapshot pratinjau sudah mengikuti paket: tanpa fitur 3D pilihan mode tidak ada. */}
+            {allows3d(snapshot) ? (
+              <Choice
+                label="Mode"
+                value={mode}
+                options={[
+                  { value: '2d', label: '2D' },
+                  { value: '3d', label: '3D' },
+                ]}
+                onChange={setMode}
+              />
+            ) : null}
             {device === 'info_point' && infoPoints.length > 0 ? (
               <div className="grid gap-1">
                 <Label htmlFor="preview-info-point">Posisi Info Point</Label>
