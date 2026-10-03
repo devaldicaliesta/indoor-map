@@ -179,6 +179,7 @@ export async function createFullVenue(db: Db, name: string): Promise<FullVenue> 
         options: f.options,
         is_visible: f.isVisible,
         is_searchable: f.isSearchable,
+        is_required: f.isRequired,
         sort_order: f.sortOrder,
       })),
     ),

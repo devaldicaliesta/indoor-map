@@ -117,6 +117,7 @@ export function sampleSnapshotSource(): SnapshotSource {
             options: [],
             isVisible: true,
             isSearchable: true,
+            isRequired: false,
             sortOrder: 0,
           },
           {
@@ -126,6 +127,7 @@ export function sampleSnapshotSource(): SnapshotSource {
             options: [],
             isVisible: false,
             isSearchable: false,
+            isRequired: false,
             sortOrder: 1,
           },
         ],

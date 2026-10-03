@@ -1,4 +1,4 @@
-import type { VenueId } from '@indoor/domain';
+import type { PublishFinding, VenueId } from '@indoor/domain';
 import { toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
@@ -24,6 +24,11 @@ export interface PublicationsRepository {
    * server menolak role lain).
    */
   publish(venueId: VenueId): Promise<PublishResult>;
+  /**
+   * Temuan validasi publish atas draft saat ini (Error memblokir publish, Peringatan tidak).
+   * Aturan dijalankan di Edge Function `publish` yang sama dengan `@indoor/domain`.
+   */
+  validate(venueId: VenueId): Promise<PublishFinding[]>;
 }
 
 export function createPublicationsRepository(db: Db): PublicationsRepository {
@@ -51,6 +56,15 @@ export function createPublicationsRepository(db: Db): PublicationsRepository {
       if (error) throw await fromFunctionError(error);
       if (!data) throw toDataError(new Error('Balasan publish kosong.'));
       return data;
+    },
+
+    async validate(venueId) {
+      const { data, error } = await db.functions.invoke<{ findings: PublishFinding[] }>('publish', {
+        body: { venueId, mode: 'validate' },
+      });
+      if (error) throw await fromFunctionError(error);
+      if (!data) throw toDataError(new Error('Balasan validasi kosong.'));
+      return data.findings;
     },
   };
 }

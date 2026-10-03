@@ -1,5 +1,5 @@
-import type { Position } from '../geometry';
-import { EARTH_RADIUS_M } from '../units';
+import type { SnapshotPosition as Position } from '../snapshot.ts';
+import { EARTH_RADIUS_M } from '../units.ts';
 
 /**
  * Geometri bidang datar dalam meter untuk validasi. Koordinat WGS84 diproyeksikan
