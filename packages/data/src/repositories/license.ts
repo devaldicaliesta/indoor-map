@@ -1,3 +1,5 @@
+import { QUOTA_KINDS, type QuotaUsage } from '@indoor/domain';
+import { type LicensePayload, readLicensePayload } from '@indoor/domain/license';
 import { DataError, toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
@@ -34,6 +36,16 @@ export interface CheckinResult {
   message?: string;
 }
 
+/** Rincian lisensi berlaku untuk halaman Lisensi (Super Admin). */
+export interface LicenseDetails {
+  license: LicensePayload;
+  status: 'active' | 'grace' | 'expired' | 'revoked';
+  source: 'online' | 'manual' | 'checkin';
+  activatedAt: string;
+  lastCheckinAt: string | null;
+  checkinError: string | null;
+}
+
 export interface FirstAdminInput {
   fullName: string;
   email: string;
@@ -53,6 +65,10 @@ export interface LicenseRepository {
   checkinOverdueSince(): Promise<string | null>;
   /** Check-in ke vendor sekarang (Super Admin); jadwal otomatis berjalan di server. */
   checkIn(): Promise<CheckinResult>;
+  /** Pemakaian per jenis kuota; server menolak penambahan melebihi kuota. */
+  usage(): Promise<QuotaUsage[]>;
+  /** Lisensi berlaku beserta keadaan check-in; `null` tanpa lisensi. Hanya Super Admin. */
+  details(): Promise<LicenseDetails | null>;
 }
 
 const STATES: readonly LicenseState[] = [
@@ -103,6 +119,39 @@ export function createLicenseRepository(db: Db): LicenseRepository {
       const { data, error } = await db.rpc('license_checkin_overdue_since');
       if (error) throw toDataError(error);
       return data ?? null;
+    },
+
+    async usage() {
+      const { data, error } = await db.rpc('license_usage');
+      if (error) throw toDataError(error);
+      return QUOTA_KINDS.map((kind) => {
+        const row = data.find((r) => r.kind === kind);
+        return { kind, used: row?.used ?? 0, quota: row?.quota ?? null };
+      });
+    },
+
+    async details() {
+      const [license, installation] = await Promise.all([
+        db
+          .from('licenses')
+          .select('payload, status, source, activated_at')
+          .eq('is_current', true)
+          .maybeSingle(),
+        db.from('installation').select('last_checkin_at, checkin_error').single(),
+      ]);
+      if (license.error) throw toDataError(license.error);
+      if (installation.error) throw toDataError(installation.error);
+      if (!license.data) return null;
+      const payload = readLicensePayload(license.data.payload);
+      if (!payload) throw toDataError(new Error('Isi lisensi tersimpan tidak terbaca.'));
+      return {
+        license: payload,
+        status: license.data.status,
+        source: license.data.source,
+        activatedAt: license.data.activated_at,
+        lastCheckinAt: installation.data.last_checkin_at,
+        checkinError: installation.data.checkin_error,
+      };
     },
 
     async checkIn() {

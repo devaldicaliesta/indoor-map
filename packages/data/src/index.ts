@@ -43,6 +43,7 @@ export type {
   ActivatedLicense,
   CheckinResult,
   FirstAdminInput,
+  LicenseDetails,
   LicenseRepository,
   LicenseState,
   LicenseStatus,

@@ -22,6 +22,7 @@ import {
 import { useState } from 'react';
 import { Can } from '../../../app/auth/can';
 import { FormNotice } from '../../auth/auth-layout';
+import { QuotaNotice, useQuotaBlock } from '../../license/quota-notice';
 import { FloorsSheet } from '../floors/floors-sheet';
 import { BuildingDialog } from './building-dialog';
 import { useBuildings, useOutdoorLayer, useRemoveBuilding, useSetDefaultBuilding } from './queries';
@@ -81,6 +82,7 @@ export function BuildingsPanel({ venue }: { venue: Venue }) {
   const outdoor = useOutdoorLayer(venue.id);
   const setDefault = useSetDefaultBuilding(venue.id);
   const [open, setOpen] = useState<Open>(null);
+  const buildingQuota = useQuotaBlock('buildings');
 
   const list = buildings.data ?? [];
   return (
@@ -90,9 +92,16 @@ export function BuildingsPanel({ venue }: { venue: Venue }) {
           Gedung di {venue.name}. Venue dengan satu gedung tetap memakai struktur ini.
         </p>
         <Can action="venue.edit">
-          <Button variant="primary" onClick={() => setOpen({ kind: 'form', building: null })}>
-            Tambah gedung
-          </Button>
+          <div className="flex items-center gap-3">
+            <QuotaNotice message={buildingQuota} />
+            <Button
+              variant="primary"
+              disabled={buildingQuota !== null}
+              onClick={() => setOpen({ kind: 'form', building: null })}
+            >
+              Tambah gedung
+            </Button>
+          </div>
         </Can>
       </div>
       {buildings.isPending ? (
