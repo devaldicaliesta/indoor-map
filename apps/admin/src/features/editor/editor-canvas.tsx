@@ -26,6 +26,7 @@ import { type MapControlLabels, MapControls } from '@indoor/ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useClosureDialog } from '../closures/closure-dialog-store';
 import { facilityIconSpecs } from '../facilities/icons';
+import { useFeature } from '../license/queries';
 import { closureTargetAt, interceptCanvasClick } from './canvas-clicks';
 import { useConnectorDialog } from './connectors/connector-dialog-store';
 import { useConnectors } from './connectors/queries';
@@ -108,8 +109,13 @@ export function EditorCanvas({
   const canEditRef = useRef(canEdit);
   canEditRef.current = canEdit;
   const tool = useEditorStore((s) => s.tool);
+  const allow3d = useFeature('3d');
   const hoveredId = useEditorStore((s) => s.hoveredId);
   const viewMode = useEditorStore((s) => s.viewMode);
+  // Paket tanpa 3D: editor tidak tertahan di mode 3D.
+  useEffect(() => {
+    if (!allow3d && viewMode === '3d') useEditorStore.getState().setViewMode('2d');
+  }, [allow3d, viewMode]);
   const [bearing, setBearing] = useState(0);
   const focusRequest = useEditorStore((s) => s.focusRequest);
   const sessionRef = useRef(session);
@@ -331,6 +337,7 @@ export function EditorCanvas({
         labels={CONTROL_LABELS}
         bearing={bearing}
         mode={viewMode}
+        allow3d={allow3d}
         onModeChange={(mode) => useEditorStore.getState().setViewMode(mode)}
         onZoomIn={() => map?.zoomIn()}
         onZoomOut={() => map?.zoomOut()}
