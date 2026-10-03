@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "test": "vitest run --passWithNoTests",
-    "test:integration": "node ../../scripts/with-supabase-env.mjs vitest run --config vitest.integration.config.ts"
+    "test:integration": "node ../../scripts/with-supabase-env.mjs vitest run --config vitest.integration.config.ts",
+    "seed:demo": "node ../../scripts/with-supabase-env.mjs vitest run --config vitest.seed.config.ts"
   },
   "dependencies": {
     "@indoor/domain": "workspace:*",

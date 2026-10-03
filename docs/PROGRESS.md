@@ -97,12 +97,12 @@ Acuan: tampilan peta indoor Situm (ruang berwarna per kategori, ikon POI, 3D, ru
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-314 | Data uji kaya: mal, rumah sakit, kampus | T-307 | dikerjakan | Generator di `packages/data/test/support/demo-venues/` membuat tiga venue lengkap yang lolos validasi publish (unit, lokasi berkategori, fasilitas, jalur, titik masuk, konektor, titik asal); skrip seed lokal dan fixture E2E. Selesai jika: ketiganya lolos `validateVenue` tanpa Error, bisa di-seed ke Supabase lokal dengan satu perintah, dan dipakai test |
-| T-315 | Warna kategori dan unit berwarna | T-314 | menunggu | Kolom `categories.color` (migrasi baru), isian warna di dialog kategori, `color` di snapshot kategori; Visitor mewarnai unit menurut kategori lokasi utamanya (lalu warna tipe, lalu bawaan) dengan legenda |
+| T-314 | Data uji kaya: mal, rumah sakit, kampus | T-307 | review | Generator murni `packages/domain/test/fixtures/demo-venues/` (`VenueBuilder`: gedung persegi panjang, koridor tengah, unit dua sisi bertitik masuk, konektor di ujung koridor, fasilitas, pintu gedung + jalur Area Luar; UUID deterministik `stableUuid`). Mal Demo Sentosa (3 lantai, 150 unit, 139 lokasi, 13 kategori, 4 eskalator, lift, tangga), RS Demo Harapan (4 lantai, 112 ruang, IGD 24 jam, dua lift), Kampus Demo Cendekia (2 gedung, 88 ruang, jalan/taman/parkir). Ketiganya lolos `validateVenue` tanpa temuan (test domain, 23 ms untuk mal). `insertVenue` (dari `createFullVenue`, kini juga mengisi gedung/lantai default) menyimpan sumber apa pun; `pnpm db:seed-demo` membuat ulang dan menerbitkan ketiganya di Supabase lokal (validasi server tanpa Error) |
+| T-315 | Warna kategori dan unit berwarna | T-314 | siap | Kolom `categories.color` (migrasi baru), isian warna di dialog kategori, `color` di snapshot kategori; Visitor mewarnai unit menurut kategori lokasi utamanya (lalu warna tipe, lalu bawaan) dengan legenda |
 | T-316 | Ikon POI di peta Visitor | T-315 | menunggu | Lokasi tampil sebagai ikon bundar berwarna kategori + nama, menyembunyikan yang bertumpuk; ketuk ikon membuka detail |
 | T-317 | 3D lebih realistis | T-315 | menunggu | Tinggi unit/dinding/koridor berbeda, warna sisi lebih gelap, kamera miring awal di mode 3D; pilihan 2D/3D tetap |
-| T-318 | Rute beranimasi | T-314 | menunggu | Garis rute dengan panah arah bergerak, penanda asal/tujuan jelas, hormati `prefers-reduced-motion` |
-| T-319 | Peta dasar opsional | T-314 | menunggu | URL tile (XYZ) dan atribusi di Pengaturan Sistem, mati bawaan; Visitor dan editor menampilkan di bawah gedung bila diisi; tetap jalan tanpa internet |
+| T-318 | Rute beranimasi | T-314 | siap | Garis rute dengan panah arah bergerak, penanda asal/tujuan jelas, hormati `prefers-reduced-motion` |
+| T-319 | Peta dasar opsional | T-314 | siap | URL tile (XYZ) dan atribusi di Pengaturan Sistem, mati bawaan; Visitor dan editor menampilkan di bawah gedung bila diisi; tetap jalan tanpa internet |
 | T-320 | Validasi ulang tampilan dengan data kaya | T-315 s.d. T-319 | menunggu | E2E dan screenshot ketiga venue di HP dan desktop, 2D dan 3D; suite penuh 3 run hijau |
 
 ## R4 · Komersial (`14-R4-komersial.md`)
