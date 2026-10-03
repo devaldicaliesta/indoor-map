@@ -13,6 +13,15 @@ export function useLicenseStatus() {
   });
 }
 
+/** Sejak kapan check-in ke vendor gagal (lebih dari 7 hari), untuk banner di seluruh Admin. */
+export function useCheckinOverdueSince() {
+  return useQuery({
+    queryKey: ['license', 'checkin-overdue'],
+    queryFn: () => data.license.checkinOverdueSince(),
+    staleTime: 15 * 60_000,
+  });
+}
+
 function useRefreshStatus() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: licenseStatusKey });

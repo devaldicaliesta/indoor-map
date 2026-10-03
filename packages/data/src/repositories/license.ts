@@ -2,7 +2,14 @@ import { toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
 
-export type LicenseState = 'missing' | 'active' | 'not_yet_valid' | 'expired' | 'revoked';
+/** `clock_behind`: jam server mundur lebih dari 24 jam dari waktu yang pernah tercatat. */
+export type LicenseState =
+  | 'missing'
+  | 'active'
+  | 'not_yet_valid'
+  | 'expired'
+  | 'revoked'
+  | 'clock_behind';
 
 export interface LicenseStatus {
   state: LicenseState;
@@ -20,6 +27,13 @@ export interface ActivatedLicense {
   validUntil: string;
 }
 
+/** Hasil check-in manual: lisensi diperbarui, tetap, dicabut, atau vendor tidak terjangkau. */
+export interface CheckinResult {
+  result: 'renewed' | 'unchanged' | 'revoked' | 'failed';
+  /** Alasan bila gagal. */
+  message?: string;
+}
+
 export interface FirstAdminInput {
   fullName: string;
   email: string;
@@ -35,6 +49,10 @@ export interface LicenseRepository {
   activateManual(license: unknown): Promise<ActivatedLicense>;
   /** Hanya untuk instalasi baru yang sudah berlisensi dan belum punya Super Admin. */
   createFirstAdmin(input: FirstAdminInput): Promise<void>;
+  /** Sejak kapan tidak ada check-in berhasil, bila sudah lebih dari 7 hari; selain itu `null`. */
+  checkinOverdueSince(): Promise<string | null>;
+  /** Check-in ke vendor sekarang (Super Admin); jadwal otomatis berjalan di server. */
+  checkIn(): Promise<CheckinResult>;
 }
 
 const STATES: readonly LicenseState[] = [
@@ -43,13 +61,14 @@ const STATES: readonly LicenseState[] = [
   'not_yet_valid',
   'expired',
   'revoked',
+  'clock_behind',
 ];
 
 export function createLicenseRepository(db: Db): LicenseRepository {
-  async function invoke<T>(body: Record<string, unknown>): Promise<T> {
-    const { data, error } = await db.functions.invoke<T>('license-activate', { body });
+  async function invoke<T>(body: Record<string, unknown>, name = 'license-activate'): Promise<T> {
+    const { data, error } = await db.functions.invoke<T>(name, { body });
     if (error) throw await fromFunctionError(error);
-    if (!data) throw toDataError(new Error('Balasan aktivasi kosong.'));
+    if (!data) throw toDataError(new Error('Balasan lisensi kosong.'));
     return data;
   }
 
@@ -78,6 +97,16 @@ export function createLicenseRepository(db: Db): LicenseRepository {
 
     async createFirstAdmin(input) {
       await invoke({ mode: 'first_admin', ...input });
+    },
+
+    async checkinOverdueSince() {
+      const { data, error } = await db.rpc('license_checkin_overdue_since');
+      if (error) throw toDataError(error);
+      return data ?? null;
+    },
+
+    checkIn() {
+      return invoke<CheckinResult>({}, 'license-checkin');
     },
   };
 }
