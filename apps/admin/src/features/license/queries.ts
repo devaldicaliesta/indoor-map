@@ -23,6 +23,14 @@ export function useCheckinOverdueSince() {
   });
 }
 
+export function useLicenseValidUntil() {
+  return useQuery({
+    queryKey: ['license', 'valid-until'],
+    queryFn: () => data.license.validUntil(),
+    staleTime: 15 * 60_000,
+  });
+}
+
 function useRefreshStatus() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: licenseStatusKey });

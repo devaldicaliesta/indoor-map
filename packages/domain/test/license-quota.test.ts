@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { daysRemaining, isQuotaFull } from '../src/license-quota';
+import { daysRemaining, isQuotaFull, licenseNotice } from '../src/license-quota';
 
 describe('isQuotaFull', () => {
   it('penuh saat pemakaian mencapai kuota', () => {
@@ -22,5 +22,22 @@ describe('daysRemaining', () => {
   });
   it('nol setelah berakhir', () => {
     expect(daysRemaining('2026-10-01T00:00:00Z', now)).toBe(0);
+  });
+});
+
+describe('licenseNotice', () => {
+  const now = new Date('2026-10-03T12:00:00Z');
+  it('pengingat mulai H-30', () => {
+    expect(licenseNotice('2026-12-01T00:00:00Z', now)).toBeNull();
+    expect(licenseNotice('2026-11-02T12:00:00Z', now)).toEqual({ kind: 'reminder', days: 30 });
+    expect(licenseNotice('2026-10-10T12:00:00Z', now)).toEqual({ kind: 'reminder', days: 7 });
+    expect(licenseNotice('2026-10-04T12:00:00Z', now)).toEqual({ kind: 'reminder', days: 1 });
+  });
+  it('masa tenggang 14 hari setelah berakhir, lalu tidak ada banner', () => {
+    expect(licenseNotice('2026-10-02T12:00:00Z', now)).toEqual({
+      kind: 'grace',
+      graceEndsAt: '2026-10-16T12:00:00.000Z',
+    });
+    expect(licenseNotice('2026-09-18T12:00:00Z', now)).toBeNull();
   });
 });

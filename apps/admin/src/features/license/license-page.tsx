@@ -128,7 +128,14 @@ function UsageTable({ usage }: { usage: QuotaUsage[] }) {
                     style={{ width: `${share * 100}%` }}
                   />
                 </div>
-                {full ? <span className="text-sm">Kuota paket tercapai</span> : null}
+                {u.quota !== null && u.used > u.quota ? (
+                  <span className="text-sm">
+                    Melebihi paket: kurangi {u.used - u.quota} {QUOTA_LABELS[u.kind].toLowerCase()}{' '}
+                    agar bisa menambah data dan publish lagi.
+                  </span>
+                ) : full ? (
+                  <span className="text-sm">Kuota paket tercapai</span>
+                ) : null}
               </TableCell>
             </TableRow>
           );

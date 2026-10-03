@@ -1,4 +1,4 @@
-import { DataError } from '@indoor/data';
+import { DataError, SERVICE_INACTIVE } from '@indoor/data';
 import {
   type DeepLink,
   decodeDeepLink,
@@ -24,13 +24,22 @@ import { useVenueBranding } from '../features/venue/use-venue-branding';
 import { VenueInfo } from '../features/venue/venue-info';
 import { applyVenueLanguage, showLanguage } from '../i18n';
 
-function Unavailable() {
+/** Belum ada peta terbit, atau layanan dihentikan karena lisensi venue berakhir. */
+function Unavailable({ reason = 'unavailable' }: { reason?: 'unavailable' | 'serviceInactive' }) {
   const { t } = useTranslation();
   return (
     <VisitorShell>
       <PanelMessage
-        title={t('venue.unavailableTitle')}
-        description={t('venue.unavailableDescription')}
+        title={
+          reason === 'serviceInactive'
+            ? t('venue.serviceInactiveTitle')
+            : t('venue.unavailableTitle')
+        }
+        description={
+          reason === 'serviceInactive'
+            ? t('venue.serviceInactiveDescription')
+            : t('venue.unavailableDescription')
+        }
       />
     </VisitorShell>
   );
@@ -58,6 +67,9 @@ function VenueView({ venueId }: { venueId: VenueId }) {
   if (snapshot.error) {
     if (snapshot.error instanceof DataError && snapshot.error.kind === 'not_found') {
       return <Unavailable />;
+    }
+    if (snapshot.error instanceof DataError && snapshot.error.code === SERVICE_INACTIVE) {
+      return <Unavailable reason="serviceInactive" />;
     }
     return (
       <VisitorShell>

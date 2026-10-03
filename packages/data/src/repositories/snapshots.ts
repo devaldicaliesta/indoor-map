@@ -15,6 +15,9 @@ export interface SnapshotsRepository {
   assetUrl(path: string): string;
 }
 
+/** Kode `DataError` saat layanan Visitor dihentikan karena lisensi. */
+export const SERVICE_INACTIVE = 'service_inactive';
+
 export function createSnapshotsRepository(db: Db): SnapshotsRepository {
   const latestUrl = (venueId: VenueId) =>
     db.storage.from(SNAPSHOTS_BUCKET).getPublicUrl(`${venueId}/latest.json`).data.publicUrl;
@@ -39,6 +42,13 @@ export function createSnapshotsRepository(db: Db): SnapshotsRepository {
         throw new DataError('unknown', { message: `Peta tidak bisa dimuat (${response.status}).` });
       }
       const body: unknown = await response.json().catch(() => null);
+      // Lisensi kedaluwarsa atau dicabut: server mengganti latest.json dengan penanda ini (T-406).
+      if (typeof body === 'object' && body !== null && 'serviceInactive' in body) {
+        throw new DataError('forbidden', {
+          code: SERVICE_INACTIVE,
+          message: 'Layanan peta tidak aktif.',
+        });
+      }
       try {
         return parseSnapshot(body);
       } catch (cause) {
