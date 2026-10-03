@@ -216,6 +216,8 @@ export interface SnapshotCategory {
   locationTypeId: string;
   name: string;
   icon: string | null;
+  /** `#rrggbb` warna unit di peta; `null` = warna tipe lokasi. Tidak ada di snapshot lama. */
+  color?: string | null;
 }
 
 export type SnapshotFieldValue = string | number | boolean | string[];

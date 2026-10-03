@@ -12,6 +12,7 @@ import {
   toast,
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
+import { ColorField, isColorValue } from '../../app/components/color-field';
 import { Field } from '../../app/components/field';
 import { AliasField, useAliasDraft } from '../aliases/alias-field';
 import { FormNotice } from '../auth/auth-layout';
@@ -42,6 +43,8 @@ export function CategoryDialog({
   const [name, setName] = useState(category?.name ?? '');
   const [choice, setChoice] = useState<IconChoice>(() => initialIconChoice(category?.icon ?? null));
   const [nameError, setNameError] = useState<string>();
+  const [color, setColor] = useState(category?.color ?? '');
+  const [submitted, setSubmitted] = useState(false);
   const [reading, setReading] = useState(false);
   const aliases = useAliasDraft(venueId, 'category', category?.id ?? null, name);
   const [aliasError, setAliasError] = useState<string>();
@@ -51,12 +54,13 @@ export function CategoryDialog({
     const sameType = others.filter((c) => c.locationTypeId === typeId);
     const problem = checkCategoryName(name, sameType, category?.id ?? null)[0];
     setNameError(problem ? CATEGORY_NAME_MESSAGES[problem] : undefined);
-    if (problem || aliases.error) return;
+    setSubmitted(true);
+    if (problem || aliases.error || !isColorValue(color)) return;
     save.mutate(
       {
         id: category?.id ?? null,
         typeId,
-        input: { name, icon: iconChoiceValue(choice) },
+        input: { name, icon: iconChoiceValue(choice), color: color || null },
         sortOrder: others.length,
         iconPng: iconChoicePng(choice),
       },
@@ -103,6 +107,15 @@ export function CategoryDialog({
             onChange={setChoice}
             onBusyChange={setReading}
             disabled={save.isPending}
+          />
+          <ColorField
+            id="category-color"
+            label="Warna di peta (opsional)"
+            hint="Unit lokasi berkategori ini diwarnai di Visitor; kosong = warna tipe lokasi."
+            value={color}
+            showError={submitted}
+            disabled={save.isPending}
+            onChange={setColor}
           />
           <AliasField id="category-aliases" draft={aliases} disabled={save.isPending} />
           {save.error ? <FormNotice tone="error">{save.error.message}</FormNotice> : null}

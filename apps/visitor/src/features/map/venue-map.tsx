@@ -9,9 +9,11 @@ import {
   mapLabels,
   type Snapshot,
   type SnapshotDisplayMode,
+  unitColors,
   visibleFloorIds,
 } from '@indoor/domain';
 import {
+  categoryUnitColors,
   createMap,
   type FloorFeatureCollection,
   type MapDisplay,
@@ -44,11 +46,33 @@ import { useExploreMap } from './explore-map';
 import { facilityIconSpecs } from './facility-icons';
 import { LABEL_FONT } from './label-font';
 
+/** Isi pastel dan tepi per unit dari warna kategori lokasinya (dihitung sekali per snapshot). */
+const unitPaint = new WeakMap<Snapshot, Map<string, { fill: string; outline: string }>>();
+
+function paintOf(snapshot: Snapshot) {
+  let paint = unitPaint.get(snapshot);
+  if (!paint) {
+    paint = new Map(
+      [...unitColors(snapshot)].map(([id, color]) => [id, categoryUnitColors(color)]),
+    );
+    unitPaint.set(snapshot, paint);
+  }
+  return paint;
+}
+
 function floorCollection(snapshot: Snapshot, floorIds: readonly string[]): FloorFeatureCollection {
   const visible = new Set(floorIds);
+  const paint = paintOf(snapshot);
   return {
     type: 'FeatureCollection',
-    features: snapshot.features.features.filter((f) => visible.has(f.properties.floorId)),
+    features: snapshot.features.features
+      .filter((f) => visible.has(f.properties.floorId))
+      .map((f) => {
+        const colors = paint.get(f.properties.id);
+        return colors
+          ? { ...f, properties: { ...f.properties, color: colors.fill, outline: colors.outline } }
+          : f;
+      }),
   };
 }
 

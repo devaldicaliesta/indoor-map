@@ -19,6 +19,13 @@ const ROOMS = [
   ['ward', 'Kamar Rawat'],
 ] as const;
 
+const CATEGORY_COLORS = {
+  poli: '#2e7dbb',
+  support: '#7a5cc4',
+  admin: '#6b7280',
+  ward: '#2f8f6b',
+} as const;
+
 /** Rumah sakit empat lantai, ±110 ruang, dua lift (pasien dan umum), tangga, IGD 24 jam. */
 export function hospitalVenue(): SnapshotSource {
   const v = new VenueBuilder('demo-hospital', 'RS Demo Harapan', [106.8456, -6.2088]);
@@ -40,7 +47,7 @@ export function hospitalVenue(): SnapshotSource {
       ];
     }),
   );
-  const igd = v.category(emergency, 'igd', 'IGD');
+  const igd = v.category(emergency, 'igd', 'IGD', '#c8321e');
 
   const toiletM = v.facilityType('toilet-male', 'Toilet Pria', 'toilet-male');
   const toiletF = v.facilityType('toilet-female', 'Toilet Wanita', 'toilet-female');

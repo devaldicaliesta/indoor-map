@@ -196,11 +196,18 @@ export class VenueBuilder {
     return id;
   }
 
-  category(typeId: string, key: string, name: string): string {
+  category(typeId: string, key: string, name: string, color: string | null = null): string {
     const id = this.id(`category:${key}`);
     this.source.categories = [
       ...this.source.categories,
-      { id, locationTypeId: typeId, name, icon: null, sortOrder: this.source.categories.length },
+      {
+        id,
+        locationTypeId: typeId,
+        name,
+        icon: null,
+        color,
+        sortOrder: this.source.categories.length,
+      },
     ];
     return id;
   }

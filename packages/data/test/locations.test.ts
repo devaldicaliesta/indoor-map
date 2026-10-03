@@ -197,6 +197,7 @@ describe('lokasi', () => {
         location_type_id: TYPE,
         name: 'Anak',
         icon: 'builtin:first-aid',
+        color: '#2e7dbb',
         sort_order: 2,
       }),
     ).toEqual({
@@ -204,6 +205,7 @@ describe('lokasi', () => {
       locationTypeId: TYPE,
       name: 'Anak',
       icon: { kind: 'builtin', key: 'first-aid' },
+      color: '#2e7dbb',
       sortOrder: 2,
     });
   });

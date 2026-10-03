@@ -37,23 +37,23 @@ export function mallVenue(): SnapshotSource {
   const food = v.locationType('food', 'Kuliner', '#d9822b');
   const service = v.locationType('service', 'Layanan', '#2f8f6b');
   const categories = [
-    ['fashion', shop, 'Fashion'],
-    ['shoes', shop, 'Sepatu dan Tas'],
-    ['electronics', shop, 'Elektronik'],
-    ['beauty', shop, 'Kecantikan'],
-    ['books', shop, 'Buku dan Hobi'],
-    ['sports', shop, 'Olahraga'],
-    ['jewelry', shop, 'Perhiasan dan Jam'],
-    ['kids', shop, 'Anak dan Mainan'],
-    ['restaurant', food, 'Restoran'],
-    ['cafe', food, 'Kafe'],
-    ['bank', service, 'Bank'],
-    ['optic', service, 'Optik'],
-    ['salon', service, 'Salon dan Barbershop'],
-  ].map(([key, type, name]) => ({
+    ['fashion', shop, 'Fashion', '#7b61c9'],
+    ['shoes', shop, 'Sepatu dan Tas', '#9a6b3f'],
+    ['electronics', shop, 'Elektronik', '#2f7fc1'],
+    ['beauty', shop, 'Kecantikan', '#d0558a'],
+    ['books', shop, 'Buku dan Hobi', '#4f8a3c'],
+    ['sports', shop, 'Olahraga', '#e0742a'],
+    ['jewelry', shop, 'Perhiasan dan Jam', '#b8962e'],
+    ['kids', shop, 'Anak dan Mainan', '#e3a019'],
+    ['restaurant', food, 'Restoran', '#d2452f'],
+    ['cafe', food, 'Kafe', '#8c5a3c'],
+    ['bank', service, 'Bank', '#1f6f8b'],
+    ['optic', service, 'Optik', '#3d9a8b'],
+    ['salon', service, 'Salon dan Barbershop', '#a54aa8'],
+  ].map(([key, type, name, color]) => ({
     key: key as string,
     type: type as string,
-    id: v.category(type as string, key as string, name as string),
+    id: v.category(type as string, key as string, name as string, color as string),
   }));
 
   const toiletM = v.facilityType('toilet-male', 'Toilet Pria', 'toilet-male');

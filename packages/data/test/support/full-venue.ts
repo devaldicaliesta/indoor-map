@@ -234,6 +234,7 @@ export async function insertVenue(
       location_type_id: c.locationTypeId,
       name: c.name,
       icon: c.icon,
+      color: c.color ?? null,
       sort_order: c.sortOrder,
     })),
   );

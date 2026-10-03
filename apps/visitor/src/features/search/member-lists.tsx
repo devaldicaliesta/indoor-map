@@ -54,7 +54,7 @@ export function CategoryList({ id }: { id: string }) {
   return (
     <section className="grid gap-2" aria-label={category.name}>
       <ListHeader
-        icon={<EntityIcon icon={category.icon} />}
+        icon={<EntityIcon icon={category.icon} color={category.color} />}
         title={category.name}
         count={t('explore.locationCount', { count: members.length })}
       />

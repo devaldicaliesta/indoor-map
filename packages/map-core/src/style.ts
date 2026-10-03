@@ -166,7 +166,11 @@ export function buildStyleLayers(display: MapDisplay = {}): LayerSpecification[]
       type: 'line',
       source,
       filter: ['all', isPolygon, kindIn(ROOM_KINDS), ['!', isVacant]],
-      paint: { 'line-color': byKind(DEFAULT_OUTLINE, '#bfc5cc'), 'line-width': 1 },
+      // `outline` per fitur: tepi berwarna kategori di Visitor (lihat `categoryUnitColors`).
+      paint: {
+        'line-color': ['coalesce', ['get', 'outline'], byKind(DEFAULT_OUTLINE, '#bfc5cc')],
+        'line-width': 1,
+      },
     },
     {
       id: LAYER_IDS.vacantOutline,

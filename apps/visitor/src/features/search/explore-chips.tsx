@@ -66,7 +66,11 @@ export function ExploreChips({ scroll = false }: { scroll?: boolean }) {
                 onClick={() => toggleList({ kind: chip.kind, id })}
                 icon={
                   chip.kind === 'category' ? (
-                    <EntityIcon icon={chip.category.icon} className="size-6" />
+                    <EntityIcon
+                      icon={chip.category.icon}
+                      color={chip.category.color}
+                      className="size-6"
+                    />
                   ) : (
                     <EntityIcon
                       icon={chip.facilityType.icon}

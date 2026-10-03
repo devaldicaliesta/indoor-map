@@ -324,7 +324,13 @@ export function buildSnapshot(source: SnapshotSource): Snapshot {
         a.sortOrder - b.sortOrder ||
         a.name.localeCompare(b.name, 'id'),
     )
-    .map((c) => ({ id: c.id, locationTypeId: c.locationTypeId, name: c.name, icon: c.icon }));
+    .map((c) => ({
+      id: c.id,
+      locationTypeId: c.locationTypeId,
+      name: c.name,
+      icon: c.icon,
+      color: isColor(c.color) ? c.color : null,
+    }));
   const facilityTypes = sortByOrder(source.facilityTypes).map((t) => ({
     id: t.id,
     name: t.name,
