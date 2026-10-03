@@ -113,14 +113,14 @@ Acuan: tampilan peta indoor Situm (ruang berwarna per kategori, ikon POI, 3D, ru
 | T-401 | Format lisensi dan license-cli | R3 | review | `packages/domain/src/license.ts` (tanpa zod, siap Deno): `canonicalize` (kunci terurut, tanpa spasi), `readLicensePayload` (bentuk persis, kunci tambahan ditolak), `verifyLicense` Ed25519 WebCrypto → `malformed`/`bad_signature`/`wrong_instance`/`not_yet_valid`/`expired`; 11 test (ubah 1 karakter di 5 tempat + tanda tangan, instance lain, kedaluwarsa, kunci lain). Kunci publik vendor ditanam di `license.publicKey.ts`. `tools/license-cli` (keygen/issue/inspect, 6 test). Dikerjakan di atas R3 yang masih review atas izin pemilik |
 | T-402a | Aktivasi: server | T-401 | review | Kunci dev di `tools/license-cli/dev-keys/` (kunci publik build = kunci dev; rilis wajib mengganti). Seed: instance tetap `…0de701` + lisensi dev bertanda tangan sampai 2099. Migrasi 0027: `app.license_active()` masuk `can_edit`/`can_manage`/`can_manage_closures` (tanpa lisensi berlaku semua tulis ditolak, baca tetap), `license_status()` untuk anon (keadaan, instance_id, perlu Super Admin pertama), `license_install()` atomik khusus service role. Edge Function `license-activate` (online ke vendor, unggah manual, Super Admin pertama; berkas diverifikasi sebelum disimpan, kunci lisensi tidak disimpan). `tools/vendor-stub` (kunci terikat ke instance pertama, id lisensi dari hash kunci). Repository `license`. Diuji pgTAP `license_enforcement`, integrasi `license-activate` (6), stub (3) |
 | T-402b | Aktivasi: Admin | T-402a | review | `LicenseGate` mengarahkan semua route ke `/aktivasi` tanpa lisensi berlaku atau tanpa Super Admin; halaman masuk/lupa/reset password tetap terbuka tanpa lisensi agar Super Admin bisa masuk memasang lisensi baru (kecuali instalasi baru). Halaman aktivasi: keadaan lisensi, ID instalasi + Salin, tab "Kunci lisensi" (online ke vendor) dan "Unggah berkas" (≤ 64 KB, JSON); tamu di instalasi yang sudah punya Super Admin hanya diarahkan masuk. Instalasi baru: form Super Admin pertama lalu langsung masuk. E2E `tests/license/T-402-activation.spec.ts` (proyek `license`, berjalan setelah admin/visitor): lulus 3/3, bukti `e2e/evidence/T-402/`; suite penuh 120 lulus. Pemeriksaan T-004 TC-SEC-45b kini mengecualikan `license_status` (sengaja untuk anon, T-402a) |
-| T-403 | Check-in, pencabutan, proteksi waktu | T-402 | menunggu | |
-| T-404 | Status lisensi dan kuota | T-402 | menunggu | |
+| T-403 | Check-in, pencabutan, proteksi waktu | T-402 | dikerjakan | |
+| T-404 | Status lisensi dan kuota | T-402 | siap | |
 | T-405 | Fitur per paket | T-404 | menunggu | |
 | T-406 | Pengingat, tenggang, kedaluwarsa | T-403, T-404 | menunggu | |
 | T-407 | Info Point di Admin | T-404 | menunggu | |
 | T-408 | Mode Info Point | T-407 | menunggu | |
 | T-409 | Lanjutkan di HP, pembaruan, offline | T-408 | menunggu | |
-| T-411 | Paket instalasi dan backup | T-402 | menunggu | |
+| T-411 | Paket instalasi dan backup | T-402 | siap | |
 | T-412 | Performa, kompatibilitas, pengerasan | T-409, T-411 | menunggu | |
 
 ## Pertanyaan terbuka
