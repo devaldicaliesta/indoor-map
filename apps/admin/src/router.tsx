@@ -8,6 +8,8 @@ import { ResetPasswordPage } from './features/auth/reset-password-page';
 import { ClosuresPage } from './features/closures/closures-page';
 import { EditorPage } from './features/editor/editor-page';
 import { GeoreferencePage } from './features/floor-plans/georeference';
+import { ActivationPage } from './features/license/activation-page';
+import { LicenseGate } from './features/license/license-gate';
 import { LicensePage } from './features/license/license-page';
 import { LocationsPage } from './features/locations/locations-page';
 import { OriginPointsPage } from './features/origin-points/origin-points-page';
@@ -31,12 +33,40 @@ const devRoutes: RouteObject[] = import.meta.env.DEV
   : [];
 
 export const router = createBrowserRouter([
-  { path: '/login', element: <LoginPage /> },
-  { path: '/forgot-password', element: <ForgotPasswordPage /> },
-  { path: '/reset-password', element: <ResetPasswordPage /> },
+  // Tanpa lisensi berlaku semua halaman diarahkan ke /aktivasi; halaman masuk tetap terbuka
+  // agar Super Admin bisa masuk untuk memasang lisensi baru (kecuali di instalasi baru).
+  { path: '/aktivasi', element: <ActivationPage />, errorElement: <RouteError /> },
+  {
+    path: '/login',
+    element: (
+      <LicenseGate allowWithoutLicense>
+        <LoginPage />
+      </LicenseGate>
+    ),
+  },
+  {
+    path: '/forgot-password',
+    element: (
+      <LicenseGate allowWithoutLicense>
+        <ForgotPasswordPage />
+      </LicenseGate>
+    ),
+  },
+  {
+    path: '/reset-password',
+    element: (
+      <LicenseGate allowWithoutLicense>
+        <ResetPasswordPage />
+      </LicenseGate>
+    ),
+  },
   {
     path: '/',
-    element: <RequireAuth />,
+    element: (
+      <LicenseGate>
+        <RequireAuth />
+      </LicenseGate>
+    ),
     errorElement: <RouteError />,
     children: [
       { index: true, element: <HomeRedirect /> },
