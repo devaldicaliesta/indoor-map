@@ -21,6 +21,8 @@ function useRefresh(venueId: VenueId) {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: key(venueId) }),
       queryClient.invalidateQueries({ queryKey: ['venues'] }),
+      // Pemakaian kuota paket ikut berubah.
+      queryClient.invalidateQueries({ queryKey: ['license', 'usage'] }),
     ]);
 }
 

@@ -34,6 +34,7 @@ export * from './instruction-defaults';
 export * from './instruction-labels';
 export * from './label-point';
 export * from './language';
+export * from './license-quota';
 export * from './location';
 export * from './location-detail';
 export * from './map-labels';

@@ -18,6 +18,8 @@ function useRefresh(buildingId: BuildingId) {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: key(buildingId) }),
       queryClient.invalidateQueries({ queryKey: ['buildings'] }),
+      // Pemakaian kuota paket ikut berubah.
+      queryClient.invalidateQueries({ queryKey: ['license', 'usage'] }),
     ]);
 }
 

@@ -53,3 +53,22 @@ export function useCreateFirstAdmin() {
     onSuccess: refresh,
   });
 }
+
+export const licenseUsageKey = ['license', 'usage'] as const;
+
+/** Pemakaian kuota paket; dimuat ulang setiap kali data struktur berubah. */
+export function useLicenseUsage() {
+  return useQuery({ queryKey: licenseUsageKey, queryFn: () => data.license.usage() });
+}
+
+export function useLicenseDetails() {
+  return useQuery({ queryKey: ['license', 'details'], queryFn: () => data.license.details() });
+}
+
+export function useCheckIn() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => data.license.checkIn(),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['license'] }),
+  });
+}

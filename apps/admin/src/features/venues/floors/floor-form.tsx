@@ -3,6 +3,7 @@ import { Button, Input, toast } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
 import { Field } from '../../../app/components/field';
 import { FormNotice } from '../../auth/auth-layout';
+import { QuotaNotice, useQuotaBlock } from '../../license/quota-notice';
 
 const MESSAGES = {
   name_required: 'Isi nama tampilan, misalnya GF atau L1.',
@@ -25,6 +26,7 @@ export function FloorForm({
   onSubmit: (input: FloorInput, done: () => void) => void;
   onCancel?: () => void;
 }) {
+  const floorQuota = useQuotaBlock('floors');
   const [problems, setProblems] = useState<Partial<Record<keyof FloorInput, string>>>({});
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -85,9 +87,14 @@ export function FloorForm({
       </div>
       {error ? <FormNotice tone="error">{error}</FormNotice> : null}
       <div className="flex gap-2">
-        <Button type="submit" variant="primary" disabled={pending}>
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={pending || (!floor && floorQuota !== null)}
+        >
           {floor ? 'Simpan lantai' : 'Tambah lantai'}
         </Button>
+        {floor ? null : <QuotaNotice message={floorQuota} />}
         {onCancel ? (
           <Button type="button" onClick={onCancel}>
             Batal
