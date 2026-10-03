@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** R3 Operasional (R1 dan R2 menunggu review)
-**Task berikutnya:** T-307a (verifikasi E2E bertahap, sebelum T-307)
+**Task berikutnya:** T-403 (check-in, pencabutan, proteksi waktu)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -112,7 +112,7 @@ Acuan: tampilan peta indoor Situm (ruang berwarna per kategori, ikon POI, 3D, ru
 | T-410 | Branding Visitor | T-117 | review | Pengaturan → Branding: logo (memakai logo venue; ganti/hapus, `venues.removeLogo` baru), nama tampilan (≤ 60), warna utama dan warna rute dengan pratinjau Visitor langsung serta catatan kontras. Disimpan di `display_settings.branding` (tanpa migrasi), masuk snapshot sebagai `venue.branding` opsional (snapshot lama tetap terbaca). `packages/ui/src/theme/apply-branding.ts` menghitung `--signal`, `--signal-soft`, `--on-signal` (--ink atau putih, mana yang lolos AA), `--route`, `--on-route`; tombol utama kini `text-on-signal`. Visitor: logo + nama di header desktop, logo di header HP, judul tab, warna garis rute di peta. Info Point memakai `useVenueBranding` yang sama saat dibuat di T-408. Ikut diperbaiki: impor `./hours` tanpa `.ts` (T-304) membuat Edge Function `publish` gagal boot; kini ada test penjaga impor Edge Function. Diuji: unit, 43 integrasi, E2E `branding.spec.ts` + gambar di `e2e/evidence/T-410/` |
 | T-401 | Format lisensi dan license-cli | R3 | review | `packages/domain/src/license.ts` (tanpa zod, siap Deno): `canonicalize` (kunci terurut, tanpa spasi), `readLicensePayload` (bentuk persis, kunci tambahan ditolak), `verifyLicense` Ed25519 WebCrypto → `malformed`/`bad_signature`/`wrong_instance`/`not_yet_valid`/`expired`; 11 test (ubah 1 karakter di 5 tempat + tanda tangan, instance lain, kedaluwarsa, kunci lain). Kunci publik vendor ditanam di `license.publicKey.ts`. `tools/license-cli` (keygen/issue/inspect, 6 test). Dikerjakan di atas R3 yang masih review atas izin pemilik |
 | T-402a | Aktivasi: server | T-401 | review | Kunci dev di `tools/license-cli/dev-keys/` (kunci publik build = kunci dev; rilis wajib mengganti). Seed: instance tetap `…0de701` + lisensi dev bertanda tangan sampai 2099. Migrasi 0027: `app.license_active()` masuk `can_edit`/`can_manage`/`can_manage_closures` (tanpa lisensi berlaku semua tulis ditolak, baca tetap), `license_status()` untuk anon (keadaan, instance_id, perlu Super Admin pertama), `license_install()` atomik khusus service role. Edge Function `license-activate` (online ke vendor, unggah manual, Super Admin pertama; berkas diverifikasi sebelum disimpan, kunci lisensi tidak disimpan). `tools/vendor-stub` (kunci terikat ke instance pertama, id lisensi dari hash kunci). Repository `license`. Diuji pgTAP `license_enforcement`, integrasi `license-activate` (6), stub (3) |
-| T-402b | Aktivasi: Admin | T-402a | siap | |
+| T-402b | Aktivasi: Admin | T-402a | review | `LicenseGate` mengarahkan semua route ke `/aktivasi` tanpa lisensi berlaku atau tanpa Super Admin; halaman masuk/lupa/reset password tetap terbuka tanpa lisensi agar Super Admin bisa masuk memasang lisensi baru (kecuali instalasi baru). Halaman aktivasi: keadaan lisensi, ID instalasi + Salin, tab "Kunci lisensi" (online ke vendor) dan "Unggah berkas" (≤ 64 KB, JSON); tamu di instalasi yang sudah punya Super Admin hanya diarahkan masuk. Instalasi baru: form Super Admin pertama lalu langsung masuk. E2E `tests/license/T-402-activation.spec.ts` (proyek `license`, berjalan setelah admin/visitor): lulus 3/3, bukti `e2e/evidence/T-402/`; suite penuh 120 lulus. Pemeriksaan T-004 TC-SEC-45b kini mengecualikan `license_status` (sengaja untuk anon, T-402a) |
 | T-403 | Check-in, pencabutan, proteksi waktu | T-402 | menunggu | |
 | T-404 | Status lisensi dan kuota | T-402 | menunggu | |
 | T-405 | Fitur per paket | T-404 | menunggu | |
@@ -130,6 +130,8 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 Tidak ada.
 
 ## Catatan keputusan
+
+- [2026-10-03] T-402b — Pengarahan lisensi hanya di UI (`LicenseGate`); penegakannya tetap di server (`app.license_active()`, T-402a). Halaman masuk dibiarkan terbuka tanpa lisensi karena memasang lisensi baru butuh sesi Super Admin; pada instalasi baru (belum ada Super Admin) semuanya ke `/aktivasi`. Test E2E lisensi mengubah lisensi seluruh instalasi, jadi dipisah ke proyek Playwright `license` yang bergantung pada `admin` dan `visitor` (`--no-deps` untuk menjalankannya sendiri). Test `cad-floor-plan` butuh `services/cad-converter` berjalan di 8090.
 
 - [2026-10-03] T-402 — **Pertanyaan terbuka diputuskan (pemilik: semua opsi A):** (1) pasangan kunci khusus dev disimpan di repo (`tools/license-cli/dev-keys/`); build dev/test memakai kunci publik dev, dan paket instalasi rilis (T-411) wajib menolak build yang masih memakai kunci dev; (2) lisensi ditegakkan di server: Edge Function memverifikasi saat aktivasi, fungsi SQL `app.license_active()` dipakai fungsi izin tulis sehingga API menolak perubahan tanpa lisensi sah, Admin hanya mengarahkan ke `/aktivasi`; (3) Super Admin pertama lewat form setelah aktivasi di instalasi produksi, sedangkan `pnpm db:reset` lokal tetap membuat Super Admin dan memasang lisensi dev.
 
