@@ -1,3 +1,4 @@
+import { DataError } from '@indoor/data';
 import type { VenueId } from '@indoor/domain';
 import { Button, EmptyState, Skeleton, StatusDot, toast } from '@indoor/ui';
 import { useQuery } from '@tanstack/react-query';
@@ -6,13 +7,14 @@ import { data } from '../../app/data-client';
 import { inVenueTime } from '../../app/format';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
-import { useActivePublication, usePublish } from './queries';
+import { useActivePublication, usePublish, useValidateDraft } from './queries';
+import { ValidationPanel } from './validation-panel';
 
 const kilobytes = (bytes: number) =>
   `${new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 }).format(bytes / 1024)} KB`;
 
-// Sementara sampai alur publish lengkap (validasi, ringkasan perubahan, riwayat) di T-307 s.d. T-310.
-function DevPublishButton({ venueId }: { venueId: VenueId }) {
+// Sementara sampai alur publish lengkap (ringkasan perubahan, riwayat) di T-308 s.d. T-310.
+function DevPublishButton({ venueId, onBlocked }: { venueId: VenueId; onBlocked: () => void }) {
   const publish = usePublish(venueId);
   return (
     <Button
@@ -24,7 +26,11 @@ function DevPublishButton({ venueId }: { venueId: VenueId }) {
             toast.success(`Versi ${result.version} diterbitkan`, {
               description: `Visitor memuat versi ini pada kunjungan berikutnya. Ukuran snapshot ${kilobytes(result.sizeBytes)}.`,
             }),
-          onError: (error) => toast.error('Gagal menerbitkan', { description: error.message }),
+          onError: (error) => {
+            toast.error('Gagal menerbitkan', { description: error.message });
+            // Ditolak validasi: tampilkan temuan agar langsung bisa diperbaiki.
+            if (error instanceof DataError && error.kind === 'invalid') onBlocked();
+          },
         })
       }
     >
@@ -72,24 +78,36 @@ function ActiveVersion({ venueId }: { venueId: VenueId }) {
   );
 }
 
+function VenuePublish({ venueId }: { venueId: VenueId }) {
+  const validation = useValidateDraft(venueId);
+  return (
+    <div className="grid gap-6">
+      <Can action="publish.publish">
+        <div className="flex justify-end">
+          <DevPublishButton venueId={venueId} onBlocked={() => validation.mutate()} />
+        </div>
+      </Can>
+      <ActiveVersion venueId={venueId} />
+      <Can action="publish.validate">
+        <ValidationPanel
+          findings={validation.data}
+          pending={validation.isPending}
+          error={validation.error?.message ?? null}
+          onValidate={() => validation.mutate()}
+        />
+      </Can>
+    </div>
+  );
+}
+
 export function PublishPage() {
   const { venue } = useSelectedVenue();
   return (
     <ModuleRoute module="publish">
       {(access) => (
-        <ModulePage
-          module="publish"
-          access={access}
-          actions={
-            venue ? (
-              <Can action="publish.publish">
-                <DevPublishButton venueId={venue.id} />
-              </Can>
-            ) : null
-          }
-        >
+        <ModulePage module="publish" access={access}>
           {venue ? (
-            <ActiveVersion venueId={venue.id} />
+            <VenuePublish key={venue.id} venueId={venue.id} />
           ) : (
             <EmptyState
               title="Belum ada venue"

@@ -36,6 +36,7 @@ import { StatusBar } from './status-bar';
 import { useTestRouteStore } from './test-route/test-route-store';
 import { useEditorSession } from './use-editor-session';
 import { useEditorShortcuts } from './use-editor-shortcuts';
+import { useFeatureParam } from './use-feature-param';
 import { useFloorValidation } from './use-floor-validation';
 import { ValidationSummary } from './validation-overlay';
 
@@ -137,6 +138,7 @@ function Editor({
 }) {
   const selection = useFloorSelection(venueId);
   useStepFloor(selection);
+  useFeatureParam();
   const { floor, building } = selection;
   const lock = useEditLock(floor?.id ?? null, userId, canEditMap);
   const canEdit = canEditMap && lock.state.status === 'mine';

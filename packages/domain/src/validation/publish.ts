@@ -27,6 +27,8 @@ export interface PublishFinding {
   severity: IssueSeverity;
   message: string;
   floorId: string | null;
+  /** Gedung lantai temuan; `null` untuk Area Luar atau temuan tanpa lantai. */
+  buildingId: string | null;
   featureIds: string[];
   locationId: string | null;
   connectorId: string | null;
@@ -54,6 +56,7 @@ function finding(
     severity,
     message,
     floorId: scope.floorId ?? null,
+    buildingId: null,
     featureIds: scope.featureIds ?? [],
     locationId: scope.locationId ?? null,
     connectorId: scope.connectorId ?? null,
@@ -396,6 +399,7 @@ function planFindings(context: PublishContext, label: Labels): PublishFinding[] 
  */
 export function validateVenue(source: SnapshotSource, context: PublishContext): PublishFinding[] {
   const label = floorLabels(source);
+  const buildingOf = new Map(source.floors.map((f) => [f.id, f.buildingId]));
   return [
     ...geometryFindings(source),
     ...entranceFindings(source, label),
@@ -404,5 +408,7 @@ export function validateVenue(source: SnapshotSource, context: PublishContext): 
     ...liftFindings(source, label),
     ...instructionFindings(source),
     ...planFindings(context, label),
-  ].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
+  ]
+    .map((f) => ({ ...f, buildingId: f.floorId ? (buildingOf.get(f.floorId) ?? null) : null }))
+    .sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
 }

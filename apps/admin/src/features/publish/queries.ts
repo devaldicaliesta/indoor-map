@@ -19,3 +19,8 @@ export function usePublish(venueId: VenueId) {
     onSettled: () => queryClient.invalidateQueries({ queryKey: activePublicationKey(venueId) }),
   });
 }
+
+/** Validasi draft di server; hasil terakhir disimpan di mutation (dijalankan atas permintaan). */
+export function useValidateDraft(venueId: VenueId) {
+  return useMutation({ mutationFn: () => data.publications.validate(venueId) });
+}
