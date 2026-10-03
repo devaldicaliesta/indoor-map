@@ -75,7 +75,7 @@ function GeoreferenceScreen({ floorId, canEdit }: { floorId: FloorId; canEdit: b
       {
         onSuccess: () => {
           state.markSaved();
-          toast.success('Posisi denah disimpan');
+          toast.success('Posisi denah disimpan', { id: 'georeference-saved' });
         },
         onError: (error) => toast.error('Posisi tidak disimpan', { description: error.message }),
       },
