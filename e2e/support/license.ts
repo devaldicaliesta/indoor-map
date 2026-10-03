@@ -59,3 +59,30 @@ export function restoreLicense(id: string) {
   sql(`update public.licenses set is_current = false where is_current;
        update public.licenses set is_current = true where id = '${id}';`);
 }
+
+/** Keadaan check-in instalasi bersih: jam sekarang, belum pernah check-in, tanpa permintaan. */
+export function resetCheckin() {
+  sql(`update public.installation
+       set last_seen_at = now(), last_checkin_at = null, checkin_error = null,
+           checkin_requested_at = null
+       where id;`);
+}
+
+/**
+ * Check-in terjadwal seperti pg_cron saat jatuh tempo (app.license_tick → pg_net → Edge
+ * Function → vendor), lalu menunggu hasilnya tercatat.
+ */
+export async function runScheduledCheckin() {
+  sql(`update public.installation
+       set last_checkin_at = now() - interval '25 hours', checkin_error = null
+       where id;
+       select app.license_tick();`);
+  const until = Date.now() + 20_000;
+  const done = () =>
+    sql(`select last_checkin_at > now() - interval '1 minute' or checkin_error is not null
+         from public.installation`) === 't';
+  while (!done()) {
+    if (Date.now() > until) throw new Error('Check-in terjadwal tidak selesai dalam 20 detik.');
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+}

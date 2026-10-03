@@ -1,5 +1,5 @@
 import { floorPlanProblemMessage } from '@indoor/data';
-import { checkFloorPlanFile, type Floor } from '@indoor/domain';
+import { checkFloorPlanFile, type Floor, lockedFeatureMessage } from '@indoor/domain';
 import {
   Button,
   Dialog,
@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import { Can } from '../../app/auth/can';
 import { Field } from '../../app/components/field';
 import { FormNotice } from '../auth/auth-layout';
+import { useFeature } from '../license/queries';
 import { ActivePlan, PlanPreview } from './active-plan';
 import { CadLayers } from './cad-layers';
 import { FloorPlanHistory } from './floor-plan-history';
@@ -64,6 +65,8 @@ function usePickedFile() {
     }
   }
 
+  const cadAllowed = useFeature('cad_import');
+
   async function pick(file: File | undefined) {
     setProblem(null);
     raster.current = null;
@@ -76,6 +79,10 @@ function usePickedFile() {
       return;
     }
     if (check.format === 'dxf') {
+      if (!cadAllowed) {
+        setProblem(lockedFeatureMessage('cad_import'));
+        return;
+      }
       await cad.open(file);
       return;
     }

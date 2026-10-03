@@ -10,8 +10,8 @@
 -- (`tools/license-cli/dev-keys/`) lolos verifikasi di setiap reset. Dibuat dengan:
 --   license-cli issue --key tools/license-cli/dev-keys/license-private.pkcs8.b64
 --     --client "Pengembangan Lokal" --plan dev --instance 00000000-0000-4000-8000-0000000de701
---     --from 2026-01-01 --until 2099-12-31 --venues 50 --buildings 100 --floors 500
---     --info-points 100 --features 3d,info_point --id LIC-DEV-LOCAL
+--     --from 2026-01-01 --until 2099-12-31 --venues 100000 --buildings 100000
+--     --floors 100000 --info-points 100000 --features 3d,info_point --id LIC-DEV-LOCAL
 -- ---------------------------------------------------------------------
 update public.installation set instance_id = '00000000-0000-4000-8000-0000000de701';
 insert into public.licenses (license_id, payload, signature, status, source)
@@ -24,19 +24,19 @@ values (
   "validFrom": "2026-01-01T00:00:00Z",
   "validUntil": "2099-12-31T00:00:00Z",
   "quota": {
-    "venues": 50,
-    "buildings": 100,
-    "floors": 500,
-    "infoPoints": 100
+    "venues": 100000,
+    "buildings": 100000,
+    "floors": 100000,
+    "infoPoints": 100000
   },
   "features": [
     "3d",
     "info_point"
   ],
   "instanceId": "00000000-0000-4000-8000-0000000de701",
-  "issuedAt": "2026-10-03T10:21:53Z"
+  "issuedAt": "2026-10-03T12:36:05Z"
 }$license$::jsonb,
-  '+sAa46eh6Lx3Ypn94+gi/k0ho7w68ZjzYWdvkSzZu9iEyTgztHaALyc+/PR6M/5Kdwwhdok7uOwD5JM+wiMDAA==',
+  'RpwcBtwPjo1vt28JSt0y5eA/nX/WwSIii6IvEFKLXOCSa2jBQrJFEfnNJrMpKvJnvETAl97ZdQcedHf36H3AAQ==',
   'active',
   'manual'
 );

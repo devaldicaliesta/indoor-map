@@ -4,6 +4,7 @@
 // (snapshot draft di memori, tidak pernah ditulis ke Storage), dan `rollback` (isi versi lama
 // diterbitkan ulang sebagai versi baru).
 import { diffSnapshot } from '../../../packages/domain/src/diff.ts';
+import { applyEntitlements } from '../../../packages/domain/src/entitlements.ts';
 import type { Snapshot } from '../../../packages/domain/src/snapshot.ts';
 import { buildSnapshot } from '../../../packages/domain/src/snapshot-builder.ts';
 import {
@@ -16,8 +17,22 @@ import { CORS_HEADERS, fail, reply, serviceHeaders, url } from '../_shared/auth.
 import { type CallerRest, callerRest, PublishError } from './rest.ts';
 import { readFloorPlans, readSource } from './source.ts';
 
-// Sampai fitur dibaca dari lisensi (T-405), semua fitur opsional aktif.
-const ENABLED_FEATURES = ['3d', 'info_point'];
+/** Fitur di lisensi berlaku; tanpa lisensi tidak ada fitur berbayar. */
+async function licenseFeatures(): Promise<string[]> {
+  const response = await fetch(
+    `${url}/rest/v1/licenses?is_current=eq.true&select=features:payload->features`,
+    { headers: serviceHeaders },
+  );
+  if (!response.ok) throw new PublishError(502, 'unknown', 'Fitur lisensi tidak terbaca.');
+  const [row] = (await response.json()) as { features: unknown }[];
+  return Array.isArray(row?.features)
+    ? row.features.filter((f): f is string => typeof f === 'string')
+    : [];
+}
+
+/** Snapshot draft yang hanya membawa fitur dari paket lisensi. */
+const snapshotOf = (source: Parameters<typeof buildSnapshot>[0]) =>
+  applyEntitlements(buildSnapshot(source), source.enabledFeatures);
 
 // Versi bernomor tidak pernah berubah isinya; latest.json selalu diperiksa ulang ke server
 // (ETag) agar kunjungan berikutnya memakai versi terbaru tanpa mengunduh ulang isi yang sama.
@@ -48,7 +63,7 @@ async function validate(rest: CallerRest, venueId: string) {
   const source = await readSource(rest, venueId, {
     version: 0,
     publishedAt: new Date().toISOString(),
-    enabledFeatures: ENABLED_FEATURES,
+    enabledFeatures: await licenseFeatures(),
   });
   const findings = validateVenue(source, {
     today: venueToday(new Date(), source.venue.timezone),
@@ -89,7 +104,7 @@ async function activeSnapshot(rest: CallerRest, venueId: string): Promise<Snapsh
 /** Perubahan draft sejak versi aktif; tidak disimpan, dihitung ulang setiap diminta. */
 async function changes(rest: CallerRest, venueId: string) {
   const { source } = await validate(rest, venueId);
-  return diffSnapshot(await activeSnapshot(rest, venueId), buildSnapshot(source));
+  return diffSnapshot(await activeSnapshot(rest, venueId), snapshotOf(source));
 }
 
 class BlockedError extends PublishError {
@@ -152,7 +167,7 @@ function publish(rest: CallerRest, venueId: string, notes: string | null) {
   return release(rest, venueId, { notes, sourceVersion: null }, async (version, publishedAt) => {
     const { source, findings } = await validate(rest, venueId);
     if (hasBlockingFindings(findings)) throw new BlockedError(findings);
-    return JSON.stringify(buildSnapshot({ ...source, version, publishedAt }));
+    return JSON.stringify(snapshotOf({ ...source, version, publishedAt }));
   });
 }
 
@@ -160,7 +175,9 @@ function publish(rest: CallerRest, venueId: string, notes: string | null) {
 function rollback(rest: CallerRest, venueId: string, sourceVersion: number, notes: string | null) {
   return release(rest, venueId, { notes, sourceVersion }, async (version, publishedAt) => {
     const old = await readSnapshot(venueId, sourceVersion);
-    return JSON.stringify({ ...old, version, publishedAt });
+    return JSON.stringify(
+      applyEntitlements({ ...old, version, publishedAt }, await licenseFeatures()),
+    );
   });
 }
 
@@ -189,7 +206,7 @@ Deno.serve(async (request) => {
         validate(rest, venueId),
         activeVersion(rest, venueId),
       ]);
-      return reply(200, { snapshot: buildSnapshot({ ...source, version: (active ?? 0) + 1 }) });
+      return reply(200, { snapshot: snapshotOf({ ...source, version: (active ?? 0) + 1 }) });
     }
     if (input?.mode === 'diff') return reply(200, { changes: await changes(rest, venueId) });
     const notes = typeof input?.notes === 'string' ? input.notes : null;

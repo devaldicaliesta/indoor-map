@@ -7,6 +7,7 @@ import {
   type DisplaySettings,
   HEIGHT_KINDS,
   type HeightKind,
+  lockedFeatureMessage,
   toCameraView,
   type VenueId,
 } from '@indoor/domain';
@@ -16,6 +17,7 @@ import { type FormEvent, useMemo, useState } from 'react';
 import { useRole } from '../../../app/auth/can';
 import { FormNotice } from '../../auth/auth-layout';
 import { FEATURE_KIND_LABELS } from '../../editor/labels';
+import { useFeature } from '../../license/queries';
 import {
   type DisplayFormErrors,
   type DisplayFormValues,
@@ -135,6 +137,7 @@ function DisplayForm({
 }) {
   const canEdit = role !== null && can(role, 'settings.edit');
   const [values, setValues] = useState<DisplayFormValues>(() => toFormValues(settings));
+  const allow3d = useFeature('3d');
   const [errors, setErrors] = useState<DisplayFormErrors>({});
   const save = useSaveDisplaySettings(venueId);
   const saveCamera = useSaveDisplaySettings(venueId);
@@ -171,6 +174,7 @@ function DisplayForm({
                   name="default-mode"
                   value={mode}
                   checked={values.defaultMode === mode}
+                  disabled={mode === '3d' && !allow3d}
                   onChange={() => setValues((v) => ({ ...v, defaultMode: mode }))}
                   className="size-4 accent-ink"
                 />
@@ -178,6 +182,7 @@ function DisplayForm({
               </label>
             ))}
           </div>
+          {allow3d ? null : <p className="text-ink-muted text-sm">{lockedFeatureMessage('3d')}</p>}
         </fieldset>
         <section className="grid gap-2" aria-labelledby="heights-title">
           <h3 id="heights-title" className="font-bold">

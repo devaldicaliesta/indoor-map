@@ -1,4 +1,5 @@
 import type { FirstAdminInput } from '@indoor/data';
+import type { PaidFeature } from '@indoor/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { data } from '../../app/data-client';
 
@@ -10,6 +11,15 @@ export function useLicenseStatus() {
     queryKey: licenseStatusKey,
     queryFn: () => data.license.status(),
     staleTime: 60_000,
+  });
+}
+
+/** Sejak kapan check-in ke vendor gagal (lebih dari 7 hari), untuk banner di seluruh Admin. */
+export function useCheckinOverdueSince() {
+  return useQuery({
+    queryKey: ['license', 'checkin-overdue'],
+    queryFn: () => data.license.checkinOverdueSince(),
+    staleTime: 15 * 60_000,
   });
 }
 
@@ -43,4 +53,33 @@ export function useCreateFirstAdmin() {
     },
     onSuccess: refresh,
   });
+}
+
+export const licenseUsageKey = ['license', 'usage'] as const;
+
+/** Pemakaian kuota paket; dimuat ulang setiap kali data struktur berubah. */
+export function useLicenseUsage() {
+  return useQuery({ queryKey: licenseUsageKey, queryFn: () => data.license.usage() });
+}
+
+export function useLicenseDetails() {
+  return useQuery({ queryKey: ['license', 'details'], queryFn: () => data.license.details() });
+}
+
+export function useCheckIn() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => data.license.checkIn(),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['license'] }),
+  });
+}
+
+/** `true` bila fitur dibuka lisensi; selama dimuat dianggap terkunci agar tidak berkedip. */
+export function useFeature(feature: PaidFeature): boolean {
+  const features = useQuery({
+    queryKey: ['license', 'features'],
+    queryFn: () => data.license.features(),
+    staleTime: 5 * 60_000,
+  });
+  return features.data?.includes(feature) ?? false;
 }

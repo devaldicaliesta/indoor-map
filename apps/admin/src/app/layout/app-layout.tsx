@@ -2,6 +2,7 @@ import type { Profile } from '@indoor/domain';
 import { cn } from '@indoor/ui';
 import { Outlet } from 'react-router';
 import { useIdleSignOut } from '../../features/auth/idle-sign-out';
+import { LicenseNotice } from '../../features/license/license-notice';
 import { AccountMenu } from './account-menu';
 import { NarrowScreenNotice } from './narrow-screen-notice';
 import { Sidebar } from './sidebar';
@@ -25,6 +26,7 @@ export function AppLayout({ profile }: { profile: Profile }) {
       </header>
       <main className="min-h-0 overflow-auto">
         <NarrowScreenNotice />
+        <LicenseNotice />
         <Outlet />
       </main>
     </div>

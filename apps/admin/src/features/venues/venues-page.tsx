@@ -20,6 +20,7 @@ import { data } from '../../app/data-client';
 import { inVenueTime } from '../../app/format';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
+import { QuotaNotice, useQuotaBlock } from '../license/quota-notice';
 import { BuildingsPanel } from './buildings/buildings-panel';
 import { DeleteVenueDialog } from './delete-venue-dialog';
 import { useVenuesDetailed } from './queries';
@@ -124,6 +125,7 @@ function SelectedVenueBuildings() {
 
 export function VenuesPage() {
   const [dialog, setDialog] = useState<Dialog>(null);
+  const venueQuota = useQuotaBlock('venues');
   return (
     <ModuleRoute module="venues">
       {(access) => (
@@ -137,10 +139,12 @@ export function VenuesPage() {
               <SelectedVenueBuildings />
             </TabsContent>
             <TabsContent value="venues" className="grid gap-4">
-              <div className="flex justify-end">
+              <div className="flex items-center justify-end gap-3">
                 <Can action="venue.edit">
+                  <QuotaNotice message={venueQuota} />
                   <Button
                     variant="primary"
+                    disabled={venueQuota !== null}
                     onClick={() => setDialog({ kind: 'form', venue: null })}
                   >
                     Tambah venue

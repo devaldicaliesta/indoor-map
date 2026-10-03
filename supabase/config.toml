@@ -407,6 +407,11 @@ verify_jwt = false
 [functions.account-notice]
 verify_jwt = false
 
+# Dipanggil database lewat pg_net tanpa JWT saat check-in lisensi jatuh tempo; tanpa permintaan
+# dari database atau sesi Super Admin, panggilan tidak menghubungi vendor.
+[functions.license-checkin]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
