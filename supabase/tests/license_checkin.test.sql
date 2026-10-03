@@ -2,18 +2,25 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(44);
+select plan(53);
 
-insert into auth.users (id, email) values
-  ('e4030000-0000-4000-8000-000000000001', 'ad@checkin.test');
-insert into public.profiles (user_id, full_name, email, role) values
-  ('e4030000-0000-4000-8000-000000000001', 'AD', 'ad@checkin.test', 'admin');
+-- Satu pengguna per role (…01–…05) dan satu akun tanpa profil (…06).
+insert into auth.users (id, email)
+select ('e4030000-0000-4000-8000-00000000000' || n)::uuid, 'u' || n || '@checkin.test'
+from generate_series(1, 6) n;
+insert into public.profiles (user_id, full_name, email, role)
+select ('e4030000-0000-4000-8000-00000000000' || n)::uuid, 'U' || n, 'u' || n || '@checkin.test',
+  (array['admin', 'super_admin', 'editor', 'operator', 'viewer'])[n]::public.app_role
+from generate_series(1, 5) n;
+
+create function pg_temp.as_user(p_n integer) returns void
+language sql as $$
+  select set_config('request.jwt.claims', json_build_object(
+    'sub', 'e4030000-0000-4000-8000-00000000000' || p_n, 'role', 'authenticated')::text, true)
+$$;
 
 create function pg_temp.as_admin() returns void
-language sql as $$
-  select set_config('request.jwt.claims',
-    json_build_object('sub', 'e4030000-0000-4000-8000-000000000001', 'role', 'authenticated')::text, true)
-$$;
+language sql as $$ select pg_temp.as_user(1) $$;
 
 -- Payload lisensi uji; masa berlaku 2020–2099.
 create function pg_temp.payload(p_id text, p_issued text) returns jsonb
@@ -54,6 +61,11 @@ select pg_temp.as_admin();
 select throws_ok(
   $$ insert into public.venues (name) values ('Venue Jam Mundur') $$,
   '42501', null, 'Admin ditolak menulis saat jam mundur'
+);
+select pg_temp.as_user(4);
+select throws_ok(
+  $$ insert into public.closures (venue_id, reason) select id, 'uji' from public.venues limit 1 $$,
+  '42501', null, 'Operator ditolak menambah penutupan saat jam mundur'
 );
 reset role;
 update public.installation set last_seen_at = now() + interval '12 hours';
@@ -181,13 +193,39 @@ select is((pg_temp.current()).status::text, 'revoked', 'Berkas yang sama tidak m
 select public.license_checkin_confirmed('LIC-CEK', now(),
   pg_temp.payload('LIC-CEK', '2026-09-01T00:00:00Z'), 'tanda-tangan-3');
 select is((select state from public.license_status()), 'active', 'Berkas baru dari vendor memulihkan lisensi');
+select throws_ok(
+  $$ select public.license_install('LIC-CEK', pg_temp.payload('LIC-CEK', '2026-06-01T00:00:00Z'),
+       'tanda-tangan-2', 'manual') $$,
+  'IM409', null, 'Berkas yang dicabut tidak bisa diunggah ulang'
+);
+select throws_ok(
+  $$ select public.license_install('LIC-CEK', pg_temp.payload('LIC-CEK', '2026-01-01T00:00:00Z'),
+       'tanda-tangan-1', 'manual') $$,
+  'IM409', null, 'Berkas yang lebih lama dari pencabutan juga ditolak'
+);
 
 -- Banner 7 hari
 update public.installation set last_checkin_at = now() - interval '8 days';
 set local role authenticated;
-select pg_temp.as_admin();
+select pg_temp.as_user(1);
 select is(public.license_checkin_overdue_since(), now() - interval '8 days',
-  'Tanpa check-in berhasil 8 hari: banner');
+  'Tanpa check-in berhasil 8 hari: banner untuk Admin');
+select pg_temp.as_user(2);
+select is(public.license_checkin_overdue_since(), now() - interval '8 days', '… Super Admin');
+select pg_temp.as_user(3);
+select is(public.license_checkin_overdue_since(), now() - interval '8 days', '… Editor');
+select pg_temp.as_user(4);
+select is(public.license_checkin_overdue_since(), now() - interval '8 days', '… Operator');
+select pg_temp.as_user(5);
+select is(public.license_checkin_overdue_since(), now() - interval '8 days', '… Viewer');
+select pg_temp.as_user(6);
+select is(public.license_checkin_overdue_since(), null, 'Akun tanpa profil tidak menerima keadaan');
+reset role;
+set local role anon;
+select throws_ok(
+  'select public.license_checkin_overdue_since()',
+  '42501', null, 'Pengunjung tidak bisa membaca keadaan check-in'
+);
 reset role;
 update public.installation set last_checkin_at = now() - interval '6 days';
 set local role authenticated;

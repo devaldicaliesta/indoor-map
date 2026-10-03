@@ -100,6 +100,18 @@ async function install(file: unknown, source: 'online' | 'manual', instanceId: s
     }),
   });
   if (!response.ok) {
+    // Aturan proyek (mis. lisensi yang sudah dicabut vendor) membawa pesan untuk pengguna.
+    const body = (await response.json().catch(() => null)) as {
+      code?: unknown;
+      message?: unknown;
+    } | null;
+    if (
+      typeof body?.code === 'string' &&
+      body.code.startsWith('IM') &&
+      typeof body.message === 'string'
+    ) {
+      throw new ActivationError(409, 'conflict', body.message);
+    }
     throw new ActivationError(500, 'unknown', 'Lisensi lolos verifikasi tetapi gagal disimpan.');
   }
   return result.license;

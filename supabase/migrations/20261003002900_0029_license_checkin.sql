@@ -7,7 +7,8 @@
 -- Keadaan check-in milik instalasi, bukan baris lisensi: memasang lisensi lain tidak boleh
 -- menghapus proteksi jam. Kolom licenses.last_checkin_at/last_seen_at (0001) tidak dipakai.
 -- Setiap UPDATE ke installation (satu baris) memakai `where id` karena safeupdate menolak
--- UPDATE tanpa WHERE untuk permintaan lewat PostgREST.
+-- UPDATE tanpa WHERE untuk permintaan lewat PostgREST. license_install (0027) diganti agar
+-- berkas yang dicabut vendor tidak bisa dipasang ulang lewat aktivasi atau unggah manual.
 -- =====================================================================
 
 create extension if not exists pg_cron with schema pg_catalog;
@@ -246,6 +247,36 @@ grant execute on function public.license_checkin_confirmed(text, timestamptz, js
   to service_role;
 grant execute on function public.license_checkin_revoked(text, timestamptz) to service_role;
 grant execute on function public.license_checkin_failed(text) to service_role;
+
+-- Pencabutan berlaku juga untuk aktivasi dan unggah manual: Super Admin bisa membaca isi berkas
+-- dari tabel licenses, jadi berkas yang dicabut (atau yang lebih lama) tidak boleh dipasang ulang.
+-- Hanya berkas yang diterbitkan vendor setelahnya yang memulihkan lisensi.
+create or replace function public.license_install(
+  p_license_id text,
+  p_payload jsonb,
+  p_signature text,
+  p_source public.license_source
+) returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+begin
+  if exists (
+    select 1 from public.licenses l
+    where l.license_id = p_license_id
+      and l.status = 'revoked'
+      and (l.payload->>'issuedAt')::timestamptz >= (p_payload->>'issuedAt')::timestamptz
+  ) then
+    raise exception 'Lisensi ini sudah dicabut vendor. Minta berkas lisensi baru dari vendor.'
+      using errcode = 'IM409';
+  end if;
+  update public.licenses set is_current = false where is_current;
+  insert into public.licenses (license_id, payload, signature, status, source)
+  values (p_license_id, p_payload, p_signature, 'active', p_source);
+  perform app.log_event('license_changed', 'license', null,
+    jsonb_build_object('license_id', p_license_id, 'source', p_source));
+end
+$$;
 
 -- Banner Admin: tanpa check-in berhasil selama 7 hari (sejak check-in terakhir, atau sejak
 -- lisensi dipasang bila belum pernah). Null bila tidak terlambat.
