@@ -1,4 +1,4 @@
-import { normalizeHeading, type OriginPoint, type Position, type VenueId } from '@indoor/domain';
+import type { OriginPoint, Position, VenueId } from '@indoor/domain';
 import {
   Button,
   Dialog,
@@ -20,6 +20,7 @@ import { Field } from '../../app/components/field';
 import { FormNotice } from '../auth/auth-layout';
 import { floorLabel } from '../closures/closure-model';
 import type { useVenueFloors } from '../editor/connectors/queries';
+import { HeadingField } from './heading-field';
 import { OriginMap } from './origin-map';
 import { useSavedGraph, useSaveOriginPoint } from './queries';
 
@@ -47,8 +48,6 @@ function OriginForm({
   const [floorId, setFloorId] = useState(point?.floorId ?? places.floors[0]?.id ?? '');
   const [position, setPosition] = useState<Position | null>(point?.coordinates ?? null);
   const [heading, setHeading] = useState(point?.headingDeg ?? 0);
-  // Teks mentah agar "359," atau isian kosong bisa diketik; angkanya dinormalkan saat diterima.
-  const [headingText, setHeadingText] = useState(() => String(heading).replace('.', ','));
   const [problem, setProblem] = useState<string | null>(null);
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -67,12 +66,6 @@ function OriginForm({
     );
   }
 
-  const applyHeading = (value: number) => {
-    const next = normalizeHeading(value);
-    setHeading(next);
-    setHeadingText(String(next).replace('.', ','));
-  };
-  const rotate = (delta: number) => applyHeading(heading + delta);
   return (
     <form className="grid gap-4" onSubmit={submit} noValidate>
       <DialogHeader>
@@ -123,34 +116,12 @@ function OriginForm({
           onPick={setPosition}
         />
       ) : null}
-      <Field
+      <HeadingField
         id="origin-heading"
-        label="Arah hadap (°, dari utara searah jarum jam)"
+        value={heading}
+        onChange={setHeading}
         hint="Arah yang dihadapi orang saat memindai QR; garis di peta menunjukkannya."
-      >
-        <div className="flex items-center gap-2">
-          <Button type="button" variant="ghost" onClick={() => rotate(-15)}>
-            Putar −15°
-          </Button>
-          <Input
-            id="origin-heading"
-            inputMode="decimal"
-            className="w-24 font-mono tabular-nums"
-            value={headingText}
-            onChange={(e) => {
-              setHeadingText(e.target.value);
-              const value = Number(e.target.value.replace(',', '.'));
-              if (e.target.value.trim() && Number.isFinite(value)) {
-                setHeading(normalizeHeading(value));
-              }
-            }}
-            onBlur={() => applyHeading(heading)}
-          />
-          <Button type="button" variant="ghost" onClick={() => rotate(15)}>
-            Putar +15°
-          </Button>
-        </div>
-      </Field>
+      />
       {problem ? <FormNotice tone="error">{problem}</FormNotice> : null}
       {save.error ? <FormNotice tone="error">{save.error.message}</FormNotice> : null}
       <DialogFooter>

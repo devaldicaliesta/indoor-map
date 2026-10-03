@@ -30,7 +30,7 @@ export * from './hours';
 export * from './ids';
 export * from './image';
 export * from './import-rows';
-export type * from './info-point';
+export * from './info-point';
 export * from './instruction-defaults';
 export * from './instruction-labels';
 export * from './label-point';

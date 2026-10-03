@@ -1,7 +1,7 @@
 import {
   type Connector,
   type Geometry,
-  type InfoPoint,
+  type InfoPointPlace,
   type LocationStatus,
   type MapFeatureProperties,
   type NavGraph,
@@ -51,7 +51,7 @@ export interface RouteDraft {
     units: readonly { featureId: string; isPrimary: boolean }[];
   }[];
   originPoints: readonly OriginPoint[];
-  infoPoints: readonly InfoPoint[];
+  infoPoints: readonly InfoPointPlace[];
 }
 
 /**
