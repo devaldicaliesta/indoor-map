@@ -24,3 +24,8 @@ export function usePublish(venueId: VenueId) {
 export function useValidateDraft(venueId: VenueId) {
   return useMutation({ mutationFn: () => data.publications.validate(venueId) });
 }
+
+/** Ringkasan perubahan draft sejak versi aktif; dihitung server atas permintaan. */
+export function useDraftChanges(venueId: VenueId) {
+  return useMutation({ mutationFn: () => data.publications.changes(venueId) });
+}

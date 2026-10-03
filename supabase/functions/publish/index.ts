@@ -1,6 +1,9 @@
 // Edge Function publish: Admin/Super Admin menerbitkan draft venue sebagai snapshot JSON di
 // bucket `snapshots`, setelah lolos validasi (`mode: "validate"` hanya mengembalikan temuan).
-// Ringkasan perubahan, riwayat, dan rollback menyusul (T-308 s.d. T-310).
+// `mode: "diff"` mengembalikan ringkasan perubahan draft terhadap versi aktif. Riwayat dan
+// rollback menyusul (T-309, T-310).
+import { diffSnapshot } from '../../../packages/domain/src/diff.ts';
+import type { Snapshot } from '../../../packages/domain/src/snapshot.ts';
 import { buildSnapshot } from '../../../packages/domain/src/snapshot-builder.ts';
 import {
   hasBlockingFindings,
@@ -54,6 +57,30 @@ async function validate(rest: CallerRest, venueId: string) {
     ),
   });
   return { source, findings };
+}
+
+/** Snapshot versi aktif dari bucket; `null` bila venue belum pernah menerbitkan peta. */
+async function activeSnapshot(rest: CallerRest, venueId: string): Promise<Snapshot | null> {
+  // Dibaca dengan JWT pemanggil (RLS); isi berkasnya lalu diambil dengan kunci layanan.
+  const [active] = await rest.select<{ version: number }>(
+    'publications',
+    `select=version&venue_id=eq.${venueId}&is_active=eq.true&order=version.desc`,
+  );
+  if (!active) return null;
+  const response = await fetch(
+    `${url}/storage/v1/object/snapshots/${venueId}/v${active.version}.json`,
+    { headers: serviceHeaders },
+  );
+  if (!response.ok) {
+    throw new PublishError(502, 'unknown', `Versi aktif v${active.version} tidak bisa dibaca.`);
+  }
+  return (await response.json()) as Snapshot;
+}
+
+/** Perubahan draft sejak versi aktif; tidak disimpan, dihitung ulang setiap diminta. */
+async function changes(rest: CallerRest, venueId: string) {
+  const { source } = await validate(rest, venueId);
+  return diffSnapshot(await activeSnapshot(rest, venueId), buildSnapshot(source));
 }
 
 class BlockedError extends PublishError {
@@ -112,6 +139,7 @@ Deno.serve(async (request) => {
       const { findings } = await validate(rest, venueId);
       return reply(200, { findings });
     }
+    if (input?.mode === 'diff') return reply(200, { changes: await changes(rest, venueId) });
     return reply(200, await publish(rest, venueId));
   } catch (error) {
     if (error instanceof BlockedError) {

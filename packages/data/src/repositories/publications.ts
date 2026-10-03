@@ -1,4 +1,4 @@
-import type { PublishFinding, VenueId } from '@indoor/domain';
+import type { PublishFinding, SnapshotDiff, VenueId } from '@indoor/domain';
 import { toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
@@ -29,6 +29,8 @@ export interface PublicationsRepository {
    * Aturan dijalankan di Edge Function `publish` yang sama dengan `@indoor/domain`.
    */
   validate(venueId: VenueId): Promise<PublishFinding[]>;
+  /** Fitur, jalur, lokasi, dan titik asal yang berubah di draft sejak versi aktif. */
+  changes(venueId: VenueId): Promise<SnapshotDiff>;
 }
 
 export function createPublicationsRepository(db: Db): PublicationsRepository {
@@ -65,6 +67,15 @@ export function createPublicationsRepository(db: Db): PublicationsRepository {
       if (error) throw await fromFunctionError(error);
       if (!data) throw toDataError(new Error('Balasan validasi kosong.'));
       return data.findings;
+    },
+
+    async changes(venueId) {
+      const { data, error } = await db.functions.invoke<{ changes: SnapshotDiff }>('publish', {
+        body: { venueId, mode: 'diff' },
+      });
+      if (error) throw await fromFunctionError(error);
+      if (!data) throw toDataError(new Error('Balasan ringkasan perubahan kosong.'));
+      return data.changes;
     },
   };
 }

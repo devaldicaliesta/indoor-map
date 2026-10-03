@@ -10,6 +10,7 @@ export * from './connector';
 export * from './csv';
 export * from './custom-fields';
 export * from './deep-link';
+export * from './diff';
 export * from './directory';
 export * from './display-settings';
 export * from './distance';
