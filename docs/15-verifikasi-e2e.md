@@ -114,7 +114,7 @@ Tinjauan: code-reviewer [Setuju/…], security-reviewer [Setuju/…/tidak releva
 
 - [x] Setiap task di daftar punya spec verifikasi yang lulus di `pnpm test:e2e`, atau temuannya tercatat
 - [x] Setiap task punya `e2e/evidence/T-xxx/` berisi screenshot CRUD dan UI/UX serta README
-- [ ] Semua spec lulus 3 kali berturut-turut tanpa retry (per spec: setiap spec verifikasi lulus 3 run beruntun saat ditulis. Seluruh suite 2026-10-02: run 1 gagal 3 (T-119, T-120, T-211, tidak terulang dengan 4 worker × 3 ulangan), run 2 lulus 111/111 + 1 skip. Perlu dua run penuh hijau berikutnya)
+- [ ] Semua spec lulus 3 kali berturut-turut tanpa retry (per spec: setiap spec verifikasi lulus 3 run beruntun saat ditulis. Suite penuh, 50% worker: 2026-10-02 run 1 gagal 3 (T-119, T-120, T-211), run 2 lulus 111/111; 2026-10-03 run 3 lulus 111/111, run 4 gagal 1: T-108 NFR-PERF-03, pengisian 1.000 fitur oleh `superAdmin` ditolak RLS "Anda tidak memiliki izin" (42501). Semua kegagalan tidak terulang saat dijalankan ulang terpisah atau 4 worker × 3–4 ulangan; penyebab belum diketahui, kemungkinan beban paralel penuh. Gerbang belum terpenuhi)
 
 ## Temuan yang sudah diketahui
 
