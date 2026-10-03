@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { VenueId } from '@indoor/domain';
+import { DEFAULT_INSTRUCTION_TEMPLATES, type VenueId } from '@indoor/domain';
 import { createClient } from '@supabase/supabase-js';
 import { afterAll, describe, expect, it } from 'vitest';
 import { createRepositories } from '../../src/client';
@@ -48,10 +48,8 @@ describe.runIf(url && anonKey && serviceKey)('template instruksi (Supabase lokal
       timezone: 'Asia/Jakarta',
     });
     venueId = venue.id;
-    expect((await admin.instructionTemplates.get(venue.id)).turn_left).toEqual({
-      id: 'Belok kiri',
-      en: 'Turn left',
-    });
+    // Bawaan di database (migrasi 0001) sama dengan konstanta domain yang dipakai "Kembali ke bawaan".
+    expect(await admin.instructionTemplates.get(venue.id)).toEqual(DEFAULT_INSTRUCTION_TEMPLATES);
 
     await admin.instructionTemplates.update(venue.id, 'turn_left', {
       id: 'Belok ke kiri',

@@ -28,6 +28,7 @@ export * from './ids';
 export * from './image';
 export * from './import-rows';
 export type * from './info-point';
+export * from './instruction-defaults';
 export * from './label-point';
 export * from './language';
 export * from './location';
