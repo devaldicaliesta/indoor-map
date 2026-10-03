@@ -132,7 +132,9 @@ export async function createVendorStub(
     if (!entry) return [404, { message: 'Lisensi tidak dikenal.' }];
     const { signature: _old, ...payload } = entry.file;
     const validUntil = new Date(Date.parse(payload.validUntil) + days * DAY_MS);
-    entry.file = await sign({ ...payload, validUntil: iso(validUntil), issuedAt: iso(now()) });
+    // Tanggal terbit berpresisi detik; berkas baru selalu terbit setelah berkas sebelumnya.
+    const issuedAt = new Date(Math.max(now().getTime(), Date.parse(payload.issuedAt) + 1000));
+    entry.file = await sign({ ...payload, validUntil: iso(validUntil), issuedAt: iso(issuedAt) });
     return [200, entry.file];
   }
 

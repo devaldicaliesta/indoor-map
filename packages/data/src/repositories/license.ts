@@ -1,4 +1,4 @@
-import { toDataError } from '../errors';
+import { DataError, toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
 
@@ -105,8 +105,15 @@ export function createLicenseRepository(db: Db): LicenseRepository {
       return data ?? null;
     },
 
-    checkIn() {
-      return invoke<CheckinResult>({}, 'license-checkin');
+    async checkIn() {
+      // Selain Super Admin, Edge Function membalas seragam tanpa menghubungi vendor.
+      const reply = await invoke<CheckinResult | { result: 'accepted' }>({}, 'license-checkin');
+      if (reply.result === 'accepted') {
+        throw new DataError('forbidden', {
+          message: 'Hanya Super Admin yang bisa memeriksa lisensi sekarang.',
+        });
+      }
+      return reply;
     },
   };
 }

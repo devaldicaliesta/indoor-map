@@ -114,7 +114,11 @@ async function checkIn(target: Target): Promise<{ result: Outcome; message?: str
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
   if (request.method !== 'POST') return fail(405, 'invalid', 'Metode tidak didukung.');
-  const manual = (await activeSuperAdmin(request)) !== null;
+  // pg_net memanggil tanpa Authorization; sesi hanya diperiksa bila ada, agar check-in terjadwal
+  // tidak ikut gagal saat layanan Auth bermasalah.
+  const manual =
+    request.headers.has('Authorization') &&
+    (await activeSuperAdmin(request).catch(() => null)) !== null;
   try {
     const [target] = await rpc<Target[]>('license_checkin_claim', { p_manual: manual });
     // Pemanggil selain Super Admin selalu menerima balasan yang sama.
