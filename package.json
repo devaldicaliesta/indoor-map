@@ -16,6 +16,7 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "db:reset": "node scripts/db-reset.mjs",
+    "db:seed-demo": "pnpm --filter @indoor/data seed:demo",
     "db:types": "supabase gen types typescript --local > packages/data/src/database.types.ts && biome format --write packages/data/src/database.types.ts"
   },
   "devDependencies": {

@@ -64,13 +64,41 @@ export async function signedInDb(
 }
 
 export async function createFullVenue(db: Db, name: string): Promise<FullVenue> {
-  const sample = sampleSnapshotSource();
+  const { venueId, remap, source } = await insertVenue(
+    db,
+    name,
+    sampleSnapshotSource(),
+    [106.8272, -6.1753],
+  );
+  const ids = Object.fromEntries(
+    Object.entries(IDS).map(([key, id]) => [key, remap(id)]),
+  ) as FullVenue['ids'];
+  return { venueId, name, id: remap, ids, source };
+}
+
+export interface InsertedVenue {
+  venueId: string;
+  /** Id di sumber → id di database. */
+  remap: (id: string) => string;
+  source: SnapshotSource;
+}
+
+/**
+ * Menyimpan draft venue (`SnapshotSource`) ke database lewat klien yang sudah masuk sebagai
+ * Super Admin; semua UUID diganti baru agar venue yang sama bisa dibuat berulang kali.
+ */
+export async function insertVenue(
+  db: Db,
+  name: string,
+  sample: SnapshotSource,
+  center: readonly [number, number],
+): Promise<InsertedVenue> {
   const { data: venue, error } = await db
     .from('venues')
     .insert({
       name,
-      timezone: 'Asia/Jakarta',
-      center: point([106.8272, -6.1753]) as unknown as string,
+      timezone: sample.venue.timezone,
+      center: point(center) as unknown as string,
     })
     .select('id')
     .single();
@@ -127,6 +155,20 @@ export async function createFullVenue(db: Db, name: string): Promise<FullVenue> 
         sort_order: f.sortOrder,
       })),
   );
+  for (const b of source.buildings.filter((x) => x.defaultFloorId)) {
+    const { error: e } = await db
+      .from('buildings')
+      .update({ default_floor_id: b.defaultFloorId })
+      .eq('id', b.id);
+    if (e) throw new Error(e.message);
+  }
+  if (source.venue.defaultBuildingId) {
+    const { error: e } = await db
+      .from('venues')
+      .update({ default_building_id: source.venue.defaultBuildingId })
+      .eq('id', v);
+    if (e) throw new Error(e.message);
+  }
   await insert(
     db,
     'facility_types',
@@ -324,8 +366,5 @@ export async function createFullVenue(db: Db, name: string): Promise<FullVenue> 
     })),
   );
 
-  const ids = Object.fromEntries(
-    Object.entries(IDS).map(([key, id]) => [key, remap(id)]),
-  ) as FullVenue['ids'];
-  return { venueId: v, name, id: remap, ids, source };
+  return { venueId: v, remap, source };
 }
