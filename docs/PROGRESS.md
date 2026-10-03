@@ -126,7 +126,9 @@ Acuan: tampilan peta indoor Situm (ruang berwarna per kategori, ikon POI, 3D, ru
 
 Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … (status: menunggu jawaban)`
 
-Tidak ada.
+- [2026-10-03] T-402 — Kunci lisensi untuk pengembangan dan test. Setelah T-402, instalasi tanpa lisensi sah tidak bisa membuka menu apa pun, jadi `pnpm db:reset`, test integrasi, dan E2E butuh lisensi yang lolos verifikasi dengan kunci publik build. Opsi: A) pasangan kunci khusus dev (kunci privat di repo, `tools/license-cli/dev-keys/`), build dev/test memakai kunci publik dev, dan paket instalasi rilis (T-411) menolak build yang masih memakai kunci dev; B) tanpa kunci privat di repo, setiap pengembang menjalankan `keygen` dan mengganti kunci publik di kode lokal (CI dan E2E tidak bisa berjalan tanpa langkah manual). Rekomendasi: A. (status: menunggu jawaban)
+- [2026-10-03] T-402 — Tempat lisensi ditegakkan. Opsi: A) server: Edge Function memverifikasi saat aktivasi dan menyimpan ke `licenses`; fungsi SQL `app.license_active()` dipakai RLS/fungsi tulis sehingga tanpa lisensi sah API menolak perubahan, dan Admin hanya membaca status untuk mengarahkan ke `/aktivasi`; B) hanya gerbang di Admin (browser), API tetap terbuka. Rekomendasi: A (aturan "otorisasi selalu di server"). (status: menunggu jawaban)
+- [2026-10-03] T-402 — Super Admin pertama. Opsi: A) instalasi produksi: form membuat Super Admin pertama setelah aktivasi bila belum ada pengguna; `pnpm db:reset` lokal tetap membuat Super Admin dan memasang lisensi dev agar test berjalan; B) semua lingkungan lewat form. Rekomendasi: A. (status: menunggu jawaban)
 
 Pemilik (2026-09-30): pertanyaan diputuskan langsung sesuai dokumen, lalu dicatat di "Catatan keputusan".
 
