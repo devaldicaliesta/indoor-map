@@ -69,7 +69,9 @@ export function validate(values: SystemFormValues): SystemFormErrors {
   const tiles = values.basemapTileUrl.trim();
   const tileProblem = tiles ? checkBasemapTileUrl(tiles) : null;
   if (tileProblem) errors.basemapTileUrl = BASEMAP_MESSAGES[tileProblem];
-  if (tiles && !values.basemapAttribution.trim()) {
+  if (/[<>]/.test(values.basemapAttribution)) {
+    errors.basemapAttribution = 'Atribusi berupa teks biasa, tanpa < atau >.';
+  } else if (tiles && !values.basemapAttribution.trim()) {
     errors.basemapAttribution =
       'Tulis atribusi penyedia tile, misalnya © OpenStreetMap contributors.';
   }

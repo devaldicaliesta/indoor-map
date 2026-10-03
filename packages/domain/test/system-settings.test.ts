@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { checkBasemapTileUrl, checkPublicVisitorUrl, isValidPort, isValidTimezone } from '../src';
+import {
+  checkBasemapTileUrl,
+  checkPublicVisitorUrl,
+  escapeAttribution,
+  isValidPort,
+  isValidTimezone,
+} from '../src';
 
 describe('checkPublicVisitorUrl', () => {
   it('menerima https tanpa garis miring akhir, termasuk dengan path', () => {
@@ -48,5 +54,14 @@ describe('URL tile peta dasar', () => {
     expect(checkBasemapTileUrl('bukan url')).toBe('invalid');
     expect(checkBasemapTileUrl('http://tile.contoh.id/{z}/{x}/{y}.png')).toBe('not_https');
     expect(checkBasemapTileUrl('https://tile.contoh.id/{z}/{x}.png')).toBe('missing_placeholders');
+  });
+});
+
+describe('atribusi peta dasar', () => {
+  it('karakter HTML di-escape', () => {
+    expect(escapeAttribution('© OpenStreetMap contributors')).toBe('© OpenStreetMap contributors');
+    expect(escapeAttribution('<img src=x onerror=alert(1)>')).toBe(
+      '&#60;img src=x onerror=alert(1)&#62;',
+    );
   });
 });

@@ -1,5 +1,6 @@
 // Membaca draft venue dan memetakannya ke masukan builder snapshot. Hanya kolom yang
 // dibutuhkan yang diminta; builder tetap menyaring ulang field yang boleh terbit.
+import { checkBasemapTileUrl, escapeAttribution } from '../../../packages/domain/src/basemap.ts';
 import { type OpeningHoursRow, openingHoursFromRows } from '../../../packages/domain/src/hours.ts';
 import type {
   SnapshotGeometry,
@@ -43,9 +44,13 @@ async function installation(): Promise<{
   );
   const [row] = response.ok ? ((await response.json()) as Row[]) : [];
   const tileUrl = strOrNull(row?.basemap_tile_url);
+  // Diperiksa ulang di server: isian bisa diubah tanpa lewat formulir Admin, dan snapshot publik.
+  const usable = tileUrl !== null && checkBasemapTileUrl(tileUrl) === null;
   return {
     language: row?.default_language === 'en' ? 'en' : 'id',
-    basemap: tileUrl ? { tileUrl, attribution: str(row?.basemap_attribution) } : null,
+    basemap: usable
+      ? { tileUrl, attribution: escapeAttribution(str(row?.basemap_attribution)) }
+      : null,
   };
 }
 

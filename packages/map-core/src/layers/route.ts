@@ -224,24 +224,31 @@ export function setRoute(
 const flows = new WeakMap<MapLibreMap, { timer: number; until: number; step: number }>();
 
 /**
- * Menggerakkan pola putus garis aliran selama beberapa detik setiap rute berganti, lalu diam
- * agar peta tidak menggambar ulang terus (baterai HP). Tidak bergerak bila tab tersembunyi atau
- * pengguna meminta gerak dikurangi (`prefers-reduced-motion`).
+ * Menggerakkan pola putus garis aliran beberapa detik setiap rute berganti, lalu timer dihentikan
+ * agar peta tidak terus bangun (baterai HP, Info Point yang menyala seharian). Tidak bergerak bila
+ * tab tersembunyi atau pengguna meminta gerak dikurangi (`prefers-reduced-motion`).
  */
 function startRouteFlow(map: MapLibreMap): void {
   if (typeof window === 'undefined' || prefersReducedMotion()) return;
-  const flow = flows.get(map);
-  const until = Date.now() + FLOW_DURATION_MS;
-  if (flow) {
-    flow.until = until;
+  const running = flows.get(map);
+  if (running) {
+    running.until = Date.now() + FLOW_DURATION_MS;
     return;
   }
-  const state = { timer: 0, until, step: 0 };
+  const state = { timer: 0, until: Date.now() + FLOW_DURATION_MS, step: 0 };
+  const stop = () => {
+    window.clearInterval(state.timer);
+    flows.delete(map);
+  };
   state.timer = window.setInterval(() => {
-    if (Date.now() > state.until || document.hidden || !map.getLayer(ROUTE_LAYER_IDS.flow)) return;
+    if (Date.now() > state.until || !map.getLayer(ROUTE_LAYER_IDS.flow)) {
+      stop();
+      return;
+    }
+    if (document.hidden) return;
     state.step += 1;
     map.setPaintProperty(ROUTE_LAYER_IDS.flow, 'line-dasharray', routeFlowDash(state.step));
   }, FLOW_INTERVAL_MS);
   flows.set(map, state);
-  map.once('remove', () => window.clearInterval(state.timer));
+  map.once('remove', stop);
 }

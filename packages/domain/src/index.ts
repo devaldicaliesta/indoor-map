@@ -2,6 +2,7 @@ export * from './aliases';
 export * from './area';
 export * from './audit';
 export * from './auth';
+export * from './basemap';
 export * from './branding';
 export * from './building';
 export * from './closure';

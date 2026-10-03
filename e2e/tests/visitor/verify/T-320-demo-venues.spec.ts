@@ -49,10 +49,10 @@ test.describe
         const id = inserted.venueId as Venue['id'];
         await data.publications.publish(id);
         // Nama yang berulang di beberapa lantai: yang pertama (lantai terendah) dipakai.
-      const byName = new Map<string, string>();
-      for (const l of source.locations) {
-        if (!byName.has(l.name)) byName.set(l.name, inserted.remap(l.id));
-      }
+        const byName = new Map<string, string>();
+        for (const l of source.locations) {
+          if (!byName.has(l.name)) byName.set(l.name, inserted.remap(l.id));
+        }
         demos[key] = {
           id,
           name,
