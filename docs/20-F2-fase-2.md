@@ -180,6 +180,23 @@ PanduArah setelah R4:
 | Wayfinding statis lintas platform tanpa posisi real-time dan tanpa aplikasi | Ada: Visitor web/PWA tanpa instal, QR titik asal "Anda di sini", Info Point, tautan bagikan | Generator papan/poster cetak "Anda di sini" dengan QR per titik asal (memakai export cetak T-544) — T-574 |
 | Lanjutkan peta di smartphone | Ada: QR "Lanjutkan di HP" di Info Point (T-409), tautan bagikan rute | Tidak ada tambahan inti; bagikan lewat WhatsApp sudah lewat Web Share |
 
+Rincian dari teks halaman Situm yang diberikan pemilik (2026-10-05) dan tambahannya:
+
+- **Wayfinding tanpa aplikasi** lewat website, kiosk, dan HP, termasuk navigasi luar dan dalam
+  gedung. Sudah ada: Visitor PWA, Info Point, Area Luar, dan tautan Google Maps ke pintu masuk
+  (T-546).
+- **Rute ke POI untuk pengguna berbeda.** Rute aksesibel sudah ada; estimasi durasi ada di
+  T-552. Yang **baru** adalah jalur khusus karyawan di area terbatas: T-557.
+- **Bagikan rute lewat QR** dari peta di website (embed, T-556) atau stiker fisik di venue.
+  Sudah ada QR titik asal dan QR "Lanjutkan di HP". Yang **baru** adalah stiker QR per lokasi
+  tujuan, masuk ke T-574.
+- **Pustaka ikon** lintas sektor dan khusus sektor yang terus bertambah, dengan kustomisasi.
+  Rinciannya masuk ke T-572.
+- **Elemen 3D** untuk menonjolkan POI (tangga, lift, taksi, tanaman) dan replika elemen ikonik
+  gedung. Rinciannya masuk ke T-571.
+- **CMS di browser:** unggah dan ubah denah serta POI, branding (logo dan warna). Sudah ada:
+  editor dan denah (R1), branding (T-410). Penguatannya di T-573.
+
 Kelima kemampuan ini juga menjadi bahan utama halaman fitur landing page (§2.4).
 
 ### 2.10 Event dan promosi
