@@ -335,6 +335,12 @@ export interface Snapshot {
   categories: SnapshotCategory[];
   searchIndex: SearchEntry[];
   graph: SnapshotGraph;
+  /**
+   * Graf diterbitkan sebagai berkas terpisah (`v{n}.graph.json`, relatif terhadap folder venue);
+   * `latest.json` lalu membawa graf kosong agar peta tampil tanpa menunggu graf. Lihat
+   * `snapshot-split.ts`.
+   */
+  graphPath?: string;
   instructionTemplates: Record<InstructionAction, InstructionText>;
   originPoints: SnapshotOriginPoint[];
   infoPoints: SnapshotInfoPoint[];

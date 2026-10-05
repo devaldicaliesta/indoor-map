@@ -3,13 +3,16 @@
   █ THRESHOLDS 
 
     http_req_duration{kind:api}
-    ✓ 'p(95)<1000' p(95)=9.98ms
+    ✓ 'p(95)<1000' p(95)=11.88ms
+
+    http_req_duration{kind:graph}
+    ✓ 'p(95)<5000' p(95)=219.19ms
 
     http_req_duration{kind:page}
-    ✓ 'p(95)<1000' p(95)=7.1ms
+    ✓ 'p(95)<1000' p(95)=7.71ms
 
     http_req_duration{kind:snapshot}
-    ✓ 'p(95)<5000' p(95)=245.54ms
+    ✓ 'p(95)<2000' p(95)=67.07ms
 
     http_req_failed
     ✓ 'rate<0.01' rate=0.00%
@@ -17,9 +20,9 @@
 
   █ TOTAL RESULTS 
 
-    checks_total.......: 7190    34.769821/s
-    checks_succeeded...: 100.00% 7190 out of 7190
-    checks_failed......: 0.00%   0 out of 7190
+    checks_total.......: 8833    42.074595/s
+    checks_succeeded...: 100.00% 8833 out of 8833
+    checks_failed......: 0.00%   0 out of 8833
 
     ✓ admin masuk
     ✓ halaman 200
@@ -28,26 +31,28 @@
     ✓ lokasi 200
     ✓ simpan 204
     ✓ snapshot 200
+    ✓ graf 200
     ✓ penutupan 200
 
     HTTP
-    http_req_duration..............: avg=31.12ms  min=604.4µs med=3.06ms   max=385.4ms p(90)=122.91ms p(95)=163.94ms
-      { expected_response:true }...: avg=31.12ms  min=604.4µs med=3.06ms   max=385.4ms p(90)=122.91ms p(95)=163.94ms
-      { kind:api }.................: avg=4.3ms    min=1.32ms  med=2.89ms   max=85.63ms p(90)=6.59ms   p(95)=9.98ms  
-      { kind:page }................: avg=2.42ms   min=604.4µs med=1.1ms    max=71.97ms p(90)=3.62ms   p(95)=7.1ms   
-      { kind:snapshot }............: avg=137.48ms min=72.79ms med=121.62ms max=385.4ms p(90)=216ms    p(95)=245.54ms
-    http_req_failed................: 0.00%  0 out of 7794
-    http_reqs......................: 7794   37.690679/s
+    http_req_duration..............: avg=29.21ms  min=653.95µs med=4.36ms   max=359.47ms p(90)=105.66ms p(95)=144.84ms
+      { expected_response:true }...: avg=29.21ms  min=653.95µs med=4.36ms   max=359.47ms p(90)=105.66ms p(95)=144.84ms
+      { kind:api }.................: avg=4.7ms    min=1.37ms   med=3.17ms   max=93.22ms  p(90)=7.71ms   p(95)=11.88ms 
+      { kind:graph }...............: avg=126.18ms min=64.23ms  med=114.55ms max=359.47ms p(90)=193.92ms p(95)=219.19ms
+      { kind:page }................: avg=2.53ms   min=653.95µs med=1.23ms   max=63.73ms  p(90)=3.73ms   p(95)=7.71ms  
+      { kind:snapshot }............: avg=29.84ms  min=11.29ms  med=23.96ms  max=136.48ms p(90)=53.74ms  p(95)=67.07ms 
+    http_req_failed................: 0.00%  0 out of 9440
+    http_reqs......................: 9440   44.965943/s
 
     EXECUTION
-    iteration_duration.............: avg=16.07s   min=3.02s   med=16.37s   max=30.18s  p(90)=27.17s   p(95)=28.64s  
-    iterations.....................: 2195   10.614709/s
-    vus............................: 2      min=2         max=220
+    iteration_duration.............: avg=16.03s   min=3.02s    med=16.38s   max=30.24s   p(90)=27.38s   p(95)=28.74s  
+    iterations.....................: 2208   10.517458/s
+    vus............................: 1      min=1         max=220
     vus_max........................: 220    min=220       max=220
 
     NETWORK
     data_received..................: 2.9 GB 14 MB/s
-    data_sent......................: 5.7 MB 28 kB/s
+    data_sent......................: 5.9 MB 28 kB/s
 
 
 

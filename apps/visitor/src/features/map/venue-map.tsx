@@ -131,7 +131,7 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
   paddingRef.current = padding;
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [map, setMap] = useState<MapInstance | null>(null);
-  const { link } = useExplore();
+  const { link, routeSnapshot } = useExplore();
   const initialView = useMemo(
     () => (link && linkedMapView(snapshot, link)) ?? initialMapView(snapshot),
     [snapshot, link],
@@ -159,7 +159,8 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
   });
   useOriginMap({ map, snapshot, view, setView, padding, isDesktop });
   useRouteMap({ map, snapshot, view, setView, padding, isDesktop });
-  useClosureMap(map, snapshot, floorIds);
+  // Penutupan jalur dan konektor butuh graf; sebelum graf termuat hanya area yang ditandai.
+  useClosureMap(map, routeSnapshot ?? snapshot, floorIds);
   const labels = useMemo(
     () => mapLabels(snapshot, floorIds, labelIds),
     [snapshot, floorIds, labelIds],

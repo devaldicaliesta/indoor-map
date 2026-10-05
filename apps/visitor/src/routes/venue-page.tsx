@@ -8,14 +8,15 @@ import {
   VenueIdSchema,
 } from '@indoor/domain';
 import { Button, Skeleton } from '@indoor/ui';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router';
 import { PanelMessage } from '../app/panel-message';
 import { useMediaQuery } from '../app/use-media-query';
 import { DESKTOP_QUERY, VisitorShell } from '../app/visitor-shell';
-import { useSnapshot } from '../data/loadSnapshot';
-import { useLiveClosures } from '../features/closures/use-live-closures';
+import { useRouteSnapshot, useSnapshot } from '../data/loadSnapshot';
+import { closuresQuery, useLiveClosures } from '../features/closures/use-live-closures';
 import { VenueMap } from '../features/map/venue-map';
 import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
 import { DetailBackBar, ExplorePanel } from '../features/search/explore-panel';
@@ -48,6 +49,11 @@ function Unavailable({ reason = 'unavailable' }: { reason?: 'unavailable' | 'ser
 function VenueView({ venueId }: { venueId: VenueId }) {
   const { t } = useTranslation();
   const snapshot = useSnapshot(venueId);
+  // Penutupan hanya butuh id venue: diminta bersamaan dengan snapshot, bukan sesudahnya.
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    void queryClient.prefetchQuery(closuresQuery(venueId));
+  }, [queryClient, venueId]);
   const location = useLocation();
   // Dibaca sekali per pembukaan: berpindah keadaan di dalam Visitor tidak mengubah URL.
   const [link] = useState(() => decodeDeepLink(`${location.pathname}${location.search}`));
@@ -104,8 +110,9 @@ export function SnapshotExplorer({
   snapshot: Snapshot;
   link: DeepLink | null;
 }) {
+  const route = useRouteSnapshot(snapshot);
   return (
-    <ExploreProvider snapshot={snapshot} link={link}>
+    <ExploreProvider snapshot={snapshot} route={route} link={link}>
       <VenueExplorer snapshot={snapshot} />
     </ExploreProvider>
   );

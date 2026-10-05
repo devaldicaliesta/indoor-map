@@ -61,6 +61,15 @@ export default defineConfig({
             },
           },
           {
+            // Graf jalur per versi (`v{n}.graph.json`) tidak pernah berubah: cukup diunduh sekali,
+            // dan rute tetap bisa dihitung tanpa jaringan.
+            urlPattern: ({ url }) =>
+              url.pathname.includes('/storage/v1/object/public/snapshots/') &&
+              url.pathname.endsWith('.graph.json'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'snapshot-graphs', expiration: { maxEntries: 20 } },
+          },
+          {
             // Ikon fasilitas, logo, dan gambar lain di bucket aset publik: dipakai dari cache
             // lebih dulu dan diperbarui di latar, agar Info Point tetap lengkap saat jaringan
             // putus (NFR-REL-03).

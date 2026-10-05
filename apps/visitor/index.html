@@ -8,6 +8,22 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <title>Indoor Map</title>
+    <script>
+      // Snapshot venue diminta sejak HTML, bersamaan dengan bundel aplikasi; loadSnapshot memakai
+      // respons ini sekali (src/data/prefetch.ts). Pola URL sama dengan data.snapshots.latestUrl.
+      (() => {
+        var query = new URLSearchParams(location.search);
+        var path = /^\/v\/([0-9a-f-]{36})(?:[/?#]|$)/i.exec(location.pathname);
+        var venue = path ? path[1] : query.get('venue') || query.get('v');
+        if (!venue || !/^[0-9a-f-]{36}$/i.test(venue)) return;
+        var url = '%VITE_SUPABASE_URL%'.replace(/\/+$/, '') +
+          '/storage/v1/object/public/snapshots/' + venue + '/latest.json';
+        var response = fetch(url, { cache: 'no-cache' });
+        // Galat jaringan dilaporkan saat respons dipakai; tanpa pemakai tidak perlu dilaporkan.
+        response.catch(() => {});
+        window.__snapshotPrefetch = { url: url, response: response };
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

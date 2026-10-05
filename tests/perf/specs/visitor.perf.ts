@@ -22,25 +22,32 @@ test('muat awal dan kunjungan ulang Visitor di 4G, HP kelas menengah', async ({ 
   const venue = seeded();
   const url = `${perfEnv.visitorUrl}/v/${venue.venueId}?lang=id`;
   const result: Record<string, { runs: number[]; median: number }> = {};
-  for (const network of ['4g', 'slow-4g'] as const) {
+  const profiles = [
+    { name: '4g', network: '4g', cpu: MID_RANGE_CPU },
+    { name: 'slow-4g', network: 'slow-4g', cpu: MID_RANGE_CPU },
+    // Pembanding: CPU tanpa perlambatan. Kontainer uji tanpa GPU merender WebGL di CPU
+    // (SwiftShader), jadi perlambatan 4× juga memperlambat kerja yang di HP dilakukan GPU.
+    { name: '4g-cpu1', network: '4g', cpu: 1 },
+  ] as const;
+  for (const { name, network, cpu } of profiles) {
     const first: number[] = [];
     const repeat: number[] = [];
     for (let run = 0; run < RUNS; run++) {
       // Konteks baru = pengunjung baru (tanpa cache dan service worker).
       const context = await browser.newContext({ ...devices['Pixel 7'], ignoreHTTPSErrors: true });
       const page = await context.newPage();
-      await throttle(page, network, MID_RANGE_CPU);
+      await throttle(page, network, cpu);
       first.push(await timeToMapReady(page, url));
       // Kunjungan ulang setelah service worker aktif dan aset tersimpan.
       await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
       await page.waitForTimeout(2_000);
       const again = await context.newPage();
-      await throttle(again, network, MID_RANGE_CPU);
+      await throttle(again, network, cpu);
       repeat.push(await timeToMapReady(again, url));
       await context.close();
     }
-    result[`${network}-first`] = { runs: first, median: median(first) };
-    result[`${network}-repeat`] = { runs: repeat, median: median(repeat) };
+    result[`${name}-first`] = { runs: first, median: median(first) };
+    result[`${name}-repeat`] = { runs: repeat, median: median(repeat) };
   }
   record('visitor-load', result);
   expect(result['4g-first']?.median).toBeDefined();

@@ -15,6 +15,7 @@ import {
   SNAPSHOT_SCHEMA_VERSION,
   SNAPSHOT_UNIT_STATUSES,
   type Snapshot,
+  type SnapshotGraph,
 } from './snapshot';
 
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
@@ -204,6 +205,7 @@ export const SnapshotSchema = z.object({
   ),
   searchIndex: z.array(z.object({ kind: z.enum(SEARCH_TARGET_KINDS), id, text })),
   graph: GraphSchema,
+  graphPath: text.exactOptional(),
   instructionTemplates: z.record(z.enum(INSTRUCTION_ACTIONS), z.object({ id: text, en: text })),
   originPoints: z.array(OriginPointSchema),
   infoPoints: z.array(InfoPointSchema),
@@ -213,4 +215,52 @@ export const SnapshotSchema = z.object({
 
 export function parseSnapshot(value: unknown): Snapshot {
   return SnapshotSchema.parse(value);
+}
+
+/**
+ * Pemeriksaan ringan untuk snapshot yang ditulis Edge Function `publish` sendiri: versi skema dan
+ * bentuk atasnya saja. Pemeriksaan penuh `parseSnapshot` memakan ±0,2 s di HP kelas menengah
+ * untuk venue 10 lantai, padahal isinya sudah dibangun dan diperiksa di server.
+ */
+const PublishedGraphShape = z.looseObject({
+  nodes: z.array(z.unknown()),
+  edges: z.array(z.unknown()),
+  connectors: z.array(z.unknown()),
+});
+
+const PublishedSnapshotShape = z.looseObject({
+  schemaVersion: z.literal(SNAPSHOT_SCHEMA_VERSION),
+  version: z.number().int().positive(),
+  publishedAt: z.string(),
+  venue: z.looseObject({ id, name: text }),
+  buildings: z.array(z.unknown()),
+  floors: z.array(z.unknown()),
+  features: z.looseObject({ type: z.literal('FeatureCollection'), features: z.array(z.unknown()) }),
+  facilityTypes: z.array(z.unknown()),
+  locations: z.array(z.unknown()),
+  locationTypes: z.array(z.unknown()),
+  categories: z.array(z.unknown()),
+  searchIndex: z.array(z.unknown()),
+  graph: z.lazy(() => PublishedGraphShape),
+  graphPath: text.exactOptional(),
+  instructionTemplates: z.record(z.string(), z.unknown()),
+  originPoints: z.array(z.unknown()),
+  infoPoints: z.array(z.unknown()),
+  enabledFeatures: z.array(z.string()),
+});
+
+export function parsePublishedSnapshot(value: unknown): Snapshot {
+  PublishedSnapshotShape.parse(value);
+  return value as Snapshot;
+}
+
+/** Berkas graf terbit (`v{n}.graph.json`), diperiksa ringan seperti `parsePublishedSnapshot`. */
+export function parsePublishedGraph(value: unknown): SnapshotGraph {
+  PublishedGraphShape.parse(value);
+  return value as SnapshotGraph;
+}
+
+/** Berkas graf terpisah (`v{n}.graph.json`). */
+export function parseSnapshotGraph(value: unknown): SnapshotGraph {
+  return GraphSchema.parse(value);
 }

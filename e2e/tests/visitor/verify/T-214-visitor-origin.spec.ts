@@ -28,7 +28,7 @@ test.describe('T-214 Visitor: titik asal', () => {
     await visitor.results.filter({ hasText: 'GF-B08' }).first().click();
     await visitor.profile.getByRole('button', { name: 'Saya di sini' }).click();
     await expect(from).toHaveText('GF-B08');
-    await expect(route.getByRole('definition').nth(1)).toHaveText('Radiologi');
+    await expect(route.getByRole('definition').nth(2)).toHaveText('Radiologi');
     await expect(route.getByRole('list', { name: 'Langkah rute' })).toBeVisible();
     await page.screenshot({ path: shot('02-asal-dari-daftar') });
 

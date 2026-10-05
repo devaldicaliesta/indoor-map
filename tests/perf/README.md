@@ -29,13 +29,12 @@ di `results/`; ringkasan dan analisisnya di `docs/laporan-performa.md`.
 | --- | --- |
 | `playwright test specs/visitor.perf.ts` | Muat awal dan kunjungan ulang Visitor (4G dan Slow 4G, CPU 4×), rute antar-lantai terjauh |
 | `playwright test specs/editor.perf.ts` | FPS editor di lantai 1.000 fitur dibanding lantai kosong |
-| `AXE_PATH=…/axe.min.js playwright test specs/a11y.perf.ts` | Audit axe WCAG 2.1 AA di 15 halaman |
+| `playwright test specs/a11y.perf.ts` | Audit axe WCAG 2.1 AA di 15 halaman |
 | `playwright test -c playwright.compat.config.ts` | Matriks Chromium/Edge, Firefox, WebKit/Safari, Android, iPhone |
 | k6 (di bawah) | 200 pengunjung + 20 Admin bersamaan |
 
-`axe-core` berlisensi MPL-2.0 sehingga tidak dijadikan dependency repo (menunggu keputusan
-pemilik); ambil berkasnya dengan `npm pack axe-core@4.10.2` lalu arahkan `AXE_PATH` ke
-`package/axe.min.js`.
+`@axe-core/playwright` (MPL-2.0) adalah devDependency paket ini saja, hanya alat test, tidak ikut
+produk atau paket instalasi (keputusan pemilik 2026-10-05).
 
 Matriks browser butuh Firefox dan WebKit; jalankan di image Playwright resmi:
 

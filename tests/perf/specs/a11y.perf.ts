@@ -1,15 +1,13 @@
-import { readFileSync } from 'node:fs';
-import { expect, type Page, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import {
+  type Browser,
+  type BrowserContextOptions,
+  expect,
+  type Page,
+  test,
+} from '@playwright/test';
 import { perfEnv } from '../env';
 import { record, seeded } from '../support';
-
-// axe-core (MPL-2.0) tidak dijadikan dependency repo; berkasnya diberikan lewat AXE_PATH saat
-// audit dijalankan (lihat README), menunggu keputusan pemilik di docs/PROGRESS.md.
-const axeSource = () => {
-  const path = process.env.AXE_PATH;
-  if (!path) throw new Error('AXE_PATH (axe.min.js) wajib diisi untuk audit aksesibilitas.');
-  return readFileSync(path, 'utf8');
-};
 
 interface Violation {
   id: string;
@@ -19,22 +17,20 @@ interface Violation {
 }
 
 async function audit(page: Page, name: string, results: Record<string, Violation[]>) {
-  await page.addScriptTag({ content: axeSource() });
-  const violations = await page.evaluate(async () => {
-    const axe = (
-      window as unknown as { axe: { run(o: unknown): Promise<{ violations: Violation[] }> } }
-    ).axe;
-    const result = await axe.run({
-      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
-    });
-    return result.violations.map((v) => ({
-      id: v.id,
-      impact: v.impact,
-      help: v.help,
-      nodes: v.nodes.slice(0, 5).map((n) => ({ target: n.target })),
-    }));
-  });
-  results[name] = violations;
+  const result = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  results[name] = result.violations.map((v) => ({
+    id: v.id,
+    impact: v.impact ?? null,
+    help: v.help,
+    nodes: v.nodes.slice(0, 5).map((n) => ({ target: n.target.map(String) })),
+  }));
+}
+
+/** AxeBuilder butuh halaman dari konteks yang dibuat sendiri, bukan `browser.newPage()`. */
+async function openPage(browser: Browser, options: BrowserContextOptions): Promise<Page> {
+  return (await browser.newContext(options)).newPage();
 }
 
 async function signIn(page: Page) {
@@ -49,7 +45,7 @@ test('audit axe WCAG 2.1 AA: Visitor, Info Point, Admin', async ({ browser }) =>
   const { sample } = seeded();
   const results: Record<string, Violation[]> = {};
 
-  const phone = await browser.newPage({
+  const phone = await openPage(browser, {
     viewport: { width: 390, height: 844 },
     ignoreHTTPSErrors: true,
   });
@@ -70,7 +66,7 @@ test('audit axe WCAG 2.1 AA: Visitor, Info Point, Admin', async ({ browser }) =>
   await phone.getByRole('button', { name: /Directions to here|Rute ke sini/ }).click();
   await audit(phone, 'visitor-rute', results);
 
-  const kiosk = await browser.newPage({
+  const kiosk = await openPage(browser, {
     viewport: { width: 1080, height: 1920 },
     ignoreHTTPSErrors: true,
   });
@@ -80,7 +76,7 @@ test('audit axe WCAG 2.1 AA: Visitor, Info Point, Admin', async ({ browser }) =>
   });
   await audit(kiosk, 'info-point', results);
 
-  const admin = await browser.newPage({
+  const admin = await openPage(browser, {
     viewport: { width: 1440, height: 900 },
     ignoreHTTPSErrors: true,
   });

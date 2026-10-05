@@ -1,4 +1,11 @@
-import { parseSnapshot, type Snapshot, type VenueId } from '@indoor/domain';
+import {
+  parsePublishedGraph,
+  parsePublishedSnapshot,
+  type Snapshot,
+  type SnapshotGraph,
+  type VenueId,
+  withGraph,
+} from '@indoor/domain';
 import { DataError } from '../errors';
 import type { Db } from '../supabase';
 
@@ -9,8 +16,18 @@ const ASSETS_BUCKET = 'public-assets';
 export interface SnapshotsRepository {
   /** URL publik `latest.json` venue; service worker Visitor meng-cache URL ini. */
   latestUrl(venueId: VenueId): string;
-  /** Snapshot versi published terbaru, sudah diperiksa terhadap skemanya. */
-  latest(venueId: VenueId): Promise<Snapshot>;
+  /**
+   * Snapshot versi published terbaru, sudah diperiksa terhadap skemanya. `prefetched`: respons
+   * `latestUrl` yang sudah diminta lebih awal (mis. dari HTML Visitor), dipakai alih-alih fetch baru.
+   */
+  latest(venueId: VenueId, prefetched?: Promise<Response>): Promise<Snapshot>;
+  /**
+   * Graf jalur yang dirujuk `snapshot.graphPath`. Berkasnya tetap per versi, jadi cache browser
+   * dan service worker boleh memakainya tanpa bertanya ulang.
+   */
+  graph(venueId: VenueId, graphPath: string): Promise<SnapshotGraph>;
+  /** Snapshot terbaru beserta grafnya (untuk alat dan test yang memeriksa jalur). */
+  latestWithGraph(venueId: VenueId): Promise<Snapshot>;
   /** URL publik logo, foto, atau ikon dari path yang tercatat di snapshot. */
   assetUrl(path: string): string;
 }
@@ -25,12 +42,12 @@ export function createSnapshotsRepository(db: Db): SnapshotsRepository {
   return {
     latestUrl,
 
-    async latest(venueId) {
+    async latest(venueId, prefetched) {
       let response: Response;
       try {
         // Selalu ditanyakan ulang ke server (ETag): proxy on-premise bisa membuang header
         // `no-cache` dari Storage dan membuat browser memakai versi lama setelah publish.
-        response = await fetch(latestUrl(venueId), { cache: 'no-cache' });
+        response = await (prefetched ?? fetch(latestUrl(venueId), { cache: 'no-cache' }));
       } catch (cause) {
         throw new DataError('network', { cause });
       }
@@ -50,13 +67,41 @@ export function createSnapshotsRepository(db: Db): SnapshotsRepository {
         });
       }
       try {
-        return parseSnapshot(body);
+        return parsePublishedSnapshot(body);
       } catch (cause) {
         throw new DataError('invalid', {
           message: 'Data peta tidak bisa dibaca. Muat ulang halaman.',
           cause,
         });
       }
+    },
+
+    async graph(venueId, graphPath) {
+      const graphUrl = db.storage.from(SNAPSHOTS_BUCKET).getPublicUrl(`${venueId}/${graphPath}`)
+        .data.publicUrl;
+      let response: Response;
+      try {
+        response = await fetch(graphUrl);
+      } catch (cause) {
+        throw new DataError('network', { cause });
+      }
+      if (!response.ok) {
+        throw new DataError('unknown', {
+          message: `Jalur rute tidak bisa dimuat (${response.status}).`,
+        });
+      }
+      try {
+        return parsePublishedGraph(await response.json());
+      } catch (cause) {
+        throw new DataError('invalid', { message: 'Data jalur rute tidak bisa dibaca.', cause });
+      }
+    },
+
+    async latestWithGraph(venueId) {
+      const snapshot = await this.latest(venueId);
+      return snapshot.graphPath
+        ? withGraph(snapshot, await this.graph(venueId, snapshot.graphPath))
+        : snapshot;
     },
 
     assetUrl(path) {

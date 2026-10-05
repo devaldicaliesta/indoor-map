@@ -150,6 +150,11 @@ describe.runIf(url && anonKey && serviceKey)('publish minimal dan snapshot Visit
     expect(geometry?.type === 'Polygon' ? geometry.coordinates[0]?.[0] : null).toEqual([
       106.8271235, -6.1754,
     ]);
+    // Graf diterbitkan terpisah; latest.json hanya merujuknya.
+    expect(snapshot.graph.nodes).toEqual([]);
+    expect(snapshot.graphPath).toBe('v1.graph.json');
+    const graph = await visitor.snapshots.graph(venueId, snapshot.graphPath ?? '');
+    expect(Array.isArray(graph.nodes)).toBe(true);
     const json = JSON.stringify(snapshot);
     expect(json).not.toContain('Jl. Kenari');
     expect(json).not.toContain('@publish.test');

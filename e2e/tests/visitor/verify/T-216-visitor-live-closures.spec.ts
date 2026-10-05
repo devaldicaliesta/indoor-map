@@ -12,7 +12,7 @@ test.describe('T-216 Visitor: penutupan live', () => {
   }) => {
     const venueId = fullVenue.venueId as Venue['id'];
     await superAdmin.publications.publish(venueId);
-    const snapshot = await superAdmin.snapshots.latest(venueId);
+    const snapshot = await superAdmin.snapshots.latestWithGraph(venueId);
     const lift = snapshot.graph.connectors.find((c) => c.kind === 'elevator');
     if (!lift) throw new Error('lift tidak ada di data uji');
 

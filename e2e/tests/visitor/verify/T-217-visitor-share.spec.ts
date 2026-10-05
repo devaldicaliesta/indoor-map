@@ -61,7 +61,7 @@ test.describe('T-217 Visitor: bagikan', () => {
     await expect(otherPage.locator('html')).toHaveAttribute('lang', 'en');
     const otherRoute = otherPage.getByRole('region', { name: 'Route' });
     await expect(otherRoute.getByRole('definition').first()).toHaveText('GF-B08');
-    await expect(otherRoute.getByRole('definition').nth(1)).toHaveText('L1-B08');
+    await expect(otherRoute.getByRole('definition').nth(2)).toHaveText('L1-B08');
     await expect(otherRoute.getByRole('checkbox', { name: /Accessible route/ })).toBeChecked();
     await expect(
       otherRoute
