@@ -217,5 +217,20 @@ Jumlah per rilis: R0 5 · R1 37 · R2 19 · R3 17 · R4 24 = **102**. FR-VEN-07 
 
   Database selain PostgreSQL di luar cakupan. Mode bawaan (database ikut paket, T-411) tetap
   menjadi default.
+- **Pengerasan lanjutan** (temuan R4, keputusan pemilik 2026-10-05):
+  - **Distribusi image Docker jadi.** Vendor mengirim image hasil build, bukan kode sumber,
+    agar kunci publik lisensi tidak bisa diganti lalu di-build ulang di server klien.
+  - **Visitor tanpa WebGL.** Tampilkan pesan "perangkat tidak mendukung peta", sementara
+    pencarian dan langkah rute tetap bisa dipakai. Penting untuk PC Info Point dengan GPU lama.
+  - **Performa kunjungan ulang.** Ukur di HP kelas menengah sungguhan. Bila tetap > 1,5 s,
+    simpan indeks pencarian di cache IndexedDB per versi snapshot (`docs/laporan-performa.md`).
+  - **Uji perangkat dan browser manual:** Firefox, Edge, Safari/iOS 15, Android 10 fisik.
+  - **E2E `cad-floor-plan` diperbaiki.** Pasang lisensi dengan fitur `cad_import` di spec,
+    atau tambahkan fitur itu ke lisensi seed.
+  - **`cad_import` ditegakkan di server**, tidak hanya dikunci di UI Admin (T-405).
+  - **Masa tenggang di Admin.** Tombol tulis ikut dinonaktifkan atau diberi tanda selama masa
+    tenggang (T-406); penegakan server sudah ada.
+  - **Pelaku audit aktivasi** tercatat sebagai Super Admin yang mengaktifkan, bukan "Sistem"
+    (T-402).
 
 Struktur data dan kode boleh **tidak menghalangi** fitur-fitur ini, tetapi jangan membangunnya lebih awal.
