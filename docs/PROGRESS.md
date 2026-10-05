@@ -165,6 +165,10 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai.
 | T-561 | Pairing, status, reload perangkat | — | menunggu | |
 | T-562 | Shell Windows (WPF) | T-561 | menunggu | |
 | T-563 | Mode aksesibilitas Info Point | — | menunggu | |
+| T-571 | Elemen 3D: pustaka objek + model GLB | — | menunggu | |
+| T-572 | Pustaka ikon POI lengkap | — | menunggu | |
+| T-573 | Penguatan CMS: media, edit massal, dasbor | T-503 | menunggu | |
+| T-574 | Papan "Anda di sini" cetak dengan QR | T-544 | menunggu | |
 
 ## Pertanyaan terbuka
 
@@ -174,6 +178,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Kesetaraan dengan Situm Indoor Maps (`20-F2-fase-2.md` §2.9): wayfinding statis tanpa aplikasi dan "lanjutkan di HP" sudah ada (Visitor PWA, QR titik asal, Info Point, T-409); ditambahkan F2-H: T-571 elemen 3D (FR-MAP-14 dinaikkan dari backlog, Three.js lazy, perlu persetujuan dependency), T-572 pustaka ±150 ikon POI, T-573 penguatan CMS (pustaka media, edit massal, dasbor), T-574 papan "Anda di sini" cetak dengan QR. Halaman situm.com tidak bisa diakses dari lingkungan ini (diblokir proxy); pemetaan berdasarkan judul fitur.
 - [2026-10-05] F2 — Scan AI (T-549) tanpa biaya per pemakaian: model berjalan lokal; lisensi bobot dan dataset latih wajib mengizinkan pemakaian komersial (banyak model denah memakai dataset non-komersial seperti CubiCasa5K). Urutan pilihan: model berlisensi komersial, latih sendiri, beli lisensi. Layanan AI cloud tidak dipakai.
 - [2026-10-05] F2 — Scan otomatis denah gambar (garis dinding dan blok ruang dibuat otomatis dari gambar yang diunggah) dipindah dari backlog ke F2: T-548 tahap 1 computer vision klasik di `cad-converter` (OpenCV, perlu persetujuan dependency), T-549 tahap 2 model AI lokal bila diperlukan. Semua diproses di server klien.
 - [2026-10-05] F2 — Fase 2 dipecah menjadi task T-501 s.d. T-563 di `21-F2-task.md` (F2-A siap jual, F2-B pengerasan, F2-C instalasi lanjutan, F2-D s.d. F2-G fitur spesifikasi); tabel status ditambahkan di PROGRESS, semua `menunggu`.
