@@ -42,16 +42,38 @@ menjadi default.
 (keputusan pemilik 2026-10-05). Klien bisa menguji aplikasi 14 hari sampai
 1 bulan sebelum membeli:
 - Paket lisensi `trial` dengan durasi 14–30 hari, ditentukan vendor saat menerbitkan
-  (`license-cli issue --plan trial`). Kuota dan fitur mengikuti paket yang ingin diuji.
+  (`license-cli issue --plan trial`). Fitur mengikuti paket yang ingin diuji, tetapi kuotanya
+  memakai batas trial (lihat di bawah).
 - Satu trial per ID instalasi: vendor menolak trial kedua untuk instalasi yang sama.
 - Admin dan Visitor menandai mode trial: banner "Trial — sisa N hari" di Admin, dan penanda
   kecil opsional di Visitor.
 - Saat trial berakhir berlaku alur kedaluwarsa yang sama dengan lisensi biasa (masa tenggang,
-  lalu layanan Visitor dihentikan). Pemilik memutuskan apakah masa tenggang dipersingkat atau
-  ditiadakan untuk trial.
+  lalu layanan Visitor dihentikan). Masa tenggang trial **14 hari**, sama dengan lisensi biasa
+  (diputuskan pemilik 2026-10-05).
 - Upgrade ke lisensi berbayar cukup dengan memasang lisensi baru; data selama trial tetap ada.
-- Masih perlu diputuskan: trial diterbitkan vendor per permintaan (berkas atau kunci online),
-  atau otomatis saat instalasi pertama dengan kunci trial bawaan.
+- **Cara mendapatkan trial** (diputuskan pemilik 2026-10-05): **per permintaan** (vendor
+  menerbitkan berkas atau kunci) dan **otomatis** (tombol "Mulai trial" di `/aktivasi`, yang
+  meminta trial ke layanan lisensi vendor secara online). Server tanpa internet memakai jalur
+  per permintaan. Trial berulang dicegah per instalasi, email, domain, dan IP.
+- **Batas input data selama trial** (diputuskan pemilik 2026-10-05), agar server tidak berat:
+
+  | Data | Batas |
+  | --- | --- |
+  | Venue | 1 |
+  | Gedung | 2 |
+  | Lantai | 6 |
+  | Fitur per lantai | 1.000 |
+  | Lokasi | 300 |
+  | Titik asal | 20 |
+  | Info Point | 2 |
+  | Pengguna | 5 |
+  | Storage | 1 GB |
+  | Berkas denah | 20 MB |
+  | Impor | 500 baris |
+  | Publish | 20 kali per hari |
+
+  Batasnya dibaca dari lisensi, sehingga vendor bisa menyesuaikan per permintaan. Rincian
+  teknis ada di T-504.
 
 ### 2.3 Nama produk PanduArah
 
