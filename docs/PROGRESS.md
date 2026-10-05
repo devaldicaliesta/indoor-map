@@ -123,6 +123,47 @@ Acuan: tampilan peta indoor Situm (ruang berwarna per kategori, ikon POI, 3D, ru
 | T-411 | Paket instalasi dan backup | T-402 | review | `deploy/`: Compose dengan komponen Supabase yang dipakai saja (Postgres, GoTrue, PostgREST, Storage file, Edge Runtime; tanpa Kong/Realtime/Studio), Caddy sebagai HTTPS + gateway + CORS (tiga domain: Admin, Visitor, API; TLS `auto`/`files`/`internal`), `cad-converter`. Image `deploy/Dockerfile` (target `web`, `functions`, `cad`; CA proxy opsional `deploy/ca/*.crt`). `install.sh` (prasyarat, tolak kunci lisensi dev, `.env` 600 dengan rahasia dibangkitkan termasuk hook `v1,whsec_…` dan tolak rahasia repo, build, migrasi `migrate.sh` dengan catatan `supabase_migrations`, `functions_url`, health check, cron backup 02.30), `backup.sh` (pg_basebackup online + Storage + `.env`, retensi 14 hari), `restore.sh`, `upgrade.sh` (backup → checkout → build → migrasi → health check → rollback otomatis), `README.md`. Perbaikan: worker MapLibre 6 tidak ikut build produksi (peta kosong di Admin dan Visitor build) → `@indoor/map-core/worker` mendaftarkan worker `?worker&url`. Diuji di clone rilis (kunci vendor uji) di Docker: instalasi dari nol → aktivasi berkas lisensi → Super Admin pertama → venue + publish → Visitor HTTPS (bukti `e2e/evidence/T-411/`); hapus venue + objek Storage lalu `restore.sh latest` mengembalikan keduanya; upgrade ke tag dengan migrasi rusak kembali ke versi dan data sebelumnya (migrasi baik sebelum yang rusak ikut batal); upgrade normal lulus; build kunci dev ditolak; retensi menghapus backup >14 hari |
 | T-412 | Performa, kompatibilitas, pengerasan | T-409, T-411 | review | Paket `tests/perf` (generator venue besar 10 lantai/2.000 fitur/20.000 edge dan lantai 1.000 fitur + test, seed, spec Playwright perf/a11y/kompatibilitas, k6), diukur pada paket instalasi; laporan `docs/laporan-performa.md`. Lulus: rute 217 ms (CPU 4×), editor 61% FPS lantai kosong, publish 5,8 s, beban 200+20 tanpa gagal (p95 API 10 ms), axe 0 pelanggaran di 15 halaman, Chromium/WebKit/Android/iPhone. Muat awal Visitor 4G kemudian dipercepat lewat "Snapshot ringan" (lihat catatan keputusan 2026-10-05): 3,1 s (target 3) dan kunjungan ulang 2,4 s (target 1,5) di emulasi CPU 4×, sisa rencana di laporan; Firefox tidak terverifikasi (tanpa WebGL di kontainer). Perbaikan: migrasi 0033 index FK graf (hapus venue besar 63 s → 0,5 s), kompresi gateway Caddy (snapshot 7,4 → 1,8 MB), ARIA kolom cari dan `<dl>` panel rute Visitor, header Admin di HP (Penutupan meluber di iPhone) |
 
+## F2 · Fase 2 (`21-F2-task.md`)
+
+Menunggu review R0–R4 oleh pemilik sebelum dimulai.
+
+| Task | Judul | Bergantung pada | Status | Catatan |
+| --- | --- | --- | --- | --- |
+| T-501 | Nama produk PanduArah | — | menunggu | |
+| T-502 | Komponen tabel: cari, filter, pagination | — | menunggu | |
+| T-503 | Tabel di semua halaman Admin | T-502 | menunggu | |
+| T-504 | Lisensi trial | — (keputusan pemilik dulu) | menunggu | |
+| T-505 | Landing page + form trial | T-501, T-504 | menunggu | |
+| T-511 | Distribusi image Docker jadi | — | menunggu | |
+| T-512 | Visitor tanpa WebGL | — | menunggu | |
+| T-513 | Performa kunjungan ulang + uji perangkat nyata | — | menunggu | |
+| T-514 | Perbaikan lisensi dan audit R4 | — | menunggu | |
+| T-521 | Panduan Windows lewat VM Ubuntu | — | menunggu | |
+| T-522 | Database PostgreSQL milik klien | T-511 | menunggu | |
+| T-523 | Windows Server langsung | T-521, T-511 | menunggu | |
+| T-531 | Hak akses granular | — | menunggu | |
+| T-532 | Audit log lengkap | — | menunggu | |
+| T-533 | Label kustom per venue | — | menunggu | |
+| T-534 | Duplikasi lantai | — | menunggu | |
+| T-535 | Riwayat lisensi | T-502 | menunggu | |
+| T-536 | Publish terjadwal | — | menunggu | |
+| T-541 | Landmark + instruksi landmark | — | menunggu | |
+| T-542 | Kontrol label | — | menunggu | |
+| T-543 | Area temporer | — | menunggu | |
+| T-544 | Export peta cetak | — | menunggu | |
+| T-545 | Warna per kategori + lantai bertumpuk | — | menunggu | |
+| T-546 | Pintu masuk venue | — | menunggu | |
+| T-547 | Import vektor CAD | T-313 | menunggu | |
+| T-551 | Aturan jalur + bobot preferensi | — | menunggu | |
+| T-552 | Estimasi waktu tempuh | — | menunggu | |
+| T-553 | Fasilitas terdekat + multi-tujuan | — | menunggu | |
+| T-554 | Konten multi-bahasa | — | menunggu | |
+| T-555 | Lapisan keselamatan + mode teks | — | menunggu | |
+| T-556 | Embed, minimap, peta privat | — | menunggu | |
+| T-561 | Pairing, status, reload perangkat | — | menunggu | |
+| T-562 | Shell Windows (WPF) | T-561 | menunggu | |
+| T-563 | Mode aksesibilitas Info Point | — | menunggu | |
+
 ## Pertanyaan terbuka
 
 Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … (status: menunggu jawaban)`
@@ -131,6 +172,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Fase 2 dipecah menjadi task T-501 s.d. T-563 di `21-F2-task.md` (F2-A siap jual, F2-B pengerasan, F2-C instalasi lanjutan, F2-D s.d. F2-G fitur spesifikasi); tabel status ditambahkan di PROGRESS, semua `menunggu`.
 - [2026-10-05] F2 — Daftar fase 2 dan backlog dipindah dari `02-kebutuhan.md` ke berkas tersendiri `20-F2-fase-2.md`.
 - [2026-10-05] F2 — Item tabel Admin diperluas: setiap tabel mendapat filter, pencarian, **dan pagination** (baris per halaman, nomor halaman, total; di server untuk tabel besar; status di URL).
 - [2026-10-05] F2 — Email vendor PanduArah: panduarahid@gmail.com (kontak, trial, dukungan, lisensi); alamat berdomain panduarah.id menyusul bila domain sudah dimiliki.
