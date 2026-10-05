@@ -217,6 +217,26 @@ Jumlah per rilis: R0 5 · R1 37 · R2 19 · R3 17 · R4 24 = **102**. FR-VEN-07 
 
   Database selain PostgreSQL di luar cakupan. Mode bawaan (database ikut paket, T-411) tetap
   menjadi default.
+- **Lisensi trial** (keputusan pemilik 2026-10-05). Klien bisa menguji aplikasi 14 hari sampai
+  1 bulan sebelum membeli:
+  - Paket lisensi `trial` dengan durasi 14–30 hari, ditentukan vendor saat menerbitkan
+    (`license-cli issue --plan trial`). Kuota dan fitur mengikuti paket yang ingin diuji.
+  - Satu trial per ID instalasi: vendor menolak trial kedua untuk instalasi yang sama.
+  - Admin dan Visitor menandai mode trial: banner "Trial — sisa N hari" di Admin, dan penanda
+    kecil opsional di Visitor.
+  - Saat trial berakhir berlaku alur kedaluwarsa yang sama dengan lisensi biasa (masa tenggang,
+    lalu layanan Visitor dihentikan). Pemilik memutuskan apakah masa tenggang dipersingkat atau
+    ditiadakan untuk trial.
+  - Upgrade ke lisensi berbayar cukup dengan memasang lisensi baru; data selama trial tetap ada.
+  - Masih perlu diputuskan: trial diterbitkan vendor per permintaan (berkas atau kunci online),
+    atau otomatis saat instalasi pertama dengan kunci trial bawaan.
+- **Filter dan pencarian di setiap tabel Admin** (keputusan pemilik 2026-10-05). Setiap tabel
+  mendapat kolom cari teks dan filter sesuai kolomnya (status, jenis, role, lantai, tanggal),
+  dengan pola komponen yang sama dari `packages/ui`. Filter dan kata kunci tersimpan di URL agar
+  bisa dibagikan dan bertahan saat halaman dimuat ulang. Tabel besar memfilter di server lewat
+  repository `packages/data`. Tabel yang dicakup: Venue, Gedung, Lantai, Riwayat denah, Lokasi,
+  Kategori, Tipe lokasi dan kolom kustom, Jenis fasilitas, Penutupan, Titik Asal, Info Point,
+  Riwayat publish, Pengguna, Log audit, Template instruksi, Lisensi, serta pratinjau impor.
 - **Instalasi di server Windows** (keputusan pemilik 2026-10-05). Linux (Ubuntu Server LTS)
   sudah didukung sejak T-411. Dikerjakan berurutan:
   1. **Panduan Windows lewat VM Ubuntu** (Hyper-V atau VMware), dikerjakan lebih dulu. Paket

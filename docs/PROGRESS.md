@@ -131,6 +131,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Ditambahkan ke F2 (`02-kebutuhan.md`): (1) lisensi trial 14 hari–1 bulan (paket `trial`, satu per instalasi, banner sisa hari, upgrade tanpa kehilangan data; cara penerbitan trial — oleh vendor atau otomatis saat instalasi — masih perlu diputuskan); (2) filter dan pencarian di setiap tabel Admin (status URL, filter server untuk tabel besar).
 - [2026-10-05] F2 — Instalasi di server Windows dimasukkan ke F2 (`02-kebutuhan.md`): (1) panduan lewat VM Ubuntu Hyper-V/VMware lebih dulu, (2) dukungan Windows Server langsung (PowerShell, WSL2/Docker Desktop, Task Scheduler) sesudahnya. Linux sudah didukung sejak T-411.
 - [2026-10-05] F2 — Delapan pekerjaan lanjutan dari R4 dimasukkan ke F2 sebagai "Pengerasan lanjutan" (`02-kebutuhan.md`): distribusi image Docker jadi, Visitor tanpa WebGL, performa kunjungan ulang di HP sungguhan, uji perangkat manual, E2E `cad-floor-plan`, penegakan `cad_import` di server, tombol Admin saat masa tenggang, pelaku audit aktivasi.
 - [2026-10-05] Instalasi — Database klien difokuskan ke PostgreSQL. Mode "database PostgreSQL milik klien" (paket tanpa container database, cek ekstensi PostGIS/pg_cron/pg_net, backup database oleh DBA klien) dimasukkan ke F2 (`02-kebutuhan.md`), belum dikerjakan. Mode bawaan T-411 tetap default.
