@@ -173,6 +173,14 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai.
 | T-581 | Event & promosi: data dan Admin | T-502 | menunggu | |
 | T-582 | Event & promosi di Visitor | T-581 | menunggu | |
 | T-583 | Playlist promosi di Info Point | T-582, T-408 | menunggu | |
+| T-591 | Analitik penggunaan | T-502 | menunggu | |
+| T-592 | 2FA dan SSO Admin | — | menunggu | |
+| T-593 | API dan webhook integrasi | — | menunggu | |
+| T-594 | Export GeoJSON dan IMDF | — | menunggu | |
+| T-595 | Vendor Portal minimal | T-504, T-505 | menunggu | |
+| T-596 | Bantuan dan dokumentasi pengguna | — | menunggu | |
+| T-597 | Monitoring server di Admin | T-411 | menunggu | |
+| T-598 | Notifikasi email operasional | T-591 | menunggu | |
 
 ## Pertanyaan terbuka
 
@@ -182,6 +190,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Ditambahkan F2-J (T-591 s.d. T-598: analitik anonim, 2FA/SSO, API + webhook, export GeoJSON/IMDF, Vendor Portal minimal, bantuan pengguna, monitoring server, notifikasi email) dan backlog BL-01 s.d. BL-08 (lokasi unggulan/iklan, portal pemilik lokasi, tema musiman, jadwal layar Info Point, asisten bahasa alami, aplikasi native/SDK, dasbor multi-venue, survei kepuasan).
 - [2026-10-05] F2 — Rincian teks Situm dari pemilik dipetakan (`20-F2-fase-2.md` §2.9): baru T-557 rute khusus kelompok pengguna (jalur staf di area terbatas; graf terbatas berkas terpisah hanya untuk pengguna berhak); T-574 ditambah stiker QR per lokasi tujuan; T-572 ikon lintas sektor + khusus sektor yang bisa bertambah; T-571 objek 3D tangga/lift/taksi/tanaman dan elemen ikonik gedung (GLB khusus). Wayfinding tanpa aplikasi, rute aksesibel, estimasi durasi (T-552), dan CMS + branding sudah ada atau sudah dijadwalkan.
 - [2026-10-05] F2 — Event dan promosi (sebelumnya modul bisnis di luar lingkup) masuk F2 (`20-F2-fase-2.md` §2.10, F2-I): T-581 data + Admin (fitur lisensi `events`, RLS anon hanya yang aktif), T-582 Visitor (dibaca langsung tanpa publish seperti penutupan, rute ke lokasi acara), T-583 playlist promosi Info Point saat idle.
 - [2026-10-05] F2 — Kesetaraan dengan Situm Indoor Maps (`20-F2-fase-2.md` §2.9): wayfinding statis tanpa aplikasi dan "lanjutkan di HP" sudah ada (Visitor PWA, QR titik asal, Info Point, T-409); ditambahkan F2-H: T-571 elemen 3D (FR-MAP-14 dinaikkan dari backlog, Three.js lazy, perlu persetujuan dependency), T-572 pustaka ±150 ikon POI, T-573 penguatan CMS (pustaka media, edit massal, dasbor), T-574 papan "Anda di sini" cetak dengan QR. Halaman situm.com tidak bisa diakses dari lingkungan ini (diblokir proxy); pemetaan berdasarkan judul fitur.

@@ -754,9 +754,149 @@ pagination.
   - [ ] Setelah idle, playlist berputar; sentuhan membuka rute ke lokasi event
   - [ ] Tanpa jaringan, slide yang sudah dimuat tetap tampil
 
+## F2-J · Operasional, integrasi, dan dukungan
+
+### T-591 · Analitik penggunaan
+
+- **Untuk:** `20-F2-fase-2.md` §2.11
+- **Bergantung pada:** T-502 (tabel)
+- **Konteks:** data anonim (tanpa IP, tanpa identitas pengunjung), tetap di server klien, dan
+  dikirim secara batch agar tidak membebani Visitor. Pengunjung bisa menolak (opt-out).
+- **Langkah:**
+  1. Event yang dicatat:
+     - kata kunci yang dicari, termasuk pencarian tanpa hasil;
+     - lokasi yang dibuka;
+     - rute yang dihitung (asal dan tujuan);
+     - sumber kunjungan (QR titik asal, Info Point, tautan, embed);
+     - bahasa;
+     - jenis perangkat.
+  2. Endpoint penerima dengan batas laju; agregasi harian dengan `pg_cron`; retensi data mentah
+     90 hari.
+  3. Dasbor Admin:
+     - grafik tren;
+     - 10 lokasi dan pencarian teratas;
+     - pencarian tanpa hasil (bahan alias baru);
+     - pemakaian per Info Point dan per QR;
+     - export CSV dan PDF.
+  4. Pengaturan Sistem: aktif/nonaktif analitik dan teks pemberitahuan privasi di Visitor.
+- **Selesai jika:**
+  - [ ] Dasbor menunjukkan angka yang cocok dengan event uji
+  - [ ] Tidak ada data pribadi yang tersimpan (diperiksa test)
+
+### T-592 · Login Admin aman: 2FA dan SSO
+
+- **Untuk:** `20-F2-fase-2.md` §2.11
+- **Langkah:**
+  1. **TOTP 2FA** (GoTrue MFA): Admin bisa mengaktifkannya sendiri, dan Super Admin bisa
+     mewajibkan 2FA untuk role tertentu.
+  2. **SSO** lewat OIDC/SAML (Google Workspace, Microsoft Entra ID) dan opsi LDAP/AD untuk
+     jaringan tertutup. Akun SSO dipetakan ke role.
+  3. Kode cadangan dan reset 2FA oleh Super Admin, tercatat di audit.
+- **Konteks:** jalankan `ecc-security-review` sebelum PR.
+- **Selesai jika:**
+  - [ ] Role yang diwajibkan 2FA tidak bisa masuk tanpa kode
+  - [ ] Login SSO berhasil ke IdP uji dan role terpetakan
+
+### T-593 · API dan webhook integrasi
+
+- **Untuk:** `20-F2-fase-2.md` §2.11
+- **Langkah:**
+  1. Kunci API per sistem (scope baca/tulis per modul, bisa dicabut, tercatat di audit) yang
+     dikelola Super Admin.
+  2. API REST terdokumentasi (OpenAPI) untuk: lokasi, kategori, jam operasional, status, dan
+     penutupan, termasuk upsert massal berdasarkan kode lokasi. Deep link Visitor juga
+     terdokumentasi.
+  3. Webhook keluar untuk peristiwa `publish`, perubahan penutupan, dan perubahan lokasi.
+     Isinya ditandatangani HMAC, dengan retry dan log pengiriman.
+  4. Contoh integrasi sinkronisasi dari sistem klien (CSV/JSON terjadwal).
+- **Selesai jika:**
+  - [ ] Sistem uji bisa mengubah jam operasional lewat API, dan perubahan tampil setelah publish
+  - [ ] Kunci tanpa scope tulis ditolak server
+
+### T-594 · Export GeoJSON dan IMDF
+
+- **Untuk:** `20-F2-fase-2.md` §2.11
+- **Langkah:**
+  1. Export per venue ke GeoJSON (fitur, lokasi, graf) dan IMDF (paket zip berisi venue,
+     building, level, unit, opening, amenity, occupant, anchor), dari snapshot versi aktif.
+  2. Validasi keluaran IMDF dengan validator resmi atau skema yang dipublikasikan.
+  3. Tombol export di halaman Publish (Admin/Super Admin).
+- **Selesai jika:**
+  - [ ] Paket IMDF venue contoh lolos validasi tanpa error
+
+### T-595 · Vendor Portal minimal
+
+- **Untuk:** `20-F2-fase-2.md` §2.11
+- **Bergantung pada:** T-504 (trial), T-505 (landing)
+- **Konteks:** aplikasi vendor, bukan bagian paket klien. Ini pengganti pemakaian manual
+  `license-cli` dan `vendor-stub`.
+- **Langkah:**
+  1. Data klien dan instalasi (ID instalasi, versi, paket, masa berlaku).
+  2. Terbitkan, perpanjang, ubah paket, dan cabut lisensi. Kunci privat disimpan di layanan
+     terpisah atau HSM, bukan di basis data portal.
+  3. Antrean permintaan trial dari landing page: setujui → lisensi trial terbit dan terkirim
+     lewat email.
+  4. Riwayat check-in instalasi dan unduh rilis per versi.
+- **Selesai jika:**
+  - [ ] Permintaan trial dari landing page bisa disetujui dan menghasilkan lisensi yang lolos aktivasi
+  - [ ] Kunci privat tidak pernah tersimpan di database portal
+
+### T-596 · Bantuan dan dokumentasi pengguna
+
+- **Untuk:** `20-F2-fase-2.md` §2.11
+- **Langkah:**
+  1. Tur singkat saat pertama masuk Admin (buat venue → gambar peta → publish → QR).
+  2. Tooltip pada istilah penting; tautan "Bantuan" per halaman ke artikel yang sesuai.
+  3. Halaman bantuan di dalam Admin, dari Markdown yang ikut dalam rilis sehingga bisa dibuka
+     offline.
+  4. Manual PDF untuk Admin dan untuk teknisi instalasi.
+- **Selesai jika:**
+  - [ ] Setiap menu Admin punya artikel bantuan
+  - [ ] Tur bisa dilewati dan diulang
+
+### T-597 · Monitoring server di Admin
+
+- **Untuk:** `20-F2-fase-2.md` §2.11
+- **Bergantung pada:** T-411
+- **Langkah:**
+  1. Halaman **Kesehatan sistem** (Super Admin):
+     - status layanan;
+     - versi aplikasi;
+     - ruang disk;
+     - backup terakhir (berhasil/gagal);
+     - check-in lisensi terakhir;
+     - sertifikat HTTPS dan sisa harinya.
+  2. Agen kecil di `deploy/` menulis status ke database secara berkala (cron).
+  3. Email peringatan ke Super Admin bila backup gagal 2 kali, disk > 85%, atau sertifikat
+     tinggal < 14 hari.
+- **Selesai jika:**
+  - [ ] Backup yang sengaja digagalkan memunculkan peringatan di halaman dan email
+
+### T-598 · Notifikasi email operasional
+
+- **Untuk:** `20-F2-fase-2.md` §2.11
+- **Bergantung pada:** T-591 (untuk ringkasan)
+- **Langkah:**
+  1. Preferensi notifikasi per pengguna.
+  2. Jenis notifikasi:
+     - ringkasan mingguan (pemakaian, pencarian tanpa hasil, temuan validasi);
+     - pengingat lisensi H-30/H-7/H-1 ke email Super Admin;
+     - pemberitahuan publish dan penutupan baru ke peran terkait.
+  3. Lewat SMTP Pengaturan Sistem, dengan template ID dan tautan berhenti berlangganan.
+- **Selesai jika:**
+  - [ ] Email terkirim sesuai preferensi (Mailpit di test) dan bisa dimatikan per jenis
+
 ## Backlog (tidak dijadwalkan)
 
 | ID | Fitur |
 | --- | --- |
 | FR-NAV-16 | Mode evakuasi diaktifkan dari Admin |
 | FR-DEV-09 | Beacon dan blue dot |
+| BL-01 | Lokasi unggulan dan slot iklan (monetisasi venue komersial) |
+| BL-02 | Portal pemilik lokasi: pengelola lokasi memperbarui data dan promo sendiri |
+| BL-03 | Tema musiman (Ramadan, HUT RI, Natal, dan lainnya) |
+| BL-04 | Jadwal layar Info Point (nyala/mati, konten per jam) dan screenshot jarak jauh |
+| BL-05 | Asisten pencarian bahasa alami dengan model lokal |
+| BL-06 | Aplikasi native dan SDK untuk aplikasi klien |
+| BL-07 | Multi-venue dalam satu dasbor untuk grup klien |
+| BL-08 | Survei kepuasan singkat di Visitor atau Info Point |
