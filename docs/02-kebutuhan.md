@@ -241,8 +241,10 @@ Jumlah per rilis: R0 5 · R1 37 · R2 19 · R3 17 · R4 24 = **102**. FR-VEN-07 
     - landing page;
     - `deploy/README.md` dan dokumen produk.
   - Nama paket kode (`@indoor/*`) dan istilah teknis tidak wajib diganti.
-  - Email vendor dengan domain sendiri: `halo@`, `trial@`, `sales@`, `support@`, `lisensi@`, dan
-    `no-reply@panduarah.id`.
+  - Email vendor: **panduarahid@gmail.com** dipakai untuk kontak, permintaan trial dari landing
+    page, dukungan, dan lisensi (keputusan pemilik 2026-10-05). Bila domain panduarah.id sudah
+    dimiliki, alamat berdomain (`halo@`, `trial@`, `support@`, `lisensi@`, `no-reply@`) bisa
+    menggantikan atau meneruskan ke alamat ini.
   - Perlindungan IP oleh pemilik, di luar kode:
     - cek dan daftarkan domain panduarah.id, .co.id, dan .com;
     - daftarkan merek di DJKI kelas 9 dan 42;
