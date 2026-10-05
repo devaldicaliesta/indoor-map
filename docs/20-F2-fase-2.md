@@ -230,3 +230,32 @@ dan pengumuman di perkantoran.
   itu.
 - Istilah di kode tetap netral (`event`, `promotion`, `location`).
 
+### 2.11 Operasional, integrasi, dan dukungan
+
+Keputusan pemilik 2026-10-05. Kebutuhan saat produk dijual dan dipakai klien:
+
+- **Analitik penggunaan.** Pencarian (termasuk tanpa hasil), lokasi dan rute populer, pemakaian
+  Info Point dan QR. Data anonim dan tetap di server klien.
+- **Login Admin aman.** 2FA TOTP dan SSO (OIDC/SAML, LDAP/AD).
+- **API dan webhook** untuk integrasi dengan sistem klien (SIMRS, sistem akademik, HR).
+- **Export GeoJSON dan IMDF**, agar klien tidak terkunci ke satu produk.
+- **Vendor Portal minimal:** klien, lisensi, antrean trial, rilis.
+- **Bantuan dan dokumentasi pengguna** di dalam Admin, ditambah manual PDF.
+- **Monitoring server** di Admin, dengan peringatan email.
+- **Notifikasi email operasional.**
+
+Task: T-591 s.d. T-598 (`21-F2-task.md`, F2-J).
+
+### 2.12 Backlog tambahan
+
+Keputusan pemilik 2026-10-05; tidak dijadwalkan:
+
+- lokasi unggulan dan slot iklan;
+- portal pemilik lokasi;
+- tema musiman;
+- jadwal layar dan screenshot Info Point;
+- asisten pencarian bahasa alami (model lokal);
+- aplikasi native dan SDK;
+- dasbor multi-venue;
+- survei kepuasan.
+
