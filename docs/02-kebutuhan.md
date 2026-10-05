@@ -217,6 +217,20 @@ Jumlah per rilis: R0 5 · R1 37 · R2 19 · R3 17 · R4 24 = **102**. FR-VEN-07 
 
   Database selain PostgreSQL di luar cakupan. Mode bawaan (database ikut paket, T-411) tetap
   menjadi default.
+- **Instalasi di server Windows** (keputusan pemilik 2026-10-05). Linux (Ubuntu Server LTS)
+  sudah didukung sejak T-411. Dikerjakan berurutan:
+  1. **Panduan Windows lewat VM Ubuntu** (Hyper-V atau VMware), dikerjakan lebih dulu. Paket
+     instalasi tidak berubah; `deploy/README.md` ditambah langkah:
+     - membuat VM beserta spesifikasi minimumnya;
+     - jaringan VM (bridge atau NAT dan port forwarding 80/443) serta firewall Windows;
+     - VM menyala otomatis saat host reboot;
+     - backup VM ditambah backup aplikasi.
+  2. **Dukungan Windows Server langsung**, dikerjakan setelah opsi 1:
+     - padanan PowerShell untuk `install`, `backup`, `restore`, dan `upgrade`;
+     - Docker di WSL2 atau Docker Desktop (cek lisensi Docker Desktop untuk perusahaan besar);
+     - jadwal backup lewat Task Scheduler;
+     - layanan menyala otomatis setelah reboot;
+     - uji di Windows Server 2022/2025 sungguhan.
 - **Pengerasan lanjutan** (temuan R4, keputusan pemilik 2026-10-05):
   - **Distribusi image Docker jadi.** Vendor mengirim image hasil build, bukan kode sumber,
     agar kunci publik lisensi tidak bisa diganti lalu di-build ulang di server klien.
