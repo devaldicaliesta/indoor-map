@@ -121,23 +121,74 @@ Gerbang setiap rilis:
 
 - **Untuk:** `20-F2-fase-2.md` §2.2
 - **Bergantung pada:** —
-- **Konteks:** sebelum mulai, pemilik memutuskan dua hal:
-  1. Trial diterbitkan vendor per permintaan, atau aktif otomatis saat instalasi?
-  2. Masa tenggang trial tetap 14 hari, dipersingkat, atau ditiadakan?
+- **Keputusan pemilik (2026-10-05):**
+  1. Trial bisa didapat dengan dua cara: **per permintaan** (vendor menerbitkan berkas atau kunci)
+     dan **otomatis** (tombol "Mulai trial" di `/aktivasi`).
+  2. Masa tenggang trial tetap **14 hari**, sama dengan lisensi biasa.
+  3. Selama trial, **input data dibatasi** agar server tidak berat.
+- **Konteks trial otomatis:** lisensi selalu terikat ke ID instalasi dan ditandatangani vendor,
+  jadi lisensi trial tidak bisa disiapkan di dalam paket. "Otomatis" berarti instalasi meminta
+  trial ke layanan lisensi vendor secara online, tanpa menunggu vendor membalas manual. Server
+  tanpa internet memakai jalur per permintaan (ID instalasi dikirim ke vendor, berkas lisensi
+  diunggah). Untuk mencegah trial berulang lewat instal ulang (ID instalasi baru), vendor
+  membatasi trial per email, domain email, dan alamat IP.
+- **Batas data selama trial** (kuota paket `trial`, dibaca dari lisensi sehingga vendor bisa
+  menyesuaikan per permintaan):
+
+  | Data | Batas trial |
+  | --- | --- |
+  | Venue | 1 |
+  | Gedung | 2 |
+  | Lantai (tanpa Area Luar) | 6 |
+  | Fitur peta per lantai | 1.000 |
+  | Lokasi | 300 |
+  | Titik asal (QR) | 20 |
+  | Info Point | 2 |
+  | Pengguna Admin | 5 |
+  | Ruang Storage (denah, foto, ikon, snapshot) | 1 GB |
+  | Ukuran satu berkas denah | 20 MB |
+  | Impor massal | 500 baris per impor |
+  | Publish | 20 kali per hari |
+
 - **Langkah:**
-  1. Domain `license.ts`: plan `trial` dengan validasi durasi 14–30 hari, plus test.
-  2. `license-cli issue --plan trial --days 14..30`. Vendor-stub menolak trial kedua untuk
-     `instanceId` yang sama.
-  3. Server: `license_status()` mengembalikan `isTrial`. Masa tenggang trial mengikuti keputusan
-     pemilik (migrasi baru bila berubah).
-  4. Admin: banner "Trial — sisa N hari" di semua halaman; halaman Lisensi menandai trial.
-  5. Upgrade ke berbayar: pasang lisensi baru tanpa menghapus data (uji E2E).
-- **File:** `packages/domain/src/license.ts`, `tools/license-cli/**`, `tools/vendor-stub/**`, migrasi baru, `apps/admin/src/features/license/**`
+  1. Domain `license.ts`:
+     - plan `trial` dengan durasi 14–30 hari;
+     - kuota diperluas: `features`, `locations`, `originPoints`, `users`, `storageMb`,
+       `maxUploadMb`, `importRows`, `publishPerDay`. Kuota yang tidak diisi berarti tidak
+       dibatasi, sehingga lisensi berbayar lama tetap sah;
+     - test.
+  2. `license-cli issue --plan trial --days 14..30` memakai batas trial bawaan di atas, yang bisa
+     ditimpa per opsi. Vendor-stub menyediakan endpoint `POST /v1/trial` untuk trial otomatis,
+     yang menolak trial kedua untuk `instanceId`, email, atau domain yang sama, dan membatasi
+     laju per IP.
+  3. Server (migrasi baru):
+     - `app.enforce_quota` diperluas ke fitur per lantai, lokasi, titik asal, dan pengguna
+       (advisory lock seperti T-404);
+     - batas Storage per bucket lewat fungsi pemeriksa sebelum unggah dan ukuran berkas di Edge
+       Function atau policy;
+     - batas publish per hari di `publish_begin`;
+     - batas baris impor di repository dan di server;
+     - semua penolakan memakai kode IM422 dengan pesan "Batas trial tercapai: … n/n".
+  4. `license_status()` mengembalikan `isTrial`; masa tenggang 14 hari seperti lisensi biasa.
+  5. Admin:
+     - `/aktivasi`: tombol **Mulai trial 14 hari** (online; isian nama, instansi, email) dan
+       petunjuk trial per permintaan untuk server offline;
+     - banner "Trial — sisa N hari";
+     - halaman Lisensi menampilkan pemakaian setiap batas trial dengan bar (memakai tampilan
+       kuota T-404);
+     - tombol tambah nonaktif dengan pesan saat batas tercapai.
+  6. Upgrade ke berbayar: pasang lisensi baru, batas trial langsung terangkat, dan data tetap
+     ada (uji E2E).
+- **File:** `packages/domain/src/license.ts`, `packages/domain/src/license-quota.ts`, `tools/license-cli/**`, `tools/vendor-stub/**`, migrasi baru, `supabase/functions/{license-activate,publish}/**`, `packages/data/src/repositories/license.ts`, `apps/admin/src/features/license/**`
 - **Selesai jika:**
-  - [ ] Lisensi trial 14 dan 30 hari bisa diterbitkan; 31 hari ditolak
-  - [ ] Trial kedua untuk instalasi yang sama ditolak vendor
-  - [ ] Banner sisa hari tampil, dan data tetap ada setelah upgrade ke lisensi berbayar
-- **Jangan:** menyimpan kunci privat vendor di repo.
+  - [ ] Trial 14 dan 30 hari bisa diterbitkan; 31 hari ditolak
+  - [ ] Trial otomatis dari `/aktivasi` aktif dalam < 1 menit; trial kedua untuk instalasi, email, atau domain yang sama ditolak
+  - [ ] Lokasi ke-301, lantai ke-7, unggah 21 MB, dan publish ke-21 dalam sehari ditolak server dengan pesan batas trial (pgTAP dan E2E)
+  - [ ] Masa tenggang trial 14 hari, lalu layanan Visitor berhenti seperti lisensi biasa
+  - [ ] Setelah lisensi berbayar dipasang, batas terangkat dan semua data trial tetap ada
+- **Jangan:**
+  - menyimpan kunci privat vendor di repo;
+  - menaruh lisensi trial siap pakai di dalam paket instalasi.
 
 ### T-505 · Landing page dan form permintaan trial
 
