@@ -125,7 +125,7 @@ Acuan: tampilan peta indoor Situm (ruang berwarna per kategori, ikon POI, 3D, ru
 
 ## F2 · Fase 2 (`21-F2-task.md`)
 
-Menunggu review R0–R4 oleh pemilik sebelum dimulai.
+Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.5 di `21-F2-task.md`.
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
@@ -181,6 +181,12 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai.
 | T-596 | Bantuan dan dokumentasi pengguna | — | menunggu | |
 | T-597 | Monitoring server di Admin | T-411 | menunggu | |
 | T-598 | Notifikasi email operasional | T-591 | menunggu | |
+| T-601 | Kepatuhan UU PDP | — | menunggu | |
+| T-602 | Dokumen legal penjualan | — | menunggu | |
+| T-603 | Uji keamanan + pentest | — | menunggu | |
+| T-604 | Proses rilis + dukungan versi | T-511 | menunggu | |
+| T-605 | Lingkungan demo penjualan | T-501, T-511 | menunggu | |
+| T-606 | Materi pelatihan klien | T-596 | menunggu | |
 
 ## Pertanyaan terbuka
 
@@ -190,6 +196,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Ditambahkan F2-K kesiapan komersial (T-601 UU PDP, T-602 dokumen legal, T-603 uji keamanan + pentest, T-604 proses rilis, T-605 demo penjualan, T-606 pelatihan) dan roadmap rilis F2.1 siap jual · F2.2 aman dan terkelola · F2.3 nilai jual utama · F2.4 enterprise dan integrasi · F2.5 penyempurnaan. Paket dan harga ditunda (keputusan pemilik). Perencanaan F2 dinyatakan lengkap.
 - [2026-10-05] F2 — Ditambahkan F2-J (T-591 s.d. T-598: analitik anonim, 2FA/SSO, API + webhook, export GeoJSON/IMDF, Vendor Portal minimal, bantuan pengguna, monitoring server, notifikasi email) dan backlog BL-01 s.d. BL-08 (lokasi unggulan/iklan, portal pemilik lokasi, tema musiman, jadwal layar Info Point, asisten bahasa alami, aplikasi native/SDK, dasbor multi-venue, survei kepuasan).
 - [2026-10-05] F2 — Rincian teks Situm dari pemilik dipetakan (`20-F2-fase-2.md` §2.9): baru T-557 rute khusus kelompok pengguna (jalur staf di area terbatas; graf terbatas berkas terpisah hanya untuk pengguna berhak); T-574 ditambah stiker QR per lokasi tujuan; T-572 ikon lintas sektor + khusus sektor yang bisa bertambah; T-571 objek 3D tangga/lift/taksi/tanaman dan elemen ikonik gedung (GLB khusus). Wayfinding tanpa aplikasi, rute aksesibel, estimasi durasi (T-552), dan CMS + branding sudah ada atau sudah dijadwalkan.
 - [2026-10-05] F2 — Event dan promosi (sebelumnya modul bisnis di luar lingkup) masuk F2 (`20-F2-fase-2.md` §2.10, F2-I): T-581 data + Admin (fitur lisensi `events`, RLS anon hanya yang aktif), T-582 Visitor (dibaca langsung tanpa publish seperti penutupan, rute ke lokasi acara), T-583 playlist promosi Info Point saat idle.

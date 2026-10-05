@@ -259,3 +259,19 @@ Keputusan pemilik 2026-10-05; tidak dijadwalkan:
 - dasbor multi-venue;
 - survei kepuasan.
 
+### 2.13 Kesiapan komersial
+
+Keputusan pemilik 2026-10-05. Pekerjaan di luar fitur aplikasi yang dibutuhkan sebelum produk
+dijual:
+- kepatuhan UU PDP;
+- dokumen legal (EULA, syarat layanan, SLA, kontrak);
+- uji keamanan dan pentest;
+- proses rilis dan dukungan versi;
+- lingkungan demo penjualan;
+- materi pelatihan klien.
+
+Task: T-601 s.d. T-606 (F2-K). **Paket dan harga** ditunda; ditetapkan pemilik kemudian.
+
+Urutan pengerjaan seluruh F2 ada di bagian **Roadmap rilis F2** di `21-F2-task.md`
+(F2.1 siap jual s.d. F2.5 penyempurnaan).
+

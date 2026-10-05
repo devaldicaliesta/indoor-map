@@ -20,6 +20,28 @@ pagination.
 
 ---
 
+## Roadmap rilis F2
+
+F2 dikerjakan bertahap. Setiap rilis bisa dijual atau dipasang sendiri tanpa menunggu rilis
+berikutnya. Urutan di dalam satu rilis mengikuti kolom "Bergantung pada" di `PROGRESS.md`.
+Paket dan harga ditetapkan pemilik kemudian (keputusan 2026-10-05) dan tidak menghalangi
+F2.1–F2.3.
+
+| Rilis | Tujuan | Task |
+| --- | --- | --- |
+| **F2.1 · Siap jual** | Produk bernama PanduArah bisa didemokan, dicoba (trial), dipasang, dan dijual dengan dokumen yang benar | T-501, T-502, T-503, T-504, T-505, T-511, T-512, T-514, T-521, T-596, T-601, T-602, T-605 |
+| **F2.2 · Aman dan terkelola** | Siap tender instansi: keamanan, operasional, rilis tertib, dukungan | T-513, T-592, T-597, T-598, T-603, T-604, T-606, T-595, T-535 |
+| **F2.3 · Nilai jual utama** | Fitur pembeda di demo: scan denah, ikon, 3D, papan QR, event, analitik | T-548, T-572, T-571, T-544, T-574, T-581, T-582, T-583, T-591, T-552, T-553, T-554, T-573 |
+| **F2.4 · Enterprise dan integrasi** | Korporat, rumah sakit besar, pemerintah | T-593, T-594, T-531, T-532, T-522, T-556, T-557, T-555, T-561, T-562, T-523 |
+| **F2.5 · Penyempurnaan** | Fitur spesifikasi F2 lainnya | T-533, T-534, T-536, T-541, T-542, T-543, T-545, T-546, T-547, T-549, T-551, T-563 |
+
+Gerbang setiap rilis:
+- `pnpm check` dan E2E alur utama hijau;
+- uji paket instalasi (instal, upgrade, rollback) lulus;
+- changelog dibuat (setelah T-604 ada).
+
+---
+
 ## F2-A · Siap jual
 
 ### T-501 · Nama produk PanduArah
@@ -885,6 +907,108 @@ pagination.
   3. Lewat SMTP Pengaturan Sistem, dengan template ID dan tautan berhenti berlangganan.
 - **Selesai jika:**
   - [ ] Email terkirim sesuai preferensi (Mailpit di test) dan bisa dimatikan per jenis
+
+## F2-K · Kesiapan komersial
+
+### T-601 · Kepatuhan UU PDP
+
+- **Untuk:** `20-F2-fase-2.md` §2.13
+- **Langkah:**
+  1. Inventaris data pribadi beserta tujuan, dasar pemrosesan, dan masa simpannya:
+     - akun Admin;
+     - log audit;
+     - analitik (T-591), yang dirancang anonim;
+     - form trial (T-505);
+     - email.
+  2. Dokumen kebijakan privasi untuk Visitor dan landing page, serta pemberitahuan di Visitor
+     bila analitik aktif.
+  3. Fitur Admin: export dan hapus data akun pengguna atas permintaan; retensi log audit dan
+     analitik bisa diatur.
+  4. Prosedur insiden kebocoran data, termasuk pemberitahuan ke klien dan pihak berwenang.
+  5. Template perjanjian pemrosesan data (DPA) vendor–klien.
+- **Selesai jika:**
+  - [ ] Dokumen privasi, inventaris data, dan prosedur insiden ada di `docs/legal/`
+  - [ ] Data akun bisa diekspor dan dihapus dari Admin, dan tercatat di audit
+- **Konteks:** naskah legal final ditinjau konsultan hukum; repo hanya menyimpan draf dan
+  template.
+
+### T-602 · Dokumen legal penjualan
+
+- **Untuk:** `20-F2-fase-2.md` §2.13
+- **Langkah:**
+  1. Draf perjanjian lisensi pengguna akhir (EULA) on-premise: hak pakai per instalasi,
+     larangan rekayasa balik dan pemindahan, serta batas tanggung jawab.
+  2. Syarat layanan berlangganan, SLA dukungan (jam layanan, waktu respons per tingkat masalah,
+     saluran panduarahid@gmail.com), dan ketentuan trial.
+  3. Template kontrak berlangganan dan berita acara instalasi.
+  4. Teks EULA ditampilkan dan harus disetujui saat aktivasi pertama di `/aktivasi`.
+- **Selesai jika:**
+  - [ ] Draf di `docs/legal/`, siap ditinjau konsultan hukum
+  - [ ] Aktivasi pertama meminta persetujuan EULA, dan persetujuannya tercatat di audit
+
+### T-603 · Uji keamanan
+
+- **Untuk:** `20-F2-fase-2.md` §2.13
+- **Langkah:**
+  1. Pemindaian kerentanan di CI:
+     - dependency (`pnpm audit`, pip-audit untuk `cad-converter`);
+     - image Docker (mis. Trivy);
+     - rahasia yang tertinggal di repo.
+  2. Daftar periksa OWASP ASVS level 2 untuk Admin, Visitor, Edge Function, dan paket instalasi,
+     memakai `ecc-security-review` per area.
+  3. Pentest independen oleh pihak ketiga sebelum rilis komersial pertama. Temuan kritis dan
+     tinggi wajib diperbaiki sebelum dijual.
+  4. Halaman `SECURITY.md`: cara melaporkan celah keamanan.
+- **Selesai jika:**
+  - [ ] CI gagal bila ada kerentanan tingkat tinggi yang belum ditangani
+  - [ ] Laporan pentest dan status perbaikannya tercatat
+
+### T-604 · Proses rilis dan dukungan versi
+
+- **Untuk:** `20-F2-fase-2.md` §2.13
+- **Bergantung pada:** T-511
+- **Langkah:**
+  1. Penomoran versi semantik (mis. `2026.1.0`); tag git dan image Docker mengikuti versi itu.
+  2. Changelog untuk klien (bahasa awam, ID) di setiap rilis, juga ditampilkan di halaman
+     Kesehatan sistem (T-597).
+  3. Kebijakan dukungan: berapa lama versi lama menerima perbaikan keamanan, jalur upgrade yang
+     didukung, dan jadwal rilis rutin.
+  4. Skrip rilis vendor:
+     - jalankan `pnpm check`, E2E, dan uji paket instalasi;
+     - build image;
+     - buat changelog;
+     - arsip rilis.
+- **Selesai jika:**
+  - [ ] Satu rilis percobaan berjalan dari tag sampai arsip rilis lengkap dengan changelog
+  - [ ] Kebijakan dukungan versi tertulis di `docs/`
+
+### T-605 · Lingkungan demo penjualan
+
+- **Untuk:** `20-F2-fase-2.md` §2.13
+- **Bergantung pada:** T-501, T-511
+- **Langkah:**
+  1. Instalasi demo dengan venue contoh per industri (rumah sakit, kampus, pusat perbelanjaan,
+     perkantoran, bandara), memakai data `demo-venues` yang sudah ada dan fitur paket lengkap.
+  2. Reset otomatis setiap malam ke keadaan awal; akun demo per role; banner "Demo".
+  3. Skrip presentasi 15 menit (alur Admin, Visitor, dan Info Point).
+- **Selesai jika:**
+  - [ ] Demo bisa direset dengan satu perintah dan pulih dalam < 5 menit
+  - [ ] Setiap industri punya venue contoh yang bisa dipublish dan dirutekan
+
+### T-606 · Materi pelatihan klien
+
+- **Untuk:** `20-F2-fase-2.md` §2.13
+- **Bergantung pada:** T-596
+- **Langkah:**
+  1. Modul pelatihan per peran:
+     - Super Admin/Admin: setup venue, pengguna, lisensi, publish;
+     - Editor: gambar peta, lokasi, impor;
+     - Operator: penutupan dari HP;
+     - teknisi: instalasi, backup, upgrade.
+  2. Video singkat per modul (3–7 menit) dan lembar ringkas satu halaman.
+  3. Kuis atau daftar periksa kelulusan pelatihan untuk berita acara serah terima.
+- **Selesai jika:**
+  - [ ] Setiap peran punya modul, video, dan lembar ringkas
 
 ## Backlog (tidak dijadwalkan)
 
