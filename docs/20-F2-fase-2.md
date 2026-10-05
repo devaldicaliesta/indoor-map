@@ -10,7 +10,7 @@ ID merujuk ke `docs/spec/`. Item bertanda **BL** adalah backlog (prioritas palin
 
 - **Akses:** hak akses granular (AUTH-06), audit log lengkap (AUTH-07)
 - **Venue:** label kustom (VEN-11), pintu masuk + Google Maps (VEN-12), duplikasi lantai (VEN-13), import vektor CAD (VEN-14); deteksi ruang otomatis dari gambar dipindah ke F2 (§2.8)
-- **Peta:** landmark (MAP-11), kontrol label (MAP-12), area temporer (MAP-13), model 3D GLB dengan Three.js (MAP-14, BL), export peta cetak (MAP-15)
+- **Peta:** landmark (MAP-11), kontrol label (MAP-12), area temporer (MAP-13), model 3D GLB dengan Three.js (MAP-14; dipindah ke F2, §2.9), export peta cetak (MAP-15)
 - **Tampilan:** warna per kategori (VIS-08), lantai bertumpuk (VIS-09)
 - **Navigasi:** instruksi landmark (NAV-12), edge satu arah dan berjam buka (NAV-13), bobot preferensi (NAV-14), estimasi waktu (NAV-15), mode evakuasi (NAV-16, BL)
 - **Lokasi:** konten multi-bahasa (LOC-11)
@@ -166,4 +166,19 @@ yang bisa diperiksa dan dirapikan, sehingga pengguna tidak perlu menjiplak manua
 - Dependensi pengolahan gambar (OpenCV) hanya di container `cad-converter`, tidak di aplikasi
   web. Lisensinya permisif (Apache-2.0), tetapi ukurannya besar sehingga perlu persetujuan
   pemilik saat task dikerjakan.
+
+### 2.9 Kesetaraan dengan produk indoor maps komersial (referensi: Situm Indoor Maps)
+
+Keputusan pemilik 2026-10-05. Lima kemampuan yang dipasarkan Situm, dibandingkan dengan keadaan
+PanduArah setelah R4:
+
+| Kemampuan | Keadaan PanduArah | Yang ditambahkan |
+| --- | --- | --- |
+| Elemen 3D di peta | Sebagian: 3D gedung dan ruang (`fill-extrusion`), tinggi per jenis/fitur, 2D/3D di Visitor | Pustaka objek 3D (perabot, pohon, kios, kendaraan, tanda) dan unggah model GLB (FR-MAP-14 dinaikkan dari backlog) — T-571 |
+| Pustaka ikon lengkap untuk POI | Sebagian: 14 piktogram bawaan + unggah ikon sendiri | Pustaka ±150 ikon bergaya seragam, berkategori, bisa dicari, berlisensi permisif, dipakai untuk fasilitas, kategori, tipe lokasi, dan POI — T-572 |
+| CMS indoor mapping yang lengkap | Ada: Admin (editor peta, lokasi, field kustom, impor massal, penutupan, publish berversi, pratinjau, rollback, pengguna, audit) | Pustaka media, edit massal, dasbor ringkasan venue; ditambah item F2 lain (hak akses granular, publish terjadwal, tabel cari/filter/pagination) — T-573 |
+| Wayfinding statis lintas platform tanpa posisi real-time dan tanpa aplikasi | Ada: Visitor web/PWA tanpa instal, QR titik asal "Anda di sini", Info Point, tautan bagikan | Generator papan/poster cetak "Anda di sini" dengan QR per titik asal (memakai export cetak T-544) — T-574 |
+| Lanjutkan peta di smartphone | Ada: QR "Lanjutkan di HP" di Info Point (T-409), tautan bagikan rute | Tidak ada tambahan inti; bagikan lewat WhatsApp sudah lewat Web Share |
+
+Kelima kemampuan ini juga menjadi bahan utama halaman fitur landing page (§2.4).
 

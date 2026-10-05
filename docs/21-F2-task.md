@@ -549,12 +549,108 @@ pagination.
   huruf besar; kembali normal saat idle.
 - **Selesai jika:** semua kontrol penting berada di sepertiga bawah layar potret saat mode aktif.
 
+## F2-H · Kesetaraan produk (referensi Situm Indoor Maps)
+
+### T-571 · Elemen 3D: pustaka objek dan model GLB
+
+- **Untuk:** FR-MAP-14 (dinaikkan dari backlog), `20-F2-fase-2.md` §2.9
+- **Bergantung pada:** —
+- **Konteks:** ADR-05 menyatakan Three.js hanya untuk model 3D, jadi task ini yang membawa
+  Three.js masuk lewat custom layer MapLibre. Three.js berlisensi MIT, tetapi ukurannya besar
+  (±150 kB gzip), sehingga perlu persetujuan pemilik dan wajib dimuat terpisah (lazy), hanya
+  saat mode 3D dibuka.
+- **Langkah:**
+  1. Domain: fitur `model3d` (titik + `modelId`, skala, rotasi, tinggi dasar) dengan validasi dan test.
+  2. Pustaka objek bawaan berlisensi permisif atau buatan sendiri, ringan dan low-poly: pohon,
+     bangku, meja, kios, mobil, pot, tanda, dan sejenisnya.
+  3. Unggah model GLB (≤ 5 MB, divalidasi), disimpan di Storage `public-assets`.
+  4. Editor: tempatkan, geser, putar, dan ubah skala.
+  5. `map-core` dan Visitor: custom layer Three.js di mode 3D. Objek disembunyikan di 2D dan pada
+     Info Point yang memakai paksa 2D.
+  6. Snapshot membawa daftar model per lantai.
+  7. Ukur ulang performa (`tests/perf`): menambah 200 objek tidak boleh menurunkan FPS editor
+     lebih dari 20%.
+- **Selesai jika:**
+  - [ ] Objek pustaka dan GLB unggahan tampil di Visitor mode 3D pada posisi dan skala yang benar
+  - [ ] Bundel awal Visitor tidak bertambah (Three.js dimuat saat 3D dipakai)
+- **Jangan:** memasang Three.js di jalur muat awal Visitor.
+
+### T-572 · Pustaka ikon POI lengkap
+
+- **Untuk:** `20-F2-fase-2.md` §2.9
+- **Bergantung pada:** —
+- **Langkah:**
+  1. Perluas `PICTOGRAM_KEYS` dari 14 menjadi ±150 ikon bergaya seragam (garis 1,75 px seperti
+     ikon UI), dikelompokkan dalam kategori:
+     - layanan umum;
+     - transportasi dan parkir;
+     - makanan dan minuman;
+     - belanja;
+     - kesehatan;
+     - pendidikan;
+     - kantor;
+     - keselamatan;
+     - aksesibilitas;
+     - hiburan;
+     - fasilitas gedung.
+
+     Sumbernya buatan sendiri, atau set berlisensi permisif (mis. MIT/Apache) yang dicatat di
+     `packages/ui/src/pictograms/LICENSES.md`.
+  2. Pemilih ikon di Admin: cari (ID/EN, alias), filter kategori, dan pratinjau di peta. Dipakai
+     untuk jenis fasilitas, kategori, tipe lokasi, dan POI.
+  3. Sprite peta dibangkitkan dari pustaka yang sama, dengan kontras AA dan ukuran target sentuh
+     sesuai `05-desain-ui.md`.
+  4. Template tipe venue (rumah sakit, kampus, dan lainnya) memakai ikon baru yang sesuai.
+  5. Test: semua kunci ikon punya bentuk dan label ID/EN; snapshot lama dengan kunci lama tetap
+     tampil.
+- **Selesai jika:**
+  - [ ] ±150 ikon tersedia dan bisa dicari di pemilih
+  - [ ] Ikon tampil tajam di peta pada zoom tinggi dan rendah
+- **Jangan:** memakai set ikon berlisensi non-komersial.
+
+### T-573 · Penguatan CMS: media, edit massal, dasbor
+
+- **Untuk:** `20-F2-fase-2.md` §2.9
+- **Bergantung pada:** T-502/T-503 (tabel)
+- **Langkah:**
+  1. **Pustaka media per venue:**
+     - logo, foto lokasi, ikon unggahan, dan denah dalam satu tempat (cari, filter, pemakaian);
+     - pakai ulang aset;
+     - aset yang tidak terpakai bisa dihapus.
+  2. **Edit massal:** ubah status, kategori, jam operasional, atau tipe untuk banyak lokasi
+     sekaligus, dengan pratinjau perubahan dan undo. Tercatat di audit.
+  3. **Dasbor venue:**
+     - jumlah lokasi per status;
+     - fitur yang belum lengkap (unit tanpa lokasi, lokasi tanpa unit);
+     - temuan validasi publish;
+     - versi terbit terakhir;
+     - penutupan aktif;
+     - status Info Point (bila T-561 ada).
+- **Selesai jika:**
+  - [ ] Mengubah status 100 lokasi sekaligus dari tabel Lokasi berhasil dan tercatat di audit
+  - [ ] Dasbor menunjukkan angka yang sama dengan data sebenarnya (test integrasi)
+
+### T-574 · Papan "Anda di sini" cetak dengan QR
+
+- **Untuk:** `20-F2-fase-2.md` §2.9 (wayfinding statis tanpa aplikasi)
+- **Bergantung pada:** T-544 (export peta cetak)
+- **Langkah:**
+  1. Dari daftar Titik Asal, tombol **Cetak papan** menghasilkan PDF (A4, A3, A2) berisi:
+     - peta lantai berorientasi sesuai arah hadap titik asal;
+     - penanda "Anda di sini" dan legenda ikon;
+     - daftar lokasi utama;
+     - QR besar yang membuka Visitor dengan asal titik itu;
+     - branding venue.
+  2. Cetak massal: satu PDF untuk semua titik asal di satu lantai atau gedung.
+  3. Teks sesuai bahasa bawaan venue (ID/EN).
+- **Selesai jika:**
+  - [ ] PDF A3 tercetak jelas, QR terbaca dari jarak 1 m, dan memindainya membuka rute dari titik itu
+
 ---
 
 ## Backlog (tidak dijadwalkan)
 
 | ID | Fitur |
 | --- | --- |
-| FR-MAP-14 | Model 3D GLB dengan Three.js (posisi, skala, rotasi) |
 | FR-NAV-16 | Mode evakuasi diaktifkan dari Admin |
 | FR-DEV-09 | Beacon dan blue dot |
