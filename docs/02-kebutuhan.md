@@ -230,6 +230,26 @@ Jumlah per rilis: R0 5 · R1 37 · R2 19 · R3 17 · R4 24 = **102**. FR-VEN-07 
   - Upgrade ke lisensi berbayar cukup dengan memasang lisensi baru; data selama trial tetap ada.
   - Masih perlu diputuskan: trial diterbitkan vendor per permintaan (berkas atau kunci online),
     atau otomatis saat instalasi pertama dengan kunci trial bawaan.
+- **Landing page produk dan permintaan trial** (keputusan pemilik 2026-10-05). Ini situs vendor,
+  bukan bagian paket instalasi klien.
+  - Isi pengenalan aplikasi:
+    - jenis gedung (rumah sakit, kampus, perkantoran, bandara, pabrik, pusat perbelanjaan);
+    - fitur utama: editor peta, 2D/3D, rute antar-lantai dan aksesibel, Info Point, penutupan
+      jalur, publish berversi;
+    - cara kerja (gambar peta, publish, pengunjung memindai QR);
+    - model on-premise dan lisensi berlangganan;
+    - tangkapan layar Admin, Visitor, dan Info Point.
+  - Form permintaan trial berisi:
+    - nama, instansi, jabatan, email, dan nomor telepon;
+    - jenis dan ukuran gedung (jumlah gedung dan lantai);
+    - durasi trial yang diinginkan (14 hari sampai 1 bulan);
+    - ID instalasi bila sudah memasang;
+    - persetujuan kebijakan privasi.
+  - Pengiriman form: dikirim ke email vendor lewat layanan kirim email, dengan validasi,
+    pembatasan laju, dan perlindungan spam (honeypot atau captcha). Pemohon menerima email
+    konfirmasi. Vendor menerbitkan lisensi trial secara manual dengan `license-cli`.
+  - Desain mengikuti `docs/05-desain-ui.md`, bahasa ID/EN, dan halaman ramah HP.
+  - Bergantung pada fitur lisensi trial di atas.
 - **Filter dan pencarian di setiap tabel Admin** (keputusan pemilik 2026-10-05). Setiap tabel
   mendapat kolom cari teks dan filter sesuai kolomnya (status, jenis, role, lantai, tanggal),
   dengan pola komponen yang sama dari `packages/ui`. Filter dan kata kunci tersimpan di URL agar
