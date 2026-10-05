@@ -13,7 +13,6 @@ export function SearchField({
   value,
   onValueChange,
   onKeyDown,
-  controls,
   virtualKeyboard = false,
   onFocus,
 }: {
@@ -23,8 +22,6 @@ export function SearchField({
   value?: string;
   onValueChange?: (value: string) => void;
   onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
-  /** Id daftar hasil yang dikendalikan kolom ini. */
-  controls?: string;
   /** Info Point: keyboard sistem operasi tidak dimunculkan; isian lewat keyboard layar. */
   virtualKeyboard?: boolean;
   onFocus?: () => void;
@@ -40,7 +37,6 @@ export function SearchField({
       <Input
         type="search"
         aria-label={t('search.label')}
-        aria-controls={controls}
         placeholder={placeholder ?? t('search.placeholder')}
         className="pr-11 pl-10 [&::-webkit-search-cancel-button]:hidden"
         value={value}

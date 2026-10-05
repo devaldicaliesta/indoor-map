@@ -16,11 +16,12 @@ export function AppLayout({ profile }: { profile: Profile }) {
     <div
       className={cn(
         'grid h-dvh grid-rows-[auto_1fr] transition-[grid-template-columns] duration-150',
-        collapsed ? 'grid-cols-[56px_1fr]' : 'grid-cols-[240px_1fr]',
+        // minmax(0, …): isi kolom utama tidak boleh melebarkan halaman di HP (Penutupan).
+        collapsed ? 'grid-cols-[56px_minmax(0,1fr)]' : 'grid-cols-[240px_minmax(0,1fr)]',
       )}
     >
       <Sidebar role={profile.role} />
-      <header className="flex h-14 items-center justify-between gap-4 border-line border-b bg-surface px-4">
+      <header className="flex h-14 min-w-0 items-center justify-between gap-4 border-line border-b bg-surface px-4">
         <VenuePicker />
         <AccountMenu profile={profile} />
       </header>

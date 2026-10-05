@@ -1,0 +1,7 @@
+test-results
+results/*.cpuprofile
+results/debug.png
+results/compat
+results/perf-run.txt
+results/pw-pull.txt
+results/compat.json

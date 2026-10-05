@@ -34,6 +34,8 @@
 }
 
 (gateway) {
+	# Snapshot venue besar ±7 MB JSON; terkompresi ±2 MB (Storage tidak mengompresi sendiri).
+	encode zstd gzip
 	handle_path /auth/v1/* {
 		reverse_proxy auth:9999
 	}

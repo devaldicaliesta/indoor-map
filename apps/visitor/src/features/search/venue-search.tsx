@@ -77,7 +77,6 @@ export function VenueSearch({
       value={text}
       onValueChange={setText}
       onKeyDown={onKeyDown}
-      controls={SEARCH_RESULTS_ID}
       virtualKeyboard={infoPoint !== null}
       onFocus={() => setKeyboard(true)}
     />

@@ -179,14 +179,14 @@ export function RoutePanel() {
         <dl className="grid min-w-0 flex-1 grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2">
           <dt className="text-ink-muted">{t('route.from')}</dt>
           <dd className="min-w-0 truncate font-bold">{from}</dd>
-          {infoPoint ? (
-            // Kolom ketiga tetap terisi agar "Ke" tidak bergeser ke kanan.
-            <span />
-          ) : (
-            <Button size="sm" variant="ghost" onClick={chooseOrigin}>
-              {t('origin.change')}
-            </Button>
-          )}
+          {/* Kolom ketiga tetap terisi (juga di Info Point) agar "Ke" tidak bergeser ke kanan. */}
+          <dd>
+            {infoPoint ? null : (
+              <Button size="sm" variant="ghost" onClick={chooseOrigin}>
+                {t('origin.change')}
+              </Button>
+            )}
+          </dd>
           <dt className="text-ink-muted">{t('route.to')}</dt>
           <dd className="col-span-2 min-w-0 truncate font-bold">{to}</dd>
         </dl>

@@ -32,8 +32,9 @@ export function AccountMenu({ profile }: { profile: Profile }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="gap-3">
-          <span className="text-right">
+        <Button variant="ghost" className="shrink-0 gap-3">
+          {/* Di layar sempit (Penutupan dari HP) nama hanya untuk pembaca layar. */}
+          <span className="max-sm:sr-only text-right">
             <span className="block leading-tight">{profile.fullName}</span>
             <span className="block font-normal text-ink-muted text-xs leading-tight">
               {ROLE_LABELS[profile.role]}
