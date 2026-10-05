@@ -132,7 +132,7 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.
 | T-501 | Nama produk PanduArah | — | menunggu | |
 | T-502 | Komponen tabel: cari, filter, pagination | — | menunggu | |
 | T-503 | Tabel di semua halaman Admin | T-502 | menunggu | |
-| T-504 | Lisensi trial | — (keputusan pemilik dulu) | menunggu | |
+| T-504 | Lisensi trial | — | menunggu | Per permintaan + otomatis, tenggang 14 hari, batas data trial |
 | T-505 | Landing page + form trial | T-501, T-504 | menunggu | |
 | T-511 | Distribusi image Docker jadi | — | menunggu | |
 | T-512 | Visitor tanpa WebGL | — | menunggu | |
@@ -196,6 +196,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] T-504 — **Diputuskan pemilik:** trial bisa per permintaan dan otomatis (tombol "Mulai trial" di `/aktivasi`, online ke layanan lisensi vendor; server offline memakai jalur per permintaan; trial berulang dicegah per instalasi, email, domain, dan IP); masa tenggang trial 14 hari; input data dibatasi selama trial: 1 venue, 2 gedung, 6 lantai, 1.000 fitur per lantai, 300 lokasi, 20 titik asal, 2 Info Point, 5 pengguna, Storage 1 GB, berkas 20 MB, impor 500 baris, 20 publish per hari (kuota dari lisensi, bisa disesuaikan vendor).
 - [2026-10-05] F2 — Ditambahkan F2-K kesiapan komersial (T-601 UU PDP, T-602 dokumen legal, T-603 uji keamanan + pentest, T-604 proses rilis, T-605 demo penjualan, T-606 pelatihan) dan roadmap rilis F2.1 siap jual · F2.2 aman dan terkelola · F2.3 nilai jual utama · F2.4 enterprise dan integrasi · F2.5 penyempurnaan. Paket dan harga ditunda (keputusan pemilik). Perencanaan F2 dinyatakan lengkap.
 - [2026-10-05] F2 — Ditambahkan F2-J (T-591 s.d. T-598: analitik anonim, 2FA/SSO, API + webhook, export GeoJSON/IMDF, Vendor Portal minimal, bantuan pengguna, monitoring server, notifikasi email) dan backlog BL-01 s.d. BL-08 (lokasi unggulan/iklan, portal pemilik lokasi, tema musiman, jadwal layar Info Point, asisten bahasa alami, aplikasi native/SDK, dasbor multi-venue, survei kepuasan).
 - [2026-10-05] F2 — Rincian teks Situm dari pemilik dipetakan (`20-F2-fase-2.md` §2.9): baru T-557 rute khusus kelompok pengguna (jalur staf di area terbatas; graf terbatas berkas terpisah hanya untuk pengguna berhak); T-574 ditambah stiker QR per lokasi tujuan; T-572 ikon lintas sektor + khusus sektor yang bisa bertambah; T-571 objek 3D tangga/lift/taksi/tanaman dan elemen ikonik gedung (GLB khusus). Wayfinding tanpa aplikasi, rute aksesibel, estimasi durasi (T-552), dan CMS + branding sudah ada atau sudah dijadwalkan.
