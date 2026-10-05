@@ -174,6 +174,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Scan AI (T-549) tanpa biaya per pemakaian: model berjalan lokal; lisensi bobot dan dataset latih wajib mengizinkan pemakaian komersial (banyak model denah memakai dataset non-komersial seperti CubiCasa5K). Urutan pilihan: model berlisensi komersial, latih sendiri, beli lisensi. Layanan AI cloud tidak dipakai.
 - [2026-10-05] F2 — Scan otomatis denah gambar (garis dinding dan blok ruang dibuat otomatis dari gambar yang diunggah) dipindah dari backlog ke F2: T-548 tahap 1 computer vision klasik di `cad-converter` (OpenCV, perlu persetujuan dependency), T-549 tahap 2 model AI lokal bila diperlukan. Semua diproses di server klien.
 - [2026-10-05] F2 — Fase 2 dipecah menjadi task T-501 s.d. T-563 di `21-F2-task.md` (F2-A siap jual, F2-B pengerasan, F2-C instalasi lanjutan, F2-D s.d. F2-G fitur spesifikasi); tabel status ditambahkan di PROGRESS, semua `menunggu`.
 - [2026-10-05] F2 — Daftar fase 2 dan backlog dipindah dari `02-kebutuhan.md` ke berkas tersendiri `20-F2-fase-2.md`.
