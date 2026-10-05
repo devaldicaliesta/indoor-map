@@ -59,7 +59,11 @@
     "keyboard": "On-screen keyboard",
     "space": "Space",
     "backspace": "Delete letter",
-    "search": "Search"
+    "search": "Search",
+    "continueQr": "Route QR for your phone",
+    "continueTitle": "Continue on your phone",
+    "continueDescription": "Scan this QR code to take the same route on your phone.",
+    "offline": "Offline"
   },
   "info": {
     "open": "Map information",

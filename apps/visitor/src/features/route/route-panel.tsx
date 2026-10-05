@@ -4,6 +4,7 @@ import { ArrowUpDownIcon, ChevronLeftIcon, ChevronRightIcon, ListIcon } from 'lu
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { intlLocale } from '../../i18n';
+import { ContinueOnPhone } from '../../infopoint/continue-on-phone';
 import { useInfoPointMode } from '../../infopoint/info-point-mode';
 import { placeOfTarget } from '../origin/origin-model';
 import { useOriginName } from '../origin/origin-panels';
@@ -178,7 +179,10 @@ export function RoutePanel() {
         <dl className="grid min-w-0 flex-1 grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2">
           <dt className="text-ink-muted">{t('route.from')}</dt>
           <dd className="min-w-0 truncate font-bold">{from}</dd>
-          {infoPoint ? null : (
+          {infoPoint ? (
+            // Kolom ketiga tetap terisi agar "Ke" tidak bergeser ke kanan.
+            <span />
+          ) : (
             <Button size="sm" variant="ghost" onClick={chooseOrigin}>
               {t('origin.change')}
             </Button>
@@ -247,7 +251,13 @@ export function RoutePanel() {
           )}
         </>
       ) : null}
-      {plan?.ok ? <ShareButton title={`${from ?? ''} → ${to}`} /> : null}
+      {plan?.ok ? (
+        infoPoint ? (
+          <ContinueOnPhone />
+        ) : (
+          <ShareButton title={`${from ?? ''} → ${to}`} />
+        )
+      ) : null}
       <Button variant="ghost" className="justify-self-start" onClick={closeRoute}>
         {t('route.close')}
       </Button>
