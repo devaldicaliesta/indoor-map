@@ -131,6 +131,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Email vendor PanduArah: panduarahid@gmail.com (kontak, trial, dukungan, lisensi); alamat berdomain panduarah.id menyusul bila domain sudah dimiliki.
 - [2026-10-05] F2 — Nama produk/IP: **PanduArah** (domain dan email `panduarah`). Penggantian nama "Indoor Map" di UI, PWA, email, i18n, landing page, dan dokumen dimasukkan ke F2 (`02-kebutuhan.md`); pendaftaran domain, merek DJKI (kelas 9 dan 42), dan hak cipta oleh pemilik.
 - [2026-10-05] F2 — Landing page produk + form permintaan trial dimasukkan ke F2 (`02-kebutuhan.md`): situs vendor (bukan paket instalasi klien), form dikirim ke email vendor (keputusan pemilik), vendor menerbitkan lisensi trial manual dengan `license-cli`.
 - [2026-10-05] F2 — Ditambahkan ke F2 (`02-kebutuhan.md`): (1) lisensi trial 14 hari–1 bulan (paket `trial`, satu per instalasi, banner sisa hari, upgrade tanpa kehilangan data; cara penerbitan trial — oleh vendor atau otomatis saat instalasi — masih perlu diputuskan); (2) filter dan pencarian di setiap tabel Admin (status URL, filter server untuk tabel besar).
