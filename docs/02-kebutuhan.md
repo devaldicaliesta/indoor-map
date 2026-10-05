@@ -230,6 +230,23 @@ Jumlah per rilis: R0 5 · R1 37 · R2 19 · R3 17 · R4 24 = **102**. FR-VEN-07 
   - Upgrade ke lisensi berbayar cukup dengan memasang lisensi baru; data selama trial tetap ada.
   - Masih perlu diputuskan: trial diterbitkan vendor per permintaan (berkas atau kunci online),
     atau otomatis saat instalasi pertama dengan kunci trial bawaan.
+- **Nama produk PanduArah** (keputusan pemilik 2026-10-05):
+  - Bentuk resmi: **PanduArah** untuk logo dan teks, **panduarah** untuk domain dan email.
+    Tagline Inggris untuk pasar luar negeri: "PanduArah — Indoor Navigation".
+  - Ganti nama "Indoor Map" di semua tempat yang terlihat pengguna:
+    - judul dan header Admin dan Visitor;
+    - manifest PWA dan ikon;
+    - template email Auth dan pemberitahuan akun;
+    - teks i18n ID/EN;
+    - landing page;
+    - `deploy/README.md` dan dokumen produk.
+  - Nama paket kode (`@indoor/*`) dan istilah teknis tidak wajib diganti.
+  - Email vendor dengan domain sendiri: `halo@`, `trial@`, `sales@`, `support@`, `lisensi@`, dan
+    `no-reply@panduarah.id`.
+  - Perlindungan IP oleh pemilik, di luar kode:
+    - cek dan daftarkan domain panduarah.id, .co.id, dan .com;
+    - daftarkan merek di DJKI kelas 9 dan 42;
+    - daftarkan hak cipta program komputer.
 - **Landing page produk dan permintaan trial** (keputusan pemilik 2026-10-05). Ini situs vendor,
   bukan bagian paket instalasi klien.
   - Isi pengenalan aplikasi:
