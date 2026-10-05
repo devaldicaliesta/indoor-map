@@ -17,7 +17,11 @@ export function VenuePicker() {
 
   return (
     <Select value={venue.id} onValueChange={(id) => setVenueId(id as VenueId)}>
-      <SelectTrigger aria-label="Venue aktif" title={venue.name} className="w-64 font-bold">
+      <SelectTrigger
+        aria-label="Venue aktif"
+        title={venue.name}
+        className="w-64 min-w-0 shrink font-bold"
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

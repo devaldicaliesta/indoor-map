@@ -1,0 +1,16 @@
+{
+  "venueId": "3cd79e7d-86f9-4858-87c0-3725bb4e1aa1",
+  "originCode": "221318cc2606",
+  "targetLocationId": "0c635518-8e55-4901-bd5d-e13f306722af",
+  "targetName": "Lokasi 0490",
+  "insertedMs": 11823,
+  "publishMs": 6064,
+  "snapshotBytes": 0,
+  "denseVenueName": "Perf Lantai Padat muuo7luu",
+  "sample": {
+    "venueId": "942399a0-35ef-4e98-8224-90a9bc1d2bb0",
+    "name": "Perf Contoh muuo7luu",
+    "originCode": "2daf6a3ad1bb",
+    "infoPointCode": "IP-LOBI-942399a0"
+  }
+}
