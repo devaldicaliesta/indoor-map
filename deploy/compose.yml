@@ -1,0 +1,193 @@
+# Paket instalasi on-premise. Semua nilai dari deploy/.env yang dibuat install.sh.
+# Hanya komponen Supabase yang dipakai aplikasi: Postgres, Auth, PostgREST, Storage, Edge Runtime.
+name: indoor-map
+
+services:
+  db:
+    image: supabase/postgres:17.6.1.171
+    restart: unless-stopped
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf", "-c", "hba_file=/etc/indoor/pg_hba.conf"]
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+      PGPORT: 5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:ro
+      - ./db/pg_hba.conf:/etc/indoor/pg_hba.conf:ro
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  auth:
+    image: supabase/gotrue:v2.197.0
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      API_EXTERNAL_URL: https://${API_DOMAIN}
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@db:5432/postgres
+      GOTRUE_SITE_URL: https://${ADMIN_DOMAIN}
+      GOTRUE_URI_ALLOW_LIST: https://${ADMIN_DOMAIN}/**
+      GOTRUE_DISABLE_SIGNUP: "true"
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      # Masih menentukan klaim `role` token pengguna walau GoTrue menandainya usang.
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_MAILER_SECURE_EMAIL_CHANGE_ENABLED: "true"
+      GOTRUE_PASSWORD_MIN_LENGTH: 8
+      GOTRUE_SECURITY_REFRESH_TOKEN_ROTATION_ENABLED: "true"
+      GOTRUE_SECURITY_REFRESH_TOKEN_REUSE_INTERVAL: 10
+      GOTRUE_SESSIONS_INACTIVITY_TIMEOUT: 1h
+      GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_ENABLED: "true"
+      GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_URI: pg-functions://postgres/app/hook_password_verification_attempt
+      # Email Auth lewat Edge Function auth-email yang memakai SMTP Pengaturan Sistem (T-010).
+      GOTRUE_HOOK_SEND_EMAIL_ENABLED: "true"
+      # GoTrue hanya menerima hook http ke host lokal; alias jaringan di layanan functions.
+      GOTRUE_HOOK_SEND_EMAIL_URI: http://host.docker.internal:9000/auth-email
+      GOTRUE_HOOK_SEND_EMAIL_SECRETS: ${SEND_EMAIL_HOOK_SECRET}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9999/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  rest:
+    image: postgrest/postgrest:v16.3
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@db:5432/postgres
+      PGRST_DB_SCHEMAS: public,graphql_public
+      PGRST_DB_EXTRA_SEARCH_PATH: public,extensions
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_DB_MAX_ROWS: 1000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+
+  storage:
+    image: supabase/storage-api:v1.77.0
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+      rest: { condition: service_started }
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      AUTH_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@db:5432/postgres
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: local
+      GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: "false"
+    volumes:
+      - storage-data:/var/lib/storage
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5000/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  functions:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: functions
+      args: &build-args
+        VITE_SUPABASE_URL: https://${API_DOMAIN}
+        VITE_SUPABASE_ANON_KEY: ${ANON_KEY}
+        VITE_CAD_CONVERTER_URL: https://${API_DOMAIN}/cad
+    image: indoor-map/functions:${APP_VERSION:-local}
+    restart: unless-stopped
+    networks:
+      default:
+        aliases: [host.docker.internal]
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      SUPABASE_URL: http://web:8000
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      SUPABASE_DB_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
+      SEND_EMAIL_HOOK_SECRET: ${SEND_EMAIL_HOOK_SECRET}
+      LICENSE_VENDOR_URL: ${LICENSE_VENDOR_URL:-}
+
+  cad:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: cad
+    image: indoor-map/cad-converter:${APP_VERSION:-local}
+    restart: unless-stopped
+    environment:
+      ALLOWED_ORIGINS: https://${ADMIN_DOMAIN}
+      SUPABASE_URL: http://web:8000
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: web
+      args: *build-args
+    image: indoor-map/web:${APP_VERSION:-local}
+    restart: unless-stopped
+    depends_on:
+      - auth
+      - rest
+      - storage
+      - functions
+      - cad
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    environment:
+      API_DOMAIN: ${API_DOMAIN}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN}
+      VISITOR_DOMAIN: ${VISITOR_DOMAIN}
+      TLS_DIRECTIVE: ${TLS_DIRECTIVE}
+    volumes:
+      - ./certs:/certs:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+  # Dijalankan oleh install.sh/upgrade.sh: `docker compose run --rm migrate`.
+  migrate:
+    image: supabase/postgres:17.6.1.171
+    profiles: ["tools"]
+    depends_on:
+      db: { condition: service_healthy }
+      auth: { condition: service_healthy }
+      storage: { condition: service_healthy }
+    entrypoint: ["bash", "/deploy/migrate.sh"]
+    environment:
+      PGHOST: db
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: postgres
+      FUNCTIONS_URL: http://functions:9000
+    volumes:
+      - ./migrate.sh:/deploy/migrate.sh:ro
+      - ${MIGRATIONS_DIR:-../supabase/migrations}:/migrations:ro
+
+volumes:
+  db-data:
+  storage-data:
+  caddy-data:
+  caddy-config:

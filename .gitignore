@@ -19,3 +19,8 @@ e2e/test-results
 # Log dan sistem
 *.log
 .DS_Store
+
+# Paket instalasi: rahasia, backup, dan sertifikat klien hanya ada di server
+deploy/backups
+deploy/certs
+deploy/ca/*.crt

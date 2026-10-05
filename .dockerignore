@@ -1,0 +1,11 @@
+# Konteks build paket instalasi (deploy/Dockerfile): hanya kode sumber.
+**/node_modules
+**/dist
+**/.turbo
+.git
+.env*
+e2e
+deploy/.env
+deploy/backups
+deploy/certs
+supabase/.temp

@@ -1,0 +1,98 @@
+# Nilai {$…} dari deploy/.env (dibuat install.sh). TLS_DIRECTIVE:
+#   email@klien     sertifikat otomatis Let's Encrypt (domain publik)
+#   /certs/cert.pem /certs/key.pem   sertifikat klien (folder deploy/certs)
+#   internal        CA internal Caddy (jaringan tertutup/uji)
+{
+	admin off
+}
+
+(security) {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+}
+
+(cors) {
+	# Peran Kong di Supabase self-host: CORS terbuka untuk API (otorisasi lewat JWT dan RLS).
+	# cad-converter tidak ikut karena membatasi origin sendiri.
+	@api_preflight {
+		method OPTIONS
+		not path /cad/*
+	}
+	handle @api_preflight {
+		header Access-Control-Allow-Origin "*"
+		header Access-Control-Allow-Methods "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
+		header Access-Control-Allow-Headers "{http.request.header.Access-Control-Request-Headers}"
+		header Access-Control-Max-Age 3600
+		respond 204
+	}
+	@api not path /cad/*
+	header @api ?Access-Control-Allow-Origin "*"
+}
+
+(gateway) {
+	handle_path /auth/v1/* {
+		reverse_proxy auth:9999
+	}
+	handle_path /rest/v1/* {
+		reverse_proxy rest:3000
+	}
+	handle_path /storage/v1/* {
+		request_body {
+			max_size 60MB
+		}
+		reverse_proxy storage:5000
+	}
+	handle_path /functions/v1/* {
+		reverse_proxy functions:9000
+	}
+	handle_path /cad/* {
+		request_body {
+			max_size 60MB
+		}
+		reverse_proxy cad:8090
+	}
+	handle {
+		respond 404
+	}
+}
+
+(spa) {
+	encode zstd gzip
+	# Aset bernama hash boleh disimpan lama; index.html dan service worker selalu diperiksa ulang.
+	@hashed path /assets/*
+	header @hashed Cache-Control "public, max-age=31536000, immutable"
+	@entry path / /index.html /sw.js /manifest.webmanifest
+	header @entry Cache-Control "no-cache"
+	try_files {path} /index.html
+	file_server
+}
+
+{$API_DOMAIN} {
+	tls {$TLS_DIRECTIVE}
+	import security
+	import cors
+	import gateway
+}
+
+{$ADMIN_DOMAIN} {
+	tls {$TLS_DIRECTIVE}
+	import security
+	root * /srv/admin
+	import spa
+}
+
+{$VISITOR_DOMAIN} {
+	tls {$TLS_DIRECTIVE}
+	import security
+	root * /srv/visitor
+	import spa
+}
+
+# Gateway internal untuk layanan di jaringan Docker (Edge Function, cad-converter).
+:8000 {
+	import gateway
+}
