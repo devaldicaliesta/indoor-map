@@ -24,7 +24,7 @@ ID merujuk ke `docs/spec/`. Item bertanda **BL** adalah backlog (prioritas palin
 
 ### 2.1 Instalasi dengan database PostgreSQL milik klien
 
-mode database PostgreSQL milik klien (keputusan pemilik 2026-10-05, F2). Isinya:
+Keputusan pemilik 2026-10-05. Isinya:
 - `install.sh --database external`: paket tanpa container database, cek PostgreSQL 15+ beserta
   PostGIS, pg_cron, dan pg_net, lalu buat role dan skema `auth`, `storage`, `app` memakai akun
   superuser khusus instalasi;
