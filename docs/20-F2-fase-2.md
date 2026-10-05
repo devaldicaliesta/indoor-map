@@ -294,6 +294,35 @@ dijual:
 
 Task: T-601 s.d. T-606 (F2-K). **Paket dan harga** ditunda; ditetapkan pemilik kemudian.
 
+### 2.14 Tur panduan intro.js di setiap halaman
+
+Keputusan pemilik 2026-10-05. Setiap halaman Admin dan Visitor punya tur panduan langkah demi
+langkah memakai **intro.js**: elemen penting disorot satu per satu dengan penjelasan singkat,
+agar pengguna baru paham halaman tanpa pelatihan.
+
+- **Cakupan:**
+  - semua halaman Admin, termasuk Aktivasi, Venue (tab Gedung dan Lantai), Georeferensi denah,
+    Editor Peta, Lokasi, Penutupan, Titik Asal, Publish, Pengaturan, Pengguna, dan Lisensi;
+  - halaman Visitor (beranda dan peta venue: cari, kartu lokasi, rute, ganti lantai, 2D/3D,
+    bahasa, bagikan) dan Info Point;
+  - setiap halaman baru di F2 (mis. event, analitik, kesehatan sistem, bantuan) wajib ikut
+    membawa turnya.
+- **Perilaku:**
+  - tur berjalan otomatis saat pengguna pertama kali membuka halaman itu;
+  - tur bisa dilewati dan bisa diulang lewat tombol "Tur halaman";
+  - status "sudah dilihat" disimpan per pengguna (Admin) atau per perangkat (Visitor);
+  - di Info Point tur tidak berjalan otomatis dan ditutup saat reset idle.
+- **Langkah tur mengikuti role:** tombol yang tidak boleh dipakai role itu tidak ikut ditunjuk.
+- **Teks:** Admin berbahasa Indonesia; Visitor lewat i18n ID/EN.
+- **Tampilan:** gaya mengikuti `docs/05-desain-ui.md` (bukan tema bawaan intro.js), ramah HP,
+  dan bisa dipakai dengan keyboard.
+- **Lisensi intro.js:** AGPL-3.0 atau lisensi komersial berbayar. PanduArah dijual tertutup
+  (image jadi, T-511), jadi AGPL tidak bisa dipakai; pemilik perlu membeli lisensi komersial
+  sebelum task dikerjakan. Alternatif berlisensi MIT dengan pola serupa: driver.js.
+
+Task: T-599 (`21-F2-task.md`, F2-J). Tur lintas halaman untuk pengguna baru di T-596 memakai
+mesin yang sama.
+
 Urutan pengerjaan seluruh F2 ada di bagian **Roadmap rilis F2** di `21-F2-task.md`
 (F2.1 siap jual s.d. F2.5 penyempurnaan).
 

@@ -12,7 +12,8 @@ F2-B (pengerasan), F2-C (instalasi lanjutan), dan F2-D sampai F2-G (fitur).
 - skema hanya berubah lewat migrasi baru;
 - otorisasi di server;
 - teks Admin berbahasa Indonesia;
-- teks Visitor lewat i18n ID/EN.
+- teks Visitor lewat i18n ID/EN;
+- setiap halaman baru Admin dan Visitor wajib membawa tur intro.js (pola dari T-599).
 
 **Gerbang selesai F2-A:** produk tampil sebagai PanduArah. Calon klien bisa meminta trial dari
 landing page, vendor menerbitkan lisensi trial, dan semua tabel Admin punya cari, filter, dan
@@ -29,7 +30,7 @@ F2.1–F2.3.
 
 | Rilis | Tujuan | Task |
 | --- | --- | --- |
-| **F2.1 · Siap jual** | Produk bernama PanduArah bisa didemokan, dicoba (trial), dipasang, dan dijual dengan dokumen yang benar | T-501, T-502, T-503, T-504, T-505, T-511, T-512, T-514, T-521, T-596, T-601, T-602, T-605 |
+| **F2.1 · Siap jual** | Produk bernama PanduArah bisa didemokan, dicoba (trial), dipasang, dan dijual dengan dokumen yang benar | T-501, T-502, T-503, T-504, T-505, T-511, T-512, T-514, T-521, T-596, T-599, T-601, T-602, T-605 |
 | **F2.2 · Aman dan terkelola** | Siap tender instansi: keamanan, operasional, rilis tertib, dukungan | T-513, T-592, T-597, T-598, T-603, T-604, T-606, T-595, T-535 |
 | **F2.3 · Nilai jual utama** | Fitur pembeda di demo: scan denah, ikon, 3D, papan QR, event, analitik | T-548, T-572, T-571, T-544, T-574, T-581, T-582, T-583, T-591, T-552, T-553, T-554, T-573 |
 | **F2.4 · Enterprise dan integrasi** | Korporat, rumah sakit besar, pemerintah | T-593, T-594, T-531, T-532, T-522, T-556, T-557, T-555, T-561, T-562, T-523 |
@@ -917,8 +918,10 @@ Gerbang setiap rilis:
 ### T-596 · Bantuan dan dokumentasi pengguna
 
 - **Untuk:** `20-F2-fase-2.md` §2.11
+- **Bergantung pada:** T-599 (mesin tur)
 - **Langkah:**
-  1. Tur singkat saat pertama masuk Admin (buat venue → gambar peta → publish → QR).
+  1. Tur singkat lintas halaman saat pertama masuk Admin (buat venue → gambar peta → publish →
+     QR), memakai mesin tur dari T-599.
   2. Tooltip pada istilah penting; tautan "Bantuan" per halaman ke artikel yang sesuai.
   3. Halaman bantuan di dalam Admin, dari Markdown yang ikut dalam rilis sehingga bisa dibuka
      offline.
@@ -958,6 +961,82 @@ Gerbang setiap rilis:
   3. Lewat SMTP Pengaturan Sistem, dengan template ID dan tautan berhenti berlangganan.
 - **Selesai jika:**
   - [ ] Email terkirim sesuai preferensi (Mailpit di test) dan bisa dimatikan per jenis
+
+### T-599 · Tur panduan intro.js di setiap halaman
+
+- **Untuk:** `20-F2-fase-2.md` §2.14
+- **Bergantung pada:** T-501 (nama produk di teks tur), T-503 (tur menunjuk cari, filter, dan
+  pagination tabel)
+- **Prasyarat:** lisensi komersial intro.js sudah dibeli pemilik. intro.js berlisensi AGPL-3.0
+  untuk pemakaian gratis, dan itu tidak cocok untuk produk tertutup. Bila lisensi belum ada,
+  berhenti dan tanyakan di "Pertanyaan terbuka" (alternatif: driver.js, MIT).
+- **Konteks:**
+  - intro.js hanya dimuat saat tur dimulai (`import()` dinamis), agar tidak menambah muat awal
+    Visitor (`docs/laporan-performa.md`);
+  - target langkah memakai atribut `data-tour="…"`, bukan kelas CSS, agar tur tidak rusak saat
+    tampilan berubah;
+  - tur bukan otorisasi; tombol yang disembunyikan tetap dijaga server.
+- **Langkah:**
+  1. `packages/ui`: modul `tour`, berisi:
+     - pembungkus intro.js;
+     - hook `useTour(tourId, steps)`;
+     - tombol `TourButton` ("Tur halaman");
+     - fungsi murni `resolveTourSteps(steps, { can, isPresent })` yang membuang langkah untuk
+       aksi yang tidak dimiliki role dan elemen yang tidak ada di layar.
+  2. Tema tur dari design token (`docs/05-desain-ui.md`), bukan CSS bawaan intro.js:
+     - tombol "Kembali", "Lanjut", "Selesai", "Lewati";
+     - indikator langkah;
+     - tampilan HP;
+     - tanpa animasi bila `prefers-reduced-motion`;
+     - fokus dan keyboard (Esc, panah).
+  3. Status "sudah dilihat" per tur, dengan versi (`editor@1`) agar tur yang isinya berubah besar
+     bisa tampil lagi:
+     - **Admin:** disimpan per pengguna lewat `packages/data`. Kolom atau tabel baru dibuat lewat
+       migrasi baru, dengan RLS hanya pemilik akun.
+     - **Visitor:** `localStorage` per perangkat (tanpa cookie). Bila penyimpanan gagal, tur tidak
+       diulang terus-menerus dalam satu sesi.
+  4. Tur Admin, satu per halaman, di `apps/admin/src/features/<modul>/tour.ts`:
+     - Aktivasi;
+     - Venue, termasuk tab Gedung dan sheet Lantai;
+     - Georeferensi denah;
+     - Editor Peta (alat gambar, draft, validasi, graf jalur). Tur tidak dimulai otomatis saat
+       ada gambar yang belum selesai;
+     - Lokasi, termasuk impor;
+     - Penutupan;
+     - Titik Asal dan Info Point;
+     - Publish;
+     - Pengaturan;
+     - Pengguna;
+     - Lisensi.
+  5. Tur Visitor di `apps/visitor/src/features/<fitur>/tour.ts`:
+     - beranda;
+     - peta venue: cari, kartu lokasi, rute dan langkahnya, ganti lantai, 2D/3D, bahasa, bagikan;
+     - bottom sheet dibuka ke tinggi yang sesuai sebelum langkah yang menunjuk isinya.
+
+     Teks memakai kunci i18n `tour.*` (ID/EN); test kelengkapan i18n yang sudah ada ikut memeriksa.
+  6. Info Point: tur "Cara pakai" hanya lewat tombol, tidak otomatis. Reset idle menutup tur.
+  7. E2E dan seed: tur otomatis dimatikan untuk akun dan perangkat uji (ditandai sudah dilihat di
+     seed atau lewat konfigurasi test), agar spec yang ada tidak terganggu.
+  8. Test:
+     - Vitest untuk `resolveTourSteps`;
+     - Vitest yang gagal bila ada menu di `apps/admin/src/app/navigation.ts` atau rute Visitor
+       tanpa tur terdaftar;
+     - E2E satu halaman Admin (tur muncul pertama kali, dilewati, tidak muncul lagi setelah muat
+       ulang, diulang lewat tombol) dan Visitor berbahasa Inggris.
+- **File:** `packages/ui/src/tour/**`, `apps/admin/src/features/*/tour.ts`,
+  `apps/visitor/src/features/*/tour.ts`, `apps/visitor/src/i18n/*.json`, migrasi baru dan
+  repository `packages/data` untuk status tur Admin, `e2e/`
+- **Selesai jika:**
+  - [ ] Setiap menu Admin dan setiap halaman Visitor/Info Point punya tur (dijaga test)
+  - [ ] Tur bisa dilewati, diulang, dan tidak tampil lagi setelah selesai, termasuk dari perangkat
+    lain untuk akun Admin yang sama
+  - [ ] Langkah tur Admin berbeda per role: Viewer tidak ditunjukkan tombol tulis
+  - [ ] intro.js tidak termuat di Visitor sebelum tur dimulai (diperiksa di tab Network/bundle)
+  - [ ] Tampilan tur lulus pemeriksaan kontras dan keyboard
+- **Jangan:**
+  - memakai intro.js tanpa lisensi komersial;
+  - memakai selektor kelas CSS sebagai target langkah;
+  - menyalakan tur otomatis di Info Point.
 
 ## F2-K · Kesiapan komersial
 

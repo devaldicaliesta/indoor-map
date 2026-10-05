@@ -178,9 +178,10 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.
 | T-593 | API dan webhook integrasi | — | menunggu | |
 | T-594 | Export GeoJSON dan IMDF | — | menunggu | |
 | T-595 | Vendor Portal minimal | T-504, T-505 | menunggu | |
-| T-596 | Bantuan dan dokumentasi pengguna | — | menunggu | |
+| T-596 | Bantuan dan dokumentasi pengguna | T-599 | menunggu | |
 | T-597 | Monitoring server di Admin | T-411 | menunggu | |
 | T-598 | Notifikasi email operasional | T-591 | menunggu | |
+| T-599 | Tur panduan intro.js di setiap halaman | T-501, T-503 | menunggu | Perlu lisensi komersial intro.js |
 | T-601 | Kepatuhan UU PDP | — | menunggu | |
 | T-602 | Dokumen legal penjualan | — | menunggu | |
 | T-603 | Uji keamanan + pentest | — | menunggu | |
@@ -192,10 +193,11 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.
 
 Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … (status: menunggu jawaban)`
 
-(Tidak ada pertanyaan terbuka.)
+- [2026-10-05] T-599 — intro.js berlisensi AGPL-3.0 untuk pemakaian gratis, dan itu tidak cocok untuk PanduArah yang dijual tertutup (T-511). Opsi: A) beli lisensi komersial intro.js; B) pakai driver.js (MIT) dengan pola tur yang sama. Rekomendasi: A bila pemilik tetap ingin intro.js, B bila ingin tanpa biaya lisensi. (status: menunggu jawaban sebelum T-599 dikerjakan)
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Tur panduan intro.js di setiap halaman Admin, Visitor, dan Info Point dimasukkan ke F2 (`20-F2-fase-2.md` §2.14, T-599, rilis F2.1). Tur otomatis saat pertama membuka halaman, bisa dilewati dan diulang, langkah mengikuti role, intro.js dimuat lazy, dan setiap halaman baru F2 wajib membawa tur. T-596 (tur lintas halaman) memakai mesin tur T-599.
 - [2026-10-05] T-504 — **Diputuskan pemilik:** trial bisa per permintaan dan otomatis (tombol "Mulai trial" di `/aktivasi`, online ke layanan lisensi vendor; server offline memakai jalur per permintaan; trial berulang dicegah per instalasi, email, domain, dan IP); masa tenggang trial 14 hari; input data dibatasi selama trial: 1 venue, 2 gedung, 6 lantai, 1.000 fitur per lantai, 300 lokasi, 20 titik asal, 2 Info Point, 5 pengguna, Storage 1 GB, berkas 20 MB, impor 500 baris, 20 publish per hari (kuota dari lisensi, bisa disesuaikan vendor).
 - [2026-10-05] F2 — Ditambahkan F2-K kesiapan komersial (T-601 UU PDP, T-602 dokumen legal, T-603 uji keamanan + pentest, T-604 proses rilis, T-605 demo penjualan, T-606 pelatihan) dan roadmap rilis F2.1 siap jual · F2.2 aman dan terkelola · F2.3 nilai jual utama · F2.4 enterprise dan integrasi · F2.5 penyempurnaan. Paket dan harga ditunda (keputusan pemilik). Perencanaan F2 dinyatakan lengkap.
 - [2026-10-05] F2 — Ditambahkan F2-J (T-591 s.d. T-598: analitik anonim, 2FA/SSO, API + webhook, export GeoJSON/IMDF, Vendor Portal minimal, bantuan pengguna, monitoring server, notifikasi email) dan backlog BL-01 s.d. BL-08 (lokasi unggulan/iklan, portal pemilik lokasi, tema musiman, jadwal layar Info Point, asisten bahasa alami, aplikasi native/SDK, dasbor multi-venue, survei kepuasan).
