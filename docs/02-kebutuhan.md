@@ -269,11 +269,12 @@ Jumlah per rilis: R0 5 · R1 37 · R2 19 · R3 17 · R4 24 = **102**. FR-VEN-07 
     konfirmasi. Vendor menerbitkan lisensi trial secara manual dengan `license-cli`.
   - Desain mengikuti `docs/05-desain-ui.md`, bahasa ID/EN, dan halaman ramah HP.
   - Bergantung pada fitur lisensi trial di atas.
-- **Filter dan pencarian di setiap tabel Admin** (keputusan pemilik 2026-10-05). Setiap tabel
-  mendapat kolom cari teks dan filter sesuai kolomnya (status, jenis, role, lantai, tanggal),
-  dengan pola komponen yang sama dari `packages/ui`. Filter dan kata kunci tersimpan di URL agar
-  bisa dibagikan dan bertahan saat halaman dimuat ulang. Tabel besar memfilter di server lewat
-  repository `packages/data`. Tabel yang dicakup: Venue, Gedung, Lantai, Riwayat denah, Lokasi,
+- **Filter, pencarian, dan pagination di setiap tabel Admin** (keputusan pemilik 2026-10-05).
+  Pagination: pilihan jumlah baris per halaman (mis. 10/25/50/100), nomor halaman, dan total data.
+  Setiap tabel mendapat kolom cari teks dan filter sesuai kolomnya (status, jenis, role, lantai, tanggal),
+  dengan pola komponen yang sama dari `packages/ui`. Filter, kata kunci, dan halaman tersimpan di URL agar
+  bisa dibagikan dan bertahan saat halaman dimuat ulang. Tabel besar memfilter dan membagi halaman
+  di server lewat repository `packages/data` (`range` + jumlah total). Tabel yang dicakup: Venue, Gedung, Lantai, Riwayat denah, Lokasi,
   Kategori, Tipe lokasi dan kolom kustom, Jenis fasilitas, Penutupan, Titik Asal, Info Point,
   Riwayat publish, Pengguna, Log audit, Template instruksi, Lisensi, serta pratinjau impor.
 - **Instalasi di server Windows** (keputusan pemilik 2026-10-05). Linux (Ubuntu Server LTS)
