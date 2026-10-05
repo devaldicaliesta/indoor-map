@@ -519,6 +519,31 @@ pagination.
 
 ---
 
+### T-557 · Rute khusus kelompok pengguna (jalur terbatas)
+
+- **Untuk:** `20-F2-fase-2.md` §2.9 ("rute berbeda untuk pengguna berbeda")
+- **Bergantung pada:** T-556 (login Visitor untuk peta privat), T-551
+- **Konteks:** jalur khusus karyawan atau petugas, misalnya lorong servis, pintu staf, atau area
+  steril, tidak boleh dipakai atau terlihat oleh pengunjung umum. Rute aksesibel untuk
+  pengguna kursi roda sudah ada sejak R2.
+- **Langkah:**
+  1. Data:
+     - kelompok akses per venue (mis. "Staf", "Keamanan");
+     - edge, konektor, dan area dapat ditandai "terbatas" untuk kelompok tertentu;
+     - migrasi dan RLS.
+  2. Snapshot publik **tidak** memuat elemen terbatas. Graf terbatas diterbitkan sebagai berkas
+     terpisah yang hanya bisa dibaca pengguna login dari kelompok itu (policy Storage), mengikuti
+     pola graf terpisah dari "Snapshot ringan".
+  3. `packages/routing`: rute memakai graf publik + graf kelompok bila pengguna berhak, dengan
+     test agar pengunjung umum tidak pernah mendapat langkah lewat jalur terbatas.
+  4. Visitor: setelah login (SSO/akun klien, T-556), pilihan "Rute staf". Info Point dan
+     pengunjung tanpa login tetap memakai rute publik.
+  5. Estimasi durasi ikut tampil (T-552).
+- **Selesai jika:**
+  - [ ] Pengunjung umum tidak pernah mendapat langkah lewat jalur terbatas, dan berkas grafnya tidak bisa diunduh tanpa login
+  - [ ] Staf yang login mendapat rute lebih pendek lewat jalur terbatas
+- **Konteks keamanan:** jalankan `ecc-security-review` (policy Storage, RLS) sebelum PR.
+
 ## F2-G · Perangkat Info Point
 
 ### T-561 · Pairing, status, dan reload jarak jauh
@@ -561,8 +586,14 @@ pagination.
   saat mode 3D dibuka.
 - **Langkah:**
   1. Domain: fitur `model3d` (titik + `modelId`, skala, rotasi, tinggi dasar) dengan validasi dan test.
-  2. Pustaka objek bawaan berlisensi permisif atau buatan sendiri, ringan dan low-poly: pohon,
-     bangku, meja, kios, mobil, pot, tanda, dan sejenisnya.
+  2. Pustaka objek bawaan berlisensi permisif atau buatan sendiri, ringan dan low-poly, untuk
+     menonjolkan POI:
+     - tangga, lift, dan eskalator;
+     - taksi, mobil, dan halte;
+     - pohon, tanaman, dan pot;
+     - bangku, meja, kios, dan tanda.
+  2b. Elemen ikonik gedung (patung, lobi khas, menara) dibuat sebagai GLB khusus per klien dan
+     diunggah lewat langkah 3. Ini bisa menjadi layanan tambahan vendor.
   3. Unggah model GLB (≤ 5 MB, divalidasi), disimpan di Storage `public-assets`.
   4. Editor: tempatkan, geser, putar, dan ubah skala.
   5. `map-core` dan Visitor: custom layer Three.js di mode 3D. Objek disembunyikan di 2D dan pada
@@ -600,7 +631,10 @@ pagination.
      untuk jenis fasilitas, kategori, tipe lokasi, dan POI.
   3. Sprite peta dibangkitkan dari pustaka yang sama, dengan kontras AA dan ukuran target sentuh
      sesuai `05-desain-ui.md`.
-  4. Template tipe venue (rumah sakit, kampus, dan lainnya) memakai ikon baru yang sesuai.
+  4. Ada ikon umum (lintas sektor) dan set khusus sektor (kesehatan, pendidikan, perkantoran,
+     transportasi, industri, ritel), dipakai oleh template tipe venue yang sesuai.
+  4b. Pustaka bisa bertambah lewat rilis tanpa migrasi data, karena kunci ikon tersimpan sebagai
+     teks. Klien tetap bisa memakai ikon unggahan sendiri.
   5. Test: semua kunci ikon punya bentuk dan label ID/EN; snapshot lama dengan kunci lama tetap
      tampil.
 - **Selesai jika:**
@@ -642,9 +676,15 @@ pagination.
      - QR besar yang membuka Visitor dengan asal titik itu;
      - branding venue.
   2. Cetak massal: satu PDF untuk semua titik asal di satu lantai atau gedung.
-  3. Teks sesuai bahasa bawaan venue (ID/EN).
+  3. **Stiker QR per lokasi tujuan** (mis. 5 × 5 cm, lembar A4 berisi banyak stiker), untuk
+     ditempel di brosur, meja informasi, atau papan.
+     - Isi: QR deep link `to=` lokasi itu dan nama lokasinya.
+     - Saat dipindai, Visitor meminta titik asal lalu memberi rute langkah demi langkah.
+     - Pilihan lokasi lewat `DataTable` (cari dan filter).
+  4. Teks sesuai bahasa bawaan venue (ID/EN).
 - **Selesai jika:**
   - [ ] PDF A3 tercetak jelas, QR terbaca dari jarak 1 m, dan memindainya membuka rute dari titik itu
+  - [ ] Lembar stiker A4 untuk 20 lokasi; tiap QR membuka lokasi yang benar
 
 ---
 

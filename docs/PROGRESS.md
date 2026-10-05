@@ -162,6 +162,7 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai.
 | T-554 | Konten multi-bahasa | — | menunggu | |
 | T-555 | Lapisan keselamatan + mode teks | — | menunggu | |
 | T-556 | Embed, minimap, peta privat | — | menunggu | |
+| T-557 | Rute khusus kelompok pengguna (jalur terbatas) | T-556, T-551 | menunggu | |
 | T-561 | Pairing, status, reload perangkat | — | menunggu | |
 | T-562 | Shell Windows (WPF) | T-561 | menunggu | |
 | T-563 | Mode aksesibilitas Info Point | — | menunggu | |
@@ -181,6 +182,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Rincian teks Situm dari pemilik dipetakan (`20-F2-fase-2.md` §2.9): baru T-557 rute khusus kelompok pengguna (jalur staf di area terbatas; graf terbatas berkas terpisah hanya untuk pengguna berhak); T-574 ditambah stiker QR per lokasi tujuan; T-572 ikon lintas sektor + khusus sektor yang bisa bertambah; T-571 objek 3D tangga/lift/taksi/tanaman dan elemen ikonik gedung (GLB khusus). Wayfinding tanpa aplikasi, rute aksesibel, estimasi durasi (T-552), dan CMS + branding sudah ada atau sudah dijadwalkan.
 - [2026-10-05] F2 — Event dan promosi (sebelumnya modul bisnis di luar lingkup) masuk F2 (`20-F2-fase-2.md` §2.10, F2-I): T-581 data + Admin (fitur lisensi `events`, RLS anon hanya yang aktif), T-582 Visitor (dibaca langsung tanpa publish seperti penutupan, rute ke lokasi acara), T-583 playlist promosi Info Point saat idle.
 - [2026-10-05] F2 — Kesetaraan dengan Situm Indoor Maps (`20-F2-fase-2.md` §2.9): wayfinding statis tanpa aplikasi dan "lanjutkan di HP" sudah ada (Visitor PWA, QR titik asal, Info Point, T-409); ditambahkan F2-H: T-571 elemen 3D (FR-MAP-14 dinaikkan dari backlog, Three.js lazy, perlu persetujuan dependency), T-572 pustaka ±150 ikon POI, T-573 penguatan CMS (pustaka media, edit massal, dasbor), T-574 papan "Anda di sini" cetak dengan QR. Halaman situm.com tidak bisa diakses dari lingkungan ini (diblokir proxy); pemetaan berdasarkan judul fitur.
 - [2026-10-05] F2 — Scan AI (T-549) tanpa biaya per pemakaian: model berjalan lokal; lisensi bobot dan dataset latih wajib mengizinkan pemakaian komersial (banyak model denah memakai dataset non-komersial seperti CubiCasa5K). Urutan pilihan: model berlisensi komersial, latih sendiri, beli lisensi. Layanan AI cloud tidak dipakai.
