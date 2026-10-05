@@ -205,5 +205,17 @@ Jumlah per rilis: R0 5 · R1 37 · R2 19 · R3 17 · R4 24 = **102**. FR-VEN-07 
 - **Lisensi:** riwayat lisensi (LIC-13)
 - **Visitor:** fasilitas terdekat (VST-16), estimasi waktu (VST-17), konten multi-bahasa (VST-18), lapisan keselamatan (VST-20), mode teks/pembaca layar WCAG 2.2 AA (VST-21), embed (VST-22), rute multi-tujuan (VST-23), minimap (VST-24), peta privat (VST-25)
 - **Info Point:** mode aksesibilitas (IP-09), pemantauan perangkat (IP-10)
+- **Instalasi:** mode database PostgreSQL milik klien (keputusan pemilik 2026-10-05, F2). Isinya:
+  - `install.sh --database external`: paket tanpa container database, cek PostgreSQL 15+ beserta
+    PostGIS, pg_cron, dan pg_net, lalu buat role dan skema `auth`, `storage`, `app` memakai akun
+    superuser khusus instalasi;
+  - migrasi ke database klien;
+  - backup paket hanya untuk file dan konfigurasi, sedangkan database di-backup lewat prosedur
+    DBA klien;
+  - `upgrade.sh` meminta konfirmasi backup DBA sebelum migrasi;
+  - daftar periksa DBA di `deploy/README.md`.
+
+  Database selain PostgreSQL di luar cakupan. Mode bawaan (database ikut paket, T-411) tetap
+  menjadi default.
 
 Struktur data dan kode boleh **tidak menghalangi** fitur-fitur ini, tetapi jangan membangunnya lebih awal.
