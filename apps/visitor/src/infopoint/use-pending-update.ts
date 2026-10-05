@@ -1,7 +1,7 @@
 import type { Snapshot, VenueId } from '@indoor/domain';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
-import { loadSnapshot, snapshotKey } from '../data/loadSnapshot';
+import { loadSnapshotWithGraph, snapshotKey } from '../data/loadSnapshot';
 import { type UpdateWatcher, watchUpdates } from './update-watcher';
 
 /**
@@ -14,10 +14,10 @@ export function usePendingUpdate(venueId: VenueId, current: Snapshot | undefined
   const version = current?.version ?? 0;
 
   useEffect(() => {
-    const active = watchUpdates(() => loadSnapshot(venueId), version);
+    const active = watchUpdates(() => loadSnapshotWithGraph(venueId, queryClient), version);
     watcher.current = active;
     return () => active.stop();
-  }, [venueId, version]);
+  }, [venueId, version, queryClient]);
 
   return useCallback(() => {
     const next = watcher.current?.take();

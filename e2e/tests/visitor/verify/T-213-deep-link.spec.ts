@@ -12,7 +12,7 @@ test.describe('T-213 Spesifikasi deep link', () => {
   }) => {
     const venueId = fullVenue.venueId as Venue['id'];
     await superAdmin.publications.publish(venueId);
-    const snapshot = await superAdmin.snapshots.latest(venueId);
+    const snapshot = await superAdmin.snapshots.latestWithGraph(venueId);
     const location = (name: string) => {
       const found = snapshot.locations.find((l) => l.name === name);
       if (!found) throw new Error(`${name} tidak ada di snapshot`);
@@ -43,7 +43,7 @@ test.describe('T-213 Spesifikasi deep link', () => {
     await open(`from=${lng},${lat},${start.floorId}&to=${location('Radiologi')}&a11y=1`);
     const route = page.getByRole('region', { name: 'Rute' });
     await expect(route.getByRole('definition').first()).toHaveText('Titik di peta');
-    await expect(route.getByRole('definition').nth(1)).toHaveText('Radiologi');
+    await expect(route.getByRole('definition').nth(2)).toHaveText('Radiologi');
     await expect(route.getByRole('checkbox', { name: /Rute aksesibel/ })).toBeChecked();
     await expect(route.getByRole('list', { name: 'Langkah rute' })).toBeVisible();
     await page.screenshot({ path: shot('02-rute-aksesibel') });

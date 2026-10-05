@@ -35,7 +35,8 @@ export const options = {
     http_req_failed: ['rate<0.01'],
     'http_req_duration{kind:api}': ['p(95)<1000'],
     'http_req_duration{kind:page}': ['p(95)<1000'],
-    'http_req_duration{kind:snapshot}': ['p(95)<5000'],
+    'http_req_duration{kind:snapshot}': ['p(95)<2000'],
+    'http_req_duration{kind:graph}': ['p(95)<5000'],
   },
 };
 
@@ -61,6 +62,15 @@ export function visitor() {
     tags: { kind: 'snapshot' },
   });
   check(snapshot, { 'snapshot 200': (r) => r.status === 200 });
+  // Graf jalur terpisah (snapshot ringan); Visitor memuatnya di latar setelah peta tampil.
+  const graphPath = snapshot.json('graphPath');
+  if (graphPath) {
+    const graph = http.get(`${API}/storage/v1/object/public/snapshots/${VENUE}/${graphPath}`, {
+      headers: gzip,
+      tags: { kind: 'graph' },
+    });
+    check(graph, { 'graf 200': (r) => r.status === 200 });
+  }
   const now = new Date().toISOString();
   const closures = http.get(
     `${API}/rest/v1/closures?select=id,ends_at&venue_id=eq.${VENUE}&or=(ends_at.is.null,ends_at.gt."${now}")`,

@@ -139,7 +139,9 @@
     "failOrigin": "Your starting point is not connected to a path. Change the starting point.",
     "failDestination": "This destination is not connected to a path yet.",
     "detour": "The route takes a detour because of a temporary closure:",
-    "closedBecause": "Temporary closure:"
+    "closedBecause": "Temporary closure:",
+    "preparing": "Preparing route…",
+    "graphFailed": "Route paths could not be loaded. Check your connection and try again."
   },
   "share": {
     "button": "Share",

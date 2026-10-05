@@ -35,7 +35,7 @@ test.describe('T-203 Routing: aksesibel, penutupan, titik masuk', () => {
 
     // Penutupan lift: rute kursi roda GF → L1 tidak lagi bisa lewat lift.
     await superAdmin.publications.publish(venueId);
-    const snapshot = await superAdmin.snapshots.latest(venueId);
+    const snapshot = await superAdmin.snapshots.latestWithGraph(venueId);
     const lift = snapshot.graph.connectors.find((c) => c.kind === 'elevator');
     if (!lift) throw new Error('lift tidak ada di data uji');
     await superAdmin.closures.create(venueId, {

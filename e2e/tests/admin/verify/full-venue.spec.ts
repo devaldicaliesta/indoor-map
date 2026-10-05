@@ -9,7 +9,7 @@ test('data uji lengkap terisi dan bisa diterbitkan', async ({ fullVenue, superAd
   ]);
   const result = await superAdmin.publications.publish(venueId);
   expect(result.version).toBe(1);
-  const snapshot = await superAdmin.snapshots.latest(venueId);
+  const snapshot = await superAdmin.snapshots.latestWithGraph(venueId);
   expect(snapshot.graph.connectors.map((c) => c.kind).sort()).toEqual(
     [...fullVenue.source.graph.connectors.map((c) => c.kind)].sort(),
   );

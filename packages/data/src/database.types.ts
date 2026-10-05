@@ -851,8 +851,6 @@ export type Database = {
           activated_at: string;
           id: string;
           is_current: boolean;
-          last_checkin_at: string | null;
-          last_seen_at: string | null;
           license_id: string;
           payload: NonNullable<Json>;
           signature: string;
@@ -863,8 +861,6 @@ export type Database = {
           activated_at?: string;
           id?: string;
           is_current?: boolean;
-          last_checkin_at?: string | null;
-          last_seen_at?: string | null;
           license_id: string;
           payload: NonNullable<Json>;
           signature: string;
@@ -875,8 +871,6 @@ export type Database = {
           activated_at?: string;
           id?: string;
           is_current?: boolean;
-          last_checkin_at?: string | null;
-          last_seen_at?: string | null;
           license_id?: string;
           payload?: NonNullable<Json>;
           signature?: string;

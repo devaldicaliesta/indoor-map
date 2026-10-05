@@ -143,7 +143,7 @@ function StepMode({
  */
 export function RoutePanel() {
   const { t, i18n } = useTranslation();
-  const { snapshot, index, store } = useExplore();
+  const { snapshot, index, store, routeStatus, retryRoute } = useExplore();
   const origin = useExploreStore((s) => s.origin);
   const destination = useExploreStore((s) => s.destination);
   const accessible = useExploreStore((s) => s.accessible);
@@ -211,6 +211,19 @@ export function RoutePanel() {
         />
         {t('route.accessible')}
       </label>
+      {!plan && routeStatus === 'loading' ? (
+        <p role="status" className="text-ink-muted">
+          {t('route.preparing')}
+        </p>
+      ) : null}
+      {!plan && routeStatus === 'failed' ? (
+        <div role="alert" className="grid justify-items-start gap-2">
+          <p>{t('route.graphFailed')}</p>
+          <Button size="sm" variant="secondary" onClick={retryRoute}>
+            {t('venue.retry')}
+          </Button>
+        </div>
+      ) : null}
       {plan && !plan.ok ? (
         <>
           <FailureMessage failure={routeFailure(plan)} />

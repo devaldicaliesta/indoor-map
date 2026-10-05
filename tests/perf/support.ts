@@ -8,7 +8,7 @@ export interface SeededVenue {
   targetName: string;
   insertedMs: number;
   publishMs: number;
-  snapshotBytes: number;
+  latestBytes: number;
   denseVenueName: string;
   sample: { venueId: string; name: string; originCode: string; infoPointCode: string };
 }

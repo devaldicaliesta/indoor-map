@@ -11,6 +11,7 @@
     "perf": "playwright test"
   },
   "devDependencies": {
+    "@axe-core/playwright": "catalog:",
     "@biomejs/biome": "catalog:",
     "@indoor/data": "workspace:*",
     "@indoor/domain": "workspace:*",

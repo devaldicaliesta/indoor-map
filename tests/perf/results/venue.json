@@ -1,16 +1,16 @@
 {
-  "venueId": "3cd79e7d-86f9-4858-87c0-3725bb4e1aa1",
-  "originCode": "221318cc2606",
-  "targetLocationId": "0c635518-8e55-4901-bd5d-e13f306722af",
+  "venueId": "be5d2045-acb3-4434-83a5-d59808287bef",
+  "originCode": "5e70d54eb0fa",
+  "targetLocationId": "f4ae38d2-710a-416e-8a33-d26369febf3f",
   "targetName": "Lokasi 0490",
-  "insertedMs": 11823,
-  "publishMs": 6064,
-  "snapshotBytes": 0,
-  "denseVenueName": "Perf Lantai Padat muuo7luu",
+  "insertedMs": 10939,
+  "publishMs": 6083,
+  "latestBytes": 1202318,
+  "denseVenueName": "Perf Lantai Padat muuqb3e9",
   "sample": {
-    "venueId": "942399a0-35ef-4e98-8224-90a9bc1d2bb0",
-    "name": "Perf Contoh muuo7luu",
-    "originCode": "2daf6a3ad1bb",
-    "infoPointCode": "IP-LOBI-942399a0"
+    "venueId": "a8e6ab78-e008-44a4-ac6c-82f302074cf8",
+    "name": "Perf Contoh muuqb3e9",
+    "originCode": "97b79e4c10d4",
+    "infoPointCode": "IP-LOBI-a8e6ab78"
   }
 }

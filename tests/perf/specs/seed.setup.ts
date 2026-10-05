@@ -33,7 +33,8 @@ test('isi venue besar dan lantai padat lalu publish', async () => {
   const latest = await fetch(
     `${perfEnv.apiUrl}/storage/v1/object/public/snapshots/${large.venueId}/latest.json`,
   );
-  const snapshot = (await latest.json()) as { originPoints: { code: string }[] };
+  const latestText = await latest.text();
+  const snapshot = JSON.parse(latestText) as { originPoints: { code: string }[] };
 
   const denseName = `${PREFIX}Lantai Padat ${tag}`;
   const dense = await insertVenue(
@@ -68,7 +69,7 @@ test('isi venue besar dan lantai padat lalu publish', async () => {
         targetName: source.locations.at(-1)?.name,
         insertedMs,
         publishMs,
-        snapshotBytes: Number(latest.headers.get('content-length') ?? 0),
+        latestBytes: latestText.length,
         denseVenueName: denseName,
         sample: {
           venueId: sample.venueId,

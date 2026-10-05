@@ -139,7 +139,9 @@
     "failOrigin": "Titik asal tidak terhubung ke jalur. Ganti titik asal.",
     "failDestination": "Tujuan ini belum terhubung ke jalur.",
     "detour": "Rute memutar karena ada penutupan sementara:",
-    "closedBecause": "Penutupan sementara:"
+    "closedBecause": "Penutupan sementara:",
+    "preparing": "Menyiapkan rute…",
+    "graphFailed": "Jalur rute tidak bisa dimuat. Periksa koneksi, lalu coba lagi."
   },
   "share": {
     "button": "Bagikan",

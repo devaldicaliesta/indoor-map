@@ -14,6 +14,7 @@ import {
   venueToday,
 } from '../../../packages/domain/src/validation/publish.ts';
 import { CORS_HEADERS, fail, reply, serviceHeaders, url } from '../_shared/auth.ts';
+import { IMMUTABLE, putSnapshotFile, writeLatest } from '../_shared/snapshot-files.ts';
 import { type CallerRest, callerRest, PublishError } from './rest.ts';
 import { readFloorPlans, readSource } from './source.ts';
 
@@ -34,11 +35,6 @@ async function licenseFeatures(): Promise<string[]> {
 const snapshotOf = (source: Parameters<typeof buildSnapshot>[0]) =>
   applyEntitlements(buildSnapshot(source), source.enabledFeatures);
 
-// Versi bernomor tidak pernah berubah isinya; latest.json selalu diperiksa ulang ke server
-// (ETag) agar kunjungan berikutnya memakai versi terbaru tanpa mengunduh ulang isi yang sama.
-const IMMUTABLE = 'public, max-age=31536000, immutable';
-const REVALIDATE = 'no-cache';
-
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface Reservation {
@@ -47,14 +43,11 @@ interface Reservation {
   published_at: string;
 }
 
-async function upload(path: string, body: string, cacheControl: string) {
-  const response = await fetch(`${url}/storage/v1/object/snapshots/${path}`, {
-    method: 'POST',
-    headers: { ...serviceHeaders, 'x-upsert': 'true', 'cache-control': cacheControl },
-    body,
-  });
-  if (!response.ok) {
-    throw new PublishError(502, 'unknown', `Snapshot gagal disimpan: ${await response.text()}`);
+async function upload(path: string, body: string) {
+  try {
+    await putSnapshotFile(path, body, IMMUTABLE);
+  } catch (error) {
+    throw new PublishError(502, 'unknown', `Snapshot gagal disimpan: ${(error as Error).message}`);
   }
 }
 
@@ -143,7 +136,7 @@ async function release(
   let body: string;
   try {
     body = await snapshotBody(version, publishedAt);
-    await upload(`${venueId}/v${version}.json`, body, IMMUTABLE);
+    await upload(`${venueId}/v${version}.json`, body);
     await rest.rpc('publish_commit', { p_publication_id: id });
   } catch (error) {
     await rest.rpc('publish_abort', { p_publication_id: id }).catch(() => undefined);
@@ -151,7 +144,7 @@ async function release(
   }
 
   try {
-    await upload(`${venueId}/latest.json`, body, REVALIDATE);
+    await writeLatest(venueId, JSON.parse(body) as Snapshot);
   } catch {
     throw new PublishError(
       502,
