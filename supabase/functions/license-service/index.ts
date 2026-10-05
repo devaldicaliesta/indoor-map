@@ -15,7 +15,9 @@ async function rpc<T>(name: string, args: Record<string, unknown> = {}): Promise
     body: JSON.stringify(args),
   });
   if (!response.ok) throw new Error(`${name} gagal (${response.status}).`);
-  return (await response.json()) as T;
+  // Fungsi `returns void` dibalas tanpa isi.
+  const text = await response.text();
+  return (text ? JSON.parse(text) : null) as T;
 }
 
 async function readVersion(venueId: string, version: number): Promise<string> {

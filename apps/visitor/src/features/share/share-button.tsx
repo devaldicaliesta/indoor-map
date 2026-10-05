@@ -9,7 +9,7 @@ import { shareLink } from './share-model';
 type ShareResult = 'idle' | 'copied' | 'manual';
 
 /** Tautan keadaan sekarang di alamat Visitor yang sedang dibuka (tanpa pemendek URL). */
-function useShareUrl(): string {
+export function useShareUrl(): string {
   const { i18n } = useTranslation();
   const { snapshot, index } = useExplore();
   const detail = useExploreStore((s) => s.detail);

@@ -15,7 +15,9 @@ import { VisitorShell } from '../app/visitor-shell';
 import { useSnapshot } from '../data/loadSnapshot';
 import { showLanguage } from '../i18n';
 import { InfoPointModeContext } from '../infopoint/info-point-mode';
+import { OfflineBadge } from '../infopoint/offline-badge';
 import { useIdle } from '../infopoint/use-idle';
+import { usePendingUpdate } from '../infopoint/use-pending-update';
 import { SnapshotExplorer } from './venue-page';
 
 /** Permukaan Info Point (huruf 20 px, target sentuh 60 px) selama halaman ini terbuka. */
@@ -92,8 +94,11 @@ function InfoPointScreen({ venueId, code }: { venueId: VenueId; code: string }) 
   useEffect(() => {
     if (language) showLanguage(language);
   }, [language, session]);
+  const applyUpdate = usePendingUpdate(venueId, snapshot.data);
   useIdle(view?.infoPoint.idleSeconds ?? 60, () => {
     if (window.getSelection) window.getSelection()?.removeAllRanges();
+    // Versi baru hanya dipasang di sini, saat tidak ada yang memakai layar.
+    applyUpdate();
     setSession((s) => s + 1);
   });
   const link = useMemo<DeepLink | null>(
@@ -127,9 +132,15 @@ function InfoPointScreen({ venueId, code }: { venueId: VenueId; code: string }) 
   }
   return (
     <InfoPointModeContext.Provider value={{ code }}>
-      <div data-info-point-code={code} data-session={session} className="contents select-none">
+      <div
+        data-info-point-code={code}
+        data-session={session}
+        data-version={view.snapshot.version}
+        className="contents select-none"
+      >
         <SnapshotExplorer key={session} snapshot={view.snapshot} link={link} />
       </div>
+      <OfflineBadge />
     </InfoPointModeContext.Provider>
   );
 }

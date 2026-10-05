@@ -60,6 +60,15 @@ export default defineConfig({
               expiration: { maxEntries: 20 },
             },
           },
+          {
+            // Ikon fasilitas, logo, dan gambar lain di bucket aset publik: dipakai dari cache
+            // lebih dulu dan diperbarui di latar, agar Info Point tetap lengkap saat jaringan
+            // putus (NFR-REL-03).
+            urlPattern: ({ url }) =>
+              url.pathname.includes('/storage/v1/object/public/public-assets/'),
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'assets', expiration: { maxEntries: 500 } },
+          },
         ],
       },
     }),

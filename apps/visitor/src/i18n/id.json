@@ -59,7 +59,11 @@
     "keyboard": "Keyboard di layar",
     "space": "Spasi",
     "backspace": "Hapus huruf",
-    "search": "Cari"
+    "search": "Cari",
+    "continueQr": "QR rute untuk HP",
+    "continueTitle": "Lanjutkan di HP",
+    "continueDescription": "Pindai QR ini untuk membawa rute yang sama di HP Anda.",
+    "offline": "Offline"
   },
   "info": {
     "open": "Informasi peta",
