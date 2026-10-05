@@ -391,6 +391,61 @@ pagination.
   - pratinjau lalu impor menjadi draft fitur yang bisa dirapikan.
 - **Selesai jika:** denah DXF contoh menghasilkan unit yang lolos validasi geometri setelah dirapikan.
 
+### T-548 · Scan otomatis denah gambar (tahap 1)
+
+- **Untuk:** `20-F2-fase-2.md` §2.8 (FR-VEN-14 lanjutan)
+- **Bergantung pada:** T-105/T-106 (denah dan georeferensi), T-313 (`cad-converter`)
+- **Konteks:** pengguna mengunggah gambar denah lalu menekan Scan; garis dinding dan blok ruang
+  dibuat otomatis sebagai draft. Tambah `opencv-python-headless` (Apache-2.0) ke `cad-converter`.
+  Ukurannya besar, jadi tulis alasannya di PR dan minta persetujuan pemilik sebelum
+  menambahkannya.
+- **Langkah:**
+  1. Endpoint `cad-converter` `POST /scan` menerima gambar denah (PNG/JPG; PDF dirender di Admin
+     seperti T-105) dan parameter kepekaan. Langkah pengolahannya:
+     - grayscale, threshold adaptif, morfologi untuk menutup celah pintu kecil;
+     - buang teks dan simbol kecil (komponen di bawah ukuran minimum);
+     - dinding: skeleton atau garis Hough, digabung dan disederhanakan (Douglas–Peucker),
+       sudut diluruskan ke 0/90° bila dekat;
+     - ruang: kontur tertutup dalam piksel → poligon, luas minimum, tanpa lubang kecil;
+     - keluaran JSON dalam koordinat piksel dan skor keyakinan per objek.
+  2. `packages/domain`: ubah piksel ke WGS84 memakai transformasi georeferensi denah
+     (`transform.ts`), lalu periksa hasilnya dengan validasi geometri yang ada. Test dengan
+     fixture gambar sederhana.
+  3. Admin (editor denah):
+     - tombol **Scan** dengan kepekaan rendah, sedang, atau tinggi;
+     - pratinjau dinding dan ruang di atas denah, diwarnai menurut keyakinan;
+     - pilih semua, pilih per objek, atau buang;
+     - impor sebagai draft fitur (ruang → unit, dinding → garis) yang bisa diundo.
+  4. Batas: gambar ≤ 50 MB atau ≤ 8000 px sisi terpanjang, waktu proses ≤ 30 s, dengan pesan
+     jelas bila melewati batas.
+  5. Fixture uji: 3 denah (sederhana, sedang, dengan banyak teks), disimpan di
+     `services/cad-converter/tests/fixtures/`.
+  6. Hormati fitur lisensi `cad_import` seperti konversi DXF (T-514).
+- **File:** `services/cad-converter/app/scan.py`, `services/cad-converter/tests/**`, `packages/domain/src/scan-import.ts`, `packages/data/src/repositories/cad-converter.ts`, `apps/admin/src/features/floor-plans/scan/**`
+- **Selesai jika:**
+  - [ ] Denah sederhana: ≥ 90% ruang terdeteksi sebagai poligon dengan posisi sesuai gambar (± 0,5 m setelah georeferensi)
+  - [ ] Hasil scan bisa dipilih sebagian, diimpor sebagai draft, lalu diundo
+  - [ ] Unit hasil impor lolos validasi publish setelah dirapikan
+  - [ ] Gambar di luar batas ditolak dengan pesan, tanpa membuat layanan crash
+- **Jangan:** mengirim gambar denah ke layanan pihak ketiga atau cloud; semua diproses di server klien.
+
+### T-549 · Scan otomatis denah dengan model AI (tahap 2)
+
+- **Untuk:** `20-F2-fase-2.md` §2.8
+- **Bergantung pada:** T-548
+- **Konteks:** dikerjakan hanya bila evaluasi T-548 menunjukkan hasil kurang untuk denah rumit
+  (miring, foto, banyak arsiran). Butuh keputusan pemilik soal model dan lisensinya.
+- **Langkah:**
+  1. Evaluasi model segmentasi denah sumber terbuka berlisensi permisif yang bisa jalan di CPU
+     server (ONNX Runtime), dengan kelas dinding, pintu, jendela, dan ruang.
+  2. Mode **Scan (AI)** memakai keluaran model, dilanjutkan pascaproses yang sama dengan T-548.
+     Pintu terdeteksi menjadi fitur pintu.
+  3. Bandingkan dengan tahap 1 di set fixture yang sama, lalu catat akurasi dan waktu di laporan.
+- **Selesai jika:**
+  - [ ] Akurasi ruang pada denah rumit naik nyata dibanding T-548 (angka di laporan)
+  - [ ] Proses ≤ 60 s per denah di CPU 4 inti
+- **Jangan:** memakai model atau API yang mengirim data ke luar server klien.
+
 ---
 
 ## F2-F · Navigasi dan Visitor
@@ -490,7 +545,6 @@ pagination.
 
 | ID | Fitur |
 | --- | --- |
-| FR-VEN-14 (lanjutan) | Deteksi ruang dan dinding otomatis dengan AI dari gambar/PDF |
 | FR-MAP-14 | Model 3D GLB dengan Three.js (posisi, skala, rotasi) |
 | FR-NAV-16 | Mode evakuasi diaktifkan dari Admin |
 | FR-DEV-09 | Beacon dan blue dot |

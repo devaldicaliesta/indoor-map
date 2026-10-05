@@ -154,6 +154,8 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai.
 | T-545 | Warna per kategori + lantai bertumpuk | — | menunggu | |
 | T-546 | Pintu masuk venue | — | menunggu | |
 | T-547 | Import vektor CAD | T-313 | menunggu | |
+| T-548 | Scan otomatis denah gambar (computer vision) | T-105, T-313 | menunggu | |
+| T-549 | Scan otomatis denah dengan model AI | T-548 | menunggu | |
 | T-551 | Aturan jalur + bobot preferensi | — | menunggu | |
 | T-552 | Estimasi waktu tempuh | — | menunggu | |
 | T-553 | Fasilitas terdekat + multi-tujuan | — | menunggu | |
@@ -172,6 +174,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-05] F2 — Scan otomatis denah gambar (garis dinding dan blok ruang dibuat otomatis dari gambar yang diunggah) dipindah dari backlog ke F2: T-548 tahap 1 computer vision klasik di `cad-converter` (OpenCV, perlu persetujuan dependency), T-549 tahap 2 model AI lokal bila diperlukan. Semua diproses di server klien.
 - [2026-10-05] F2 — Fase 2 dipecah menjadi task T-501 s.d. T-563 di `21-F2-task.md` (F2-A siap jual, F2-B pengerasan, F2-C instalasi lanjutan, F2-D s.d. F2-G fitur spesifikasi); tabel status ditambahkan di PROGRESS, semua `menunggu`.
 - [2026-10-05] F2 — Daftar fase 2 dan backlog dipindah dari `02-kebutuhan.md` ke berkas tersendiri `20-F2-fase-2.md`.
 - [2026-10-05] F2 — Item tabel Admin diperluas: setiap tabel mendapat filter, pencarian, **dan pagination** (baris per halaman, nomor halaman, total; di server untuk tabel besar; status di URL).
