@@ -9,7 +9,7 @@ Struktur data dan kode boleh **tidak menghalangi** fitur-fitur ini, tetapi janga
 ID merujuk ke `docs/spec/`. Item bertanda **BL** adalah backlog (prioritas paling rendah).
 
 - **Akses:** hak akses granular (AUTH-06), audit log lengkap (AUTH-07)
-- **Venue:** label kustom (VEN-11), pintu masuk + Google Maps (VEN-12), duplikasi lantai (VEN-13), import vektor CAD (VEN-14), deteksi ruang dengan AI (BL)
+- **Venue:** label kustom (VEN-11), pintu masuk + Google Maps (VEN-12), duplikasi lantai (VEN-13), import vektor CAD (VEN-14); deteksi ruang otomatis dari gambar dipindah ke F2 (§2.8)
 - **Peta:** landmark (MAP-11), kontrol label (MAP-12), area temporer (MAP-13), model 3D GLB dengan Three.js (MAP-14, BL), export peta cetak (MAP-15)
 - **Tampilan:** warna per kategori (VIS-08), lantai bertumpuk (VIS-09)
 - **Navigasi:** instruksi landmark (NAV-12), edge satu arah dan berjam buka (NAV-13), bobot preferensi (NAV-14), estimasi waktu (NAV-15), mode evakuasi (NAV-16, BL)
@@ -143,3 +143,27 @@ sudah didukung sejak T-411. Dikerjakan berurutan:
   tenggang (T-406); penegakan server sudah ada.
 - **Pelaku audit aktivasi** tercatat sebagai Super Admin yang mengaktifkan, bukan "Sistem"
   (T-402).
+
+### 2.8 Scan otomatis denah gambar
+
+Keputusan pemilik 2026-10-05; sebelumnya backlog FR-VEN-14 lanjutan.
+
+Pengguna mengunggah gambar denah (PNG/JPG, atau PDF yang dirender jadi gambar), lalu menekan
+**Scan**. Sistem langsung membuat garis dinding dan blok ruang sesuai gambar sebagai draft fitur
+yang bisa diperiksa dan dirapikan, sehingga pengguna tidak perlu menjiplak manual.
+
+- **Tahap 1, computer vision klasik** di layanan `cad-converter` (Python):
+  - pembersihan gambar (grayscale, threshold, buang teks dan noise);
+  - deteksi garis dinding dan penyederhanaan;
+  - deteksi kontur ruang tertutup menjadi poligon.
+
+  Hasilnya diubah ke koordinat peta memakai georeferensi denah (T-105/T-106).
+- **Tahap 2, peningkatan dengan model AI** (segmentasi dinding, pintu, ruang) bila hasil tahap 1
+  belum cukup untuk denah yang rumit. Model berjalan lokal di server klien, tanpa layanan cloud.
+- Hasil scan tidak langsung menjadi data final. Pengguna melihat pratinjau di atas denah (dinding,
+  ruang, tingkat keyakinan), memilih bagian yang diterima, lalu impor sebagai draft. Validasi
+  geometri dan publish tetap berlaku.
+- Dependensi pengolahan gambar (OpenCV) hanya di container `cad-converter`, tidak di aplikasi
+  web. Lisensinya permisif (Apache-2.0), tetapi ukurannya besar sehingga perlu persetujuan
+  pemilik saat task dikerjakan.
+
