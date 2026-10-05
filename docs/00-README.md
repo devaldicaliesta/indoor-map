@@ -20,7 +20,8 @@ Playbook ini membawa proyek dari repo kosong sampai produk siap dijual, dalam ur
 | `12-R2-navigasi.md` | Task T-201 s.d. T-217 | Rilis 2 |
 | ~~`13-R3-operasional.md`~~ | Dihapus; status task R3 tetap di `PROGRESS.md`, spesifikasi T-307 s.d. T-313 ada di riwayat git | Rilis 3 |
 | `14-R4-komersial.md` | Task T-401 s.d. T-412 | Rilis 4 |
-| `20-F2-fase-2.md` | Daftar fase 2 dan backlog (belum dipecah jadi task) | Saat merencanakan F2 |
+| `20-F2-fase-2.md` | Daftar fase 2 dan backlog (keputusan pemilik) | Saat merencanakan F2 |
+| `21-F2-task.md` | Task T-501 s.d. T-563 (fase 2) | Fase 2 |
 | `16-test-case.md` | Katalog test case QA: fungsi, CRUD, UI/UX, keamanan, NFR | Sebelum dan selama T-307a |
 | `15-verifikasi-e2e.md` | T-307a: verifikasi E2E CRUD & UI/UX semua task `review` | Sebelum T-307 |
 | `spec/` | Spesifikasi lengkap (FR, user flow, proses bisnis, kriteria penerimaan) — sumber kebenaran perilaku | Saat task menyebut ID FR dan butuh detail |
