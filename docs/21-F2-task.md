@@ -435,6 +435,16 @@ pagination.
 - **Bergantung pada:** T-548
 - **Konteks:** dikerjakan hanya bila evaluasi T-548 menunjukkan hasil kurang untuk denah rumit
   (miring, foto, banyak arsiran). Butuh keputusan pemilik soal model dan lisensinya.
+- **Lisensi model (wajib dicek lebih dulu):** banyak model deteksi denah dilatih dengan dataset
+  berlisensi **non-komersial** (mis. CubiCasa5K), sehingga tidak boleh dipakai di produk yang
+  dijual. Pilihan, sesuai urutan:
+  1. model yang lisensi bobot dan dataset latihnya mengizinkan pemakaian komersial;
+  2. melatih model sendiri dengan denah yang izin pemakaiannya jelas (biaya pelabelan dan GPU
+     sekali saat pelatihan);
+  3. membeli lisensi model komersial.
+
+  Layanan AI cloud berbayar per pemakaian tidak dipakai, karena denah klien tidak boleh keluar
+  dari server klien.
 - **Langkah:**
   1. Evaluasi model segmentasi denah sumber terbuka berlisensi permisif yang bisa jalan di CPU
      server (ONNX Runtime), dengan kelas dinding, pintu, jendela, dan ruang.
