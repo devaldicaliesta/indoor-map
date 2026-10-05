@@ -648,6 +648,72 @@ pagination.
 
 ---
 
+## F2-I · Event dan promosi
+
+### T-581 · Event dan promosi: data dan Admin
+
+- **Untuk:** `20-F2-fase-2.md` §2.10
+- **Bergantung pada:** T-502 (tabel)
+- **Langkah:**
+  1. Migrasi:
+     - tabel `events`: `venue_id`, `kind` (`event`/`promotion`), judul/ringkasan/deskripsi
+       ID/EN, `image_path`, `starts_at`, `ends_at`, aturan berulang sederhana, `link_url`,
+       `status`, titik peta opsional;
+     - tabel `event_locations`;
+     - RLS: Editor ke atas menulis, anon hanya membaca yang aktif dan belum selesai;
+     - indeks waktu;
+     - pgTAP.
+  2. Fitur lisensi `events` (`PAID_FEATURES`). Server menolak penulisan tanpa fitur itu.
+  3. Domain: validasi (selesai > mulai, maksimal 1 tahun, judul ID wajib) dan perhitungan
+     kemunculan berulang, dengan test.
+  4. Repository `events` di `packages/data`, termasuk `listCurrent` untuk Visitor.
+  5. Admin, menu **Event & Promo**:
+     - tabel `DataTable` (cari, filter jenis/status/tanggal/lokasi, pagination);
+     - form dengan unggah gambar (pustaka media T-573 bila ada);
+     - pemilih lokasi dan titik peta;
+     - pratinjau kartu.
+- **Selesai jika:**
+  - [ ] Event baru tampil di daftar Admin dan bisa dibaca anon hanya selama aktif
+  - [ ] Tanpa fitur lisensi `events`, server menolak dan menu terkunci dengan keterangan
+
+### T-582 · Event dan promosi di Visitor
+
+- **Untuk:** `20-F2-fase-2.md` §2.10
+- **Bergantung pada:** T-581
+- **Langkah:**
+  1. Event dibaca langsung tiap menit seperti penutupan (`useLiveClosures`), tanpa publish dan
+     disaring menurut waktu sekarang.
+  2. Tampilan Visitor:
+     - chip atau tab "Event & Promo" (berlangsung, segera);
+     - kartu event dengan gambar, waktu, dan lokasi;
+     - lencana di kartu lokasi;
+     - penanda di peta pada lantai yang tampil;
+     - tombol "Rute ke sini";
+     - bagikan dengan deep link `ev=`.
+  3. i18n ID/EN; teks EN jatuh ke ID bila kosong.
+  4. E2E: event aktif tampil dan rute ke lokasinya jalan; event yang sudah selesai hilang
+     tanpa publish.
+- **Selesai jika:**
+  - [ ] Event muncul dan hilang sesuai jadwal tanpa publish ulang
+  - [ ] Muat awal Visitor tidak melambat (data event dimuat setelah peta tampil)
+
+### T-583 · Playlist promosi di Info Point
+
+- **Untuk:** `20-F2-fase-2.md` §2.10
+- **Bergantung pada:** T-582, T-408
+- **Langkah:**
+  1. Pengaturan Info Point:
+     - aktifkan playlist saat idle;
+     - durasi per slide;
+     - pilih event tertentu atau semua yang aktif.
+  2. Saat idle, Info Point menampilkan slide layar penuh (gambar, judul, waktu, lokasi, QR ke
+     detail). Sentuhan pertama menutup playlist dan membuka Visitor di event tersebut atau di
+     tampilan awal.
+  3. Gambar di-cache service worker agar tetap tampil saat offline (T-409).
+- **Selesai jika:**
+  - [ ] Setelah idle, playlist berputar; sentuhan membuka rute ke lokasi event
+  - [ ] Tanpa jaringan, slide yang sudah dimuat tetap tampil
+
 ## Backlog (tidak dijadwalkan)
 
 | ID | Fitur |

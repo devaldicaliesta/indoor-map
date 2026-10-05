@@ -182,3 +182,34 @@ PanduArah setelah R4:
 
 Kelima kemampuan ini juga menjadi bahan utama halaman fitur landing page (§2.4).
 
+### 2.10 Event dan promosi
+
+Keputusan pemilik 2026-10-05. Sebelumnya "modul bisnis" di luar lingkup spesifikasi
+(`docs/spec/01-kebutuhan-fungsional.md`).
+
+Venue bisa mengumumkan acara dan promosi yang terikat waktu dan tempat. Contoh lintas industri:
+seminar kesehatan di rumah sakit, wisuda atau pameran di kampus, diskon di pusat perbelanjaan,
+dan pengumuman di perkantoran.
+
+- **Data:**
+  - judul, ringkasan, deskripsi, gambar, kategori (acara atau promosi), ID/EN;
+  - waktu mulai dan selesai, plus jadwal berulang sederhana;
+  - lokasi yang ditautkan (satu atau beberapa), atau titik di peta untuk acara di area umum;
+  - tautan luar opsional;
+  - status draft, aktif, atau selesai.
+- **Tanpa publish ulang:** event dan promosi dibaca langsung dari server oleh Visitor seperti
+  penutupan jalur (T-216), dan tampil atau hilang otomatis menurut waktu (zona waktu venue).
+- **Visitor:**
+  - daftar "Event & Promo" (sedang berlangsung dan akan datang);
+  - lencana di kartu lokasi;
+  - penanda di peta;
+  - tombol rute ke tempat acara;
+  - bagikan.
+- **Info Point:** playlist promosi di layar saat idle (attract mode). Sentuhan pertama menutup
+  playlist dan membuka Visitor biasa.
+- **Admin:** CRUD dengan cari, filter, dan pagination (T-502), pratinjau, serta jadwal.
+  Role Editor ke atas bisa mengelola. Hak per modul ikut T-531 bila tersedia.
+- **Lisensi:** fitur paket `events` agar bisa dijual sebagai tambahan. Server menolak tanpa fitur
+  itu.
+- Istilah di kode tetap netral (`event`, `promotion`, `location`).
+
