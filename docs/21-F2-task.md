@@ -17,7 +17,7 @@ bawah, bukan urutan bagian F2-A s.d. F2-K.
 - otorisasi di server;
 - teks Admin berbahasa Indonesia;
 - teks Visitor lewat i18n ID/EN;
-- setiap halaman baru Admin dan Visitor wajib membawa tur intro.js (pola dari T-599);
+- setiap halaman baru Admin dan Visitor wajib membawa tur panduan driver.js (pola dari T-599);
 - setiap task diverifikasi menurut `22-F2-verifikasi-e2e.md`: spec E2E, test case di
   `16-test-case.md` §15 (baris **Verifikasi** di setiap task), dan bukti `e2e/evidence/T-5xx/`;
 - task yang menambah endpoint, pembacaan berkala, atau proses berat menambahkan skenario uji
@@ -534,8 +534,8 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 - **Untuk:** `20-F2-fase-2.md` §2.8 (FR-VEN-14 lanjutan)
 - **Bergantung pada:** T-105/T-106 (denah dan georeferensi), T-313 (`cad-converter`)
 - **Konteks:** pengguna mengunggah gambar denah lalu menekan Scan; garis dinding dan blok ruang
-  dibuat otomatis sebagai draft. Tambah `opencv-python-headless` (Apache-2.0) ke `cad-converter`.
-  Ukurannya besar, jadi tulis alasannya di PR dan minta persetujuan pemilik sebelum
+  dibuat otomatis sebagai draft. Tambah `opencv-python-headless` (Apache-2.0) ke `cad-converter`;
+  **disetujui pemilik 2026-10-06**. Tetap tulis alasan dan ukurannya di PR sebelum
   menambahkannya.
 - **Langkah:**
   1. Endpoint `cad-converter` `POST /scan` menerima gambar denah (PNG/JPG; PDF dirender di Admin
@@ -573,14 +573,13 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 - **Untuk:** `20-F2-fase-2.md` §2.8
 - **Bergantung pada:** T-548
 - **Konteks:** dikerjakan hanya bila evaluasi T-548 menunjukkan hasil kurang untuk denah rumit
-  (miring, foto, banyak arsiran). Butuh keputusan pemilik soal model dan lisensinya.
-- **Lisensi model (wajib dicek lebih dulu):** banyak model deteksi denah dilatih dengan dataset
-  berlisensi **non-komersial** (mis. CubiCasa5K), sehingga tidak boleh dipakai di produk yang
-  dijual. Pilihan, sesuai urutan:
-  1. model yang lisensi bobot dan dataset latihnya mengizinkan pemakaian komersial;
-  2. melatih model sendiri dengan denah yang izin pemakaiannya jelas (biaya pelabelan dan GPU
-     sekali saat pelatihan);
-  3. membeli lisensi model komersial.
+  (miring, foto, banyak arsiran).
+- **Keputusan pemilik (2026-10-06): hanya model gratis.** Bobot dan dataset latihnya harus
+  berlisensi terbuka yang mengizinkan pemakaian komersial. Banyak model deteksi denah dilatih
+  dengan dataset **non-komersial** (mis. CubiCasa5K), sehingga tidak boleh dipakai di produk yang
+  dijual. Tidak membeli lisensi model dan tidak melatih model sendiri dengan biaya pelabelan atau
+  GPU sewaan. Bila tidak ada model gratis yang lolos evaluasi, task ini ditunda, tahap 1 (T-548)
+  tetap dipakai, dan hasil evaluasinya dicatat di laporan.
 
   Layanan AI cloud berbayar per pemakaian tidak dipakai, karena denah klien tidak boleh keluar
   dari server klien.
@@ -739,8 +738,8 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 - **Untuk:** FR-MAP-14 (dinaikkan dari backlog), `20-F2-fase-2.md` §2.9
 - **Bergantung pada:** —
 - **Konteks:** ADR-05 menyatakan Three.js hanya untuk model 3D, jadi task ini yang membawa
-  Three.js masuk lewat custom layer MapLibre. Three.js berlisensi MIT, tetapi ukurannya besar
-  (±150 kB gzip), sehingga perlu persetujuan pemilik dan wajib dimuat terpisah (lazy), hanya
+  Three.js masuk lewat custom layer MapLibre. Three.js berlisensi MIT dan **disetujui pemilik
+  2026-10-06** walaupun besar (±150 kB gzip), dengan syarat dimuat terpisah (lazy), hanya
   saat mode 3D dibuka.
 - **Langkah:**
   1. Domain: fitur `model3d` (titik + `modelId`, skala, rotasi, tinggi dasar) dengan validasi dan test.
@@ -1065,28 +1064,28 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 - **Selesai jika:**
   - [ ] Email terkirim sesuai preferensi (Mailpit di test) dan bisa dimatikan per jenis
 
-### T-599 · Tur panduan intro.js di setiap halaman
+### T-599 · Tur panduan di setiap halaman (driver.js)
 
 - **Untuk:** `20-F2-fase-2.md` §2.14
 - **Bergantung pada:** T-501 (nama produk di teks tur), T-503 (tur menunjuk cari, filter, dan
   pagination tabel)
-- **Prasyarat:** lisensi komersial intro.js sudah dibeli pemilik. intro.js berlisensi AGPL-3.0
-  untuk pemakaian gratis, dan itu tidak cocok untuk produk tertutup. Bila lisensi belum ada,
-  berhenti dan tanyakan di "Pertanyaan terbuka" (alternatif: driver.js, MIT).
+- **Keputusan pemilik (2026-10-06):** pakai pustaka tur yang gratis, yaitu **driver.js** (MIT).
+  intro.js gratis berlisensi AGPL-3.0 dan tidak cocok untuk produk tertutup. Tulis ukuran gzip
+  driver.js di deskripsi PR (aturan dependency baru).
 - **Konteks:**
-  - intro.js hanya dimuat saat tur dimulai (`import()` dinamis), agar tidak menambah muat awal
+  - driver.js hanya dimuat saat tur dimulai (`import()` dinamis), agar tidak menambah muat awal
     Visitor (`docs/laporan-performa.md`);
   - target langkah memakai atribut `data-tour="…"`, bukan kelas CSS, agar tur tidak rusak saat
     tampilan berubah;
   - tur bukan otorisasi; tombol yang disembunyikan tetap dijaga server.
 - **Langkah:**
   1. `packages/ui`: modul `tour`, berisi:
-     - pembungkus intro.js;
+     - pembungkus driver.js;
      - hook `useTour(tourId, steps)`;
      - tombol `TourButton` ("Tur halaman");
      - fungsi murni `resolveTourSteps(steps, { can, isPresent })` yang membuang langkah untuk
        aksi yang tidak dimiliki role dan elemen yang tidak ada di layar.
-  2. Tema tur dari design token (`docs/05-desain-ui.md`), bukan CSS bawaan intro.js:
+  2. Tema tur dari design token (`docs/05-desain-ui.md`), bukan CSS bawaan driver.js:
      - tombol "Kembali", "Lanjut", "Selesai", "Lewati";
      - indikator langkah;
      - tampilan HP;
@@ -1135,10 +1134,10 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
   - [ ] Tur bisa dilewati, diulang, dan tidak tampil lagi setelah selesai, termasuk dari perangkat
     lain untuk akun Admin yang sama
   - [ ] Langkah tur Admin berbeda per role: Viewer tidak ditunjukkan tombol tulis
-  - [ ] intro.js tidak termuat di Visitor sebelum tur dimulai (diperiksa di tab Network/bundle)
+  - [ ] driver.js tidak termuat di Visitor sebelum tur dimulai (diperiksa di tab Network/bundle)
   - [ ] Tampilan tur lulus pemeriksaan kontras dan keyboard
 - **Jangan:**
-  - memakai intro.js tanpa lisensi komersial;
+  - memakai intro.js atau pustaka tur berlisensi AGPL/berbayar;
   - memakai selektor kelas CSS sebagai target langkah;
   - menyalakan tur otomatis di Info Point.
 

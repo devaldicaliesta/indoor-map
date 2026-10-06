@@ -13,7 +13,7 @@ ID merujuk ke `docs/spec/`. Item bertanda **BL** adalah backlog (prioritas palin
 
 - **Akses:** hak akses granular (AUTH-06), audit log lengkap (AUTH-07)
 - **Venue:** label kustom (VEN-11), pintu masuk + Google Maps (VEN-12), duplikasi lantai (VEN-13), import vektor CAD (VEN-14); deteksi ruang otomatis dari gambar dipindah ke F2 (§2.8)
-- **Peta:** landmark (MAP-11), kontrol label (MAP-12), area temporer (MAP-13), model 3D GLB dengan Three.js (MAP-14; dipindah ke F2, §2.9), export peta cetak (MAP-15)
+- **Peta:** landmark (MAP-11), kontrol label (MAP-12), area temporer (MAP-13), model 3D GLB dengan Three.js (MAP-14; dipindah ke F2, §2.9; Three.js disetujui pemilik 2026-10-06), export peta cetak (MAP-15)
 - **Tampilan:** warna per kategori (VIS-08), lantai bertumpuk (VIS-09)
 - **Navigasi:** instruksi landmark (NAV-12), edge satu arah dan berjam buka (NAV-13), bobot preferensi (NAV-14), estimasi waktu (NAV-15), mode evakuasi (NAV-16, BL)
 - **Lokasi:** konten multi-bahasa (LOC-11)
@@ -192,12 +192,15 @@ yang bisa diperiksa dan dirapikan, sehingga pengguna tidak perlu menjiplak manua
   Hasilnya diubah ke koordinat peta memakai georeferensi denah (T-105/T-106).
 - **Tahap 2, peningkatan dengan model AI** (segmentasi dinding, pintu, ruang) bila hasil tahap 1
   belum cukup untuk denah yang rumit. Model berjalan lokal di server klien, tanpa layanan cloud.
+  **Hanya model gratis** (diputuskan pemilik 2026-10-06): bobot dan dataset latihnya berlisensi
+  terbuka yang mengizinkan pemakaian komersial. Tidak membeli lisensi model dan tidak melatih
+  model sendiri dengan biaya pelabelan atau GPU sewaan. Bila tidak ada model gratis yang cukup
+  baik, tahap 2 ditunda dan tahap 1 tetap dipakai.
 - Hasil scan tidak langsung menjadi data final. Pengguna melihat pratinjau di atas denah (dinding,
   ruang, tingkat keyakinan), memilih bagian yang diterima, lalu impor sebagai draft. Validasi
   geometri dan publish tetap berlaku.
-- Dependensi pengolahan gambar (OpenCV) hanya di container `cad-converter`, tidak di aplikasi
-  web. Lisensinya permisif (Apache-2.0), tetapi ukurannya besar sehingga perlu persetujuan
-  pemilik saat task dikerjakan.
+- Dependensi pengolahan gambar (OpenCV, Apache-2.0) hanya di container `cad-converter`, tidak
+  di aplikasi web. **Disetujui pemilik 2026-10-06** walaupun ukurannya besar.
 
 ### 2.9 Kesetaraan dengan produk indoor maps komersial (referensi: Situm Indoor Maps)
 
@@ -304,10 +307,10 @@ dijual:
 
 Task: T-601 s.d. T-606 (F2-K). **Paket dan harga** ditunda; ditetapkan pemilik kemudian.
 
-### 2.14 Tur panduan intro.js di setiap halaman
+### 2.14 Tur panduan di setiap halaman (driver.js)
 
 Keputusan pemilik 2026-10-05. Setiap halaman Admin dan Visitor punya tur panduan langkah demi
-langkah memakai **intro.js**: elemen penting disorot satu per satu dengan penjelasan singkat,
+langkah memakai **driver.js** (gratis, MIT): elemen penting disorot satu per satu dengan penjelasan singkat,
 agar pengguna baru paham halaman tanpa pelatihan.
 
 - **Cakupan:**
@@ -324,11 +327,12 @@ agar pengguna baru paham halaman tanpa pelatihan.
   - di Info Point tur tidak berjalan otomatis dan ditutup saat reset idle.
 - **Langkah tur mengikuti role:** tombol yang tidak boleh dipakai role itu tidak ikut ditunjuk.
 - **Teks:** Admin berbahasa Indonesia; Visitor lewat i18n ID/EN.
-- **Tampilan:** gaya mengikuti `docs/05-desain-ui.md` (bukan tema bawaan intro.js), ramah HP,
+- **Tampilan:** gaya mengikuti `docs/05-desain-ui.md` (bukan tema bawaan driver.js), ramah HP,
   dan bisa dipakai dengan keyboard.
-- **Lisensi intro.js:** AGPL-3.0 atau lisensi komersial berbayar. PanduArah dijual tertutup
-  (image jadi, T-511), jadi AGPL tidak bisa dipakai; pemilik perlu membeli lisensi komersial
-  sebelum task dikerjakan. Alternatif berlisensi MIT dengan pola serupa: driver.js.
+- **Pustaka tur** (diputuskan pemilik 2026-10-06: pakai yang gratis): **driver.js** (MIT).
+  intro.js versi gratis berlisensi AGPL-3.0, yang mewajibkan kode sumber PanduArah dibuka ke
+  klien, sedangkan versi komersialnya berbayar. driver.js memberi pola tur yang sama tanpa biaya
+  dan tanpa kewajiban itu.
 
 Task: T-599 (`21-F2-task.md`, F2-J). Tur lintas halaman untuk pengguna baru di T-596 memakai
 mesin yang sama.
