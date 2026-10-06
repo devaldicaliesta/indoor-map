@@ -4,8 +4,12 @@ Pecahan `20-F2-fase-2.md` menjadi task yang siap dikerjakan satu per satu. Forma
 `10-R0-fondasi.md` s.d. `14-R4-komersial.md`. Kriteria lengkap setiap FR ada di `docs/spec/`
 (cari ID-nya).
 
-**Prasyarat:** R0–R4 sudah di-review pemilik. Urutan yang disarankan: F2-A (siap jual), lalu
-F2-B (pengerasan), F2-C (instalasi lanjutan), dan F2-D sampai F2-G (fitur).
+**Status perencanaan:** final (2026-10-06). Semua task T-501 s.d. T-607 sudah punya langkah,
+kriteria selesai, dan verifikasi. Perubahan berikutnya dicatat di `PROGRESS.md` sebagai keputusan
+baru.
+
+**Prasyarat:** R0–R4 sudah di-review pemilik. Urutan pengerjaan mengikuti **Roadmap rilis F2** di
+bawah, bukan urutan bagian F2-A s.d. F2-K.
 
 **Aturan tetap berlaku:**
 - logika di `packages/domain` dan `packages/routing` wajib disertai test;
@@ -13,7 +17,11 @@ F2-B (pengerasan), F2-C (instalasi lanjutan), dan F2-D sampai F2-G (fitur).
 - otorisasi di server;
 - teks Admin berbahasa Indonesia;
 - teks Visitor lewat i18n ID/EN;
-- setiap halaman baru Admin dan Visitor wajib membawa tur intro.js (pola dari T-599).
+- setiap halaman baru Admin dan Visitor wajib membawa tur intro.js (pola dari T-599);
+- setiap task diverifikasi menurut `22-F2-verifikasi-e2e.md`: spec E2E, test case di
+  `16-test-case.md` §15 (baris **Verifikasi** di setiap task), dan bukti `e2e/evidence/T-5xx/`;
+- task yang menambah endpoint, pembacaan berkala, atau proses berat menambahkan skenario uji
+  beban k6 di `tests/perf/k6/` (`22-F2-verifikasi-e2e.md` §6).
 
 **Gerbang selesai F2-A:** produk tampil sebagai PanduArah. Calon klien bisa meminta trial dari
 landing page, vendor menerbitkan lisensi trial, dan semua tabel Admin punya cari, filter, dan
@@ -31,14 +39,17 @@ F2.1–F2.3.
 | Rilis | Tujuan | Task |
 | --- | --- | --- |
 | **F2.1 · Siap jual** | Produk bernama PanduArah bisa didemokan, dicoba (trial), dipasang, dan dijual dengan dokumen yang benar | T-501, T-502, T-503, T-504, T-505, T-511, T-512, T-514, T-521, T-596, T-599, T-601, T-602, T-605 |
-| **F2.2 · Aman dan terkelola** | Siap tender instansi: keamanan, operasional, rilis tertib, dukungan | T-513, T-592, T-597, T-598, T-603, T-604, T-606, T-595, T-535 |
+| **F2.2 · Aman dan terkelola** | Siap tender instansi: keamanan, operasional, rilis tertib, dukungan | T-513, T-592, T-597, T-598, T-603, T-604, T-606, T-607, T-595, T-535 |
 | **F2.3 · Nilai jual utama** | Fitur pembeda di demo: scan denah, ikon, 3D, papan QR, event, analitik | T-548, T-572, T-571, T-544, T-574, T-581, T-582, T-583, T-591, T-552, T-553, T-554, T-573 |
-| **F2.4 · Enterprise dan integrasi** | Korporat, rumah sakit besar, pemerintah | T-593, T-594, T-531, T-532, T-522, T-556, T-557, T-555, T-561, T-562, T-523 |
-| **F2.5 · Penyempurnaan** | Fitur spesifikasi F2 lainnya | T-533, T-534, T-536, T-541, T-542, T-543, T-545, T-546, T-547, T-549, T-551, T-563 |
+| **F2.4 · Enterprise dan integrasi** | Korporat, rumah sakit besar, pemerintah | T-593, T-594, T-531, T-532, T-522, T-556, T-557, T-555, T-551, T-561, T-562, T-523 |
+| **F2.5 · Penyempurnaan** | Fitur spesifikasi F2 lainnya | T-533, T-534, T-536, T-541, T-542, T-543, T-545, T-546, T-547, T-549, T-563 |
 
-Gerbang setiap rilis:
+Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 - `pnpm check` dan E2E alur utama hijau;
+- spec setiap task rilis itu dan spec alur gabungan rilis lulus 3 kali berturut-turut;
+- semua test case P1 rilis itu lulus;
 - uji paket instalasi (instal, upgrade, rollback) lulus;
+- uji beban lulus: smoke dan normal di setiap rilis, ditambah puncak dan lonjakan mulai F2.2;
 - changelog dibuat (setelah T-604 ada).
 
 ---
@@ -74,6 +85,7 @@ Gerbang setiap rilis:
   4. Nama paket kode (`@indoor/*`), nama tabel, dan istilah teknis tidak diganti.
   5. Cari sisa teks dengan `rg -i "indoor map"` dan pastikan hanya tersisa di kode internal.
 - **File:** `apps/*/index.html`, `apps/*/vite.config.ts`, `apps/visitor/src/i18n/*.json`, `supabase/functions/{auth-email,account-notice}/**`, `apps/*/public/icons/**`, `apps/admin/public/favicon.png`, `packages/ui/src/brand/**`, dokumen
+- **Verifikasi:** TC-BRD-01 s.d. 06; bukti `e2e/evidence/T-501/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Tidak ada teks "Indoor Map" yang terlihat di Admin, Visitor, Info Point, email, dan PWA
   - [ ] Logo PanduArah tampil tajam di header dan login Admin, favicon, ikon PWA, dan email,
@@ -97,6 +109,7 @@ Gerbang setiap rilis:
      indeks yang ada.
   4. Test: hook URL (Vitest) dan pola repository (integrasi untuk satu tabel contoh).
 - **File:** `packages/ui/src/components/data-table/**`, `apps/admin/src/hooks/use-table-state.ts`, `packages/data/src/pagination.ts`
+- **Verifikasi:** TC-TBL-04, 05, 06; bukti `e2e/evidence/T-502/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Galeri UI menampilkan `DataTable` dengan cari, filter, dan pagination
   - [ ] Muat ulang halaman mempertahankan cari, filter, dan halaman dari URL
@@ -129,6 +142,7 @@ Gerbang setiap rilis:
      dibagi halaman di server; tabel kecil boleh di klien.
   3. E2E: Lokasi dan Log audit (cari, filter, pindah halaman, muat ulang).
 - **File:** halaman Admin terkait, repository `packages/data`
+- **Verifikasi:** TC-TBL-01 s.d. 10, TC-SEC-81; bukti `e2e/evidence/T-503/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] 17 tabel memakai `DataTable`
   - [ ] Lokasi dengan 2.000 baris tetap responsif (< 500 ms per perubahan filter)
@@ -197,6 +211,7 @@ Gerbang setiap rilis:
   6. Upgrade ke berbayar: pasang lisensi baru, batas trial langsung terangkat, dan data tetap
      ada (uji E2E).
 - **File:** `packages/domain/src/license.ts`, `packages/domain/src/license-quota.ts`, `tools/license-cli/**`, `tools/vendor-stub/**`, migrasi baru, `supabase/functions/{license-activate,publish}/**`, `packages/data/src/repositories/license.ts`, `apps/admin/src/features/license/**`
+- **Verifikasi:** TC-TRL-01 s.d. 14, TC-SEC-80; bukti `e2e/evidence/T-504/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Trial 14 dan 30 hari bisa diterbitkan; 31 hari ditolak
   - [ ] Trial otomatis dari `/aktivasi` aktif dalam < 1 menit; trial kedua untuk instalasi, email, atau domain yang sama ditolak
@@ -232,6 +247,7 @@ Gerbang setiap rilis:
   4. Halaman kebijakan privasi singkat.
   5. Test: validasi form (unit) dan E2E kirim form ke SMTP tiruan (Mailpit).
 - **File:** `apps/landing/**`, fungsi pengirim di server vendor
+- **Verifikasi:** TC-LND-01 s.d. 08; bukti `e2e/evidence/T-505/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Form terkirim ke email vendor dan pemohon menerima konfirmasi
   - [ ] Spam sederhana (honeypot terisi, > 5 kirim per menit per IP) ditolak
@@ -257,6 +273,7 @@ Gerbang setiap rilis:
      `git checkout` + build.
   5. README memuat alur rilis vendor dan alur pasang di klien.
 - **File:** `deploy/**`
+- **Verifikasi:** TC-HRD-01 s.d. 03; bukti `e2e/evidence/T-511/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Instalasi dari arsip rilis di mesin bersih tanpa internet berhasil
   - [ ] Paket klien tidak memuat `apps/`, `packages/`, maupun kunci lisensi publik yang bisa diganti
@@ -272,6 +289,7 @@ Gerbang setiap rilis:
      (i18n). Pencarian, kartu lokasi, dan daftar langkah rute tetap jalan tanpa peta.
   3. Info Point: pesan yang sama, versi layar besar.
   4. Test: E2E dengan WebGL dimatikan (`--disable-webgl` di Chromium).
+- **Verifikasi:** TC-HRD-04; bukti `e2e/evidence/T-512/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Tanpa WebGL, cari "Radiologi" dan rute dari titik asal tetap menampilkan langkah
   - [ ] Tidak ada layar "Terjadi kesalahan"
@@ -288,6 +306,7 @@ Gerbang setiap rilis:
      - tunda pembuatan daftar A–Z dan chip sampai peta tampil.
   3. Uji manual dengan daftar periksa alur `tests/perf/specs/compat.compat.ts` di Firefox, Edge,
      Safari macOS, iOS 15, dan Android 10.
+- **Verifikasi:** TC-HRD-05, 06; bukti `e2e/evidence/T-513/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Angka di HP sungguhan tercatat; target terpenuhi atau selisihnya dijelaskan
   - [ ] Hasil uji manual tiap browser dan perangkat tercatat di laporan
@@ -305,6 +324,7 @@ Gerbang setiap rilis:
      Penegakan server tetap.
   4. **Pelaku audit aktivasi:** `license_install` menerima `actor_id` dari Edge Function
      `license-activate` sehingga log mencatat nama Super Admin.
+- **Verifikasi:** TC-HRD-07 s.d. 10; bukti `e2e/evidence/T-514/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] `cad-floor-plan.spec.ts` lulus
   - [ ] Konversi DXF ditolak server tanpa `cad_import`
@@ -325,6 +345,7 @@ Gerbang setiap rilis:
   - VM menyala otomatis saat host reboot;
   - backup VM ditambah backup aplikasi;
   - pemecahan masalah umum.
+- **Verifikasi:** TC-INS-01; bukti `e2e/evidence/T-521/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Instalasi di VM Hyper-V mengikuti panduan berhasil, dan Visitor bisa dibuka dari jaringan kantor
 
@@ -342,6 +363,7 @@ Gerbang setiap rilis:
      membuat backup sebelum migrasi; rollback aplikasi tetap otomatis.
   4. `deploy/README.md`: daftar periksa DBA (`shared_preload_libraries`, `cron.database_name`,
      `pg_hba`, SSL).
+- **Verifikasi:** TC-INS-02 s.d. 04; bukti `e2e/evidence/T-522/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Instalasi ke PostgreSQL 17 terpisah (container lain) berhasil sampai Visitor tampil
   - [ ] Installer berhenti dengan pesan jelas bila salah satu ekstensi tidak ada
@@ -357,6 +379,7 @@ Gerbang setiap rilis:
      tulis rekomendasinya.
   3. Jadwal backup lewat Task Scheduler; layanan menyala otomatis setelah reboot.
   4. Uji di Windows Server 2022/2025.
+- **Verifikasi:** TC-INS-05; bukti `e2e/evidence/T-523/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Instalasi, backup, restore, dan upgrade-rollback lulus di Windows Server sungguhan
 
@@ -367,54 +390,66 @@ Gerbang setiap rilis:
 ### T-531 · Hak akses granular
 
 - **Untuk:** FR-AUTH-06
+- **Bergantung pada:** —
 - **Langkah:**
   - matriks izin per modul (lokasi, peta, rute, penutupan, publish, pengguna) per pengguna, di
     samping role;
   - fungsi izin SQL membaca matriks;
   - UI Pengguna;
   - pgTAP per modul.
+- **Verifikasi:** TC-ADM-01, 02, TC-SEC-71; bukti `e2e/evidence/T-531/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** pengguna dengan izin "hanya lokasi" ditolak server saat mengubah peta.
 
 ### T-532 · Audit log lengkap
 
 - **Untuk:** FR-AUTH-07
+- **Bergantung pada:** —
 - **Konteks:** log audit dasar sudah ada (Pengaturan → Log audit). Lengkapi cakupannya.
 - **Langkah:**
   - semua tabel yang bisa diubah tercatat (siapa, apa, kapan, nilai sebelum dan sesudah);
   - retensi yang bisa diatur;
   - export CSV.
+- **Verifikasi:** TC-ADM-03, 04; bukti `e2e/evidence/T-532/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** perubahan di setiap modul muncul di log, lengkap dengan diff.
 
 ### T-533 · Label kustom per venue
 
 - **Untuk:** FR-VEN-11
+- **Bergantung pada:** —
 - **Langkah:**
   - kamus istilah per venue (mis. "Lokasi" → "Poli & Ruangan");
   - dipakai di Admin dan Visitor (ID/EN);
   - nilai bawaan dari template tipe venue.
+- **Verifikasi:** TC-ADM-05; bukti `e2e/evidence/T-533/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** istilah yang diganti tampil di menu Admin dan di Visitor.
 
 ### T-534 · Duplikasi lantai
 
 - **Untuk:** FR-VEN-13
+- **Bergantung pada:** —
 - **Langkah:** fungsi SQL atomik yang menyalin fitur, node, dan edge lantai ke lantai baru (id
   baru, konektor tidak disalin), dengan tombol di daftar lantai.
+- **Verifikasi:** TC-ADM-06, 07; bukti `e2e/evidence/T-534/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** lantai hasil salinan lolos validasi publish dan rute di dalamnya jalan.
 
 ### T-535 · Riwayat lisensi
 
 - **Untuk:** FR-LIC-13
+- **Bergantung pada:** T-502 (tabel)
 - **Langkah:** daftar lisensi yang pernah aktif (waktu, sumber check-in atau manual, paket) di
   halaman Lisensi, memakai `DataTable`.
+- **Verifikasi:** TC-ADM-08; bukti `e2e/evidence/T-535/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** pergantian lisensi tercatat berurutan.
 
 ### T-536 · Publish terjadwal
 
 - **Untuk:** FR-PUB-09
+- **Bergantung pada:** —
 - **Langkah:**
   - jadwal publish (tanggal dan jam, zona waktu venue) disimpan di tabel;
   - `pg_cron` menjalankannya lewat Edge Function `publish` dengan identitas penjadwal;
   - gagal validasi → batal, ada notifikasi, dan tercatat di audit.
+- **Verifikasi:** TC-ADM-09 s.d. 11, TC-SEC-79; bukti `e2e/evidence/T-536/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** draft terbit otomatis pada waktunya, dan jadwal bisa dibatalkan.
 
 ---
@@ -424,51 +459,63 @@ Gerbang setiap rilis:
 ### T-541 · Landmark dan instruksi berbasis landmark
 
 - **Untuk:** FR-MAP-11, FR-NAV-12
+- **Bergantung pada:** —
 - **Langkah:**
   - tanda landmark pada fitur;
   - `packages/routing` menyebut landmark terdekat di instruksi ("belok kiri setelah Atrium
     Utama"), dengan test;
   - template instruksi baru.
+- **Verifikasi:** TC-MPX-01; bukti `e2e/evidence/T-541/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** rute melewati landmark dan menyebut landmark itu di langkahnya.
 
 ### T-542 · Kontrol label
 
 - **Untuk:** FR-MAP-12
+- **Bergantung pada:** —
 - **Langkah:** posisi label, prioritas, dan rentang zoom per fitur, diatur di editor dan
   diterapkan di `map-core`.
+- **Verifikasi:** TC-MPX-02; bukti `e2e/evidence/T-542/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** label prioritas tinggi tetap tampil saat label lain bertabrakan.
 
 ### T-543 · Area temporer
 
 - **Untuk:** FR-MAP-13
+- **Bergantung pada:** —
 - **Langkah:**
   - fitur dengan tanggal mulai dan selesai;
   - Visitor menyaring menurut waktu sekarang tanpa publish ulang (seperti penutupan);
   - test domain.
+- **Verifikasi:** TC-MPX-03; bukti `e2e/evidence/T-543/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** booth tampil dan hilang sesuai jadwal.
 
 ### T-544 · Export peta cetak
 
 - **Untuk:** FR-MAP-15
+- **Bergantung pada:** —
 - **Langkah:** export per lantai ke PDF atau SVG resolusi tinggi dengan legenda, judul, dan arah
   utara, dibuat di browser dari `map-core`.
+- **Verifikasi:** TC-MPX-04; bukti `e2e/evidence/T-544/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** PDF A3 terbaca jelas saat dicetak.
 
 ### T-545 · Warna per kategori dan lantai bertumpuk
 
 - **Untuk:** FR-VIS-08, FR-VIS-09
+- **Bergantung pada:** —
 - **Langkah:**
   - warna unit dari tipe atau kategori lokasi;
   - pengaturan jarak antarlantai dan transparansi lantai non-aktif pada mode 3D;
   - pratinjau di Pengaturan Tampilan.
+- **Verifikasi:** TC-MPX-05; bukti `e2e/evidence/T-545/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** perubahan warna dan transparansi terlihat di Visitor setelah publish.
 
 ### T-546 · Pintu masuk venue
 
 - **Untuk:** FR-VEN-12
+- **Bergantung pada:** —
 - **Langkah:**
   - menandai pintu masuk dan titik drop-off, masing-masing dengan tautan Google Maps;
   - tampil di info venue Visitor.
+- **Verifikasi:** TC-MPX-06; bukti `e2e/evidence/T-546/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** pengunjung bisa membuka arah ke pintu masuk lewat Google Maps.
 
 ### T-547 · Import vektor CAD
@@ -479,6 +526,7 @@ Gerbang setiap rilis:
   - `cad-converter` mengekspor layer terpilih ke GeoJSON (dinding sebagai garis, ruang sebagai
     poligon) dengan georeferensi denah;
   - pratinjau lalu impor menjadi draft fitur yang bisa dirapikan.
+- **Verifikasi:** TC-MPX-07; bukti `e2e/evidence/T-547/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** denah DXF contoh menghasilkan unit yang lolos validasi geometri setelah dirapikan.
 
 ### T-548 · Scan otomatis denah gambar (tahap 1)
@@ -512,6 +560,7 @@ Gerbang setiap rilis:
      `services/cad-converter/tests/fixtures/`.
   6. Hormati fitur lisensi `cad_import` seperti konversi DXF (T-514).
 - **File:** `services/cad-converter/app/scan.py`, `services/cad-converter/tests/**`, `packages/domain/src/scan-import.ts`, `packages/data/src/repositories/cad-converter.ts`, `apps/admin/src/features/floor-plans/scan/**`
+- **Verifikasi:** TC-MPX-08 s.d. 11, 13; bukti `e2e/evidence/T-548/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Denah sederhana: ≥ 90% ruang terdeteksi sebagai poligon dengan posisi sesuai gambar (± 0,5 m setelah georeferensi)
   - [ ] Hasil scan bisa dipilih sebagian, diimpor sebagai draft, lalu diundo
@@ -541,6 +590,7 @@ Gerbang setiap rilis:
   2. Mode **Scan (AI)** memakai keluaran model, dilanjutkan pascaproses yang sama dengan T-548.
      Pintu terdeteksi menjadi fitur pintu.
   3. Bandingkan dengan tahap 1 di set fixture yang sama, lalu catat akurasi dan waktu di laporan.
+- **Verifikasi:** TC-MPX-12, 13; bukti `e2e/evidence/T-549/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Akurasi ruang pada denah rumit naik nyata dibanding T-548 (angka di laporan)
   - [ ] Proses ≤ 60 s per denah di CPU 4 inti
@@ -553,58 +603,70 @@ Gerbang setiap rilis:
 ### T-551 · Aturan jalur dan bobot preferensi
 
 - **Untuk:** FR-NAV-13, FR-NAV-14
+- **Bergantung pada:** —
 - **Langkah:**
   - edge satu arah;
   - edge dengan jam buka (zona waktu venue);
   - penalti per jenis konektor (utamakan eskalator, hindari tangga);
   - test A* di `packages/routing`.
+- **Verifikasi:** TC-NVX-01 s.d. 03; bukti `e2e/evidence/T-551/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** rute menghindari edge yang tutup pada jamnya dan tidak melawan arah satu arah.
 
 ### T-552 · Estimasi waktu tempuh
 
 - **Untuk:** FR-NAV-15, FR-VST-17
+- **Bergantung pada:** —
 - **Langkah:**
   - kecepatan jalan bawaan dan aksesibel;
   - waktu per jenis konektor;
   - ditampilkan di ringkasan rute (i18n).
+- **Verifikasi:** TC-NVX-04; bukti `e2e/evidence/T-552/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** ringkasan rute menampilkan perkiraan menit yang konsisten dengan jarak.
 
 ### T-553 · Fasilitas terdekat dan rute multi-tujuan
 
 - **Untuk:** FR-VST-16, FR-VST-23
+- **Bergantung pada:** —
 - **Langkah:**
   - "Toilet/lift terdekat" dari titik asal (jarak rute, bukan garis lurus);
   - beberapa tujuan berurutan dalam satu rute, dengan langkah per segmen.
+- **Verifikasi:** TC-NVX-05, 06; bukti `e2e/evidence/T-553/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** "Toilet terdekat" memilih toilet dengan rute terpendek, dan rute 3 tujuan tampil berurutan.
 
 ### T-554 · Konten multi-bahasa
 
 - **Untuk:** FR-LOC-11, FR-VST-18
+- **Bergantung pada:** —
 - **Langkah:**
   - kolom terjemahan EN untuk nama kategori dan deskripsi lokasi;
   - masuk snapshot;
   - Visitor memakai bahasa terpilih dan jatuh ke ID bila kosong.
+- **Verifikasi:** TC-NVX-07; bukti `e2e/evidence/T-554/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** Visitor EN menampilkan deskripsi EN.
 
 ### T-555 · Lapisan keselamatan dan mode teks
 
 - **Untuk:** FR-VST-20, FR-VST-21
+- **Bergantung pada:** —
 - **Langkah:**
   - tombol lapisan keselamatan (APAR, pintu darurat, titik kumpul) dan rute ke pintu keluar
     terdekat;
   - mode teks: instruksi dan hasil cari bisa dipakai tanpa peta;
   - audit WCAG 2.2 AA.
+- **Verifikasi:** TC-NVX-08, 09; bukti `e2e/evidence/T-555/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** axe dan uji pembaca layar (NVDA/VoiceOver) lulus untuk alur cari dan rute.
 
 ### T-556 · Embed, minimap, dan peta privat
 
 - **Untuk:** FR-VST-22, FR-VST-24, FR-VST-25
+- **Bergantung pada:** —
 - **Langkah:**
   - kode embed (iframe) dan tautan langsung;
   - minimap statis per lokasi yang membuka Visitor saat diklik;
   - opsi venue privat: Visitor hanya untuk pengguna login. Snapshot privat tidak boleh ada di
     bucket publik, jadi butuh desain akses Storage baru.
 - **Konteks:** peta privat menyentuh keamanan. Jalankan `ecc-security-review` sebelum PR.
+- **Verifikasi:** TC-NVX-10, 11, TC-SEC-75; bukti `e2e/evidence/T-556/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** embed tampil di halaman HTML lain, dan venue privat menolak akses tanpa login.
 
 ---
@@ -629,6 +691,7 @@ Gerbang setiap rilis:
   4. Visitor: setelah login (SSO/akun klien, T-556), pilihan "Rute staf". Info Point dan
      pengunjung tanpa login tetap memakai rute publik.
   5. Estimasi durasi ikut tampil (T-552).
+- **Verifikasi:** TC-NVX-12 s.d. 15, TC-SEC-74; bukti `e2e/evidence/T-557/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Pengunjung umum tidak pernah mendapat langkah lewat jalur terbatas, dan berkas grafnya tidak bisa diunduh tanpa login
   - [ ] Staf yang login mendapat rute lebih pendek lewat jalur terbatas
@@ -639,11 +702,13 @@ Gerbang setiap rilis:
 ### T-561 · Pairing, status, dan reload jarak jauh
 
 - **Untuk:** FR-DEV-05, FR-DEV-06, FR-DEV-07, FR-IP-10
+- **Bergantung pada:** T-502 (tabel)
 - **Langkah:**
   - pairing perangkat dengan kode sekali pakai;
   - heartbeat berkala (online/offline, terakhir aktif, versi peta);
   - perintah reload dari Admin;
   - daftar perangkat memakai `DataTable`.
+- **Verifikasi:** TC-DEV-01 s.d. 03, TC-SEC-77; bukti `e2e/evidence/T-561/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** perangkat yang dimatikan tampil offline dalam ≤ 2 menit, dan reload dari Admin dijalankan perangkat.
 
 ### T-562 · Shell Windows (WPF)
@@ -655,13 +720,16 @@ Gerbang setiap rilis:
   - layar penuh terkunci;
   - watchdog bila crash;
   - konfigurasi URL Info Point.
+- **Verifikasi:** TC-DEV-04; bukti `e2e/evidence/T-562/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** perangkat Windows menyala langsung ke Info Point dan pulih sendiri setelah crash.
 
 ### T-563 · Mode aksesibilitas Info Point
 
 - **Untuk:** FR-IP-09
+- **Bergantung pada:** —
 - **Langkah:** tombol yang menurunkan area antarmuka (jangkauan kursi roda), kontras tinggi, dan
   huruf besar; kembali normal saat idle.
+- **Verifikasi:** TC-DEV-05; bukti `e2e/evidence/T-563/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:** semua kontrol penting berada di sepertiga bawah layar potret saat mode aktif.
 
 ## F2-H · Kesetaraan produk (referensi Situm Indoor Maps)
@@ -691,6 +759,7 @@ Gerbang setiap rilis:
   6. Snapshot membawa daftar model per lantai.
   7. Ukur ulang performa (`tests/perf`): menambah 200 objek tidak boleh menurunkan FPS editor
      lebih dari 20%.
+- **Verifikasi:** TC-PAR-01 s.d. 04; bukti `e2e/evidence/T-571/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Objek pustaka dan GLB unggahan tampil di Visitor mode 3D pada posisi dan skala yang benar
   - [ ] Bundel awal Visitor tidak bertambah (Three.js dimuat saat 3D dipakai)
@@ -727,6 +796,7 @@ Gerbang setiap rilis:
      teks. Klien tetap bisa memakai ikon unggahan sendiri.
   5. Test: semua kunci ikon punya bentuk dan label ID/EN; snapshot lama dengan kunci lama tetap
      tampil.
+- **Verifikasi:** TC-PAR-05 s.d. 07; bukti `e2e/evidence/T-572/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] ±150 ikon tersedia dan bisa dicari di pemilih
   - [ ] Ikon tampil tajam di peta pada zoom tinggi dan rendah
@@ -750,6 +820,7 @@ Gerbang setiap rilis:
      - versi terbit terakhir;
      - penutupan aktif;
      - status Info Point (bila T-561 ada).
+- **Verifikasi:** TC-PAR-08 s.d. 10, TC-SEC-78; bukti `e2e/evidence/T-573/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Mengubah status 100 lokasi sekaligus dari tabel Lokasi berhasil dan tercatat di audit
   - [ ] Dasbor menunjukkan angka yang sama dengan data sebenarnya (test integrasi)
@@ -772,6 +843,7 @@ Gerbang setiap rilis:
      - Saat dipindai, Visitor meminta titik asal lalu memberi rute langkah demi langkah.
      - Pilihan lokasi lewat `DataTable` (cari dan filter).
   4. Teks sesuai bahasa bawaan venue (ID/EN).
+- **Verifikasi:** TC-PAR-11, 12; bukti `e2e/evidence/T-574/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] PDF A3 tercetak jelas, QR terbaca dari jarak 1 m, dan memindainya membuka rute dari titik itu
   - [ ] Lembar stiker A4 untuk 20 lokasi; tiap QR membuka lokasi yang benar
@@ -802,6 +874,7 @@ Gerbang setiap rilis:
      - form dengan unggah gambar (pustaka media T-573 bila ada);
      - pemilih lokasi dan titik peta;
      - pratinjau kartu.
+- **Verifikasi:** TC-EVT-01 s.d. 05, 11, TC-SEC-70; bukti `e2e/evidence/T-581/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Event baru tampil di daftar Admin dan bisa dibaca anon hanya selama aktif
   - [ ] Tanpa fitur lisensi `events`, server menolak dan menu terkunci dengan keterangan
@@ -823,6 +896,7 @@ Gerbang setiap rilis:
   3. i18n ID/EN; teks EN jatuh ke ID bila kosong.
   4. E2E: event aktif tampil dan rute ke lokasinya jalan; event yang sudah selesai hilang
      tanpa publish.
+- **Verifikasi:** TC-EVT-06 s.d. 08; bukti `e2e/evidence/T-582/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Event muncul dan hilang sesuai jadwal tanpa publish ulang
   - [ ] Muat awal Visitor tidak melambat (data event dimuat setelah peta tampil)
@@ -840,6 +914,7 @@ Gerbang setiap rilis:
      detail). Sentuhan pertama menutup playlist dan membuka Visitor di event tersebut atau di
      tampilan awal.
   3. Gambar di-cache service worker agar tetap tampil saat offline (T-409).
+- **Verifikasi:** TC-EVT-09, 10; bukti `e2e/evidence/T-583/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Setelah idle, playlist berputar; sentuhan membuka rute ke lokasi event
   - [ ] Tanpa jaringan, slide yang sudah dimuat tetap tampil
@@ -869,6 +944,7 @@ Gerbang setiap rilis:
      - pemakaian per Info Point dan per QR;
      - export CSV dan PDF.
   4. Pengaturan Sistem: aktif/nonaktif analitik dan teks pemberitahuan privasi di Visitor.
+- **Verifikasi:** TC-OPS-01 s.d. 05, TC-SEC-72; bukti `e2e/evidence/T-591/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Dasbor menunjukkan angka yang cocok dengan event uji
   - [ ] Tidak ada data pribadi yang tersimpan (diperiksa test)
@@ -876,6 +952,7 @@ Gerbang setiap rilis:
 ### T-592 · Login Admin aman: 2FA dan SSO
 
 - **Untuk:** `20-F2-fase-2.md` §2.11
+- **Bergantung pada:** —
 - **Langkah:**
   1. **TOTP 2FA** (GoTrue MFA): Admin bisa mengaktifkannya sendiri, dan Super Admin bisa
      mewajibkan 2FA untuk role tertentu.
@@ -883,6 +960,7 @@ Gerbang setiap rilis:
      jaringan tertutup. Akun SSO dipetakan ke role.
   3. Kode cadangan dan reset 2FA oleh Super Admin, tercatat di audit.
 - **Konteks:** jalankan `ecc-security-review` sebelum PR.
+- **Verifikasi:** TC-OPS-06 s.d. 08, TC-SEC-71; bukti `e2e/evidence/T-592/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Role yang diwajibkan 2FA tidak bisa masuk tanpa kode
   - [ ] Login SSO berhasil ke IdP uji dan role terpetakan
@@ -890,6 +968,7 @@ Gerbang setiap rilis:
 ### T-593 · API dan webhook integrasi
 
 - **Untuk:** `20-F2-fase-2.md` §2.11
+- **Bergantung pada:** —
 - **Langkah:**
   1. Kunci API per sistem (scope baca/tulis per modul, bisa dicabut, tercatat di audit) yang
      dikelola Super Admin.
@@ -899,6 +978,7 @@ Gerbang setiap rilis:
   3. Webhook keluar untuk peristiwa `publish`, perubahan penutupan, dan perubahan lokasi.
      Isinya ditandatangani HMAC, dengan retry dan log pengiriman.
   4. Contoh integrasi sinkronisasi dari sistem klien (CSV/JSON terjadwal).
+- **Verifikasi:** TC-OPS-09 s.d. 11, TC-SEC-71; bukti `e2e/evidence/T-593/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Sistem uji bisa mengubah jam operasional lewat API, dan perubahan tampil setelah publish
   - [ ] Kunci tanpa scope tulis ditolak server
@@ -906,11 +986,13 @@ Gerbang setiap rilis:
 ### T-594 · Export GeoJSON dan IMDF
 
 - **Untuk:** `20-F2-fase-2.md` §2.11
+- **Bergantung pada:** —
 - **Langkah:**
   1. Export per venue ke GeoJSON (fitur, lokasi, graf) dan IMDF (paket zip berisi venue,
      building, level, unit, opening, amenity, occupant, anchor), dari snapshot versi aktif.
   2. Validasi keluaran IMDF dengan validator resmi atau skema yang dipublikasikan.
   3. Tombol export di halaman Publish (Admin/Super Admin).
+- **Verifikasi:** TC-OPS-12, 13; bukti `e2e/evidence/T-594/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Paket IMDF venue contoh lolos validasi tanpa error
 
@@ -927,6 +1009,7 @@ Gerbang setiap rilis:
   3. Antrean permintaan trial dari landing page: setujui → lisensi trial terbit dan terkirim
      lewat email.
   4. Riwayat check-in instalasi dan unduh rilis per versi.
+- **Verifikasi:** TC-OPS-14, 15; bukti `e2e/evidence/T-595/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Permintaan trial dari landing page bisa disetujui dan menghasilkan lisensi yang lolos aktivasi
   - [ ] Kunci privat tidak pernah tersimpan di database portal
@@ -942,6 +1025,7 @@ Gerbang setiap rilis:
   3. Halaman bantuan di dalam Admin, dari Markdown yang ikut dalam rilis sehingga bisa dibuka
      offline.
   4. Manual PDF untuk Admin dan untuk teknisi instalasi.
+- **Verifikasi:** TC-OPS-16; bukti `e2e/evidence/T-596/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Setiap menu Admin punya artikel bantuan
   - [ ] Tur bisa dilewati dan diulang
@@ -961,13 +1045,15 @@ Gerbang setiap rilis:
   2. Agen kecil di `deploy/` menulis status ke database secara berkala (cron).
   3. Email peringatan ke Super Admin bila backup gagal 2 kali, disk > 85%, atau sertifikat
      tinggal < 14 hari.
+- **Verifikasi:** TC-OPS-17, TC-SEC-76; bukti `e2e/evidence/T-597/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Backup yang sengaja digagalkan memunculkan peringatan di halaman dan email
 
 ### T-598 · Notifikasi email operasional
 
 - **Untuk:** `20-F2-fase-2.md` §2.11
-- **Bergantung pada:** T-591 (untuk ringkasan)
+- **Bergantung pada:** T-591 hanya untuk ringkasan pemakaian. Jenis notifikasi lain dikerjakan
+  di F2.2 tanpa menunggu; ringkasan pemakaian ditambahkan setelah T-591 (F2.3) selesai.
 - **Langkah:**
   1. Preferensi notifikasi per pengguna.
   2. Jenis notifikasi:
@@ -975,6 +1061,7 @@ Gerbang setiap rilis:
      - pengingat lisensi H-30/H-7/H-1 ke email Super Admin;
      - pemberitahuan publish dan penutupan baru ke peran terkait.
   3. Lewat SMTP Pengaturan Sistem, dengan template ID dan tautan berhenti berlangganan.
+- **Verifikasi:** TC-OPS-18, 19; bukti `e2e/evidence/T-598/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Email terkirim sesuai preferensi (Mailpit di test) dan bisa dimatikan per jenis
 
@@ -1042,6 +1129,7 @@ Gerbang setiap rilis:
 - **File:** `packages/ui/src/tour/**`, `apps/admin/src/features/*/tour.ts`,
   `apps/visitor/src/features/*/tour.ts`, `apps/visitor/src/i18n/*.json`, migrasi baru dan
   repository `packages/data` untuk status tur Admin, `e2e/`
+- **Verifikasi:** TC-TUR-01 s.d. 11, TC-SEC-73; bukti `e2e/evidence/T-599/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Setiap menu Admin dan setiap halaman Visitor/Info Point punya tur (dijaga test)
   - [ ] Tur bisa dilewati, diulang, dan tidak tampil lagi setelah selesai, termasuk dari perangkat
@@ -1059,6 +1147,7 @@ Gerbang setiap rilis:
 ### T-601 · Kepatuhan UU PDP
 
 - **Untuk:** `20-F2-fase-2.md` §2.13
+- **Bergantung pada:** —
 - **Langkah:**
   1. Inventaris data pribadi beserta tujuan, dasar pemrosesan, dan masa simpannya:
      - akun Admin;
@@ -1072,6 +1161,7 @@ Gerbang setiap rilis:
      analitik bisa diatur.
   4. Prosedur insiden kebocoran data, termasuk pemberitahuan ke klien dan pihak berwenang.
   5. Template perjanjian pemrosesan data (DPA) vendor–klien.
+- **Verifikasi:** TC-KOM-01, 02, 08; bukti `e2e/evidence/T-601/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Dokumen privasi, inventaris data, dan prosedur insiden ada di `docs/legal/`
   - [ ] Data akun bisa diekspor dan dihapus dari Admin, dan tercatat di audit
@@ -1081,6 +1171,7 @@ Gerbang setiap rilis:
 ### T-602 · Dokumen legal penjualan
 
 - **Untuk:** `20-F2-fase-2.md` §2.13
+- **Bergantung pada:** —
 - **Langkah:**
   1. Draf perjanjian lisensi pengguna akhir (EULA) on-premise: hak pakai per instalasi,
      larangan rekayasa balik dan pemindahan, serta batas tanggung jawab.
@@ -1088,6 +1179,7 @@ Gerbang setiap rilis:
      saluran panduarahid@gmail.com), dan ketentuan trial.
   3. Template kontrak berlangganan dan berita acara instalasi.
   4. Teks EULA ditampilkan dan harus disetujui saat aktivasi pertama di `/aktivasi`.
+- **Verifikasi:** TC-KOM-03; bukti `e2e/evidence/T-602/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Draf di `docs/legal/`, siap ditinjau konsultan hukum
   - [ ] Aktivasi pertama meminta persetujuan EULA, dan persetujuannya tercatat di audit
@@ -1095,6 +1187,7 @@ Gerbang setiap rilis:
 ### T-603 · Uji keamanan
 
 - **Untuk:** `20-F2-fase-2.md` §2.13
+- **Bergantung pada:** —
 - **Langkah:**
   1. Pemindaian kerentanan di CI:
      - dependency (`pnpm audit`, pip-audit untuk `cad-converter`);
@@ -1105,6 +1198,7 @@ Gerbang setiap rilis:
   3. Pentest independen oleh pihak ketiga sebelum rilis komersial pertama. Temuan kritis dan
      tinggi wajib diperbaiki sebelum dijual.
   4. Halaman `SECURITY.md`: cara melaporkan celah keamanan.
+- **Verifikasi:** TC-KOM-04; bukti `e2e/evidence/T-603/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] CI gagal bila ada kerentanan tingkat tinggi yang belum ditangani
   - [ ] Laporan pentest dan status perbaikannya tercatat
@@ -1124,6 +1218,7 @@ Gerbang setiap rilis:
      - build image;
      - buat changelog;
      - arsip rilis.
+- **Verifikasi:** TC-KOM-05; bukti `e2e/evidence/T-604/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Satu rilis percobaan berjalan dari tag sampai arsip rilis lengkap dengan changelog
   - [ ] Kebijakan dukungan versi tertulis di `docs/`
@@ -1137,6 +1232,7 @@ Gerbang setiap rilis:
      perkantoran, bandara), memakai data `demo-venues` yang sudah ada dan fitur paket lengkap.
   2. Reset otomatis setiap malam ke keadaan awal; akun demo per role; banner "Demo".
   3. Skrip presentasi 15 menit (alur Admin, Visitor, dan Info Point).
+- **Verifikasi:** TC-KOM-06; bukti `e2e/evidence/T-605/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Demo bisa direset dengan satu perintah dan pulih dalam < 5 menit
   - [ ] Setiap industri punya venue contoh yang bisa dipublish dan dirutekan
@@ -1153,8 +1249,45 @@ Gerbang setiap rilis:
      - teknisi: instalasi, backup, upgrade.
   2. Video singkat per modul (3–7 menit) dan lembar ringkas satu halaman.
   3. Kuis atau daftar periksa kelulusan pelatihan untuk berita acara serah terima.
+- **Verifikasi:** TC-KOM-07; bukti `e2e/evidence/T-606/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Setiap peran punya modul, video, dan lembar ringkas
+
+### T-607 · Uji beban dan kapasitas server
+
+- **Untuk:** NFR-CAP-01 (diperluas), `20-F2-fase-2.md` §2.15
+- **Bergantung pada:** T-511 (paket image jadi), T-597 (pemantauan saat uji, disarankan)
+- **Konteks:** T-412 sudah membuktikan 200 pengunjung + 20 Admin bersamaan pada R4. Fitur F2
+  menambah beban baru: event dan penutupan dibaca tiap menit oleh setiap pengunjung, kiriman
+  analitik, heartbeat Info Point, tabel server, API, SSO, dan scan denah. Klien juga perlu tahu
+  server sebesar apa untuk jumlah pengunjungnya.
+- **Langkah:**
+  1. Susun ulang `tests/perf/k6/` per skenario (pengunjung, Admin, Info Point, analitik, API,
+     login) dengan satu berkas profil per jenis uji: smoke, normal, puncak, lonjakan, ketahanan,
+     titik batas (`22-F2-verifikasi-e2e.md` §6).
+  2. Jalankan semua jenis uji pada paket instalasi di server uji yang spesifikasinya dicatat.
+     Rekam CPU, RAM, koneksi database, dan disk per container selama uji.
+  3. Perilaku saat kelebihan beban:
+     - batas laju dan batas koneksi di gateway agar server menolak dengan rapi (429/503,
+       pesan "server sedang sibuk") alih-alih mati;
+     - Visitor memakai snapshot tersimpan dan mencoba lagi dengan jeda bertahap;
+     - Admin tidak kehilangan draft saat permintaan simpan gagal.
+  4. Perbaiki hambatan yang ditemukan (mis. cache header, kompresi awal berkas graf, indeks
+     database, ukuran pool koneksi), masing-masing dengan angka sebelum dan sesudah.
+  5. Tulis hasil di `docs/laporan-performa.md` bagian "Uji beban F2", lalu panduan ukuran server
+     di `deploy/README.md`: jumlah pengunjung bersamaan per spesifikasi (mis. 2, 4, dan 8 vCPU).
+  6. Profil smoke dan normal dijalankan di skrip rilis (T-604) sebelum setiap rilis.
+- **File:** `tests/perf/k6/**`, `tests/perf/README.md`, `docs/laporan-performa.md`, `deploy/README.md`, konfigurasi gateway di `deploy/`
+- **Verifikasi:** TC-LOAD-01 s.d. 17; bukti `e2e/evidence/T-607/` (`22-F2-verifikasi-e2e.md`)
+- **Selesai jika:**
+  - [ ] Beban normal 200 pengunjung + 20 Admin + 10 Info Point dengan fitur F2 lulus target
+    TC-LOAD-02
+  - [ ] Puncak 1.000 pengunjung dan lonjakan 500 dalam 10 detik lulus TC-LOAD-03 dan 04
+  - [ ] Uji 4 jam tanpa kebocoran memori
+  - [ ] Saat kelebihan beban, server menolak dengan rapi dan pulih sendiri
+  - [ ] Panduan ukuran server ada di `deploy/README.md`
+- **Jangan:** menjalankan uji beban ke server klien yang sedang dipakai, atau ke layanan pihak
+  ketiga.
 
 ## Backlog (tidak dijadwalkan)
 

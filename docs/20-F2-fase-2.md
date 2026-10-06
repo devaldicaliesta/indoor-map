@@ -1,6 +1,9 @@
 # Fase 2 (F2) dan backlog
 
-Daftar pekerjaan setelah R0–R4. **Jangan dikerjakan tanpa keputusan baru dari pemilik**; setiap item dipecah menjadi task (konteks, langkah, file, kriteria selesai) seperti `10-R0-fondasi.md` s.d. `14-R4-komersial.md` sebelum dikerjakan.
+Daftar pekerjaan setelah R0–R4. **Status: perencanaan final (2026-10-06).** Semua item sudah
+dipecah menjadi task T-501 s.d. T-607 di `21-F2-task.md`, dengan verifikasi E2E di
+`22-F2-verifikasi-e2e.md` dan test case di `16-test-case.md` §15. Pengerjaan dimulai setelah
+pemilik selesai me-review R0–R4. Item baru di luar dokumen ini butuh keputusan baru dari pemilik.
 
 Struktur data dan kode boleh **tidak menghalangi** fitur-fitur ini, tetapi jangan membangunnya lebih awal.
 
@@ -329,6 +332,32 @@ agar pengguna baru paham halaman tanpa pelatihan.
 
 Task: T-599 (`21-F2-task.md`, F2-J). Tur lintas halaman untuk pengguna baru di T-596 memakai
 mesin yang sama.
+
+### 2.15 Uji beban saat banyak diakses
+
+Keputusan pemilik 2026-10-06. Aplikasi harus tetap melayani saat banyak orang mengakses
+bersamaan, misalnya jam besuk, hari pertama kuliah, acara besar, atau banyak pengunjung memindai
+QR serentak. NFR-CAP-01 (200 pengunjung + 20 Admin) sudah dibuktikan di T-412; F2 menambah beban
+baru dan perlu diuji ulang.
+
+- **Jenis uji:** smoke, beban normal, puncak (1.000 pengunjung), lonjakan (0 → 500 dalam
+  10 detik), ketahanan 4 jam, titik batas, dan kelebihan beban. Angka ini target awal dan bisa
+  diubah pemilik.
+- **Setiap fitur baru** yang menambah endpoint, pembacaan berkala, atau proses berat membawa
+  skenario uji bebannya sendiri.
+- **Saat kelebihan beban,** server menolak dengan rapi ("server sedang sibuk") dan pulih sendiri;
+  Visitor tetap memakai peta tersimpan; Admin tidak kehilangan draft.
+- **Hasilnya** menjadi panduan ukuran server untuk klien (jumlah pengunjung per spesifikasi).
+- Uji beban smoke dan normal menjadi gerbang setiap rilis F2.
+
+Task: T-607 (`21-F2-task.md`, F2-K). Test case: `16-test-case.md` §15.14.
+
+### 2.16 Verifikasi E2E Fase 2
+
+Keputusan pemilik 2026-10-06. Berbeda dengan R0–R3 (diverifikasi belakangan di T-307a), setiap
+task F2 membawa spec E2E, test case, dan bukti gambarnya sendiri. Setiap rilis F2.1–F2.5 punya
+spec alur gabungan dan gerbang rilis. Alurnya di `22-F2-verifikasi-e2e.md`; test case di
+`16-test-case.md` §15 (187 test case, termasuk uji beban dan matriks keamanan F2).
 
 Urutan pengerjaan seluruh F2 ada di bagian **Roadmap rilis F2** di `21-F2-task.md`
 (F2.1 siap jual s.d. F2.5 penyempurnaan).

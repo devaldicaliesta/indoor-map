@@ -125,7 +125,7 @@ Acuan: tampilan peta indoor Situm (ruang berwarna per kategori, ikon POI, 3D, ru
 
 ## F2 · Fase 2 (`21-F2-task.md`)
 
-Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.5 di `21-F2-task.md`.
+Perencanaan final (2026-10-06). Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.5 di `21-F2-task.md`; verifikasi setiap task menurut `22-F2-verifikasi-e2e.md`.
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
@@ -154,8 +154,8 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.
 | T-545 | Warna per kategori + lantai bertumpuk | — | menunggu | |
 | T-546 | Pintu masuk venue | — | menunggu | |
 | T-547 | Import vektor CAD | T-313 | menunggu | |
-| T-548 | Scan otomatis denah gambar (computer vision) | T-105, T-313 | menunggu | |
-| T-549 | Scan otomatis denah dengan model AI | T-548 | menunggu | |
+| T-548 | Scan otomatis denah gambar (computer vision) | T-105, T-106, T-313 | menunggu | Perlu persetujuan dependency OpenCV |
+| T-549 | Scan otomatis denah dengan model AI | T-548 | menunggu | Perlu keputusan model dan lisensinya |
 | T-551 | Aturan jalur + bobot preferensi | — | menunggu | |
 | T-552 | Estimasi waktu tempuh | — | menunggu | |
 | T-553 | Fasilitas terdekat + multi-tujuan | — | menunggu | |
@@ -163,10 +163,10 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.
 | T-555 | Lapisan keselamatan + mode teks | — | menunggu | |
 | T-556 | Embed, minimap, peta privat | — | menunggu | |
 | T-557 | Rute khusus kelompok pengguna (jalur terbatas) | T-556, T-551 | menunggu | |
-| T-561 | Pairing, status, reload perangkat | — | menunggu | |
+| T-561 | Pairing, status, reload perangkat | T-502 | menunggu | |
 | T-562 | Shell Windows (WPF) | T-561 | menunggu | |
 | T-563 | Mode aksesibilitas Info Point | — | menunggu | |
-| T-571 | Elemen 3D: pustaka objek + model GLB | — | menunggu | |
+| T-571 | Elemen 3D: pustaka objek + model GLB | — | menunggu | Perlu persetujuan dependency Three.js |
 | T-572 | Pustaka ikon POI lengkap | — | menunggu | |
 | T-573 | Penguatan CMS: media, edit massal, dasbor | T-503 | menunggu | |
 | T-574 | Papan "Anda di sini" cetak dengan QR | T-544 | menunggu | |
@@ -180,7 +180,7 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.
 | T-595 | Vendor Portal minimal | T-504, T-505 | menunggu | |
 | T-596 | Bantuan dan dokumentasi pengguna | T-599 | menunggu | |
 | T-597 | Monitoring server di Admin | T-411 | menunggu | |
-| T-598 | Notifikasi email operasional | T-591 | menunggu | |
+| T-598 | Notifikasi email operasional | T-591 (ringkasan saja) | menunggu | Jenis lain tidak menunggu T-591 |
 | T-599 | Tur panduan intro.js di setiap halaman | T-501, T-503 | menunggu | Perlu lisensi komersial intro.js |
 | T-601 | Kepatuhan UU PDP | — | menunggu | |
 | T-602 | Dokumen legal penjualan | — | menunggu | |
@@ -188,6 +188,7 @@ Menunggu review R0–R4 oleh pemilik sebelum dimulai. Urutan: roadmap F2.1–F2.
 | T-604 | Proses rilis + dukungan versi | T-511 | menunggu | |
 | T-605 | Lingkungan demo penjualan | T-501, T-511 | menunggu | |
 | T-606 | Materi pelatihan klien | T-596 | menunggu | |
+| T-607 | Uji beban dan kapasitas server | T-511, T-597 | menunggu | Smoke dan normal jadi gerbang setiap rilis F2 |
 
 ## Pertanyaan terbuka
 
@@ -197,6 +198,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-06] F2 — **Perencanaan F2 difinalkan.** (1) Alur verifikasi E2E F2 di `22-F2-verifikasi-e2e.md`: verifikasi menjadi bagian setiap task (spec, test case, bukti), layanan uji tambahan (IdP uji, penerima webhook, vendor-stub trial, landing), proyek Playwright `landing` dan `visitor-nowebgl`, jam palsu untuk fitur berjadwal, spec alur gabungan per rilis, dan gerbang rilis. (2) 187 test case F2 di `16-test-case.md` §15, termasuk matriks keamanan TC-SEC-70 s.d. 81. (3) **Uji beban saat banyak diakses** (`20-F2-fase-2.md` §2.15, T-607, rilis F2.2): smoke, normal 200 + 20 + 10 Info Point, puncak 1.000, lonjakan 0 → 500 dalam 10 s, ketahanan 4 jam, titik batas, kelebihan beban ditolak rapi; panduan ukuran server di `deploy/README.md`; setiap fitur berbeban menambah skenario k6; smoke dan normal jadi gerbang setiap rilis. (4) Konsistensi: setiap task punya baris Bergantung pada dan Verifikasi; T-551 dipindah ke F2.4 karena T-557 membutuhkannya; T-598 hanya bergantung pada T-591 untuk ringkasan pemakaian; daftar `00-README.md` diperbarui.
 - [2026-10-06] T-501 — **Logo resmi PanduArah dari pemilik** disimpan di `docs/brand/` (`panduarah-logo.webp` utama, `panduarah-logo-alt.png` cadangan). Warna logo: biru ±#0F4A91, kuning ±#FEC409 (setara `--signal`), hitam (setara `--ink`). T-501 ditambah langkah: versi SVG transparan dan varian putih, logo di header/login Admin, favicon, ikon PWA dari simbol, dan email; di Visitor dan Info Point logo venue tetap utama.
 - [2026-10-05] F2 — Tur panduan intro.js di setiap halaman Admin, Visitor, dan Info Point dimasukkan ke F2 (`20-F2-fase-2.md` §2.14, T-599, rilis F2.1). Tur otomatis saat pertama membuka halaman, bisa dilewati dan diulang, langkah mengikuti role, intro.js dimuat lazy, dan setiap halaman baru F2 wajib membawa tur. T-596 (tur lintas halaman) memakai mesin tur T-599.
 - [2026-10-05] T-504 — **Diputuskan pemilik:** trial bisa per permintaan dan otomatis (tombol "Mulai trial" di `/aktivasi`, online ke layanan lisensi vendor; server offline memakai jalur per permintaan; trial berulang dicegah per instalasi, email, domain, dan IP); masa tenggang trial 14 hari; input data dibatasi selama trial: 1 venue, 2 gedung, 6 lantai, 1.000 fitur per lantai, 300 lokasi, 20 titik asal, 2 Info Point, 5 pengguna, Storage 1 GB, berkas 20 MB, impor 500 baris, 20 publish per hari (kuota dari lisensi, bisa disesuaikan vendor).
