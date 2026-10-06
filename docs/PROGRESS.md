@@ -154,8 +154,8 @@ Perencanaan final (2026-10-06). Menunggu review R0–R4 oleh pemilik sebelum dim
 | T-545 | Warna per kategori + lantai bertumpuk | — | menunggu | |
 | T-546 | Pintu masuk venue | — | menunggu | |
 | T-547 | Import vektor CAD | T-313 | menunggu | |
-| T-548 | Scan otomatis denah gambar (computer vision) | T-105, T-106, T-313 | menunggu | Perlu persetujuan dependency OpenCV |
-| T-549 | Scan otomatis denah dengan model AI | T-548 | menunggu | Perlu keputusan model dan lisensinya |
+| T-548 | Scan otomatis denah gambar (computer vision) | T-105, T-106, T-313 | menunggu | OpenCV disetujui 2026-10-06 |
+| T-549 | Scan otomatis denah dengan model AI | T-548 | menunggu | Hanya model gratis berlisensi komersial; bila tidak ada, ditunda |
 | T-551 | Aturan jalur + bobot preferensi | — | menunggu | |
 | T-552 | Estimasi waktu tempuh | — | menunggu | |
 | T-553 | Fasilitas terdekat + multi-tujuan | — | menunggu | |
@@ -166,7 +166,7 @@ Perencanaan final (2026-10-06). Menunggu review R0–R4 oleh pemilik sebelum dim
 | T-561 | Pairing, status, reload perangkat | T-502 | menunggu | |
 | T-562 | Shell Windows (WPF) | T-561 | menunggu | |
 | T-563 | Mode aksesibilitas Info Point | — | menunggu | |
-| T-571 | Elemen 3D: pustaka objek + model GLB | — | menunggu | Perlu persetujuan dependency Three.js |
+| T-571 | Elemen 3D: pustaka objek + model GLB | — | menunggu | Three.js disetujui 2026-10-06 (lazy) |
 | T-572 | Pustaka ikon POI lengkap | — | menunggu | |
 | T-573 | Penguatan CMS: media, edit massal, dasbor | T-503 | menunggu | |
 | T-574 | Papan "Anda di sini" cetak dengan QR | T-544 | menunggu | |
@@ -181,7 +181,7 @@ Perencanaan final (2026-10-06). Menunggu review R0–R4 oleh pemilik sebelum dim
 | T-596 | Bantuan dan dokumentasi pengguna | T-599 | menunggu | |
 | T-597 | Monitoring server di Admin | T-411 | menunggu | |
 | T-598 | Notifikasi email operasional | T-591 (ringkasan saja) | menunggu | Jenis lain tidak menunggu T-591 |
-| T-599 | Tur panduan intro.js di setiap halaman | T-501, T-503 | menunggu | Perlu lisensi komersial intro.js |
+| T-599 | Tur panduan di setiap halaman (driver.js) | T-501, T-503 | menunggu | driver.js (MIT, gratis), keputusan 2026-10-06 |
 | T-601 | Kepatuhan UU PDP | — | menunggu | |
 | T-602 | Dokumen legal penjualan | — | menunggu | |
 | T-603 | Uji keamanan + pentest | — | menunggu | |
@@ -194,10 +194,11 @@ Perencanaan final (2026-10-06). Menunggu review R0–R4 oleh pemilik sebelum dim
 
 Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … (status: menunggu jawaban)`
 
-- [2026-10-05] T-599 — intro.js berlisensi AGPL-3.0 untuk pemakaian gratis, dan itu tidak cocok untuk PanduArah yang dijual tertutup (T-511). Opsi: A) beli lisensi komersial intro.js; B) pakai driver.js (MIT) dengan pola tur yang sama. Rekomendasi: A bila pemilik tetap ingin intro.js, B bila ingin tanpa biaya lisensi. (status: menunggu jawaban sebelum T-599 dikerjakan)
+(Tidak ada pertanyaan terbuka.)
 
 ## Catatan keputusan
 
+- [2026-10-06] F2 — **Keputusan dependency (pemilik):** (1) T-599 memakai pustaka tur yang gratis, yaitu driver.js (MIT); intro.js gratis berlisensi AGPL-3.0 (kode sumber wajib dibuka ke klien) sehingga tidak dipakai. Pertanyaan terbuka T-599 ditutup (opsi B). (2) OpenCV (`opencv-python-headless`, Apache-2.0) di `cad-converter` untuk T-548 disetujui. (3) Three.js (MIT) untuk T-571 disetujui, wajib lazy. (4) T-549 hanya memakai model AI gratis yang bobot dan dataset latihnya mengizinkan pemakaian komersial; tanpa membeli lisensi atau melatih sendiri dengan biaya; bila tidak ada yang cukup baik, T-549 ditunda dan tahap 1 tetap dipakai.
 - [2026-10-06] F2 — **Perencanaan F2 difinalkan.** (1) Alur verifikasi E2E F2 di `22-F2-verifikasi-e2e.md`: verifikasi menjadi bagian setiap task (spec, test case, bukti), layanan uji tambahan (IdP uji, penerima webhook, vendor-stub trial, landing), proyek Playwright `landing` dan `visitor-nowebgl`, jam palsu untuk fitur berjadwal, spec alur gabungan per rilis, dan gerbang rilis. (2) 187 test case F2 di `16-test-case.md` §15, termasuk matriks keamanan TC-SEC-70 s.d. 81. (3) **Uji beban saat banyak diakses** (`20-F2-fase-2.md` §2.15, T-607, rilis F2.2): smoke, normal 200 + 20 + 10 Info Point, puncak 1.000, lonjakan 0 → 500 dalam 10 s, ketahanan 4 jam, titik batas, kelebihan beban ditolak rapi; panduan ukuran server di `deploy/README.md`; setiap fitur berbeban menambah skenario k6; smoke dan normal jadi gerbang setiap rilis. (4) Konsistensi: setiap task punya baris Bergantung pada dan Verifikasi; T-551 dipindah ke F2.4 karena T-557 membutuhkannya; T-598 hanya bergantung pada T-591 untuk ringkasan pemakaian; daftar `00-README.md` diperbarui.
 - [2026-10-06] T-501 — **Logo resmi PanduArah dari pemilik** disimpan di `docs/brand/` (`panduarah-logo.webp` utama, `panduarah-logo-alt.png` cadangan). Warna logo: biru ±#0F4A91, kuning ±#FEC409 (setara `--signal`), hitam (setara `--ink`). T-501 ditambah langkah: versi SVG transparan dan varian putih, logo di header/login Admin, favicon, ikon PWA dari simbol, dan email; di Visitor dan Info Point logo venue tetap utama.
 - [2026-10-05] F2 — Tur panduan intro.js di setiap halaman Admin, Visitor, dan Info Point dimasukkan ke F2 (`20-F2-fase-2.md` §2.14, T-599, rilis F2.1). Tur otomatis saat pertama membuka halaman, bisa dilewati dan diulang, langkah mengikuti role, intro.js dimuat lazy, dan setiap halaman baru F2 wajib membawa tur. T-596 (tur lintas halaman) memakai mesin tur T-599.

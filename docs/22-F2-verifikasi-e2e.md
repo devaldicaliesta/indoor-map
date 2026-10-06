@@ -32,7 +32,7 @@ Persiapan dasar sama dengan `15-verifikasi-e2e.md` (`supabase start`, `pnpm db:r
 | Server dev landing page (port 5175) | T-505, T-595 | Dinyalakan `playwright.config.ts` seperti Admin dan Visitor |
 | IdP uji OIDC/SAML (mis. Keycloak) dan OpenLDAP dalam container | T-592 | Hanya untuk test, tidak ikut paket instalasi |
 | Penerima webhook uji (`e2e/support/webhook-receiver.ts`) | T-593 | Server HTTP lokal yang bisa diatur membalas 200 atau 500 |
-| `cad-converter` dengan OpenCV | T-547, T-548, T-549 | Butuh persetujuan dependency di T-548 |
+| `cad-converter` dengan OpenCV | T-547, T-548, T-549 | OpenCV disetujui pemilik 2026-10-06 |
 | Validator IMDF | T-594 | Dijalankan dari test integrasi |
 | PostgreSQL 17 terpisah (container) | T-522 | Uji manual paket instalasi |
 
@@ -60,7 +60,7 @@ paling sesuai.
    masuk PR task yang sama. Commit memakai nama task (`T-5xx: …`), bukan `T-307a`.
 2. **Urutan lapisan:** unit (U), pgTAP (D), dan integrasi (I) task itu hijau dulu, baru E2E (E).
    Langkah manual (M) dicatat di README bukti.
-3. **Tur intro.js mati di E2E.** Fixture menandai semua tur sudah dilihat untuk akun dan
+3. **Tur panduan (driver.js) mati di E2E.** Fixture menandai semua tur sudah dilihat untuk akun dan
    perangkat uji. Hanya spec T-599 yang menyalakannya.
 4. **Perubahan tampilan bersama** (judul PanduArah di T-501, `DataTable` di T-503) diikuti dengan
    memperbarui Page Object di `e2e/pages/`. Test lama tidak dilemahkan atau dihapus.
@@ -72,8 +72,9 @@ paling sesuai.
    lewat log terminal, foto layar, atau berkas hasil, dengan daftar periksa test case di README.
 8. **Keamanan:** baris matriks TC-SEC-70 s.d. 81 dijalankan langsung ke server (repository/REST
    dengan token role itu) di task yang membuat tabel atau aksinya.
-9. **Bergantung pada keputusan pemilik:** T-599 (lisensi intro.js), T-548 (dependency OpenCV),
-   T-549 (model AI), dan T-571 (Three.js) tidak diverifikasi sebelum keputusannya ada di
+9. **Keputusan dependency sudah ada** (pemilik 2026-10-06): T-599 memakai driver.js (gratis),
+   OpenCV di T-548 dan Three.js di T-571 disetujui, dan T-549 hanya memakai model AI gratis.
+   Pilihan lain di luar keputusan ini tidak diverifikasi sebelum dicatat di
    `PROGRESS.md`.
 
 ## 5. Daftar task per rilis
@@ -92,7 +93,7 @@ Format: task · judul — **fokus cek** · test case → folder bukti. Level `M`
 - [ ] T-514 · Perbaikan lisensi dan audit R4 — `cad-floor-plan` lulus, 403 tanpa `cad_import`, tombol masa tenggang, pelaku audit · TC-HRD-07 s.d. 10 → `e2e/evidence/T-514/`
 - [ ] T-521 · Windows lewat VM Ubuntu — ikuti panduan di Hyper-V (M) · TC-INS-01 → `e2e/evidence/T-521/`
 - [ ] T-596 · Bantuan pengguna — artikel per menu, buka offline, tur lintas halaman · TC-OPS-16 → `e2e/evidence/T-596/`
-- [ ] T-599 · Tur intro.js — tur per halaman Admin, Visitor, Info Point; lewati, ulang, role, lazy load · TC-TUR-01 s.d. 11, TC-SEC-73 → `e2e/evidence/T-599/`
+- [ ] T-599 · Tur panduan (driver.js) — tur per halaman Admin, Visitor, Info Point; lewati, ulang, role, lazy load · TC-TUR-01 s.d. 11, TC-SEC-73 → `e2e/evidence/T-599/`
 - [ ] T-601 · UU PDP — export dan hapus data akun, retensi, pemberitahuan privasi · TC-KOM-01, 02, 08 → `e2e/evidence/T-601/`
 - [ ] T-602 · Dokumen legal — EULA wajib disetujui saat aktivasi pertama · TC-KOM-03 → `e2e/evidence/T-602/`
 - [ ] T-605 · Demo penjualan — reset satu perintah, venue per industri bisa dipublish dan dirutekan (M) · TC-KOM-06 → `e2e/evidence/T-605/`

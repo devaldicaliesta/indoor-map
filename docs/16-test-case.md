@@ -425,7 +425,7 @@ nama test, misalnya `test('TC-TRL-05 lokasi ke-301 ditolak …')`.
 | TC-TUR-05 | Elemen target langkah tidak ada di layar (tabel kosong) | Langkah dilewati, tur tidak macet | U | P2 |
 | TC-TUR-06 | Visitor HP bahasa EN pertama kali, lalu muat ulang; localStorage diblokir | Tur EN, bottom sheet menyesuaikan; tidak muncul lagi; saat diblokir tidak berulang dalam satu sesi | E | P2 |
 | TC-TUR-07 | Info Point: tunggu idle; buka tur lalu biarkan idle | Tur tidak mulai otomatis; tur yang terbuka tertutup saat reset idle | E | P2 |
-| TC-TUR-08 | Tab Network Visitor sebelum tur dimulai | Berkas intro.js belum diunduh | E | P2 |
+| TC-TUR-08 | Tab Network Visitor sebelum tur dimulai | Berkas driver.js belum diunduh | E | P2 |
 | TC-TUR-09 | Tur dengan keyboard (Tab, panah, Esc) dan pemeriksaan kontras | Semua tombol tercapai; kontras lolos AA | E | P2 |
 | TC-TUR-10 | Editor Peta saat ada gambar yang belum selesai | Tur tidak mulai otomatis | E | P3 |
 | TC-TUR-11 | Test registri tur | Setiap menu `navigation.ts` dan rute Visitor/Info Point punya tur | U | P2 |
