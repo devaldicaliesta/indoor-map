@@ -80,6 +80,13 @@ menjadi default.
 (keputusan pemilik 2026-10-05):
 - Bentuk resmi: **PanduArah** untuk logo dan teks, **panduarah** untuk domain dan email.
   Tagline Inggris untuk pasar luar negeri: "PanduArah — Indoor Navigation".
+- **Logo resmi** (diberikan pemilik 2026-10-06), berkas sumber di `docs/brand/`:
+  - simbol: penanda arah biru yang menyapu ke kanan atas di atas bingkai biru dan kuning;
+  - tulisan: "Pandu" tebal dan "Arah" reguler, berwarna hitam;
+  - warna dari berkas: biru ±`#0F4A91`, kuning ±`#FEC409` (setara token `--signal`),
+    hitam ±`#04080B` (setara `--ink`);
+  - `panduarah-logo.webp` adalah versi utama; `panduarah-logo-alt.png` versi kedua dengan
+    tepi lebih kasar, sebagai cadangan.
 - Ganti nama "Indoor Map" di semua tempat yang terlihat pengguna:
   - judul dan header Admin dan Visitor;
   - manifest PWA dan ikon;
