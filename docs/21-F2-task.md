@@ -57,11 +57,27 @@ Gerbang setiap rilis:
      - i18n ID/EN;
      - `deploy/README.md`, `README.md`, dan dokumen produk.
   2. Tagline Inggris di manifest dan halaman tentang: "PanduArah — Indoor Navigation".
-  3. Nama paket kode (`@indoor/*`), nama tabel, dan istilah teknis tidak diganti.
-  4. Cari sisa teks dengan `rg -i "indoor map"` dan pastikan hanya tersisa di kode internal.
-- **File:** `apps/*/index.html`, `apps/*/vite.config.ts`, `apps/visitor/src/i18n/*.json`, `supabase/functions/{auth-email,account-notice}/**`, `apps/*/public/icons/**`, dokumen
+  3. Pasang **logo resmi** dari `docs/brand/panduarah-logo.webp` (`20-F2-fase-2.md` §2.3):
+     - berkas sumber berupa gambar raster berlatar putih. Buat versi vektor SVG yang setia
+       pada berkas itu (simbol saja, dan simbol + tulisan), latar transparan, serta varian
+       satu warna putih untuk latar gelap. Bentuk dan warna tidak boleh diubah; bila hasil
+       jiplak belum rapi, minta berkas vektor asli ke pemilik;
+     - Admin: header sidebar (simbol saja saat sidebar diciutkan), halaman login, lupa dan
+       reset password, serta `/aktivasi`;
+     - favicon Admin dan Visitor serta ikon PWA (192, 512, maskable, apple-touch) dari simbol
+       saja, dengan ruang aman ikon maskable;
+     - template email `auth-email` dan `account-notice`;
+     - Visitor dan Info Point: logo venue (branding T-410) tetap yang utama. PanduArah hanya
+       tampil sebagai ikon bawaan saat venue belum punya logo dan sebagai teks kecil
+       "Didukung oleh PanduArah" di halaman tentang;
+     - logo ditaruh di `packages/ui` agar Admin dan Visitor memakai berkas yang sama.
+  4. Nama paket kode (`@indoor/*`), nama tabel, dan istilah teknis tidak diganti.
+  5. Cari sisa teks dengan `rg -i "indoor map"` dan pastikan hanya tersisa di kode internal.
+- **File:** `apps/*/index.html`, `apps/*/vite.config.ts`, `apps/visitor/src/i18n/*.json`, `supabase/functions/{auth-email,account-notice}/**`, `apps/*/public/icons/**`, `apps/admin/public/favicon.png`, `packages/ui/src/brand/**`, dokumen
 - **Selesai jika:**
   - [ ] Tidak ada teks "Indoor Map" yang terlihat di Admin, Visitor, Info Point, email, dan PWA
+  - [ ] Logo PanduArah tampil tajam di header dan login Admin, favicon, ikon PWA, dan email,
+    tanpa latar putih di atas latar gelap
   - [ ] E2E yang memeriksa judul diperbarui dan lulus
 - **Jangan:** mengganti nama paket workspace atau skema database.
 
