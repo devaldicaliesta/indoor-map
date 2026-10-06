@@ -1,6 +1,6 @@
 # 16 · Katalog test case (QA)
 
-Katalog ini adalah daftar test case yang wajib dijalankan **sebelum dan selama** verifikasi E2E bertahap (`15-verifikasi-e2e.md`, T-307a). Sumber: kriteria penerimaan (`spec/06-kriteria-penerimaan.md`), NFR (`spec/07-non-fungsional-rilis.md`), user flow (`spec/05-user-flow.md`), desain (`05-desain-ui.md`), dan daftar periksa keamanan repo (`.claude/skills/ecc-security-checklist`).
+Katalog ini adalah daftar test case yang wajib dijalankan **sebelum dan selama** verifikasi E2E bertahap (`15-verifikasi-e2e.md`, T-307a). Test case Fase 2 ada di bagian 15 dan dijalankan menurut `22-F2-verifikasi-e2e.md`. Sumber: kriteria penerimaan (`spec/06-kriteria-penerimaan.md`), NFR (`spec/07-non-fungsional-rilis.md`), user flow (`spec/05-user-flow.md`), desain (`05-desain-ui.md`), dan daftar periksa keamanan repo (`.claude/skills/ecc-security-checklist`).
 
 ## 1. Cara memakai
 
@@ -400,4 +400,283 @@ Bagian ini melengkapi bagian 3–10 dengan semua kemungkinan yang bisa terjadi d
 
 ## 14. Ringkasan jumlah test case
 
-Bagian 3–10: 126 test case utama. Bagian 13: 133 kasus tepi, negatif, batas, konkurensi, keamanan lanjutan, dan ketahanan. Total 259. Jumlah ini ditinjau ulang setiap kali satu task selesai diverifikasi; kasus baru yang ditemukan saat pengujian ditambahkan ke bagian area yang sesuai dengan ID lanjutan.
+Bagian 3–10: 126 test case utama. Bagian 13: 133 kasus tepi, negatif, batas, konkurensi, keamanan lanjutan, dan ketahanan. Total 259 untuk R0–R4, ditambah 187 test case F2 di bagian 15. Jumlah ini ditinjau ulang setiap kali satu task selesai diverifikasi; kasus baru yang ditemukan saat pengujian ditambahkan ke bagian area yang sesuai dengan ID lanjutan.
+
+## 15. Fase 2 (F2) — T-501 s.d. T-607
+
+Test case untuk task di `21-F2-task.md`. Cara menjalankan dan urutannya ada di
+`22-F2-verifikasi-e2e.md`. Kolom dan arti Level/P sama dengan bagian 1. Spec F2 menyebut ID di
+nama test, misalnya `test('TC-TRL-05 lokasi ke-301 ditolak …')`.
+
+### 15.1 Merek dan tur halaman (T-501, T-599)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-BRD-01 | Buka login Admin, beranda Admin, Visitor, Info Point; periksa `<title>` dan header | "PanduArah" dan logo resmi; tidak ada "Indoor Map" | E | P1 |
+| TC-BRD-02 | Pasang Visitor sebagai PWA | `name`/`short_name` PanduArah; ikon 192, 512, maskable, apple-touch tajam dan tidak terpotong | E | P2 |
+| TC-BRD-03 | Email reset password dan pemberitahuan akun (Mailpit) | Nama dan logo PanduArah; tautan tetap berfungsi | E | P2 |
+| TC-BRD-04 | Sidebar Admin diciutkan; logo di latar gelap | Simbol saja saat diciutkan; varian putih tanpa kotak latar putih | E | P3 |
+| TC-BRD-05 | Visitor venue dengan logo dan tanpa logo | Logo venue tetap utama; tanpa logo → ikon PanduArah; "Didukung oleh PanduArah" di halaman tentang | E | P2 |
+| TC-BRD-06 | `rg -i "indoor map"` di `apps/`, `supabase/functions/`, `deploy/` | Hanya tersisa di kode internal | M | P2 |
+| TC-TUR-01 | Pengguna baru membuka setiap menu Admin | Tur halaman mulai otomatis satu kali | E | P2 |
+| TC-TUR-02 | Lewati tur, muat ulang, lalu masuk dengan akun sama di browser lain | Tur tidak muncul lagi (status tersimpan di server) | I, E | P2 |
+| TC-TUR-03 | Tombol "Tur halaman" | Tur diulang dari langkah pertama | E | P3 |
+| TC-TUR-04 | Tur halaman Lokasi sebagai Admin dan Viewer | Viewer tidak ditunjukkan tombol tulis | U, E | P2 |
+| TC-TUR-05 | Elemen target langkah tidak ada di layar (tabel kosong) | Langkah dilewati, tur tidak macet | U | P2 |
+| TC-TUR-06 | Visitor HP bahasa EN pertama kali, lalu muat ulang; localStorage diblokir | Tur EN, bottom sheet menyesuaikan; tidak muncul lagi; saat diblokir tidak berulang dalam satu sesi | E | P2 |
+| TC-TUR-07 | Info Point: tunggu idle; buka tur lalu biarkan idle | Tur tidak mulai otomatis; tur yang terbuka tertutup saat reset idle | E | P2 |
+| TC-TUR-08 | Tab Network Visitor sebelum tur dimulai | Berkas intro.js belum diunduh | E | P2 |
+| TC-TUR-09 | Tur dengan keyboard (Tab, panah, Esc) dan pemeriksaan kontras | Semua tombol tercapai; kontras lolos AA | E | P2 |
+| TC-TUR-10 | Editor Peta saat ada gambar yang belum selesai | Tur tidak mulai otomatis | E | P3 |
+| TC-TUR-11 | Test registri tur | Setiap menu `navigation.ts` dan rute Visitor/Info Point punya tur | U | P2 |
+
+### 15.2 Tabel Admin (T-502, T-503)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-TBL-01 | Cari teks di Lokasi berisi 2.000 baris | Disaring di server; total benar; < 500 ms per perubahan | I, E | P1 |
+| TC-TBL-02 | Filter gabungan status + kategori + lantai, lalu hapus satu filter | Hasil berupa irisan; filter bisa dihapus satu per satu | E | P2 |
+| TC-TBL-03 | Pagination 10/25/50/100, pindah ke halaman terakhir | Nomor dan total benar; tidak ada baris ganda atau hilang antarhalaman | I, E | P1 |
+| TC-TBL-04 | Muat ulang dan buka URL yang disalin di tab baru | Kata kunci, filter, halaman, dan ukuran halaman dipulihkan | E | P1 |
+| TC-TBL-05 | URL dirusak (`page=999`, `size=7`, filter tidak dikenal) | Dinormalisasi ke nilai sah tanpa galat | U, E | P2 |
+| TC-TBL-06 | Pencarian tanpa hasil | Keadaan kosong dengan tombol hapus filter | E | P3 |
+| TC-TBL-07 | Hapus satu-satunya baris di halaman terakhir | Pindah ke halaman sebelumnya | E | P2 |
+| TC-TBL-08 | Kata kunci `é`, `%`, `_`, `'`, `\` | Diperlakukan sebagai teks; tanpa galat database | I | P1 |
+| TC-TBL-09 | Total baris untuk role yang dibatasi RLS | Total hanya menghitung baris yang boleh dilihat | D, I | P1 |
+| TC-TBL-10 | Daftar periksa 17 tabel | Semua memakai `DataTable` dengan filter sesuai kolomnya | E, M | P2 |
+
+### 15.3 Lisensi trial (T-504)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-TRL-01 | `license-cli issue --plan trial` 14, 30, dan 31 hari | 14 dan 30 terbit; 31 ditolak | U | P1 |
+| TC-TRL-02 | "Mulai trial" di `/aktivasi` (vendor-stub) | Aktif < 1 menit; banner "Trial — sisa 14 hari" | E | P1 |
+| TC-TRL-03 | Trial kedua untuk instalasi, email, atau domain yang sama; > batas laju per IP | Ditolak dengan pesan | I, E | P1 |
+| TC-TRL-04 | Trial per permintaan (server tanpa internet): ID instalasi → unggah berkas | Aktif | E | P1 |
+| TC-TRL-05 | Melewati setiap batas: venue ke-2, gedung ke-3, lantai ke-7, fitur ke-1.001, lokasi ke-301, titik asal ke-21, Info Point ke-3, pengguna ke-6 | Server menolak (IM422, "Batas trial tercapai: n/n"); tombol tambah nonaktif dengan pesan | D, E | P1 |
+| TC-TRL-06 | Unggah denah 21 MB; Storage melewati 1 GB | Ditolak | I | P1 |
+| TC-TRL-07 | Impor 501 baris | Ditolak di klien dan server | I, E | P1 |
+| TC-TRL-08 | Publish ke-21 dalam sehari; publish keesokan harinya (zona venue) | Ke-21 ditolak; besoknya boleh | D, E | P1 |
+| TC-TRL-09 | Dua permintaan serentak tepat di batas (lokasi ke-300 dan ke-301) | Hanya satu yang lolos | D | P1 |
+| TC-TRL-10 | Halaman Lisensi saat trial | Bar pemakaian setiap batas sesuai data | E | P2 |
+| TC-TRL-11 | Jam palsu: trial habis → tenggang 14 hari → lewat | Alur sama dengan lisensi biasa; layanan Visitor berhenti | D, E | P1 |
+| TC-TRL-12 | Pasang lisensi berbayar saat trial dan saat tenggang | Batas terangkat; data utuh; banner hilang | E | P1 |
+| TC-TRL-13 | Berkas trial diubah (tanda tangan rusak, kuota diedit) | Ditolak | I | P1 |
+| TC-TRL-14 | Penanda trial di Visitor | Tampil atau tidak sesuai pengaturan | E | P3 |
+
+### 15.4 Landing page (T-505)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-LND-01 | Landing ID/EN di HP 360 px dan desktop | Isi lengkap; tanpa geser horizontal | E | P2 |
+| TC-LND-02 | Kirim form trial yang valid | Email ke vendor dan konfirmasi ke pemohon masuk Mailpit | E | P1 |
+| TC-LND-03 | Isian wajib kosong, email salah, durasi di luar 14–30, persetujuan privasi tidak dicentang | Ditolak dengan pesan per kolom | U, E | P1 |
+| TC-LND-04 | Honeypot terisi; > 5 kirim per menit per IP | Ditolak tanpa email terkirim | I | P1 |
+| TC-LND-05 | Isian berisi `\r\nBcc:` dan HTML | Tidak menyuntik header email; HTML tampil sebagai teks | U, I | P1 |
+| TC-LND-06 | Lighthouse mobile | Performa ≥ 90, aksesibilitas ≥ 95 | M | P2 |
+| TC-LND-07 | Rahasia SMTP | Tidak ada di bundel klien maupun repo | M | P1 |
+| TC-LND-08 | Tautan kebijakan privasi dari form | Halaman terbuka | E | P3 |
+
+### 15.5 Pengerasan dan instalasi (T-511 s.d. T-514, T-521 s.d. T-523)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-HRD-01 | Pasang dari arsip rilis di mesin bersih tanpa internet | Berhasil; Visitor tampil | M | P1 |
+| TC-HRD-02 | Periksa isi paket klien; build rilis dengan kunci dev | Tanpa `apps/`, `packages/`, kunci yang bisa diganti; build kunci dev ditolak | M | P1 |
+| TC-HRD-03 | Upgrade lalu rollback memakai image | Data utuh | M | P1 |
+| TC-HRD-04 | Visitor HP dan Info Point tanpa WebGL | Pesan "Perangkat ini tidak mendukung peta"; cari dan langkah rute tetap jalan; tanpa layar galat | E | P1 |
+| TC-HRD-05 | Kunjungan ulang di HP kelas menengah sungguhan | ≤ 1,5 s, atau selisihnya dijelaskan di laporan | M | P2 |
+| TC-HRD-06 | Firefox, Edge, Safari macOS, iOS 15, Android 10 | Alur utama berjalan | M | P2 |
+| TC-HRD-07 | `cad-floor-plan.spec.ts` dengan lisensi berfitur `cad_import` | Lulus | E | P1 |
+| TC-HRD-08 | Konversi DXF langsung ke layanan tanpa fitur `cad_import` | 403 dari server | I | P1 |
+| TC-HRD-09 | Admin selama masa tenggang | Tombol tulis nonaktif dengan keterangan; server tetap menolak | E | P2 |
+| TC-HRD-10 | Log audit aktivasi | Menyebut nama Super Admin | E | P2 |
+| TC-INS-01 | Instal di VM Hyper-V mengikuti panduan; reboot host | Visitor terbuka dari jaringan kantor; VM menyala sendiri | M | P2 |
+| TC-INS-02 | `install.sh --database external` ke PostgreSQL 17 terpisah | Berhasil sampai Visitor tampil | M | P1 |
+| TC-INS-03 | Database tanpa PostGIS, pg_cron, atau pg_net; PostgreSQL 14 | Installer berhenti dengan pesan jelas | M | P1 |
+| TC-INS-04 | `upgrade.sh` di mode database eksternal | Meminta konfirmasi backup DBA; rollback aplikasi berjalan | M | P1 |
+| TC-INS-05 | Windows Server 2022/2025: instal, backup terjadwal, restore, upgrade-rollback, reboot | Semua lulus; layanan menyala sendiri | M | P1 |
+
+### 15.6 Admin dan data (T-531 s.d. T-536)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-ADM-01 | Pengguna berizin "hanya lokasi" mengubah peta lewat UI dan API | Menu peta terkunci; server menolak | D, I, E | P1 |
+| TC-ADM-02 | Izin granular melebihi role (Viewer diberi izin publish) | Ditolak saat disimpan atau tidak berlaku di server | D | P1 |
+| TC-ADM-03 | Ubah data di setiap modul | Log audit mencatat pelaku, waktu, nilai sebelum dan sesudah | D, E | P1 |
+| TC-ADM-04 | Retensi audit 30 hari (job dipanggil dengan waktu palsu); export CSV | Baris lama terhapus; CSV aman dari formula | D, U | P2 |
+| TC-ADM-05 | Label "Lokasi" diganti "Poli & Ruangan" | Tampil di menu Admin dan Visitor ID/EN | E | P2 |
+| TC-ADM-06 | Duplikasi lantai berisi 1.000 fitur | Atomik; id baru; konektor tidak disalin; lolos validasi; rute di dalamnya jalan | D, E | P1 |
+| TC-ADM-07 | Duplikasi gagal di tengah proses | Tidak ada lantai setengah jadi | D | P1 |
+| TC-ADM-08 | Ganti lisensi tiga kali | Riwayat berurutan dengan sumber dan paket | E | P3 |
+| TC-ADM-09 | Publish terjadwal (job dipanggil pada waktunya) | Draft terbit; audit mencatat penjadwal | D, I, E | P1 |
+| TC-ADM-10 | Jadwal publish dengan draft yang punya Error validasi | Batal; notifikasi; tercatat di audit | I | P1 |
+| TC-ADM-11 | Jadwal dibatalkan; penjadwal dinonaktifkan sebelum waktunya | Tidak terbit | D | P1 |
+
+### 15.7 Peta, scan denah, tampilan (T-541 s.d. T-549)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-MPX-01 | Rute melewati landmark | Langkah menyebut landmark (ID/EN) | U, E | P2 |
+| TC-MPX-02 | Label bertabrakan | Label prioritas tinggi tetap tampil | E | P3 |
+| TC-MPX-03 | Area temporer dengan jadwal (jam palsu) | Tampil dan hilang tanpa publish ulang | U, E | P2 |
+| TC-MPX-04 | Export lantai ke PDF A3 dan SVG | Legenda, judul, dan arah utara ada; terbaca saat dicetak | E, M | P2 |
+| TC-MPX-05 | Warna per kategori dan lantai bertumpuk | Tampil di Visitor setelah publish; label tetap lolos kontras AA | E | P2 |
+| TC-MPX-06 | Pintu masuk venue di Visitor | Tautan Google Maps menuju koordinat yang benar | E | P3 |
+| TC-MPX-07 | Import vektor DXF contoh | Unit draft; lolos validasi setelah dirapikan | I, E | P2 |
+| TC-MPX-08 | Scan denah sederhana | ≥ 90% ruang terdeteksi; posisi ± 0,5 m | U, E | P1 |
+| TC-MPX-09 | Pilih sebagian hasil scan, impor, lalu undo | Draft sesuai pilihan; undo bersih | E | P1 |
+| TC-MPX-10 | Gambar > 8.000 px, > 50 MB, bukan gambar, proses > 30 s | Ditolak dengan pesan; layanan tetap hidup | U, I | P1 |
+| TC-MPX-11 | Scan tanpa fitur `cad_import` | 403 | I | P1 |
+| TC-MPX-12 | Scan AI pada denah rumit | Akurasi lebih baik dari tahap 1; ≤ 60 s di CPU 4 inti | M | P2 |
+| TC-MPX-13 | Lalu lintas jaringan saat scan | Tidak ada permintaan ke luar server klien | M | P1 |
+
+### 15.8 Navigasi dan Visitor (T-551 s.d. T-557)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-NVX-01 | Edge satu arah | Rute tidak pernah melawan arah | U, E | P1 |
+| TC-NVX-02 | Edge berjam buka, di dalam dan di luar jam (zona venue) | Dipakai di dalam jam; dihindari di luar jam | U | P1 |
+| TC-NVX-03 | Preferensi "utamakan eskalator" dan "hindari tangga" | Rute berubah sesuai preferensi | U | P2 |
+| TC-NVX-04 | Estimasi waktu rute biasa dan aksesibel | Menit konsisten dengan jarak; ID/EN | U, E | P2 |
+| TC-NVX-05 | "Toilet terdekat" dari titik asal | Toilet dengan rute terpendek, bukan garis lurus | U, E | P2 |
+| TC-NVX-06 | Rute tiga tujuan | Berurutan dengan langkah per segmen | E | P2 |
+| TC-NVX-07 | Visitor EN untuk konten berterjemahan dan kosong | EN tampil; yang kosong jatuh ke ID | E | P2 |
+| TC-NVX-08 | Lapisan keselamatan dan "pintu keluar terdekat" | Lapisan tampil; rute ke pintu keluar terdekat | E | P1 |
+| TC-NVX-09 | Mode teks; axe; NVDA/VoiceOver | Cari dan rute tanpa peta; axe tanpa pelanggaran serius | E, M | P1 |
+| TC-NVX-10 | Embed iframe di halaman HTML lain; klik minimap | Tampil; klik membuka Visitor | E | P2 |
+| TC-NVX-11 | Venue privat tanpa login: halaman, snapshot, graf, aset | Semua ditolak | I, E | P1 |
+| TC-NVX-12 | Pengunjung umum dan staf login di venue berjalur terbatas | Umum tidak pernah lewat jalur terbatas; staf mendapat rute lebih pendek | U, E | P1 |
+| TC-NVX-13 | Unduh graf terbatas tanpa login atau dari kelompok lain | Ditolak policy Storage | I | P1 |
+| TC-NVX-14 | Info Point di venue berjalur terbatas | Hanya rute publik | E | P1 |
+| TC-NVX-15 | Isi snapshot publik | Tanpa edge, konektor, atau area terbatas | U | P1 |
+
+### 15.9 Perangkat Info Point (T-561 s.d. T-563)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-DEV-01 | Pairing dengan kode sekali pakai; kode dipakai ulang atau kedaluwarsa | Berhasil; kode ulang/kedaluwarsa ditolak | I, E | P1 |
+| TC-DEV-02 | Perangkat dimatikan (jam palsu) | Tampil offline ≤ 2 menit | E | P2 |
+| TC-DEV-03 | Reload jarak jauh dari Admin | Perangkat memuat ulang; tercatat di audit | E | P2 |
+| TC-DEV-04 | Shell WPF: menyala, crash, jaringan putus | Langsung ke Info Point; pulih sendiri | M | P2 |
+| TC-DEV-05 | Mode aksesibilitas Info Point | Kontrol di sepertiga bawah layar; kontras dan huruf besar; normal lagi saat idle | E | P2 |
+
+### 15.10 Kesetaraan produk (T-571 s.d. T-574)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-PAR-01 | Tempatkan objek pustaka dan GLB unggahan | Posisi, skala, rotasi benar di Visitor 3D; tersembunyi di 2D dan Info Point paksa 2D | E | P2 |
+| TC-PAR-02 | GLB > 5 MB, rusak, atau bukan GLB | Ditolak | U, I | P1 |
+| TC-PAR-03 | Bundel awal Visitor | Three.js tidak dimuat sebelum mode 3D | E | P1 |
+| TC-PAR-04 | 200 objek 3D | FPS editor turun ≤ 20% | M | P3 |
+| TC-PAR-05 | Pemilih ikon: cari ID/EN dan alias, filter kategori | ±150 ikon; hasil benar | E | P2 |
+| TC-PAR-06 | Snapshot lama dengan kunci ikon lama | Tetap tampil | U | P1 |
+| TC-PAR-07 | Lisensi set ikon | Tercatat di `LICENSES.md`; tanpa lisensi non-komersial | M | P1 |
+| TC-PAR-08 | Pustaka media: hapus aset terpakai dan tidak terpakai | Aset terpakai tidak bisa dihapus (pesan menyebut pemakainya); yang tidak terpakai terhapus | I, E | P2 |
+| TC-PAR-09 | Edit massal status 100 lokasi, lalu undo | Berhasil dan tercatat di audit; undo memulihkan | I, E | P1 |
+| TC-PAR-10 | Dasbor venue | Angka sama dengan data sebenarnya | I | P2 |
+| TC-PAR-11 | Cetak papan A3 dan cetak massal satu lantai | QR terbaca dari 1 m dan membuka rute dari titik itu | E, M | P2 |
+| TC-PAR-12 | Lembar stiker QR 20 lokasi | Tiap QR membuka lokasi yang benar dan meminta titik asal | E | P2 |
+
+### 15.11 Event dan promosi (T-581 s.d. T-583)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-EVT-01 | CRUD event dengan gambar, lokasi, dan titik peta | Tersimpan; tampil di `DataTable` | I, E | P1 |
+| TC-EVT-02 | Selesai ≤ mulai, durasi > 1 tahun, judul ID kosong | Ditolak dengan pesan | U, E | P1 |
+| TC-EVT-03 | Event berulang mingguan | Kemunculan benar menurut zona venue | U | P2 |
+| TC-EVT-04 | anon membaca event draft, selesai, atau venue lain | 0 baris | D | P1 |
+| TC-EVT-05 | Tanpa fitur lisensi `events` | Server menolak; menu terkunci dengan keterangan | D, E | P1 |
+| TC-EVT-06 | Visitor: berlangsung dan segera, lencana, penanda, rute ke sini, bagikan `ev=` | Semua tampil; rute berjalan; tautan membuka event | E | P1 |
+| TC-EVT-07 | Event berakhir (jam palsu) | Hilang tanpa publish dan tanpa muat ulang | E | P1 |
+| TC-EVT-08 | Muat awal Visitor dengan 50 event aktif | Event dimuat setelah peta tampil; muat awal tidak melambat | E | P2 |
+| TC-EVT-09 | Info Point idle lalu disentuh | Playlist berputar; sentuhan membuka event atau rute | E | P2 |
+| TC-EVT-10 | Playlist saat jaringan putus | Slide yang sudah dimuat tetap tampil | E | P2 |
+| TC-EVT-11 | `<script>` di judul dan deskripsi event | Tampil sebagai teks | E | P1 |
+
+### 15.12 Operasional dan integrasi (T-591 s.d. T-598)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-OPS-01 | Kirim event analitik uji (cari, cari tanpa hasil, rute, sumber QR/Info Point/embed) | Dasbor menampilkan angka yang cocok | I, E | P1 |
+| TC-OPS-02 | Isi tabel analitik | Tanpa IP, identitas, atau data pribadi | D, U | P1 |
+| TC-OPS-03 | Pengunjung opt-out; analitik dimatikan di Pengaturan | Tidak ada kiriman | E | P1 |
+| TC-OPS-04 | Kiriman analitik melebihi batas laju | Ditolak tanpa memengaruhi Visitor | I | P2 |
+| TC-OPS-05 | Export dasbor CSV dan PDF | Isi sama dengan dasbor | E | P3 |
+| TC-OPS-06 | 2FA diwajibkan untuk role; kode salah; kode cadangan dipakai dua kali | Tanpa kode benar tidak bisa masuk; kode cadangan hanya sekali | E | P1 |
+| TC-OPS-07 | Super Admin mereset 2FA pengguna | Berhasil; tercatat di audit | E | P2 |
+| TC-OPS-08 | Login SSO OIDC dan LDAP uji; akun tanpa pemetaan role | Masuk dengan role terpetakan; tanpa pemetaan ditolak | E | P1 |
+| TC-OPS-09 | Kunci API baca-saja menulis; kunci yang dicabut | Ditolak | I | P1 |
+| TC-OPS-10 | Upsert massal jam operasional lewat API | Tampil di Visitor setelah publish | I, E | P1 |
+| TC-OPS-11 | Webhook publish, penutupan, lokasi; penerima membalas 500 | Tanda tangan HMAC sah; dikirim ulang; log pengiriman lengkap | I | P1 |
+| TC-OPS-12 | Export IMDF venue contoh | Lolos validator tanpa error | I | P2 |
+| TC-OPS-13 | Export GeoJSON | Geometri WGS84 sama dengan snapshot | U | P2 |
+| TC-OPS-14 | Vendor Portal menyetujui trial dari landing page | Lisensi terbit, terkirim, dan lolos aktivasi | E | P1 |
+| TC-OPS-15 | Database Vendor Portal | Tidak berisi kunci privat | M | P1 |
+| TC-OPS-16 | Bantuan setiap menu Admin, dibuka tanpa internet | Artikel ada dan terbuka | E | P2 |
+| TC-OPS-17 | Backup sengaja gagal 2 kali; disk > 85%; sertifikat < 14 hari | Peringatan di Kesehatan sistem dan email | I, E | P1 |
+| TC-OPS-18 | Preferensi notifikasi dan tautan berhenti berlangganan | Email sesuai preferensi; jenis yang dimatikan tidak terkirim | E | P2 |
+| TC-OPS-19 | Pengingat lisensi H-30, H-7, H-1 (jam palsu) | Terkirim sekali per tahap | D, E | P2 |
+
+### 15.13 Kesiapan komersial (T-601 s.d. T-606)
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-KOM-01 | Export dan hapus data akun pengguna dari Admin | Berkas berisi data akun; penghapusan tercatat di audit | I, E | P1 |
+| TC-KOM-02 | Retensi log audit dan analitik diubah | Data lama dihapus sesuai pengaturan | D | P2 |
+| TC-KOM-03 | Aktivasi pertama | EULA wajib disetujui; persetujuan tercatat di audit | E | P1 |
+| TC-KOM-04 | CI dengan dependency berkerentanan tinggi | CI gagal | M | P1 |
+| TC-KOM-05 | Rilis percobaan | Dari tag sampai arsip rilis dan changelog | M | P1 |
+| TC-KOM-06 | Reset lingkungan demo | < 5 menit; setiap venue industri bisa dipublish dan dirutekan | M | P2 |
+| TC-KOM-07 | Materi pelatihan | Modul, video, dan lembar ringkas per peran | M | P3 |
+| TC-KOM-08 | Pemberitahuan privasi di Visitor saat analitik aktif | Tampil ID/EN | E | P2 |
+
+### 15.14 Uji beban: banyak orang mengakses bersamaan (T-607)
+
+Dijalankan dengan k6 (`tests/perf/k6/`) pada paket instalasi, bukan server dev. Spesifikasi
+server uji dicatat di setiap hasil. Angka target adalah target awal dan bisa diubah pemilik.
+
+| ID | Skenario | Hasil diharapkan | Level | P |
+| --- | --- | --- | --- | --- |
+| TC-LOAD-01 | Smoke: 10 pengunjung + 2 Admin selama 1 menit | 0 request gagal; dipakai sebagai cek cepat setiap rilis | M | P1 |
+| TC-LOAD-02 | Beban normal (NFR-CAP-01): 200 pengunjung + 20 Admin + 10 Info Point selama 10 menit, dengan semua fitur F2 aktif | Gagal < 1%; API p95 < 1 s; snapshot p95 < 2 s; graf p95 < 5 s | M | P1 |
+| TC-LOAD-03 | Puncak: 1.000 pengunjung bersamaan (5× normal) selama 10 menit | Gagal < 5%; tidak ada container restart; pengunjung yang sudah membuka peta tetap bisa mencari dan merute | M | P1 |
+| TC-LOAD-04 | Lonjakan: 0 → 500 pengunjung dalam 10 detik (pengumuman, jam besuk, acara) | Server pulih ≤ 1 menit setelah lonjakan; tanpa galat 5xx beruntun | M | P1 |
+| TC-LOAD-05 | Ketahanan: 200 pengunjung + 20 Admin selama 4 jam | Memori tiap container stabil (tanpa naik terus); latensi akhir ≤ 120% awal; pertumbuhan disk analitik sesuai perkiraan | M | P2 |
+| TC-LOAD-06 | Titik batas: pengunjung dinaikkan bertahap sampai gagal > 5% atau p95 > 5 s | Angka kapasitas per spesifikasi server dicatat di `deploy/README.md` (panduan ukuran server) | M | P1 |
+| TC-LOAD-07 | Publish saat 200 pengunjung aktif | Pengunjung lama tetap jalan; versi baru terpakai tanpa galat | M | P1 |
+| TC-LOAD-08 | Pembacaan langsung tiap menit oleh semua pengunjung: penutupan (T-216) dan event (T-582) | Beban database tetap < 70% satu inti pada beban normal | M | P1 |
+| TC-LOAD-09 | Kiriman analitik batch dari 1.000 pengunjung (T-591) | Endpoint tidak menjadi bottleneck; data tidak hilang di bawah batas laju; Visitor tidak melambat | M | P1 |
+| TC-LOAD-10 | 50 Info Point mengirim heartbeat (T-561) | Status tetap akurat; beban kecil | M | P2 |
+| TC-LOAD-11 | 20 Admin memakai tabel server (Lokasi 2.000 baris, Log audit 100.000 baris) bersamaan (T-503) | p95 < 1 s per perubahan filter | M | P2 |
+| TC-LOAD-12 | Integrasi API: upsert 2.000 lokasi sambil webhook terkirim (T-593) | Selesai tanpa timeout; antrean webhook tuntas | M | P2 |
+| TC-LOAD-13 | 20 Admin login bersamaan lewat SSO dan 2FA di awal jam kerja (T-592) | Semua masuk < 5 s | M | P2 |
+| TC-LOAD-14 | 3 scan denah dijalankan bersamaan (T-548) | Diantrikan; layanan lain tidak melambat; tanpa kehabisan memori | M | P2 |
+| TC-LOAD-15 | Server kelebihan beban | Permintaan ditolak rapi (429/503 dengan pesan "server sedang sibuk"); Visitor memakai snapshot tersimpan; Admin tidak kehilangan draft | M, E | P1 |
+| TC-LOAD-16 | Landing page dan form trial diserbu (T-505) | Batas laju dan honeypot menahan; situs tetap terbuka | M | P2 |
+| TC-LOAD-17 | Monitoring saat uji beban (T-597) | Kesehatan sistem menampilkan beban tinggi dan memberi peringatan bila ambang terlewati | M | P2 |
+
+### 15.15 Keamanan F2 (lanjutan matriks 9.1)
+
+Uji langsung ke server dengan token role itu. ✓ diizinkan, ✗ ditolak.
+
+| ID | Aksi | Super Admin | Admin | Editor | Operator | Viewer | anon | Level |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| TC-SEC-70 | Buat/ubah/hapus event dan promosi | ✓ | ✓ | ✓ | ✗ | ✗ | baca yang aktif saja | D |
+| TC-SEC-71 | Kelola izin granular, kunci API, pemetaan SSO, reset 2FA | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | D, I |
+| TC-SEC-72 | Baca dasbor analitik / kirim event analitik | ✓ / ✓ | ✓ / ✓ | ✗ / ✓ | ✗ / ✓ | ✓ / ✓ | ✗ / lewat endpoint berbatas laju | D, I |
+| TC-SEC-73 | Baca/ubah status tur milik pengguna lain | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | D |
+| TC-SEC-74 | Baca graf jalur terbatas | anggota kelompok saja | | | | | ✗ | D, I |
+| TC-SEC-75 | Baca snapshot dan aset venue privat | pengguna login yang berhak | | | | | ✗ | D, I |
+| TC-SEC-76 | Baca Kesehatan sistem | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | D |
+| TC-SEC-77 | Pairing dan reload perangkat Info Point | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | D, I |
+| TC-SEC-78 | Pustaka media dan edit massal lokasi | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | D, I |
+| TC-SEC-79 | Buat/batalkan publish terjadwal | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | D |
+| TC-SEC-80 | Mulai trial atau pasang lisensi | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | I |
+| TC-SEC-81 | Total baris `DataTable` untuk data yang tidak boleh dibaca | tidak membocorkan jumlah | | | | | | I |
+
+### 15.16 Ringkasan jumlah test case F2
+
+Merek dan tur 17, tabel 10, trial 14, landing 8, pengerasan dan instalasi 15, Admin dan data 11,
+peta dan scan 13, navigasi 15, Info Point 5, kesetaraan produk 12, event 11, operasional 19,
+komersial 8, uji beban 17, keamanan 12. Total F2: **187**.
