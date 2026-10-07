@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -8,10 +8,17 @@ import { type LicensePayload, licenseSigningBytes, toBase64 } from '@indoor/doma
 // disiapkan langsung di database lokal sebagai postgres.
 const dbUrl = process.env.E2E_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
 
-export const sql = (statements: string): string =>
-  execFileSync('psql', [dbUrl, '-Atq', '-v', 'ON_ERROR_STOP=1', '-c', statements], {
-    encoding: 'utf8',
-  }).trim();
+// Mesin tanpa klien PostgreSQL (mis. Windows) memakai psql di kontainer database Supabase lokal.
+const hasPsql = spawnSync('psql', ['--version']).error === undefined;
+const container = process.env.E2E_DB_CONTAINER ?? 'supabase_db_indoor-map';
+
+export function sql(statements: string): string {
+  const args = ['-Atq', '-v', 'ON_ERROR_STOP=1', '-c', statements];
+  const [command, commandArgs] = hasPsql
+    ? ['psql', [dbUrl, ...args]]
+    : ['docker', ['exec', container, 'psql', '-U', 'postgres', '-d', 'postgres', ...args]];
+  return execFileSync(command, commandArgs, { encoding: 'utf8' }).trim();
+}
 
 const DEV_KEY = fileURLToPath(
   new URL('../../tools/license-cli/dev-keys/license-private.pkcs8.b64', import.meta.url),

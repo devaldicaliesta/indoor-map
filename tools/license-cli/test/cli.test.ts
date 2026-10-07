@@ -47,7 +47,10 @@ beforeAll(async () => {
 
 describe('license-cli', () => {
   it('keygen menyimpan kunci privat berizin 600 dan menolak menimpa', async () => {
-    expect(statSync(join(keys, 'license-private.pkcs8.b64')).mode & 0o777).toBe(0o600);
+    // NTFS tidak menyimpan bit izin POSIX; di Windows berkas tetap dibuat tetapi izinnya tidak terbaca.
+    if (process.platform !== 'win32') {
+      expect(statSync(join(keys, 'license-private.pkcs8.b64')).mode & 0o777).toBe(0o600);
+    }
     expect(publicKey).toMatch(/^[A-Za-z0-9+/]{43}=$/);
     expect((await run(['keygen', '--out', keys], NOW)).code).toBe(1);
   });
