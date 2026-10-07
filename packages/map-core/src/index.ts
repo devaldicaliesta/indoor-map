@@ -8,6 +8,31 @@ export {
   prefersReducedMotion,
 } from './camera';
 export {
+  type Crowd,
+  type CrowdArea,
+  type CrowdGraph,
+  type CrowdOptions,
+  type CrowdPerson,
+  createCrowd,
+  personFacing,
+  personFrame,
+  personMeters,
+  personPosition,
+  seededRandom,
+  stepCrowd,
+} from './crowd';
+export {
+  CROWD_FRAMES,
+  CROWD_PIXEL_RATIO,
+  type CrowdFacing,
+  type CrowdFrame,
+  type CrowdLook,
+  lookKey,
+  randomLook,
+  renderCrowdSprite,
+  uniqueLooks,
+} from './crowd-sprite';
+export {
   DEFAULT_FILL,
   DEFAULT_HEIGHTS,
   EDIT_COLORS,
@@ -61,6 +86,16 @@ export {
   closureCollection,
   setClosureMarks,
 } from './layers/closures';
+export {
+  CROWD_LAYER_ID,
+  CROWD_MIN_ZOOM,
+  CROWD_SOURCE_ID,
+  type CrowdInput,
+  crowdCollection,
+  crowdIconId,
+  crowdLayer,
+  setCrowd,
+} from './layers/crowd';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
 export {
   type GraphEdgeView,

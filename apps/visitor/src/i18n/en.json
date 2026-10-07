@@ -32,6 +32,7 @@
     "mode3d": "3D",
     "floors": "Floors",
     "resetView": "Back to the start view",
+    "people": "People illustration on the map (not real visitor data)",
     "building": "Building",
     "floorHasResults": "has results",
     "canvas": "Floor map. Arrow keys move the map, + and − zoom in or out."

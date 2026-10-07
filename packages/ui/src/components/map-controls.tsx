@@ -1,4 +1,4 @@
-import { LocateFixedIcon, MinusIcon, NavigationIcon, PlusIcon } from 'lucide-react';
+import { LocateFixedIcon, MinusIcon, NavigationIcon, PlusIcon, UsersRoundIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { cn } from '../lib/utils';
 
@@ -11,6 +11,8 @@ export interface MapControlLabels {
   mode3d: string;
   /** Wajib bila `onResetView` diisi. */
   resetView?: string;
+  /** Wajib bila `onPeopleChange` diisi. */
+  people?: string;
 }
 
 interface MapControlsProps extends Omit<ComponentProps<'div'>, 'children'> {
@@ -26,6 +28,10 @@ interface MapControlsProps extends Omit<ComponentProps<'div'>, 'children'> {
   allow3d?: boolean;
   /** Kembali ke gedung, lantai, dan kamera awal (Visitor); tombol tidak tampil tanpa ini. */
   onResetView?: () => void;
+  /** Ilustrasi orang di peta tampil (Visitor). */
+  people?: boolean;
+  /** Tombol tampil/sembunyikan orang mini; tombol tidak tampil tanpa ini. */
+  onPeopleChange?: (visible: boolean) => void;
 }
 
 const button =
@@ -42,6 +48,8 @@ function MapControls({
   onModeChange,
   allow3d = true,
   onResetView,
+  people = false,
+  onPeopleChange,
   className,
   ...props
 }: MapControlsProps) {
@@ -71,6 +79,22 @@ function MapControls({
             </button>
           ))}
         </fieldset>
+      ) : null}
+      {onPeopleChange ? (
+        <button
+          type="button"
+          aria-label={labels.people}
+          title={labels.people}
+          aria-pressed={people}
+          onClick={() => onPeopleChange(!people)}
+          className={cn(
+            button,
+            'rounded-sm border border-line shadow-float',
+            people ? 'bg-ink text-surface hover:bg-ink' : 'bg-surface text-ink-muted',
+          )}
+        >
+          <UsersRoundIcon strokeWidth={1.75} />
+        </button>
       ) : null}
       <div className="flex flex-col divide-y divide-line overflow-hidden rounded-sm border border-line bg-surface shadow-float">
         <button type="button" aria-label={labels.zoomIn} onClick={onZoomIn} className={button}>

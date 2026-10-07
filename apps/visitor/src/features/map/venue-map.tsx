@@ -31,6 +31,7 @@ import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '../../app/use-media-query';
 import { DESKTOP_QUERY, MOBILE_HEADER_PX } from '../../app/visitor-shell';
 import { PEEK_HEIGHT_PX } from '../../components/sheet-snap';
+import { useInfoPointMode } from '../../infopoint/info-point-mode';
 import { useClosureMap } from '../closures/use-closure-map';
 import { useOriginMap } from '../origin/use-origin-map';
 import { useRouteMap } from '../route/use-route-map';
@@ -46,6 +47,7 @@ import {
 import { useExploreMap } from './explore-map';
 import { categoryIconSpecs, facilityIconSpecs } from './facility-icons';
 import { LABEL_FONT } from './label-font';
+import { useCrowdMap } from './use-crowd-map';
 
 /** Isi pastel dan tepi per unit dari warna kategori lokasinya (dihitung sekali per snapshot). */
 const unitPaint = new WeakMap<Snapshot, Map<string, { fill: string; outline: string }>>();
@@ -139,6 +141,9 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
   const [view, setView] = useState<MapView>(initialView);
   const [mode, setMode] = useState<SnapshotDisplayMode>(() => initialViewMode(snapshot));
   const [bearing, setBearing] = useState(0);
+  // Orang mini tampil di Visitor biasa; Info Point menyala seharian sehingga tidak dianimasikan.
+  const infoPoint = useInfoPointMode();
+  const [people, setPeople] = useState(() => infoPoint === null);
   // Mode yang sudah diterapkan ke peta; perubahan dari tombol 2D/3D saja yang memiringkan kamera.
   const appliedMode = useRef<SnapshotDisplayMode>(initialViewMode(snapshot));
   const firstCamera = useRef<InitialCamera | null>(null);
@@ -161,6 +166,7 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
   useRouteMap({ map, snapshot, view, setView, padding, isDesktop });
   // Penutupan jalur dan konektor butuh graf; sebelum graf termuat hanya area yang ditandai.
   useClosureMap(map, routeSnapshot ?? snapshot, floorIds);
+  useCrowdMap(map, snapshot, routeSnapshot, floorIds, people);
   const labels = useMemo(
     () => mapLabels(snapshot, floorIds, labelIds),
     [snapshot, floorIds, labelIds],
@@ -255,6 +261,7 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
     viewMode: t('map.viewMode'),
     mode2d: t('map.mode2d'),
     mode3d: t('map.mode3d'),
+    people: t('map.people'),
   };
 
   return (
@@ -265,6 +272,7 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
         data-testid="venue-map"
         data-ready={map ? 'true' : 'false'}
         data-floor-id={view.floorId ?? ''}
+        data-people={people ? 'on' : 'off'}
       />
       <div className="absolute left-3 max-w-[calc(100%-6rem)]" style={{ top: inset.top }}>
         <BuildingPicker
@@ -301,6 +309,8 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
           onZoomOut={() => map?.zoomOut()}
           onResetNorth={() => map?.easeTo({ bearing: 0 })}
           onResetView={resetView}
+          people={people}
+          onPeopleChange={setPeople}
         />
       </div>
     </div>
