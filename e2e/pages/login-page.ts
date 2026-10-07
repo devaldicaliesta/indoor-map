@@ -5,8 +5,11 @@ export class LoginPage {
   readonly password: Locator;
   readonly submit: Locator;
   readonly error: Locator;
+  /** Logo PanduArah di atas kartu masuk (dipakai juga lupa/reset password dan aktivasi). */
+  readonly brand: Locator;
 
   constructor(readonly page: Page) {
+    this.brand = page.getByRole('img', { name: 'PanduArah', exact: true });
     this.email = page.getByLabel('Email');
     this.password = page.getByLabel('Password');
     this.submit = page.getByRole('button', { name: 'Masuk' });

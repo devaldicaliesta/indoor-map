@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { FormNotice } from '../auth/auth-layout';
 import { useCheckIn, useLicenseDetails, useLicenseUsage } from './queries';
+import { VendorEmail } from './vendor-email';
 
 const date = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 const dateTime = new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
@@ -84,6 +85,7 @@ function Summary({ details }: { details: LicenseDetails }) {
         ? dateTime.format(new Date(details.lastCheckinAt))
         : 'Belum pernah berhasil',
     ],
+    ['Kontak vendor', <VendorEmail />],
   ];
   return (
     <dl className="grid max-w-3xl grid-cols-[12rem_1fr] gap-x-4 gap-y-2 rounded-md border border-line bg-surface p-4">

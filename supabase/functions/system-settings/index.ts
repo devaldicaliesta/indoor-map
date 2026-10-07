@@ -1,6 +1,7 @@
 // Edge Function system-settings: kirim email uji memakai SMTP dari Pengaturan Sistem.
 // Password SMTP dibaca dari Vault lewat fungsi khusus service role, tidak pernah ke klien.
 import { CORS_HEADERS, fail, reply, requireSuperAdmin } from '../_shared/auth.ts';
+import { EMAIL_LOGO, emailHtml, emailText, escapeHtml, PRODUCT } from '../_shared/email-layout.ts';
 import { SmtpError, sendMail } from '../_shared/smtp.ts';
 import { loadSmtpConfig } from '../_shared/smtp-settings.ts';
 
@@ -24,10 +25,14 @@ Deno.serve(async (request) => {
   }
 
   try {
+    const text =
+      'Pengaturan SMTP berhasil. Email dari sistem (misalnya reset password) bisa dikirim.';
     await sendMail(smtp, {
       to: caller.email,
-      subject: 'Email uji Admin Indoor Map',
-      text: 'Pengaturan SMTP berhasil. Email dari sistem (misalnya reset password) bisa dikirim.',
+      subject: `Email uji Admin ${PRODUCT}`,
+      text: emailText(text),
+      html: emailHtml(`<p>${escapeHtml(text)}</p>`),
+      inline: [EMAIL_LOGO],
     });
   } catch (error) {
     if (error instanceof SmtpError) return fail(502, `smtp_${error.reason}`, error.message);

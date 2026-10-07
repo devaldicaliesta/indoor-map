@@ -153,7 +153,7 @@ insert into public.facility_types (venue_id, name, icon_path, is_safety, sort_or
 update public.system_settings
 set smtp_host = 'supabase_inbucket_indoor-map',
     smtp_port = 1025,
-    smtp_from = 'Indoor Map <noreply@local.test>';
+    smtp_from = 'PanduArah <panduarahid@gmail.com>';
 
 -- ---------------------------------------------------------------------
 -- Alamat Edge Function dari dalam database lokal (pemberitahuan akun terkunci lewat pg_net).

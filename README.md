@@ -1,6 +1,8 @@
-# Indoor Map & Navigation
+# PanduArah
 
-Platform indoor map dan indoor navigation untuk semua jenis gedung, dipasang on-premise di server klien.
+**PanduArah — Indoor Navigation.** Platform peta dan navigasi dalam gedung untuk semua jenis gedung, dipasang on-premise di server klien.
+
+Logo resmi dan turunannya: `packages/ui/src/brand/` (sumber pemilik di `docs/brand/`).
 
 - **Admin**: membangun peta, jalur navigasi, lokasi, titik asal; publish; lisensi
 - **Visitor**: pengunjung mencari lokasi dan mengikuti rute dari HP

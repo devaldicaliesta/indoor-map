@@ -17,11 +17,12 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/apple-touch-icon.png'],
+      includeAssets: ['icons/apple-touch-icon.png', 'icons/favicon.svg'],
       manifest: {
-        name: 'Indoor Map',
-        short_name: 'Indoor Map',
-        description: 'Peta dan petunjuk arah di dalam gedung',
+        name: 'PanduArah',
+        short_name: 'PanduArah',
+        // Tagline Inggris untuk pasar luar negeri (docs/20-F2-fase-2.md §2.3).
+        description: 'PanduArah — Indoor Navigation',
         lang: 'id',
         start_url: '/',
         scope: '/',

@@ -13,7 +13,7 @@ test.describe('T-002 Scaffold Admin', () => {
 
     await page.goto('/login');
     expect(new URL(page.url()).port).toBe('5173');
-    await expect(page).toHaveTitle('Admin · Indoor Map');
+    await expect(page).toHaveTitle('Admin · PanduArah');
     await expect(page.locator('html')).toHaveAttribute('lang', 'id');
     await expect(page.getByRole('button', { name: 'Masuk' })).toBeVisible();
     await page.screenshot({ path: shot('01-admin-login'), fullPage: true });

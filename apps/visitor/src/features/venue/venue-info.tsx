@@ -1,5 +1,6 @@
 import { brandDisplayName, type Snapshot } from '@indoor/domain';
 import {
+  BrandSymbol,
   cn,
   Dialog,
   DialogContent,
@@ -7,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  PRODUCT_TAGLINE,
 } from '@indoor/ui';
 import { InfoIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -52,6 +54,11 @@ export function VenueInfo({ snapshot, className }: { snapshot: Snapshot; classNa
           <dt className="text-ink-muted">{t('info.publishedAt')}</dt>
           <dd>{publishedAt}</dd>
         </dl>
+        {/* Logo venue tetap yang utama; PanduArah hanya disebut kecil di sini. */}
+        <p className="flex items-center gap-2 border-line border-t pt-3 text-ink-muted text-sm">
+          <BrandSymbol label="" className="h-5" />
+          {t('info.poweredBy', { tagline: PRODUCT_TAGLINE })}
+        </p>
       </DialogContent>
     </Dialog>
   );

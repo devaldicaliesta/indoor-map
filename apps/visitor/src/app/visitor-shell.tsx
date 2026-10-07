@@ -1,4 +1,4 @@
-import { cn } from '@indoor/ui';
+import { BrandSymbol, cn } from '@indoor/ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BottomSheet } from '../components/bottom-sheet';
@@ -36,7 +36,8 @@ function Brand({ name, logoUrl }: { name: string; logoUrl: string | null }) {
       {logoUrl ? (
         <Logo key={logoUrl} url={logoUrl} className="h-8 w-auto max-w-28 shrink-0 object-contain" />
       ) : (
-        <span aria-hidden="true" className="size-4 shrink-0 rounded-sm bg-signal ring-1 ring-ink" />
+        // Venue tanpa logo memakai ikon bawaan PanduArah; nama venue tetap yang dibacakan.
+        <BrandSymbol label="" className="h-7" />
       )}
       <h1 className="truncate font-bold">{name}</h1>
     </div>
@@ -55,7 +56,7 @@ export function VisitorShell({
   children,
 }: {
   title?: string;
-  /** Logo venue dari branding; tanpa ini header memakai tanda bawaan. */
+  /** Logo venue dari branding; tanpa ini header memakai ikon bawaan PanduArah. */
   logoUrl?: string | null;
   /** Tombol tambahan di header, di samping pemilih bahasa (misalnya info versi peta). */
   actions?: ReactNode;

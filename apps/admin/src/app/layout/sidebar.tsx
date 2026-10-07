@@ -1,5 +1,5 @@
 import { type AppRole, visibleModules } from '@indoor/domain';
-import { cn, Tooltip, TooltipContent, TooltipTrigger } from '@indoor/ui';
+import { BrandLogo, BrandSymbol, cn, Tooltip, TooltipContent, TooltipTrigger } from '@indoor/ui';
 import { EyeIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from 'lucide-react';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import { NavLink, useMatch } from 'react-router';
@@ -71,11 +71,12 @@ export function Sidebar({ role }: { role: AppRole }) {
           collapsed ? 'justify-center' : 'px-4',
         )}
       >
-        <span aria-hidden="true" className="size-4 shrink-0 rounded-sm bg-signal ring-1 ring-ink" />
-        {collapsed ? null : (
+        {collapsed ? (
+          <BrandSymbol label="PanduArah Admin" className="h-8" />
+        ) : (
           <>
-            <span className="font-bold">Indoor Map</span>
-            <span className="text-ink-muted text-xs">Admin</span>
+            <BrandLogo className="h-9" />
+            <span className="pt-1 text-ink-muted text-xs">Admin</span>
           </>
         )}
       </div>

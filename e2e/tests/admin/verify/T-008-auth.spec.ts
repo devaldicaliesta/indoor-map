@@ -73,10 +73,10 @@ test.describe('T-008 Login, logout, reset password', () => {
 
     // Email pertama adalah undangan; yang kedua pemberitahuan kunci untuk pemilik akun.
     const notice = await waitForMail(user.email, 2);
-    expect(notice.subject).toBe('Akun Admin Indoor Map dikunci sementara');
+    expect(notice.subject).toBe('Akun Admin PanduArah dikunci sementara');
     expect(notice.text).toContain('dikunci selama 15 menit karena 5 kali percobaan masuk');
     await page.goto(`${env.mailpitUrl}/view/${notice.id}`);
-    await expect(page.getByText('Akun Admin Indoor Map dikunci sementara').first()).toBeVisible();
+    await expect(page.getByText('Akun Admin PanduArah dikunci sementara').first()).toBeVisible();
     await capture(page, '04b-email-pemberitahuan-kunci');
 
     const failures = (await superAdmin.audit.listRecent('login_failed')).filter(
@@ -133,7 +133,7 @@ test.describe('T-008 Login, logout, reset password', () => {
     const first = await requestReset(2);
     const mail = await requestReset(3);
     await capture(page, '08-tautan-terkirim');
-    expect(mail.subject).toBe('Atur ulang password Admin Indoor Map');
+    expect(mail.subject).toBe('Atur ulang password Admin PanduArah');
     expect(mail.link).not.toBe(first.link);
 
     await page.goto(mail.link);
