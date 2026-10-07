@@ -91,3 +91,13 @@ export function writeTableState(
   }
   return next;
 }
+
+/**
+ * URL tabel yang sudah ditulis tetapi belum tampil di render, setelah render menampilkan
+ * `rendered`. Tulisan sampai `rendered` sudah sampai; URL lain berarti navigasi dari luar
+ * (tombol Back), sehingga antrean dikosongkan.
+ */
+export function pendingAfterRender(pending: readonly string[], rendered: string): string[] {
+  const at = pending.indexOf(rendered);
+  return at === -1 ? [] : pending.slice(at + 1);
+}

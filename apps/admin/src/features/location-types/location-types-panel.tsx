@@ -2,6 +2,7 @@ import { can, type FieldDefinition, type LocationType, type VenueId } from '@ind
 import { Button, cn, EmptyState, Skeleton } from '@indoor/ui';
 import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { useRole } from '../../app/auth/can';
 import { CategoriesPanel } from '../locations/categories-panel';
 import { useLocationTypes } from '../locations/queries';
@@ -21,7 +22,11 @@ export function LocationTypesPanel({ venueId }: { venueId: VenueId }) {
   const role = useRole();
   const canEdit = role !== null && can(role, 'location.edit');
   const types = useLocationTypes(venueId);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Tipe terpilih di URL bersama cari/filter tabel field dan kategorinya; ganti tipe
+  // mengosongkan keduanya karena kata kunci dan filter itu milik tipe sebelumnya.
+  const [params, setParams] = useSearchParams();
+  const selectedId = params.get('tipe');
+  const selectType = (id: string) => setParams({ tab: 'types', tipe: id });
   const [open, setOpen] = useState<Open>(null);
 
   if (types.isPending) return <Skeleton className="h-64 w-full" />;
@@ -37,7 +42,7 @@ export function LocationTypesPanel({ venueId }: { venueId: VenueId }) {
             key={t.id}
             type="button"
             aria-current={t.id === type?.id ? 'true' : undefined}
-            onClick={() => setSelectedId(t.id)}
+            onClick={() => selectType(t.id)}
             className={cn(
               'flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-left hover:bg-canvas',
               t.id === type?.id && 'bg-canvas font-bold',
@@ -71,18 +76,21 @@ export function LocationTypesPanel({ venueId }: { venueId: VenueId }) {
                 Field {type.name}
               </h2>
               {canEdit ? (
-                <div className="flex gap-2">
-                  <Button onClick={() => setOpen({ kind: 'type', type })}>Ubah tipe</Button>
-                  <Button variant="primary" onClick={() => setOpen({ kind: 'field', field: null })}>
-                    Tambah field
-                  </Button>
-                </div>
+                <Button onClick={() => setOpen({ kind: 'type', type })}>Ubah tipe</Button>
               ) : null}
             </div>
             <FieldsTable
+              key={type.id}
               venueId={venueId}
               type={type}
               canEdit={canEdit}
+              actions={
+                canEdit ? (
+                  <Button variant="primary" onClick={() => setOpen({ kind: 'field', field: null })}>
+                    Tambah field
+                  </Button>
+                ) : null
+              }
               onEdit={(field) => setOpen({ kind: 'field', field })}
               onRemove={(field) => setOpen({ kind: 'remove-field', field })}
             />
@@ -91,7 +99,7 @@ export function LocationTypesPanel({ venueId }: { venueId: VenueId }) {
             <h2 id="type-categories" className="font-bold text-lg">
               Kategori {type.name}
             </h2>
-            <CategoriesPanel venueId={venueId} typeId={type.id} />
+            <CategoriesPanel key={type.id} venueId={venueId} typeId={type.id} />
           </section>
         </div>
       ) : (

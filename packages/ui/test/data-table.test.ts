@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { type TableChange, tableController } from '../src/components/data-table/table-controller';
 import {
   clampPage,
   filterValues,
@@ -7,8 +8,10 @@ import {
   pageBounds,
   pageWindow,
   queryRows,
+  type TableController,
   type TableState,
   withinDateRange,
+  withRangeEnd,
 } from '../src/components/data-table/table-state';
 
 const state = (patch: Partial<TableState> = {}): TableState => ({
@@ -141,5 +144,69 @@ describe('filter aktif dan rentang tanggal', () => {
     expect(withinDateRange(at, ['2026-10-07', ''], 'UTC')).toBe(false);
     expect(withinDateRange(at, ['', '2026-10-06'], 'UTC')).toBe(true);
     expect(withinDateRange(at, [], 'UTC')).toBe(true);
+  });
+});
+
+describe('tableController (perubahan keadaan tabel)', () => {
+  /** Menjalankan aksi seperti setState fungsional: setiap perubahan membaca keadaan terbaru. */
+  function run(initial: TableState, act: (table: TableController) => void): TableState {
+    let current = initial;
+    act(
+      tableController(initial, (change: TableChange) => {
+        current = change(current);
+      }),
+    );
+    return current;
+  }
+
+  it('cari, filter, dan ukuran kembali ke halaman 1; pindah halaman tidak', () => {
+    const start = state({ page: 4 });
+    expect(run(start, (t) => t.setQuery('kafe'))).toMatchObject({ q: 'kafe', page: 1 });
+    expect(run(start, (t) => t.setFilter('status', ['closed'])).page).toBe(1);
+    expect(run(start, (t) => t.setSize(50))).toMatchObject({ size: 50, page: 1 });
+    expect(run(start, (t) => t.setPage(7)).page).toBe(7);
+  });
+
+  it('pembaruan filter beruntun membaca nilai terbaru, bukan nilai saat dibuat', () => {
+    const next = run(state(), (t) => {
+      t.setFilter('floor', (values) => [...values, 'GF']);
+      t.setFilter('floor', (values) => [...values, 'L1']);
+    });
+    expect(next.filters.floor).toEqual(['GF', 'L1']);
+  });
+
+  it('setFilters mengubah beberapa filter dalam satu perubahan; clearFilters mengosongkan semuanya', () => {
+    const start = state({ q: 'ruang', filters: { building: ['a'], floor: ['a-1'] }, page: 3 });
+    const switched = run(start, (t) => t.setFilters({ building: ['b'], floor: [] }));
+    expect(switched).toMatchObject({ q: 'ruang', page: 1 });
+    expect(switched.filters).toEqual({ building: ['b'], floor: [] });
+    expect(run(start, (t) => t.clearFilters())).toMatchObject({ q: '', filters: {}, page: 1 });
+  });
+});
+
+describe('withRangeEnd (mengubah satu ujung rentang tanggal)', () => {
+  const range = { from: '2026-10-01', to: '2026-10-07' };
+
+  it('ujung yang melewati ujung lain menggeser ujung itu, tidak menukar', () => {
+    expect(withRangeEnd(range, 'from', '2026-10-09')).toEqual({
+      from: '2026-10-09',
+      to: '2026-10-09',
+    });
+    expect(withRangeEnd(range, 'to', '2026-09-28')).toEqual({
+      from: '2026-09-28',
+      to: '2026-09-28',
+    });
+  });
+
+  it('di dalam rentang atau dikosongkan: ujung lain tetap', () => {
+    expect(withRangeEnd(range, 'from', '2026-10-03')).toEqual({
+      from: '2026-10-03',
+      to: '2026-10-07',
+    });
+    expect(withRangeEnd(range, 'to', '')).toEqual({ from: '2026-10-01', to: '' });
+    expect(withRangeEnd({ from: '', to: '' }, 'to', '2026-10-02')).toEqual({
+      from: '',
+      to: '2026-10-02',
+    });
   });
 });

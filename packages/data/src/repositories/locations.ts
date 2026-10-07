@@ -29,7 +29,7 @@ import {
 import type { Database, Json } from '../database.types';
 import { DataError, toDataError } from '../errors';
 import { zeroRowsError } from '../mutations';
-import { fetchAllPages } from '../pagination';
+import { fetchAllPages, listPage, type Page, type PageQuery } from '../pagination';
 import type { Db } from '../supabase';
 
 const ASSETS_BUCKET = 'public-assets';
@@ -235,9 +235,29 @@ export function mapVenueUnitRow(row: VenueUnitRow): VenueUnit {
   };
 }
 
+/** Filter tabel Lokasi di server; semua berlaku bersamaan. */
+export interface LocationPageFilters {
+  statuses: readonly LocationStatus[];
+  categoryId: string | null;
+  typeId: string | null;
+  /** Id gedung atau `outdoor` (unit di Area Luar). */
+  building: string | null;
+  floorId: string | null;
+  unlinkedOnly: boolean;
+}
+
 export interface LocationsRepository {
   /** Semua lokasi venue dengan kategori dan unitnya (gedung/lantai ikut untuk filter). */
   list(venueId: VenueId): Promise<Location[]>;
+  /**
+   * Satu halaman lokasi urut nama, disaring di server (`search_locations`): kata kunci mencari
+   * nama, kode lokasi, dan kode unit tanpa membedakan huruf besar/kecil dan diakritik.
+   */
+  listPage(venueId: VenueId, query: PageQuery<LocationPageFilters>): Promise<Page<Location>>;
+  /** Satu lokasi lengkap (tautan langsung `?location=`); `null` bila tidak ada atau tidak boleh dibaca. */
+  get(id: LocationId): Promise<Location | null>;
+  /** Kode dan nama semua lokasi venue saja, untuk memeriksa kode ganda di formulir. */
+  codes(venueId: VenueId): Promise<{ id: string; code: string | null; name: string }[]>;
   /**
    * Menyimpan lokasi, kategori, dan unit dalam satu transaksi (`save_location`). Logo dan
    * foto baru diunggah lebih dulu; bila penyimpanan gagal, berkasnya dihapus lagi, dan bila
@@ -320,6 +340,47 @@ export function createLocationsRepository(db: Db): LocationsRepository {
         db.from('locations').select(COLUMNS).eq('venue_id', venueId).order('id').range(from, to),
       );
       return (rows as unknown as LocationRow[]).map(mapLocationRow);
+    },
+
+    listPage(venueId, { q, filters, page, size }) {
+      const args = {
+        p_venue_id: venueId,
+        p_query: q,
+        ...(filters.statuses.length ? { p_statuses: [...filters.statuses] } : {}),
+        ...(filters.categoryId ? { p_category_id: filters.categoryId } : {}),
+        ...(filters.typeId ? { p_type_id: filters.typeId } : {}),
+        ...(filters.building ? { p_building: filters.building } : {}),
+        ...(filters.floorId ? { p_floor_id: filters.floorId } : {}),
+        p_unlinked_only: filters.unlinkedOnly,
+      };
+      return listPage(
+        (from, to) =>
+          db
+            .rpc('search_locations', args, { count: 'exact' })
+            .select(COLUMNS)
+            .order('name')
+            .order('id')
+            .range(from, to),
+        { page, size },
+        (rows) => (rows as unknown as LocationRow[]).map(mapLocationRow),
+      );
+    },
+
+    async get(id) {
+      const { data, error } = await db.from('locations').select(COLUMNS).eq('id', id).maybeSingle();
+      if (error) throw toDataError(error);
+      return data ? mapLocationRow(data as unknown as LocationRow) : null;
+    },
+
+    codes(venueId) {
+      return fetchAllPages((from, to) =>
+        db
+          .from('locations')
+          .select('id, code, name')
+          .eq('venue_id', venueId)
+          .order('id')
+          .range(from, to),
+      );
     },
 
     async save(venueId, typeId, id, input, images) {

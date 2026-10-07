@@ -1,5 +1,6 @@
+import type { PageQuery, PublicationPageFilters } from '@indoor/data';
 import type { VenueId } from '@indoor/domain';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { data } from '../../app/data-client';
 
 export const activePublicationKey = (venueId: VenueId) =>
@@ -14,10 +15,15 @@ export function useActivePublication(venueId: VenueId) {
   });
 }
 
-export function usePublicationHistory(venueId: VenueId) {
+/** Satu halaman riwayat versi dari server; halaman lama tetap tampil selama memuat. */
+export function usePublicationHistoryPage(
+  venueId: VenueId,
+  query: PageQuery<PublicationPageFilters>,
+) {
   return useQuery({
-    queryKey: historyKey(venueId),
-    queryFn: () => data.publications.history(venueId),
+    queryKey: [...historyKey(venueId), query],
+    queryFn: () => data.publications.historyPage(venueId, query),
+    placeholderData: keepPreviousData,
   });
 }
 

@@ -7,7 +7,10 @@ const places = {
     { id: 'out', name: 'Area Luar', buildingId: null },
   ],
   buildings: [{ id: 'b', name: 'Gedung Utama' }],
-  connectors: [{ id: 'k', name: 'A', kind: 'elevator' as const }],
+  connectors: [
+    { id: 'k', name: 'A', kind: 'elevator' as const },
+    { id: 'k2', name: 'lift Pasien', kind: 'elevator' as const },
+  ],
   features: [{ properties: { id: 'u', kind: 'unit' as const, floorId: 'f2', unitCode: 'L2-01' } }],
   graph: {
     edges: {
@@ -26,6 +29,7 @@ describe('model penutupan', () => {
 
   it('nama sasaran menyebut lantai dan gedung', () => {
     expect(targetLabel(places, { kind: 'connector', id: 'k' })).toBe('Lift A');
+    expect(targetLabel(places, { kind: 'connector', id: 'k2' })).toBe('lift Pasien');
     expect(targetLabel(places, { kind: 'edge', id: 'e' })).toBe('Jalur di Area Luar');
     expect(targetLabel(places, { kind: 'feature', id: 'u' })).toBe('L2-01 · L2 Gedung Utama');
     expect(targetLabel(places, { kind: 'edge', id: 'x' })).toBe('Jalur yang dihapus');

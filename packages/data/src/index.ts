@@ -18,7 +18,7 @@ export type {
   CadRender,
 } from './repositories/cad-converter';
 export type { CategoriesRepository, CategoryWithUsage } from './repositories/categories';
-export type { ClosuresRepository } from './repositories/closures';
+export type { ClosurePageFilters, ClosuresRepository } from './repositories/closures';
 export type { ConnectorInput, ConnectorsRepository } from './repositories/connectors';
 export type { DisplaySettingsRepository } from './repositories/display-settings';
 export type { EditLocksRepository } from './repositories/edit-locks';
@@ -50,13 +50,18 @@ export type {
   LicenseStatus,
 } from './repositories/license';
 export type { LocationTypesRepository } from './repositories/location-types';
-export type { LocationImages, LocationsRepository } from './repositories/locations';
+export type {
+  LocationImages,
+  LocationPageFilters,
+  LocationsRepository,
+} from './repositories/locations';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
 export type { OriginPointsRepository } from './repositories/origin-points';
 export type { ProfilesRepository } from './repositories/profiles';
 export type {
   ActivePublication,
   PublicationEntry,
+  PublicationPageFilters,
   PublicationsRepository,
   PublishResult,
 } from './repositories/publications';

@@ -1,10 +1,4 @@
-import type {
-  Closure,
-  ClosureTarget,
-  Connector,
-  MapFeatureProperties,
-  NavGraph,
-} from '@indoor/domain';
+import type { ClosureTarget, Connector, MapFeatureProperties, NavGraph } from '@indoor/domain';
 import type { ClosureImpact } from '@indoor/routing';
 import { CONNECTOR_KIND_LABELS } from '../editor/connectors/connector-form';
 import { FEATURE_KIND_LABELS } from '../editor/labels';
@@ -77,9 +71,12 @@ export function targetLabel(places: ClosurePlaces, target: ClosureTarget): strin
   switch (target.kind) {
     case 'connector': {
       const connector = places.connectors.find((c) => c.id === target.id);
-      return connector
-        ? `${CONNECTOR_KIND_LABELS[connector.kind]} ${connector.name}`
-        : 'Konektor yang dihapus';
+      if (!connector) return 'Konektor yang dihapus';
+      const kind = CONNECTOR_KIND_LABELS[connector.kind];
+      // Nama sering sudah memuat jenisnya ("Lift Pasien"); jangan menjadi "Lift Lift Pasien".
+      return connector.name.toLowerCase().startsWith(kind.toLowerCase())
+        ? connector.name
+        : `${kind} ${connector.name}`;
     }
     case 'edge': {
       const edge = places.graph.edges[target.id];
@@ -104,6 +101,3 @@ export function impactText(
     ? `Tidak ada rute ke ${floor} selama penutupan.`
     : `Rute aksesibel ke ${floor} tidak tersedia selama penutupan.`;
 }
-
-export const sortByStart = (closures: readonly Closure[]) =>
-  [...closures].sort((a, b) => a.startsAt.localeCompare(b.startsAt) || a.id.localeCompare(b.id));

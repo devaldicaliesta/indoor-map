@@ -9,18 +9,17 @@ import {
 } from '@indoor/domain';
 import {
   Button,
+  type DataColumn,
+  DataTable,
+  type FilterDef,
+  queryRows,
   Skeleton,
   StatusDot,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   toast,
 } from '@indoor/ui';
 import { Link } from 'react-router';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
+import { useTableState } from '../../hooks/use-table-state';
 import { FormNotice } from '../auth/auth-layout';
 import { useCheckIn, useLicenseDetails, useLicenseUsage } from './queries';
 import { VendorEmail } from './vendor-email';
@@ -99,51 +98,89 @@ function Summary({ details }: { details: LicenseDetails }) {
   );
 }
 
+type UsageState = 'tersedia' | 'penuh' | 'melebihi' | 'bebas';
+
+function usageState(usage: QuotaUsage): UsageState {
+  if (usage.quota === null) return 'bebas';
+  if (usage.used > usage.quota) return 'melebihi';
+  return isQuotaFull(usage) ? 'penuh' : 'tersedia';
+}
+
+const USAGE_FILTERS: FilterDef[] = [
+  {
+    kind: 'multi',
+    key: 'status',
+    label: 'Status kuota',
+    options: [
+      { value: 'tersedia', label: 'Masih tersedia' },
+      { value: 'penuh', label: 'Penuh' },
+      { value: 'melebihi', label: 'Melebihi paket' },
+      { value: 'bebas', label: 'Tanpa batas' },
+    ],
+  },
+];
+
+const USAGE_COLUMNS: DataColumn<QuotaUsage>[] = [
+  { id: 'kind', header: 'Kuota', cell: (u) => QUOTA_LABELS[u.kind] },
+  {
+    id: 'used',
+    header: 'Pemakaian',
+    className: 'text-right font-mono',
+    cell: (u) => `${u.used}/${u.quota ?? '–'}`,
+  },
+  {
+    id: 'share',
+    header: 'Terpakai',
+    className: 'w-1/2 whitespace-normal',
+    cell: (u) => {
+      const share = u.quota ? Math.min(1, u.used / u.quota) : 0;
+      const full = isQuotaFull(u);
+      return (
+        <>
+          <div
+            // Angka di kolom Pemakaian sudah dibacakan; bar hanya visual.
+            aria-hidden="true"
+            className="h-2 rounded-sm bg-canvas"
+          >
+            <div
+              className={full ? 'h-2 rounded-sm bg-danger' : 'h-2 rounded-sm bg-ink'}
+              style={{ width: `${share * 100}%` }}
+            />
+          </div>
+          {u.quota !== null && u.used > u.quota ? (
+            <span className="text-sm">
+              Melebihi paket: kurangi {u.used - u.quota} {QUOTA_LABELS[u.kind].toLowerCase()} agar
+              bisa menambah data dan publish lagi.
+            </span>
+          ) : full ? (
+            <span className="text-sm">Kuota paket tercapai</span>
+          ) : null}
+        </>
+      );
+    },
+  },
+];
+
 function UsageTable({ usage }: { usage: QuotaUsage[] }) {
+  const table = useTableState({ filters: USAGE_FILTERS });
+  const result = queryRows(usage, table.state, {
+    text: (u) => [QUOTA_LABELS[u.kind]],
+    filters: { status: (u, values) => values.includes(usageState(u)) },
+  });
   return (
-    <Table className="max-w-3xl">
-      <TableHeader>
-        <TableRow>
-          <TableHead>Kuota</TableHead>
-          <TableHead className="text-right">Pemakaian</TableHead>
-          <TableHead className="w-1/2">Terpakai</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {usage.map((u) => {
-          const share = u.quota ? Math.min(1, u.used / u.quota) : 0;
-          const full = isQuotaFull(u);
-          return (
-            <TableRow key={u.kind}>
-              <TableCell>{QUOTA_LABELS[u.kind]}</TableCell>
-              <TableCell className="text-right font-mono">
-                {u.used}/{u.quota ?? '–'}
-              </TableCell>
-              <TableCell>
-                <div
-                  // Angka di kolom Pemakaian sudah dibacakan; bar hanya visual.
-                  aria-hidden="true"
-                  className="h-2 rounded-sm bg-canvas"
-                >
-                  <div
-                    className={full ? 'h-2 rounded-sm bg-danger' : 'h-2 rounded-sm bg-ink'}
-                    style={{ width: `${share * 100}%` }}
-                  />
-                </div>
-                {u.quota !== null && u.used > u.quota ? (
-                  <span className="text-sm">
-                    Melebihi paket: kurangi {u.used - u.quota} {QUOTA_LABELS[u.kind].toLowerCase()}{' '}
-                    agar bisa menambah data dan publish lagi.
-                  </span>
-                ) : full ? (
-                  <span className="text-sm">Kuota paket tercapai</span>
-                ) : null}
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+    <div className="max-w-3xl">
+      <DataTable
+        label="Kuota lisensi"
+        columns={USAGE_COLUMNS}
+        rows={result.rows}
+        rowKey={(u) => u.kind}
+        total={result.total}
+        table={table}
+        search={{ placeholder: 'Cari jenis kuota' }}
+        filters={USAGE_FILTERS}
+        empty={<p className="text-ink-muted">Lisensi ini tidak membatasi kuota apa pun.</p>}
+      />
+    </div>
   );
 }
 

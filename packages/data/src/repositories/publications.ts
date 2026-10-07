@@ -1,6 +1,7 @@
 import type { PublishFinding, Snapshot, SnapshotDiff, VenueId } from '@indoor/domain';
 import { toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
+import { listPage, type Page, type PageQuery } from '../pagination';
 import type { Db } from '../supabase';
 
 export interface PublishResult {
@@ -24,6 +25,36 @@ export interface PublicationEntry extends ActivePublication {
   isActive: boolean;
 }
 
+/** Filter tabel Riwayat publish: tanggal terbit (YYYY-MM-DD) di zona waktu venue. */
+export interface PublicationPageFilters {
+  from: string | null;
+  to: string | null;
+  timeZone: string;
+}
+
+const HISTORY_COLUMNS =
+  'version, published_at, notes, origin, source_version, is_active, publisher:profiles(full_name)';
+
+interface HistoryRow {
+  version: number;
+  published_at: string;
+  notes: string | null;
+  origin: 'publish' | 'rollback';
+  source_version: number | null;
+  is_active: boolean;
+  publisher: { full_name: string } | null;
+}
+
+const toEntry = (row: HistoryRow): PublicationEntry => ({
+  version: row.version,
+  publishedAt: row.published_at,
+  publisherName: row.publisher?.full_name ?? null,
+  notes: row.notes,
+  origin: row.origin,
+  sourceVersion: row.source_version,
+  isActive: row.is_active,
+});
+
 export interface PublicationsRepository {
   /** Versi yang sedang dibaca Visitor; `null` bila venue belum pernah menerbitkan peta. */
   active(venueId: VenueId): Promise<ActivePublication | null>;
@@ -36,6 +67,14 @@ export interface PublicationsRepository {
   rollback(venueId: VenueId, sourceVersion: number, notes?: string): Promise<PublishResult>;
   /** Riwayat versi yang pernah terbit, terbaru lebih dulu. */
   history(venueId: VenueId): Promise<PublicationEntry[]>;
+  /**
+   * Satu halaman riwayat versi yang pernah terbit, terbaru lebih dulu, disaring di server
+   * (`search_publications`): kata kunci mencari nomor versi (`v12`), catatan, dan penerbit.
+   */
+  historyPage(
+    venueId: VenueId,
+    query: PageQuery<PublicationPageFilters>,
+  ): Promise<Page<PublicationEntry>>;
   /**
    * Temuan validasi publish atas draft saat ini (Error memblokir publish, Peringatan tidak).
    * Aturan dijalankan di Edge Function `publish` yang sama dengan `@indoor/domain`.
@@ -83,25 +122,33 @@ export function createPublicationsRepository(db: Db): PublicationsRepository {
     async history(venueId) {
       const { data, error } = await db
         .from('publications')
-        .select(
-          'version, published_at, notes, origin, source_version, is_active, publisher:profiles(full_name)',
-        )
+        .select(HISTORY_COLUMNS)
         .eq('venue_id', venueId)
         .order('version', { ascending: false });
       if (error) throw toDataError(error);
       // Pesanan yang belum aktif dan lebih baru dari versi aktif belum pernah terbit.
       const active = data.find((row) => row.is_active)?.version ?? 0;
-      return data
-        .filter((row) => row.is_active || row.version < active)
-        .map((row) => ({
-          version: row.version,
-          publishedAt: row.published_at,
-          publisherName: row.publisher?.full_name ?? null,
-          notes: row.notes,
-          origin: row.origin,
-          sourceVersion: row.source_version,
-          isActive: row.is_active,
-        }));
+      return data.filter((row) => row.is_active || row.version < active).map(toEntry);
+    },
+
+    historyPage(venueId, { q, filters, page, size }) {
+      const args = {
+        p_venue_id: venueId,
+        p_query: q,
+        ...(filters.from ? { p_from: filters.from } : {}),
+        ...(filters.to ? { p_to: filters.to } : {}),
+        p_time_zone: filters.timeZone,
+      };
+      return listPage(
+        (from, to) =>
+          db
+            .rpc('search_publications', args, { count: 'exact' })
+            .select(HISTORY_COLUMNS)
+            .order('version', { ascending: false })
+            .range(from, to),
+        { page, size },
+        (rows) => (rows as unknown as HistoryRow[]).map(toEntry),
+      );
     },
 
     async validate(venueId) {

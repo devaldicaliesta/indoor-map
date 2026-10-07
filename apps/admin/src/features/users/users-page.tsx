@@ -1,18 +1,18 @@
-import type { Profile } from '@indoor/domain';
+import { APP_ROLES, type Profile } from '@indoor/domain';
 import {
   Button,
-  Skeleton,
+  type DataColumn,
+  DataTable,
+  EmptyState,
+  type FilterDef,
+  queryRows,
   StatusDot,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   toast,
 } from '@indoor/ui';
 import { useCurrentProfile } from '../../app/auth/current-profile';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
+import { ROLE_LABELS } from '../../app/navigation';
+import { useTableState } from '../../hooks/use-table-state';
 import { InviteUserDialog } from './invite-user-dialog';
 import { useUpdateUser, useUsers } from './queries';
 import { RoleSelect } from './role-select';
@@ -24,6 +24,32 @@ function lockedUntilText(profile: Profile): string | null {
     minute: '2-digit',
   });
 }
+
+type UserState = 'aktif' | 'terkunci' | 'nonaktif';
+
+function userState(profile: Profile): UserState {
+  if (!profile.isActive) return 'nonaktif';
+  return lockedUntilText(profile) ? 'terkunci' : 'aktif';
+}
+
+const FILTERS: FilterDef[] = [
+  {
+    kind: 'multi',
+    key: 'role',
+    label: 'Role',
+    options: APP_ROLES.map((value) => ({ value, label: ROLE_LABELS[value] })),
+  },
+  {
+    kind: 'multi',
+    key: 'status',
+    label: 'Status',
+    options: [
+      { value: 'aktif', label: 'Aktif' },
+      { value: 'terkunci', label: 'Terkunci' },
+      { value: 'nonaktif', label: 'Nonaktif' },
+    ],
+  },
+];
 
 function UserStatus({ profile }: { profile: Profile }) {
   const lockedUntil = lockedUntilText(profile);
@@ -41,6 +67,7 @@ function UsersTable() {
   const users = useUsers();
   const me = useCurrentProfile().data;
   const update = useUpdateUser();
+  const table = useTableState({ filters: FILTERS });
 
   function change(
     profile: Profile,
@@ -56,62 +83,87 @@ function UsersTable() {
     );
   }
 
-  if (users.isPending) return <Skeleton className="h-40 w-full" />;
-  if (users.error) return <p className="text-danger">{users.error.message}</p>;
+  const result = users.data
+    ? queryRows(users.data, table.state, {
+        text: (profile) => [profile.fullName, profile.email],
+        filters: {
+          role: (profile, values) => values.includes(profile.role),
+          status: (profile, values) => values.includes(userState(profile)),
+        },
+      })
+    : undefined;
+
+  const columns: DataColumn<Profile>[] = [
+    {
+      id: 'name',
+      header: 'Nama',
+      className: 'font-bold',
+      cell: (profile) => (
+        <>
+          {profile.fullName}
+          {profile.userId === me?.userId ? (
+            <span className="ml-2 font-normal text-ink-muted text-xs">(Anda)</span>
+          ) : null}
+        </>
+      ),
+    },
+    { id: 'email', header: 'Email', className: 'font-mono', cell: (profile) => profile.email },
+    {
+      id: 'role',
+      header: 'Role',
+      cell: (profile) => (
+        <RoleSelect
+          label={`Role ${profile.fullName}`}
+          value={profile.role}
+          disabled={!profile.isActive}
+          onChange={(role) => change(profile, { role }, `Role ${profile.fullName} diubah.`)}
+        />
+      ),
+    },
+    { id: 'status', header: 'Status', cell: (profile) => <UserStatus profile={profile} /> },
+    {
+      id: 'actions',
+      header: 'Aksi',
+      className: 'text-right',
+      cell: (profile) => (
+        <Button
+          size="sm"
+          variant={profile.isActive ? 'secondary' : 'ghost'}
+          onClick={() =>
+            change(
+              profile,
+              { isActive: !profile.isActive },
+              profile.isActive
+                ? `${profile.fullName} dinonaktifkan.`
+                : `${profile.fullName} diaktifkan kembali.`,
+            )
+          }
+        >
+          {profile.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+        </Button>
+      ),
+    },
+  ];
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Nama</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Aksi</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {users.data.map((profile) => (
-          <TableRow key={profile.userId}>
-            <TableCell className="font-bold">
-              {profile.fullName}
-              {profile.userId === me?.userId ? (
-                <span className="ml-2 font-normal text-ink-muted text-xs">(Anda)</span>
-              ) : null}
-            </TableCell>
-            <TableCell className="font-mono">{profile.email}</TableCell>
-            <TableCell>
-              <RoleSelect
-                label={`Role ${profile.fullName}`}
-                value={profile.role}
-                disabled={!profile.isActive}
-                onChange={(role) => change(profile, { role }, `Role ${profile.fullName} diubah.`)}
-              />
-            </TableCell>
-            <TableCell>
-              <UserStatus profile={profile} />
-            </TableCell>
-            <TableCell className="text-right">
-              <Button
-                size="sm"
-                variant={profile.isActive ? 'secondary' : 'ghost'}
-                onClick={() =>
-                  change(
-                    profile,
-                    { isActive: !profile.isActive },
-                    profile.isActive
-                      ? `${profile.fullName} dinonaktifkan.`
-                      : `${profile.fullName} diaktifkan kembali.`,
-                  )
-                }
-              >
-                {profile.isActive ? 'Nonaktifkan' : 'Aktifkan'}
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <DataTable
+      label="Pengguna"
+      columns={columns}
+      rows={result?.rows}
+      rowKey={(profile) => profile.userId}
+      total={result?.total ?? 0}
+      table={table}
+      search={{ placeholder: 'Cari nama atau email' }}
+      filters={FILTERS}
+      error={users.error?.message ?? null}
+      onRetry={() => void users.refetch()}
+      empty={
+        <EmptyState
+          title="Belum ada pengguna"
+          description="Undang pengguna Admin lewat tombol Tambah pengguna."
+        />
+      }
+    />
   );
 }
 

@@ -3,6 +3,8 @@ import type { VenueId } from '@indoor/domain';
 import {
   Badge,
   Button,
+  type DataColumn,
+  DataTable,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -10,17 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
   EmptyState,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  type FilterDef,
+  queryRows,
   toast,
 } from '@indoor/ui';
 import { useState } from 'react';
 import { Can } from '../../app/auth/can';
+import { useTableState } from '../../hooks/use-table-state';
 import { FormNotice } from '../auth/auth-layout';
 import { FacilityIconPreview } from './facility-icon-preview';
 import { FacilityTypeDialog } from './facility-type-dialog';
@@ -81,6 +79,29 @@ type Open =
   | { kind: 'delete'; type: FacilityTypeWithUsage }
   | null;
 
+const FILTERS: FilterDef[] = [
+  {
+    kind: 'select',
+    key: 'keselamatan',
+    label: 'Keselamatan',
+    allLabel: 'Semua jenis',
+    options: [
+      { value: 'ya', label: 'Fasilitas keselamatan' },
+      { value: 'tidak', label: 'Bukan keselamatan' },
+    ],
+  },
+  {
+    kind: 'select',
+    key: 'pemakaian',
+    label: 'Pemakaian',
+    allLabel: 'Semua pemakaian',
+    options: [
+      { value: 'dipakai', label: 'Dipakai fasilitas' },
+      { value: 'belum', label: 'Belum dipakai' },
+    ],
+  },
+];
+
 export function FacilityTypesPanel({
   venueId,
   venueName,
@@ -90,77 +111,97 @@ export function FacilityTypesPanel({
 }) {
   const types = useFacilityTypes(venueId);
   const [open, setOpen] = useState<Open>(null);
+  const table = useTableState({ filters: FILTERS });
   const list = types.data ?? [];
+  const result = types.data
+    ? queryRows(types.data, table.state, {
+        text: (type) => [type.name],
+        filters: {
+          keselamatan: (type, values) => values.includes(type.isSafety ? 'ya' : 'tidak'),
+          pemakaian: (type, values) => values.includes(type.usageCount > 0 ? 'dipakai' : 'belum'),
+        },
+      })
+    : undefined;
+
+  const columns: DataColumn<FacilityTypeWithUsage>[] = [
+    {
+      id: 'icon',
+      header: 'Ikon',
+      className: 'w-12',
+      cell: (type) => (
+        <FacilityIconPreview
+          source={iconSource(type.icon)}
+          isSafety={type.isSafety}
+          label={`Ikon ${type.name}`}
+        />
+      ),
+    },
+    { id: 'name', header: 'Nama', className: 'font-bold', cell: (type) => type.name },
+    {
+      id: 'safety',
+      header: 'Keselamatan',
+      cell: (type) => (type.isSafety ? <Badge variant="danger">Ya</Badge> : null),
+    },
+    {
+      id: 'usage',
+      header: 'Dipakai',
+      className: 'text-right font-mono tabular-nums',
+      cell: (type) => type.usageCount,
+    },
+    {
+      id: 'actions',
+      header: 'Aksi',
+      className: 'text-right',
+      cell: (type) => (
+        <Can action="settings.edit">
+          <div className="flex justify-end gap-2">
+            <Button size="sm" onClick={() => setOpen({ kind: 'form', type })}>
+              Ubah
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-danger"
+              onClick={() => setOpen({ kind: 'delete', type })}
+            >
+              Hapus
+            </Button>
+          </div>
+        </Can>
+      ),
+    },
+  ];
 
   return (
     <div className="grid gap-4">
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-ink-muted">
-          Jenis fasilitas di {venueName}, misalnya toilet, musala, ATM, dan APAR.
-        </p>
-        <Can action="settings.edit">
-          <Button variant="primary" onClick={() => setOpen({ kind: 'form', type: null })}>
-            Tambah jenis
-          </Button>
-        </Can>
-      </div>
-      {types.isPending ? (
-        <Skeleton className="h-32 w-full" />
-      ) : types.error ? (
-        <p className="text-danger">{types.error.message}</p>
-      ) : list.length === 0 ? (
-        <EmptyState
-          title="Belum ada jenis fasilitas"
-          description="Tambahkan jenis agar fasilitas bisa ditaruh di Editor Peta."
-        />
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">Ikon</TableHead>
-              <TableHead>Nama</TableHead>
-              <TableHead>Keselamatan</TableHead>
-              <TableHead className="text-right">Dipakai</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {list.map((type) => (
-              <TableRow key={type.id}>
-                <TableCell>
-                  <FacilityIconPreview
-                    source={iconSource(type.icon)}
-                    isSafety={type.isSafety}
-                    label={`Ikon ${type.name}`}
-                  />
-                </TableCell>
-                <TableCell className="font-bold">{type.name}</TableCell>
-                <TableCell>{type.isSafety ? <Badge variant="danger">Ya</Badge> : null}</TableCell>
-                <TableCell className="text-right font-mono tabular-nums">
-                  {type.usageCount}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Can action="settings.edit">
-                    <div className="flex justify-end gap-2">
-                      <Button size="sm" onClick={() => setOpen({ kind: 'form', type })}>
-                        Ubah
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-danger"
-                        onClick={() => setOpen({ kind: 'delete', type })}
-                      >
-                        Hapus
-                      </Button>
-                    </div>
-                  </Can>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+      <p className="text-ink-muted">
+        Jenis fasilitas di {venueName}, misalnya toilet, musala, ATM, dan APAR.
+      </p>
+      <DataTable
+        label="Jenis fasilitas"
+        columns={columns}
+        rows={result?.rows}
+        rowKey={(type) => type.id}
+        total={result?.total ?? 0}
+        table={table}
+        search={{ placeholder: 'Cari nama jenis fasilitas' }}
+        filters={FILTERS}
+        error={types.error?.message ?? null}
+        onRetry={() => void types.refetch()}
+        actions={
+          <Can action="settings.edit">
+            <Button variant="primary" onClick={() => setOpen({ kind: 'form', type: null })}>
+              Tambah jenis
+            </Button>
+          </Can>
+        }
+        empty={
+          <EmptyState
+            title="Belum ada jenis fasilitas"
+            description="Tambahkan jenis agar fasilitas bisa ditaruh di Editor Peta."
+          />
+        }
+      />
       {open?.kind === 'form' ? (
         <FacilityTypeDialog
           venueId={venueId}

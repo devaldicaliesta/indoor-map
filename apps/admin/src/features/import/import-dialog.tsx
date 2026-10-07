@@ -1,8 +1,18 @@
-import { type ImportPlan, type LocationType, planImport, type VenueId } from '@indoor/domain';
+import {
+  type ImportPlan,
+  type ImportRow,
+  type LocationType,
+  planImport,
+  type VenueId,
+} from '@indoor/domain';
 import {
   Badge,
   Button,
+  type DataColumn,
+  DataTable,
+  type FilterDef,
   Input,
+  queryRows,
   Select,
   SelectContent,
   SelectItem,
@@ -13,13 +23,8 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   toast,
+  useLocalTableState,
 } from '@indoor/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -43,46 +48,67 @@ function Summary({ plan }: { plan: ImportPlan }) {
   );
 }
 
+const RESULT_FILTER: FilterDef[] = [
+  {
+    kind: 'multi',
+    key: 'hasil',
+    label: 'Hasil',
+    options: Object.entries(ACTION_LABELS).map(([value, label]) => ({ value, label })),
+  },
+];
+
+const PLAN_COLUMNS: DataColumn<ImportRow>[] = [
+  { id: 'line', header: 'Baris', className: 'w-16 font-mono', cell: (row) => row.line },
+  {
+    id: 'action',
+    header: 'Hasil',
+    className: 'w-24',
+    cell: (row) => <Badge>{ACTION_LABELS[row.action]}</Badge>,
+  },
+  { id: 'name', header: 'Nama', className: 'whitespace-normal', cell: (row) => row.name || '—' },
+  {
+    id: 'errors',
+    header: 'Alasan',
+    className: 'whitespace-normal text-sm',
+    cell: (row) =>
+      row.errors.length ? (
+        <ul className="grid gap-0.5 text-danger">
+          {row.errors.map((e) => (
+            <li key={`${e.column}-${e.message}`}>
+              <span className="font-mono">{e.column}</span>: {e.message}
+            </li>
+          ))}
+        </ul>
+      ) : null,
+  },
+];
+
 function PlanTable({ plan }: { plan: ImportPlan }) {
-  // Baris gagal didahulukan agar alasannya terlihat tanpa menggulir.
+  const table = useLocalTableState();
+  // Baris gagal didahulukan agar alasannya terlihat tanpa berpindah halaman.
   const rows = [...plan.rows].sort(
     (a, b) => Number(b.action === 'invalid') - Number(a.action === 'invalid') || a.line - b.line,
   );
+  const result = queryRows(rows, table.state, {
+    text: (row) => [
+      String(row.line),
+      row.name,
+      ...row.errors.flatMap((e) => [e.column, e.message]),
+    ],
+    filters: { hasil: (row, values) => values.includes(row.action) },
+  });
   return (
-    <div className="max-h-96 overflow-y-auto rounded-sm border border-line">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-16">Baris</TableHead>
-            <TableHead className="w-24">Hasil</TableHead>
-            <TableHead>Nama</TableHead>
-            <TableHead>Alasan</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.line}>
-              <TableCell className="font-mono">{row.line}</TableCell>
-              <TableCell>
-                <Badge>{ACTION_LABELS[row.action]}</Badge>
-              </TableCell>
-              <TableCell>{row.name || '—'}</TableCell>
-              <TableCell className="text-sm">
-                {row.errors.length ? (
-                  <ul className="grid gap-0.5 text-danger">
-                    {row.errors.map((e) => (
-                      <li key={`${e.column}-${e.message}`}>
-                        <span className="font-mono">{e.column}</span>: {e.message}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <DataTable
+      label="Pratinjau impor"
+      columns={PLAN_COLUMNS}
+      rows={result.rows}
+      rowKey={(row) => String(row.line)}
+      total={result.total}
+      table={table}
+      search={{ placeholder: 'Cari nomor baris, nama, atau alasan' }}
+      filters={RESULT_FILTER}
+      empty={<p className="text-ink-muted">Berkas tidak berisi baris data.</p>}
+    />
   );
 }
 
@@ -224,7 +250,7 @@ export function ImportDialog({
                   Kolom diabaikan: {plan.unknownColumns.join(', ')}.
                 </p>
               ) : null}
-              <PlanTable plan={plan} />
+              <PlanTable key={fileName ?? ''} plan={plan} />
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="primary"

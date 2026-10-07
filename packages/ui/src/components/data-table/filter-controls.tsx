@@ -10,7 +10,7 @@ import {
 } from '../dropdown-menu';
 import { Input } from '../input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../select';
-import type { FilterDef, FilterOption, FilterUpdate } from './table-state';
+import { type FilterDef, type FilterOption, type FilterUpdate, withRangeEnd } from './table-state';
 
 // Radix Select tidak menerima nilai kosong; pilihan "semua" memakai penanda ini.
 const ALL = '__all__';
@@ -133,7 +133,7 @@ function DateRangeFilter({
         className="w-38"
         value={range.from}
         max={range.to || undefined}
-        onChange={(event) => update({ ...range, from: event.target.value })}
+        onChange={(event) => update(withRangeEnd(range, 'from', event.target.value))}
       />
       <span aria-hidden="true">–</span>
       <Input
@@ -142,7 +142,7 @@ function DateRangeFilter({
         className="w-38"
         value={range.to}
         min={range.from || undefined}
-        onChange={(event) => update({ ...range, to: event.target.value })}
+        onChange={(event) => update(withRangeEnd(range, 'to', event.target.value))}
       />
     </fieldset>
   );

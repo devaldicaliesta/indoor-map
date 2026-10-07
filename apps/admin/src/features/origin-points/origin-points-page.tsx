@@ -1,6 +1,8 @@
 import { can, type OriginPoint, originPointUrl, type VenueSummary } from '@indoor/domain';
 import {
   Button,
+  type DataColumn,
+  DataTable,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -8,13 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   EmptyState,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  queryRows,
   Tabs,
   TabsContent,
   TabsList,
@@ -22,15 +18,17 @@ import {
   toast,
 } from '@indoor/ui';
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { useRole } from '../../app/auth/can';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
+import { useTableState } from '../../hooks/use-table-state';
 import { FormNotice } from '../auth/auth-layout';
 import { floorLabel } from '../closures/closure-model';
 import { useVenueFloors } from '../editor/connectors/queries';
 import { InfoPointsPanel } from '../info-points/info-points-panel';
 import { OriginDialog, type OriginDialogTarget } from './origin-dialog';
+import { floorFilter, PATH_FILTER, pathState } from './point-filters';
 import { downloadPdf, downloadPng, qrCard } from './qr-download';
 import { useOriginPoints, usePublicVisitorUrl, useRemoveOriginPoint } from './queries';
 
@@ -60,113 +58,133 @@ function Origins({ venue }: { venue: VenueSummary }) {
   const remove = useRemoveOriginPoint(venue.id);
   const [dialog, setDialog] = useState<OriginDialogTarget>(null);
   const [removing, setRemoving] = useState<OriginPoint | null>(null);
+  const filters = [floorFilter(places, points.data), PATH_FILTER];
+  const table = useTableState({ filters });
 
-  if (points.isPending || !places || publicUrl.isPending) return <Skeleton className="h-64" />;
-  if (points.error) return <p className="text-danger">{points.error.message}</p>;
+  const ready = points.data && places && !publicUrl.isPending;
+  const result = ready
+    ? queryRows(points.data ?? [], table.state, {
+        text: (point) => [point.name, point.code],
+        filters: {
+          lantai: (point, values) => values.includes(point.floorId),
+          jalur: (point, values) => values.includes(pathState(point)),
+        },
+      })
+    : undefined;
   const url = publicUrl.data ?? null;
   const qrUrl = (point: OriginPoint) => (url ? originPointUrl(url, venue.id, point.code) : null);
-  const place = (point: OriginPoint) => `${point.name} · ${floorLabel(places, point.floorId)}`;
+  const floorOf = (point: OriginPoint) => (places ? floorLabel(places, point.floorId) : '');
+  const place = (point: OriginPoint) => `${point.name} · ${floorOf(point)}`;
+
+  const columns: DataColumn<OriginPoint>[] = [
+    {
+      id: 'name',
+      header: 'Nama',
+      className: 'font-bold',
+      cell: (point) => (
+        <>
+          {point.name}
+          {point.nodeId ? null : (
+            <span className="block font-normal text-danger text-sm">
+              Tidak menempel ke jalur; simpan ulang.
+            </span>
+          )}
+        </>
+      ),
+    },
+    { id: 'floor', header: 'Gedung dan lantai', cell: floorOf },
+    {
+      id: 'heading',
+      header: 'Arah hadap',
+      className: 'font-mono tabular-nums',
+      cell: (point) => `${number.format(point.headingDeg)}°`,
+    },
+    { id: 'code', header: 'Kode', className: 'font-mono', cell: (point) => point.code },
+    {
+      id: 'actions',
+      header: 'Aksi',
+      className: 'text-right',
+      cell: (point) => {
+        const link = qrUrl(point);
+        return (
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={!link}
+              onClick={() =>
+                link && downloadPdf(qrCard(venue.name, link, place(point)), point.name)
+              }
+            >
+              PDF A6
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={!link}
+              onClick={() => link && downloadPng(qrCard(venue.name, link, '').matrix, point.name)}
+            >
+              PNG
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={!link}
+              onClick={() => link && window.open(link, '_blank', 'noopener')}
+            >
+              Coba
+            </Button>
+            {canEdit ? (
+              <>
+                <Button size="sm" onClick={() => setDialog({ point })}>
+                  Ubah
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={remove.isPending}
+                  onClick={() => setRemoving(point)}
+                >
+                  Hapus
+                </Button>
+              </>
+            ) : null}
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div className="grid gap-4">
-      {url ? null : <NoPublicUrl superAdmin={role !== null && can(role, 'settings.system')} />}
-      {canEdit ? (
-        <Button
-          variant="primary"
-          className="justify-self-start"
-          disabled={!url}
-          onClick={() => setDialog({ point: null })}
-        >
-          Tambah titik asal
-        </Button>
-      ) : null}
-      {points.data.length === 0 ? (
-        <EmptyState
-          title="Belum ada QR titik asal"
-          description="QR titik asal membuka Visitor dengan posisi dan arah hadap pengunjung."
-        />
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nama</TableHead>
-              <TableHead>Gedung dan lantai</TableHead>
-              <TableHead>Arah hadap</TableHead>
-              <TableHead>Kode</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {points.data.map((point) => {
-              const link = qrUrl(point);
-              return (
-                <TableRow key={point.id}>
-                  <TableCell className="font-bold">
-                    {point.name}
-                    {point.nodeId ? null : (
-                      <span className="block font-normal text-danger text-sm">
-                        Tidak menempel ke jalur; simpan ulang.
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell>{floorLabel(places, point.floorId)}</TableCell>
-                  <TableCell className="font-mono tabular-nums">
-                    {number.format(point.headingDeg)}°
-                  </TableCell>
-                  <TableCell className="font-mono">{point.code}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={!link}
-                        onClick={() =>
-                          link && downloadPdf(qrCard(venue.name, link, place(point)), point.name)
-                        }
-                      >
-                        PDF A6
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={!link}
-                        onClick={() =>
-                          link && downloadPng(qrCard(venue.name, link, '').matrix, point.name)
-                        }
-                      >
-                        PNG
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={!link}
-                        onClick={() => link && window.open(link, '_blank', 'noopener')}
-                      >
-                        Coba
-                      </Button>
-                      {canEdit ? (
-                        <>
-                          <Button size="sm" onClick={() => setDialog({ point })}>
-                            Ubah
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            disabled={remove.isPending}
-                            onClick={() => setRemoving(point)}
-                          >
-                            Hapus
-                          </Button>
-                        </>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+      {publicUrl.isPending || url ? null : (
+        <NoPublicUrl superAdmin={role !== null && can(role, 'settings.system')} />
       )}
+      <DataTable
+        label="Titik asal"
+        columns={columns}
+        rows={result?.rows}
+        rowKey={(point) => point.id}
+        total={result?.total ?? 0}
+        table={table}
+        search={{ placeholder: 'Cari nama atau kode titik asal' }}
+        filters={filters}
+        error={points.error?.message ?? null}
+        onRetry={() => void points.refetch()}
+        actions={
+          canEdit ? (
+            <Button variant="primary" disabled={!url} onClick={() => setDialog({ point: null })}>
+              Tambah titik asal
+            </Button>
+          ) : null
+        }
+        empty={
+          <EmptyState
+            title="Belum ada QR titik asal"
+            description="QR titik asal membuka Visitor dengan posisi dan arah hadap pengunjung."
+          />
+        }
+      />
       {remove.error ? <FormNotice tone="error">{remove.error.message}</FormNotice> : null}
       <Dialog open={removing !== null} onOpenChange={(open) => (open ? null : setRemoving(null))}>
         <DialogContent>
@@ -198,7 +216,7 @@ function Origins({ venue }: { venue: VenueSummary }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {canEdit ? (
+      {canEdit && places && points.data ? (
         <OriginDialog
           venueId={venue.id}
           places={places}
@@ -213,12 +231,19 @@ function Origins({ venue }: { venue: VenueSummary }) {
 
 export function OriginPointsPage() {
   const { venue } = useSelectedVenue();
+  // Tab di URL agar muat ulang membuka tab yang sama beserta cari/filter tabelnya.
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('tab') === 'info-points' ? 'info-points' : 'origins';
   return (
     <ModuleRoute module="origin_points">
       {(access) => (
         <ModulePage module="origin_points" access={access}>
           {venue ? (
-            <Tabs key={venue.id} defaultValue="origins">
+            <Tabs
+              key={venue.id}
+              value={tab}
+              onValueChange={(value) => setParams(value === 'info-points' ? { tab: value } : {})}
+            >
               <TabsList>
                 <TabsTrigger value="origins">QR titik asal</TabsTrigger>
                 <TabsTrigger value="info-points">Info Point</TabsTrigger>

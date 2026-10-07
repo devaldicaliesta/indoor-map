@@ -83,9 +83,9 @@ Format: task · judul — **fokus cek** · test case → folder bukti. Level `M`
 
 ### F2.1 · Siap jual
 
-- [ ] T-501 · Nama produk PanduArah — judul, header, logo, favicon, PWA, email; tanpa "Indoor Map" · TC-BRD-01 s.d. 06 → `e2e/evidence/T-501/`
-- [ ] T-502 · Komponen tabel — galeri `/_ui`: cari, filter, pagination, keadaan kosong/memuat/galat, status di URL · TC-TBL-04, 05, 06 → `e2e/evidence/T-502/`
-- [ ] T-503 · Tabel di semua halaman Admin — Lokasi 2.000 baris dan Log audit: cari, filter, pindah halaman, muat ulang; daftar 17 tabel · TC-TBL-01 s.d. 10, TC-SEC-81 → `e2e/evidence/T-503/`
+- [x] T-501 · Nama produk PanduArah — judul, header, logo, favicon, PWA, email; tanpa "Indoor Map" · TC-BRD-01 s.d. 06 → `e2e/evidence/T-501/`
+- [x] T-502 · Komponen tabel — galeri `/_ui`: cari, filter, pagination, keadaan kosong/memuat/galat, status di URL · TC-TBL-04, 05, 06 → `e2e/evidence/T-502/`
+- [x] T-503 · Tabel di semua halaman Admin — Lokasi 2.000 baris dan Log audit: cari, filter, pindah halaman, muat ulang; daftar 17 tabel · TC-TBL-01 s.d. 10, TC-SEC-81 → `e2e/evidence/T-503/`
 - [ ] T-504 · Lisensi trial — trial otomatis dan per permintaan, trial kedua ditolak, setiap batas trial, tenggang, upgrade ke berbayar · TC-TRL-01 s.d. 14, TC-SEC-80 → `e2e/evidence/T-504/`
 - [ ] T-505 · Landing page dan form trial — ID/EN, HP dan desktop, kirim form ke Mailpit, validasi, spam · TC-LND-01 s.d. 08 → `e2e/evidence/T-505/`
 - [ ] T-511 · Image Docker jadi — pasang dari arsip tanpa internet, isi paket, upgrade dan rollback (M) · TC-HRD-01 s.d. 03 → `e2e/evidence/T-511/`

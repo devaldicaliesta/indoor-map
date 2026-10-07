@@ -1,6 +1,11 @@
 import type { FilterDef, TableState } from '@indoor/ui';
 import { describe, expect, it } from 'vitest';
-import { readTableState, type TableUrlOptions, writeTableState } from './table-url';
+import {
+  pendingAfterRender,
+  readTableState,
+  type TableUrlOptions,
+  writeTableState,
+} from './table-url';
 
 const FILTERS: FilterDef[] = [
   {
@@ -110,5 +115,17 @@ describe('writeTableState', () => {
   it('bolak-balik URL ↔ keadaan tidak mengubah apa pun (salin URL ke tab baru, TC-TBL-04)', () => {
     const url = writeTableState(new URLSearchParams(), state, OPTIONS);
     expect(readTableState(url, OPTIONS)).toEqual(state);
+  });
+});
+
+describe('pendingAfterRender (perubahan beruntun sebelum render)', () => {
+  it('tulisan yang sudah dirender keluar dari antrean, yang belum tetap', () => {
+    expect(pendingAfterRender(['a=1', 'a=1,2'], 'a=1')).toEqual(['a=1,2']);
+    expect(pendingAfterRender(['a=1', 'a=1,2'], 'a=1,2')).toEqual([]);
+  });
+
+  it('URL lain (tombol Back) mengosongkan antrean', () => {
+    expect(pendingAfterRender(['a=1', 'a=1,2'], 'b=3')).toEqual([]);
+    expect(pendingAfterRender([], 'a=1')).toEqual([]);
   });
 });

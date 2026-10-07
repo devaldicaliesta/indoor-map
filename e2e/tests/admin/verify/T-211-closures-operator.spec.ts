@@ -1,6 +1,7 @@
 import type { Venue } from '@indoor/domain';
 import { expect, test } from '../../../fixtures';
 import { AdminShell } from '../../../pages/admin-shell';
+import { DataTablePage } from '../../../pages/data-table';
 import { EditorPage } from '../../../pages/editor-page';
 
 const shot = (name: string) => `evidence/T-211/${name}.png`;
@@ -23,9 +24,11 @@ test.describe('T-211 Penutupan dan role Operator', () => {
     await loginAs('operator');
     await new AdminShell(page).selectVenue(fullVenue.name);
     await page.goto('/closures');
-    const active = page.getByRole('region', { name: 'Sedang berlaku' });
-    const scheduled = page.getByRole('region', { name: 'Terjadwal' });
-    await expect(active.getByText('Tidak ada penutupan yang sedang berlaku.')).toBeVisible();
+    // Satu tabel Penutupan (T-503): keadaan tiap penutupan di kolom Status.
+    const closures = new DataTablePage(page, 'Penutupan');
+    const row = (reason: string) => closures.rows.filter({ hasText: reason });
+    await closures.ready();
+    await expect(closures.rows.filter({ hasText: 'Sedang berlaku' })).toHaveCount(0);
 
     // Tutup lift: alasan wajib, dampak lantai terlihat.
     const pickTarget = async (name: RegExp) => {
@@ -44,13 +47,13 @@ test.describe('T-211 Penutupan dan role Operator', () => {
     await page.screenshot({ path: shot('01-dialog-dampak') });
     await dialog.getByRole('button', { name: 'Simpan penutupan' }).click();
     await expect(page.getByText('Penutupan disimpan')).toBeVisible();
-    await expect(active.getByRole('cell', { name: 'Perawatan lift' })).toBeVisible();
-    await expect(active.getByText('Sampai diakhiri')).toBeVisible();
+    await expect(row('Perawatan lift')).toContainText('Sedang berlaku');
+    await expect(row('Perawatan lift')).toContainText('Sampai diakhiri');
     await expect.poll(async () => (await current()).length).toBe(1);
     await page.screenshot({ path: shot('02-sedang-berlaku') });
 
     // Ubah waktu selesai.
-    await active.getByRole('button', { name: 'Ubah waktu selesai' }).click();
+    await row('Perawatan lift').getByRole('button', { name: 'Ubah waktu selesai' }).click();
     const ends = page.getByRole('dialog', { name: 'Ubah waktu selesai' });
     await ends
       .getByRole('textbox')
@@ -59,13 +62,15 @@ test.describe('T-211 Penutupan dan role Operator', () => {
       .fill(inDays(3, '17:00'));
     await ends.getByRole('button', { name: /Simpan/ }).click();
     await expect(page.getByText('Waktu selesai diubah')).toBeVisible();
-    await expect(active.getByText('Sampai diakhiri')).toBeHidden();
+    await expect(row('Perawatan lift').getByText('Sampai diakhiri')).toBeHidden();
     await expect.poll(async () => (await current())[0]?.endsAt ?? null).not.toBeNull();
 
     // Akhiri sekarang.
-    await active.getByRole('button', { name: 'Akhiri sekarang' }).click();
+    await row('Perawatan lift').getByRole('button', { name: 'Akhiri sekarang' }).click();
     await expect(page.getByText('Penutupan diakhiri')).toBeVisible();
-    await expect(active.getByText('Tidak ada penutupan yang sedang berlaku.')).toBeVisible();
+    // Langsung "Selesai" tanpa menunggu pembaruan status per menit.
+    await expect(row('Perawatan lift')).toContainText('Selesai');
+    await expect(row('Perawatan lift').getByRole('button')).toHaveCount(0);
     await expect.poll(async () => (await current()).length).toBe(0);
 
     // Penutupan terjadwal lalu dibatalkan.
@@ -74,11 +79,11 @@ test.describe('T-211 Penutupan dan role Operator', () => {
     await dialog.getByLabel('Mulai').fill(inDays(2, '08:00'));
     await dialog.getByLabel('Selesai (opsional)').fill(inDays(2, '12:00'));
     await dialog.getByRole('button', { name: 'Simpan penutupan' }).click();
-    await expect(scheduled.getByRole('cell', { name: 'Pembersihan eskalator' })).toBeVisible();
+    await expect(row('Pembersihan eskalator')).toContainText('Terjadwal');
     await page.screenshot({ path: shot('03-terjadwal') });
-    await scheduled.getByRole('button', { name: 'Batalkan' }).click();
+    await row('Pembersihan eskalator').getByRole('button', { name: 'Batalkan' }).click();
     await expect(page.getByText('Penutupan dibatalkan')).toBeVisible();
-    await expect(scheduled.getByText('Tidak ada penutupan terjadwal.')).toBeVisible();
+    await expect(row('Pembersihan eskalator')).toHaveCount(0);
 
     // Peta hanya baca untuk Operator.
     const editor = new EditorPage(page);
