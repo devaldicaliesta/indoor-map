@@ -136,6 +136,9 @@ Katalog ini adalah daftar test case yang wajib dijalankan **sebelum dan selama**
 | TC-VIS-04 | Venue belum publish / snapshot gagal dimuat | Pesan "Peta belum tersedia" / tombol coba lagi | E | P1 |
 | TC-VIS-05 | Branding: logo, nama, warna utama, warna rute | Tampil di Visitor setelah publish; kuning muda tetap terbaca | U, I, E | P1 |
 | TC-VIS-06 | Hapus logo / kembali ke bawaan | Tanda bawaan; warna bawaan | E | P2 |
+| TC-VIS-07 | Orang mini (T-321): buka venue setelah graf termuat, 2D dan 3D | Orang berjalan di jalur, berdiri sendiri/berkelompok/di dalam ruang; tidak ada dua orang yang tampilannya sama; peta berubah tanpa kamera bergerak | U, E | P2 |
+| TC-VIS-08 | Tombol orang mini dimatikan lalu dinyalakan; label ID/EN | Peta diam tanpa orang; orang kembali; tombol ≥ 44 px dengan `aria-pressed` | E | P2 |
+| TC-VIS-09 | `prefers-reduced-motion`; Info Point | Orang tampil tetapi diam; di Info Point mati bawaan | U, E | P2 |
 | TC-PUB-01 | Publish oleh Admin; Editor mencoba publish | Admin: versi baru; Editor ditolak server | I, E | P1 |
 | TC-PUB-02 | Draft berubah setelah publish | Visitor tetap versi lama sampai publish berikut | I, E | P1 |
 | TC-PUB-03 | Snapshot lama tanpa field baru (branding, jam) | Tetap terbaca Visitor | U | P1 |
@@ -400,7 +403,7 @@ Bagian ini melengkapi bagian 3–10 dengan semua kemungkinan yang bisa terjadi d
 
 ## 14. Ringkasan jumlah test case
 
-Bagian 3–10: 126 test case utama. Bagian 13: 133 kasus tepi, negatif, batas, konkurensi, keamanan lanjutan, dan ketahanan. Total 259 untuk R0–R4, ditambah 187 test case F2 di bagian 15. Jumlah ini ditinjau ulang setiap kali satu task selesai diverifikasi; kasus baru yang ditemukan saat pengujian ditambahkan ke bagian area yang sesuai dengan ID lanjutan.
+Bagian 3–10: 129 test case utama. Bagian 13: 133 kasus tepi, negatif, batas, konkurensi, keamanan lanjutan, dan ketahanan. Total 262 untuk R0–R4, ditambah 187 test case F2 di bagian 15. Jumlah ini ditinjau ulang setiap kali satu task selesai diverifikasi; kasus baru yang ditemukan saat pengujian ditambahkan ke bagian area yang sesuai dengan ID lanjutan.
 
 ## 15. Fase 2 (F2) — T-501 s.d. T-607
 
