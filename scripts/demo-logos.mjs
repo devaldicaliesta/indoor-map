@@ -24,6 +24,7 @@ const EMBLEMS = {
   airport:
     '<path d="M21 15l-8-4V5a1 1 0 0 0-2 0v6l-8 4v2l8-2v4l-2 1.5V22l3-1 3 1v-1.5L13 19v-4l8 2z"/>',
   factory: '<path d="M3 21V11l5 3v-3l5 3v-3l5 3V5h3v16zM7 18h2M12 18h2"/>',
+  concert: '<path d="M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM21 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>',
 };
 
 const LOGOS = [
@@ -33,6 +34,7 @@ const LOGOS = [
   { key: 'office', emblem: EMBLEMS.office, color: '#1f6f8b', lines: ['MENARA', 'SINERGI'] },
   { key: 'airport', emblem: EMBLEMS.airport, color: '#0b7a75', lines: ['BANDARA', 'NUSANTARA'] },
   { key: 'factory', emblem: EMBLEMS.factory, color: '#b45f06', lines: ['INDUSTRI', 'PRIMA'] },
+  { key: 'concert', emblem: EMBLEMS.concert, color: '#e11d48', lines: ['KONSER', 'GEMILANG'] },
 ];
 
 const SIZE = 512;

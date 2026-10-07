@@ -4,6 +4,7 @@ import type { SnapshotSource, VenueId } from '@indoor/domain';
 import {
   airportVenue,
   campusVenue,
+  concertVenue,
   factoryVenue,
   hospitalVenue,
   mallVenue,
@@ -16,8 +17,8 @@ import type { Database } from '../../src/database.types';
 import { insertVenue, signedInDb } from '../support/full-venue';
 import { demoClosures, seedDemoUsers, seedPublishHistory } from './demo-activity';
 
-// `pnpm db:seed-demo`: enam venue demo besar (mal, rumah sakit, kampus, perkantoran, bandara,
-// kawasan pabrik) di Supabase lokal, dibuat ulang lalu diterbitkan, beserta aktivitas demo
+// `pnpm db:seed-demo`: tujuh venue demo besar (mal, rumah sakit, kampus, perkantoran, bandara,
+// kawasan pabrik, konser di stadion) di Supabase lokal, dibuat ulang lalu diterbitkan, beserta aktivitas demo
 // (riwayat publish, penutupan, pengguna beragam role). Dijalankan lewat Vitest agar fixture
 // TypeScript domain bisa dipakai.
 const envFile = fileURLToPath(new URL('../../../../.env.local', import.meta.url));
@@ -78,6 +79,13 @@ const VENUES = [
     address: 'Kawasan Industri Prima Blok C-7, Bekasi',
     logo: 'factory',
     color: '#b45f06',
+  },
+  {
+    make: concertVenue,
+    type: 'custom',
+    address: 'Stadion Demo Gemilang, Jl. Pintu Satu, Jakarta Pusat',
+    logo: 'concert',
+    color: '#e11d48',
   },
 ] as const;
 

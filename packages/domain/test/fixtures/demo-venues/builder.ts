@@ -43,6 +43,15 @@ export interface FloorSpec {
   level: number;
 }
 
+/** Titik dalam meter timur/utara dari pusat venue. */
+export type Pt = readonly [number, number];
+
+export interface FreeFloor {
+  id: string;
+  name: string;
+  level: number;
+}
+
 export interface BuildingSpec {
   key: string;
   name: string;
@@ -227,7 +236,7 @@ export class VenueBuilder {
 
   // --- Graf --------------------------------------------------------------------------------
 
-  private node(
+  node(
     key: string,
     floorId: string,
     position: SnapshotPosition,
@@ -254,7 +263,7 @@ export class VenueBuilder {
     this.source.graph.edges = [...this.source.graph.edges, e];
   }
 
-  private feature(
+  feature(
     key: string,
     floorId: string,
     kind: SourceFeature['kind'],
@@ -498,6 +507,251 @@ export class VenueBuilder {
       this.rect(x, y, w, h),
       { subtype },
     );
+  }
+
+  // --- Tata letak bebas (koordinat meter timur/utara) -----------------------------------------
+
+  /** Posisi meter setiap node tata letak bebas, untuk menghitung panjang edge. */
+  private readonly meters = new Map<string, Pt>();
+
+  poly(ring: readonly Pt[]): SnapshotPolygon {
+    const first = ring[0];
+    if (!first) throw new Error('poligon kosong');
+    return { type: 'Polygon', coordinates: [[...ring, first].map(([x, y]) => this.pos(x, y))] };
+  }
+
+  /** Node di posisi meter. */
+  at(
+    key: string,
+    floorId: string,
+    p: Pt,
+    role: SnapshotNavNode['role'] = 'path',
+    featureId: string | null = null,
+  ): string {
+    const id = this.node(key, floorId, this.pos(p[0], p[1]), role, featureId);
+    this.meters.set(id, p);
+    return id;
+  }
+
+  meterOf(nodeId: string): Pt {
+    const p = this.meters.get(nodeId);
+    if (!p) throw new Error('node tanpa posisi meter');
+    return p;
+  }
+
+  /** Edge lurus antara dua node tata letak bebas. */
+  link(a: string, b: string, floorId: string, accessible = true) {
+    const [ax, ay] = this.meterOf(a);
+    const [bx, by] = this.meterOf(b);
+    this.edge(a, b, floorId, Math.hypot(bx - ax, by - ay), accessible);
+  }
+
+  area(
+    key: string,
+    floorId: string,
+    kind: 'corridor' | 'non_walkable' | 'elevator' | 'escalator' | 'stairs',
+    ring: readonly Pt[],
+    extra: Partial<SourceFeature> = {},
+  ): string {
+    return this.feature(key, floorId, kind, this.poly(ring), extra);
+  }
+
+  /** Unit poligon bebas dengan titik masuk di `door`, tersambung ke node jalur `path`. */
+  unit(
+    key: string,
+    floorId: string,
+    buildingId: string,
+    code: string,
+    ring: readonly Pt[],
+    door: Pt,
+    path: string,
+    extra: Partial<SourceFeature> = {},
+  ): FloorUnit {
+    const id = this.feature(key, floorId, 'unit', this.poly(ring), {
+      unitCode: code,
+      unitStatus: 'occupied',
+      ...extra,
+    });
+    const entrance = this.at(`${key}:entrance`, floorId, door, 'entrance', id);
+    this.link(path, entrance, floorId);
+    return { id, code, floorId, buildingId };
+  }
+
+  facilityAt(
+    key: string,
+    floorId: string,
+    typeId: string,
+    p: Pt,
+    path: string,
+    name: string | null = null,
+  ) {
+    const id = this.feature(
+      key,
+      floorId,
+      'facility',
+      { type: 'Point', coordinates: this.pos(p[0], p[1]) },
+      { facilityTypeId: typeId, name },
+    );
+    const entrance = this.at(`${key}:entrance`, floorId, p, 'entrance', id);
+    this.link(path, entrance, floorId);
+  }
+
+  landmarkAt(key: string, floorId: string, p: Pt, name: string) {
+    this.feature(
+      key,
+      floorId,
+      'landmark',
+      { type: 'Point', coordinates: this.pos(p[0], p[1]) },
+      {
+        name,
+      },
+    );
+  }
+
+  /** Konektor bebas: area 2,5 × 2,5 m dan satu node per lantai, tersambung ke node jalur. */
+  connectorAt(
+    key: string,
+    kind: Exclude<SnapshotConnectorKind, 'building_door'>,
+    name: string,
+    stops: readonly { floorId: string; at: Pt; path: string }[],
+    direction: 'up' | 'down' = 'up',
+  ) {
+    const area = kind === 'elevator' ? 'elevator' : kind === 'escalator' ? 'escalator' : 'stairs';
+    const built = stops.map((stop, i) => {
+      const [x, y] = stop.at;
+      this.area(`${key}:${i}:area`, stop.floorId, area, [
+        [x - 1.25, y - 1.25],
+        [x + 1.25, y - 1.25],
+        [x + 1.25, y + 1.25],
+        [x - 1.25, y + 1.25],
+      ]);
+      const nodeId = this.at(`${key}:${i}:stop`, stop.floorId, stop.at, 'connector');
+      this.link(stop.path, nodeId, stop.floorId, kind === 'elevator');
+      return { floorId: stop.floorId, nodeId };
+    });
+    this.source.graph.connectors = [
+      ...this.source.graph.connectors,
+      {
+        id: this.id(`connector:${key}`),
+        kind,
+        name,
+        direction: kind === 'escalator' ? direction : null,
+        accessible: kind === 'elevator',
+        stops: built,
+      },
+    ];
+  }
+
+  /** Gedung berfootprint poligon bebas; isi lantainya disusun pemanggil. */
+  freeBuilding(spec: {
+    key: string;
+    name: string;
+    code: string;
+    footprint: readonly Pt[];
+    floors: FloorSpec[];
+  }): { id: string; floors: FreeFloor[] } {
+    const id = this.id(`building:${spec.key}`);
+    const floors = spec.floors.map((floor) => {
+      const floorId = this.id(`floor:${spec.key}:${floor.name}`);
+      this.source.floors = [
+        ...this.source.floors,
+        {
+          id: floorId,
+          buildingId: id,
+          name: floor.name,
+          level: floor.level,
+          heightM: 4.5,
+          isOutdoor: false,
+          sortOrder: floor.level,
+        },
+      ];
+      return { id: floorId, name: floor.name, level: floor.level };
+    });
+    const ground = [...floors].sort(
+      (a, b) => Math.abs(a.level) - Math.abs(b.level) || b.level - a.level,
+    )[0];
+    this.source.buildings = [
+      ...this.source.buildings,
+      {
+        id,
+        name: spec.name,
+        code: spec.code,
+        footprint: this.poly(spec.footprint),
+        defaultFloorId: ground?.id ?? null,
+        sortOrder: this.source.buildings.length,
+      },
+    ];
+    this.source.venue = {
+      ...this.source.venue,
+      defaultBuildingId: this.source.venue.defaultBuildingId ?? id,
+    };
+    return { id, floors };
+  }
+
+  /** Pintu gedung bebas; mengembalikan node di sisi Area Luar. */
+  doorAt(key: string, name: string, groundFloorId: string, inside: Pt, path: string, outside: Pt) {
+    const inNode = this.at(`door:${key}:in`, groundFloorId, inside, 'connector');
+    this.link(path, inNode, groundFloorId);
+    const outNode = this.at(`door:${key}:out`, this.outdoorFloorId, outside, 'connector');
+    this.source.graph.connectors = [
+      ...this.source.graph.connectors,
+      {
+        id: this.id(`connector:door:${key}`),
+        kind: 'building_door',
+        name,
+        direction: null,
+        accessible: true,
+        stops: [
+          { floorId: groundFloorId, nodeId: inNode },
+          { floorId: this.outdoorFloorId, nodeId: outNode },
+        ],
+      },
+    ];
+    return outNode;
+  }
+
+  outdoorPoly(key: string, subtype: 'road' | 'garden' | 'parking', ring: readonly Pt[]) {
+    this.feature(`outdoor-area:${key}`, this.outdoorFloorId, 'outdoor_area', this.poly(ring), {
+      subtype,
+    });
+  }
+
+  originAt(key: string, floorId: string, nodeId: string, name: string, code: string, heading = 0) {
+    const node = this.source.graph.nodes.find((n) => n.id === nodeId);
+    if (!node) throw new Error('node titik asal tidak ada');
+    this.source.originPoints = [
+      ...this.source.originPoints,
+      {
+        id: this.id(`origin:${key}`),
+        floorId,
+        name,
+        coordinates: node.coordinates,
+        headingDeg: heading,
+        nodeId,
+        code,
+      },
+    ];
+  }
+
+  infoAt(floorId: string, nodeId: string, name: string, code: string, heading = 0) {
+    const node = this.source.graph.nodes.find((n) => n.id === nodeId);
+    if (!node) throw new Error('node Info Point tidak ada');
+    this.source.infoPoints = [
+      ...this.source.infoPoints,
+      {
+        id: this.id(`info:${code}`),
+        code,
+        name,
+        floorId,
+        coordinates: node.coordinates,
+        headingDeg: heading,
+        defaultMode: '3d',
+        force2d: false,
+        defaultLanguage: 'id',
+        idleSeconds: 90,
+        nodeId,
+      },
+    ];
   }
 
   // --- Lokasi dan titik asal -----------------------------------------------------------------
