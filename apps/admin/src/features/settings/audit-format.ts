@@ -56,12 +56,17 @@ function describeDetails(event: AuditEvent): string {
     case 'role_changed':
       return `${roleLabel(details.from)} → ${roleLabel(details.to)}`;
     case 'publish':
+    case 'rollback': {
+      const version = typeof details.version === 'number' ? `Versi ${details.version}` : '';
+      const source =
+        typeof details.source_version === 'number' ? ` dari v${details.source_version}` : '';
       return [
-        typeof details.version === 'number' ? `Versi ${details.version}` : '',
+        version && `${version}${source}`,
         typeof details.venue === 'string' ? details.venue : '',
       ]
         .filter(Boolean)
         .join(' · ');
+    }
     case 'license_changed':
       return [
         typeof details.license_id === 'string' ? details.license_id : '',

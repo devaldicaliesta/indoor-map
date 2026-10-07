@@ -123,7 +123,10 @@ const LOCATION_COLUMNS =
   'location_units(feature_id,is_primary,features(unit_code,floor_id,floors(name,building_id,buildings!floors_building_same_venue(name))))';
 const QUERIES = ['', 'lab', 'poli', 'kafe', 'toilet', 'gf-'];
 
-/** Satu halaman (25 baris) tabel server beserta jumlah totalnya, seperti `listPage` Admin. */
+/**
+ * Satu halaman (25 baris) tabel server beserta jumlah totalnya, seperti `listPage` Admin.
+ * Mengembalikan total dari `Content-Range` (`0-24/123`).
+ */
 function tablePage(data, fn, args, select, order, page) {
   const offset = (page - 1) * 25;
   const res = http.post(
@@ -141,6 +144,7 @@ function tablePage(data, fn, args, select, order, page) {
     },
   );
   check(res, { [`${fn} 200`]: (r) => r.status === 200 || r.status === 206 });
+  return Number(String(res.headers['Content-Range'] ?? '').split('/')[1] ?? 0);
 }
 
 /** Admin di tabel server: cari, tambah filter, pindah halaman, lalu tabel lain. */
@@ -159,10 +163,13 @@ export function tables(data) {
   tablePage(data, 'search_locations', locations, LOCATION_COLUMNS, 'name.asc,id.asc', 1);
   sleep(1 + Math.random());
   const active = { ...locations, p_statuses: ['active'] };
-  tablePage(data, 'search_locations', active, LOCATION_COLUMNS, 'name.asc,id.asc', 1);
+  const total = tablePage(data, 'search_locations', active, LOCATION_COLUMNS, 'name.asc,id.asc', 1);
   sleep(1 + Math.random());
-  tablePage(data, 'search_locations', active, LOCATION_COLUMNS, 'name.asc,id.asc', 2);
-  sleep(1 + Math.random());
+  // Halaman berikutnya hanya ada bila hasilnya lebih dari satu halaman (seperti tombol Admin).
+  if (total > 25) {
+    tablePage(data, 'search_locations', active, LOCATION_COLUMNS, 'name.asc,id.asc', 2);
+    sleep(1 + Math.random());
+  }
   const period = { p_from: null, p_to: null, p_time_zone: 'Asia/Jakarta' };
   tablePage(
     data,
