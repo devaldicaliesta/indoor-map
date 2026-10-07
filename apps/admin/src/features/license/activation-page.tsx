@@ -16,6 +16,7 @@ import { useCurrentProfile } from '../../app/auth/current-profile';
 import { AuthLayout, FormNotice } from '../auth/auth-layout';
 import { FirstAdminForm } from './first-admin-form';
 import { useActivateManual, useActivateOnline, useLicenseStatus } from './queries';
+import { VendorEmail } from './vendor-email';
 
 const STATE_NOTICE: Record<Exclude<LicenseState, 'active'>, string> = {
   missing: 'Instalasi ini belum diaktifkan.',
@@ -47,7 +48,10 @@ function InstanceId({ value }: { value: string }) {
           Salin
         </Button>
       </div>
-      <p className="text-ink-muted text-sm">Lisensi diterbitkan vendor untuk ID ini.</p>
+      <p className="text-ink-muted text-sm">
+        Lisensi diterbitkan vendor untuk ID ini. Kirim ID ini ke <VendorEmail /> untuk meminta
+        lisensi.
+      </p>
     </div>
   );
 }

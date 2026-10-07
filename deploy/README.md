@@ -1,6 +1,6 @@
-# Paket instalasi on-premise
+# Paket instalasi on-premise PanduArah
 
-Satu server menjalankan seluruh platform lewat Docker Compose:
+Satu server menjalankan seluruh platform PanduArah lewat Docker Compose:
 
 | Layanan     | Isi                                                                 |
 | ----------- | ------------------------------------------------------------------- |

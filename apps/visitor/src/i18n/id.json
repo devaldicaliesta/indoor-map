@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Indoor Map"
+    "name": "PanduArah"
   },
   "search": {
     "label": "Cari lokasi",
@@ -70,7 +70,8 @@
     "close": "Tutup",
     "description": "Peta ini diperbarui setiap kali pengelola gedung menerbitkan versi baru.",
     "version": "Versi peta",
-    "publishedAt": "Diterbitkan"
+    "publishedAt": "Diterbitkan",
+    "poweredBy": "Didukung oleh {{tagline}}"
   },
   "explore": {
     "chips": "Kategori dan fasilitas",

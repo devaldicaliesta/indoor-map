@@ -2,6 +2,7 @@ import { licenseNotice } from '@indoor/domain';
 import { TriangleAlertIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useCheckinOverdueSince, useLicenseValidUntil } from './queries';
+import { VendorEmail } from './vendor-email';
 
 const date = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -33,14 +34,14 @@ function ValidityNotice() {
       <Banner>
         Lisensi berakhir {ends}. Masa tenggang sampai {date.format(new Date(notice.graceEndsAt))}:
         Admin hanya-baca, Visitor tetap berjalan. Setelah itu peta Visitor dihentikan. Hubungi
-        vendor untuk perpanjangan.
+        vendor di <VendorEmail /> untuk perpanjangan.
       </Banner>
     );
   }
   return (
     <Banner>
-      Lisensi berakhir dalam {notice.days} hari ({ends}). Hubungi vendor untuk perpanjangan agar
-      Admin tidak menjadi hanya-baca.
+      Lisensi berakhir dalam {notice.days} hari ({ends}). Hubungi vendor di <VendorEmail /> untuk
+      perpanjangan agar Admin tidak menjadi hanya-baca.
     </Banner>
   );
 }

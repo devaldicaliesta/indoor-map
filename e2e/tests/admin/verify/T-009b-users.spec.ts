@@ -54,7 +54,7 @@ test.describe('T-009b Halaman Pengguna', () => {
     await expect(row).toBeVisible();
     await capture(page, '03-diundang');
     const mail = await waitForMail(email);
-    expect(mail.subject).toBe('Undangan Admin Indoor Map');
+    expect(mail.subject).toBe('Undangan Admin PanduArah');
 
     // Database: profil tersimpan dengan role yang dipilih.
     const stored = (await superAdmin.profiles.list()).find((p) => p.email === email);

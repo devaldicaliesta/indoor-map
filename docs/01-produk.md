@@ -2,7 +2,7 @@
 
 ## Ringkasan
 
-Sistem untuk membangun, mengelola, dan menerbitkan **peta dalam gedung** beserta **navigasi langkah demi langkah**, untuk semua jenis gedung. Klien memasangnya di server sendiri (on-premise) dan membayar langganan; hak pakai dikendalikan file lisensi bertanda tangan digital dari vendor.
+**PanduArah** (tagline Inggris: "PanduArah — Indoor Navigation") adalah sistem untuk membangun, mengelola, dan menerbitkan **peta dalam gedung** beserta **navigasi langkah demi langkah**, untuk semua jenis gedung. Klien memasangnya di server sendiri (on-premise) dan membayar langganan; hak pakai dikendalikan file lisensi bertanda tangan digital dari vendor.
 
 Positioning produk mirip Situm dan Mappedin, **tanpa positioning real-time (blue dot)** di versi awal. Titik "Anda di sini" berasal dari QR titik asal, Info Point, atau pilihan manual pengunjung.
 

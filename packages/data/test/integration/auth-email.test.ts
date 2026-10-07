@@ -59,7 +59,7 @@ describe.runIf(url && anonKey && serviceKey && mailpit)(
 
       await createRepositories(newDb(anonKey)).auth.requestPasswordReset(email, REDIRECT);
       const mail = await waitForMail(email);
-      expect(mail.subject).toBe('Atur ulang password Admin Indoor Map');
+      expect(mail.subject).toBe('Atur ulang password Admin PanduArah');
       const link = /(http\S+\/auth\/v1\/verify\?\S+)/.exec(mail.text)?.[1] ?? '';
       expect(link).toContain('type=recovery');
       const verified = await fetch(link, { redirect: 'manual' });

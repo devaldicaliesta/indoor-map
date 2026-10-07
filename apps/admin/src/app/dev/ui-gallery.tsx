@@ -50,7 +50,9 @@ import {
   WCAG_AA_TEXT,
 } from '@indoor/ui';
 import { MoreHorizontalIcon, PlusIcon } from 'lucide-react';
-import { type ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { BrandGallery } from './gallery-brand';
+import { Section } from './gallery-section';
 
 const TOKENS = [
   'ink',
@@ -86,15 +88,6 @@ const SURFACES = ['admin', 'visitor', 'info-point'] as const;
 
 function readToken(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim();
-}
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="grid gap-3 border-line border-t pt-6">
-      <h2 className="font-bold text-lg">{title}</h2>
-      {children}
-    </section>
-  );
 }
 
 function ContrastTable() {
@@ -174,6 +167,7 @@ export function UiGalleryPage() {
         </header>
 
         <div data-surface={surface} className="grid gap-6 font-sans text-body">
+          <BrandGallery />
           <Section title="Token warna">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {TOKENS.map((t) => (

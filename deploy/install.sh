@@ -104,7 +104,7 @@ assert_own_hook_secret() {
 install_backup_schedule() {
   local cron=/etc/cron.d/indoor-map-backup
   if [ -w /etc/cron.d ]; then
-    printf '# Backup harian Indoor Map (deploy/backup.sh), retensi 14 hari.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\n30 2 * * * root %s >>%s/backup.log 2>&1\n' \
+    printf '# Backup harian PanduArah (deploy/backup.sh), retensi 14 hari.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\n30 2 * * * root %s >>%s/backup.log 2>&1\n' \
       "$DEPLOY_DIR/backup.sh" "$BACKUP_DIR" >"$cron"
     say "Backup harian terjadwal pukul 02.30 ($cron)."
   else

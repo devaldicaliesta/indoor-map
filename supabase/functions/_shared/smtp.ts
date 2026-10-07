@@ -1,5 +1,6 @@
-// Klien SMTP minimal (EHLO, STARTTLS/TLS, AUTH PLAIN, satu email teks + HTML opsional)
-// tanpa dependensi, agar Edge Function bisa dimuat di server on-premise tanpa akses registry.
+// Klien SMTP minimal (EHLO, STARTTLS/TLS, AUTH PLAIN, satu email teks + HTML opsional dengan
+// gambar inline) tanpa dependensi, agar Edge Function bisa dimuat di server on-premise tanpa
+// akses registry.
 
 export interface SmtpConfig {
   host: string;
@@ -9,12 +10,22 @@ export interface SmtpConfig {
   from: string;
 }
 
+/** Gambar yang dirujuk HTML lewat `cid:` (mis. logo), dikirim di dalam email itu sendiri. */
+export interface InlineImage {
+  cid: string;
+  filename: string;
+  contentType: string;
+  base64: string;
+}
+
 export interface SmtpMessage {
   to: string;
   subject: string;
   text: string;
   /** Versi HTML; bila ada, email dikirim multipart/alternative bersama teks biasa. */
   html?: string;
+  /** Gambar untuk HTML; dikirim multipart/related agar tampil tanpa unduhan dari luar. */
+  inline?: readonly InlineImage[];
 }
 
 export type SmtpFailure =
@@ -118,8 +129,40 @@ function dotStuff(text: string): string {
 }
 
 /** Base64 dipotong 76 karakter per baris (RFC 2045). */
+function wrap76(encoded: string): string {
+  return (encoded.match(/.{1,76}/g) ?? []).join('\r\n');
+}
+
 function base64Lines(value: string): string {
-  return (base64(value).match(/.{1,76}/g) ?? []).join('\r\n');
+  return wrap76(base64(value));
+}
+
+/** Bagian HTML; dengan gambar inline dibungkus multipart/related (RFC 2387). */
+function htmlPart(html: string, inline: readonly InlineImage[]): string[] {
+  const htmlLines = [
+    'Content-Type: text/html; charset=utf-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    base64Lines(html),
+  ];
+  if (inline.length === 0) return htmlLines;
+  const boundary = `related-${crypto.randomUUID()}`;
+  return [
+    `Content-Type: multipart/related; type="text/html"; boundary="${boundary}"`,
+    '',
+    `--${boundary}`,
+    ...htmlLines,
+    ...inline.flatMap((image) => [
+      `--${boundary}`,
+      `Content-Type: ${image.contentType}; name="${image.filename}"`,
+      'Content-Transfer-Encoding: base64',
+      `Content-ID: <${image.cid}>`,
+      `Content-Disposition: inline; filename="${image.filename}"`,
+      '',
+      wrap76(image.base64),
+    ]),
+    `--${boundary}--`,
+  ];
 }
 
 function buildMessage(config: SmtpConfig, message: SmtpMessage): string {
@@ -140,7 +183,7 @@ function buildMessage(config: SmtpConfig, message: SmtpMessage): string {
       '.',
     ].join('\r\n');
   }
-  const boundary = `indoor-map-${crypto.randomUUID()}`;
+  const boundary = `alternative-${crypto.randomUUID()}`;
   return [
     ...headers,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
@@ -151,10 +194,7 @@ function buildMessage(config: SmtpConfig, message: SmtpMessage): string {
     '',
     dotStuff(message.text),
     `--${boundary}`,
-    'Content-Type: text/html; charset=utf-8',
-    'Content-Transfer-Encoding: base64',
-    '',
-    base64Lines(message.html),
+    ...htmlPart(message.html, message.inline ?? []),
     `--${boundary}--`,
     '.',
   ].join('\r\n');
@@ -182,7 +222,7 @@ async function deliver(config: SmtpConfig, message: SmtpMessage): Promise<void> 
     const greeting = await session.reply();
     if (greeting.code !== 220)
       throw new SmtpError('rejected', `Salam SMTP tidak dikenal: ${greeting.text}`);
-    let capabilities = await session.command('EHLO indoor-map', [250]);
+    let capabilities = await session.command('EHLO panduarah', [250]);
 
     if (config.port !== 465 && /STARTTLS/i.test(capabilities)) {
       await session.command('STARTTLS', [220]);
@@ -191,7 +231,7 @@ async function deliver(config: SmtpConfig, message: SmtpMessage): Promise<void> 
       } catch {
         throw new SmtpError('tls', 'Gagal membuat koneksi aman (TLS) ke server SMTP.');
       }
-      capabilities = await session.command('EHLO indoor-map', [250]);
+      capabilities = await session.command('EHLO panduarah', [250]);
     }
 
     if (config.username) {
