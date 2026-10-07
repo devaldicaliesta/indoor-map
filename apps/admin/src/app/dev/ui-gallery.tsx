@@ -52,6 +52,7 @@ import {
 import { MoreHorizontalIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { BrandGallery } from './gallery-brand';
+import { DataTableGallery } from './gallery-data-table';
 import { Section } from './gallery-section';
 
 const TOKENS = [
@@ -308,6 +309,8 @@ export function UiGalleryPage() {
               </TableBody>
             </Table>
           </Section>
+
+          <DataTableGallery />
 
           <Section title="Tab">
             <Tabs defaultValue="display">
