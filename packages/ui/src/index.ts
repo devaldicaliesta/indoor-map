@@ -2,6 +2,7 @@ export { BrandLogo, BrandSymbol } from './brand/brand-logo';
 export { PRODUCT_NAME, PRODUCT_TAGLINE, VENDOR_EMAIL } from './brand/product';
 export * from './components/badge';
 export * from './components/button';
+export * from './components/data-table';
 export * from './components/dialog';
 export * from './components/dropdown-menu';
 export * from './components/empty-state';

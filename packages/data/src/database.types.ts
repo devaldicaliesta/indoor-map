@@ -1635,6 +1635,31 @@ export type Database = {
         };
         Returns: string;
       };
+      search_audit_events: {
+        Args: {
+          p_actions?: string[];
+          p_from?: string;
+          p_query?: string;
+          p_time_zone?: string;
+          p_to?: string;
+          p_user_id?: string;
+        };
+        Returns: {
+          action: string;
+          details: NonNullable<Json>;
+          entity: string | null;
+          entity_id: string | null;
+          id: number;
+          occurred_at: string;
+          user_id: string | null;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'audit_events';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       set_search_aliases: {
         Args: {
           p_keywords: string[];
