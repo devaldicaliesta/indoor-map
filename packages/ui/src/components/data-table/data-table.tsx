@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { useEffect } from 'react';
 import { cn } from '../../lib/utils';
 import { Button } from '../button';
@@ -36,7 +36,8 @@ export interface DataTableProps<Row> {
   onRetry?: () => void;
   /** Keadaan kosong saat belum ada data sama sekali, dengan arahan langkah berikutnya. */
   empty: ReactNode;
-  rowClassName?: (row: Row) => string | undefined;
+  /** Atribut tambahan baris, mis. seret-lepas untuk mengubah urutan. */
+  rowProps?: (row: Row) => Omit<ComponentProps<'tr'>, 'children'>;
   /** Jumlah baris kerangka saat memuat pertama kali. */
   skeletonRows?: number;
 }
@@ -60,7 +61,7 @@ export function DataTable<Row>({
   error = null,
   onRetry,
   empty,
-  rowClassName,
+  rowProps,
   skeletonRows = 5,
 }: DataTableProps<Row>) {
   const { page, size } = table.state;
@@ -130,7 +131,7 @@ export function DataTable<Row>({
         {header}
         <TableBody className={cn(loading && 'opacity-60')}>
           {rows.map((row) => (
-            <TableRow key={rowKey(row)} className={rowClassName?.(row)}>
+            <TableRow key={rowKey(row)} {...rowProps?.(row)}>
               {columns.map((column) => (
                 <TableCell key={column.id} className={column.className}>
                   {column.cell(row)}

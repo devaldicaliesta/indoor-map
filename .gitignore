@@ -24,3 +24,7 @@ e2e/test-results
 deploy/backups
 deploy/certs
 deploy/ca/*.crt
+
+# Python (services/cad-converter)
+__pycache__/
+*.pyc

@@ -11,7 +11,6 @@ import type {
   VenueId,
 } from './ids';
 import { checkUniqueName, type NameProblem, sortByOrder } from './names';
-import { normalizeSearchText } from './search';
 import type { SnapshotFieldValue } from './snapshot';
 
 /** Sama dengan enum `location_status` di migrasi 0001. Status diubah lewat T-304. */
@@ -214,63 +213,7 @@ export function orderedUnits(units: readonly LocationUnit[]): LocationUnit[] {
 /** Nilai filter gedung untuk unit di lapisan Area Luar (tidak punya gedung). */
 export const OUTDOOR_BUILDING = 'outdoor';
 
-/** Semua filter berlaku bersamaan. */
-export interface LocationFilter {
-  query: string;
-  categoryId: CategoryId | null;
-  building: BuildingId | typeof OUTDOOR_BUILDING | null;
-  floorId: FloorId | null;
-  /** Hanya lokasi yang belum tertaut ke unit. */
-  unlinkedOnly: boolean;
-}
-
-export const EMPTY_LOCATION_FILTER: LocationFilter = {
-  query: '',
-  categoryId: null,
-  building: null,
-  floorId: null,
-  unlinkedOnly: false,
-};
-
-function inBuilding(unit: LocationUnit, building: LocationFilter['building']): boolean {
-  if (building === null) return true;
-  return building === OUTDOOR_BUILDING ? unit.buildingId === null : unit.buildingId === building;
-}
-
-/**
- * Gedung dan lantai cocok bila salah satu unit lokasi ada di sana. Pencarian (tanpa
- * membedakan huruf besar/kecil dan diakritik) mencakup nama, kode lokasi, dan kode unit.
- */
-export function matchesLocationFilter(location: Location, filter: LocationFilter): boolean {
-  if (filter.unlinkedOnly && location.units.length > 0) return false;
-  if (filter.categoryId && !location.categoryIds.includes(filter.categoryId)) return false;
-  if (filter.building !== null || filter.floorId !== null) {
-    const placed = location.units.some(
-      (unit) =>
-        inBuilding(unit, filter.building) &&
-        (filter.floorId === null || unit.floorId === filter.floorId),
-    );
-    if (!placed) return false;
-  }
-  const query = normalizeSearchText(filter.query);
-  if (!query) return true;
-  return [location.name, location.code ?? '', ...location.units.map((u) => u.unitCode)].some(
-    (text) => normalizeSearchText(text).includes(query),
-  );
-}
-
 const collator = new Intl.Collator('id-ID', { numeric: true, sensitivity: 'base' });
-
-export function filterLocations(
-  locations: readonly Location[],
-  filter: LocationFilter,
-): Location[] {
-  return locations
-    .filter((location) => matchesLocationFilter(location, filter))
-    .sort(
-      (a, b) => collator.compare(a.name, b.name) || collator.compare(a.code ?? '', b.code ?? ''),
-    );
-}
 
 /** Unit di venue beserta lokasi aktif yang memakainya, untuk memilih unit lokasi. */
 export interface VenueUnit {

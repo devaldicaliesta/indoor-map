@@ -1,15 +1,15 @@
 # T-012 · Catatan peristiwa penting — bukti E2E
 
-Spec: `e2e/tests/admin/verify/T-012-audit-log.spec.ts`. Hasil: **lulus 3 run beruntun** (2 test, 2026-10-02).
+Spec: `e2e/tests/admin/verify/T-012-audit-log.spec.ts`. Hasil: **lulus 3 run beruntun** (2 test, 2026-10-02; diulang 2026-10-07 setelah T-503: Log audit kini `DataTable` yang disaring dan dibagi halaman di server, filter Aksi banyak pilihan, lulus 3 run beruntun).
 Test case: TC-AUTH-03 (gagal masuk tercatat), TC-AUTH-08 (role/nonaktif tercatat), TC-SEC-09 (Catatan hanya Super Admin), TC-SEC-47 (log tanpa rahasia).
 
 Peristiwa nyata dibuat di test: pengguna undangan gagal masuk 2×, lalu masuk; Super Admin mengubah rolenya Viewer → Editor dan menonaktifkannya; URL publik Visitor diubah lalu dikembalikan; fixture `publishedVenue` menerbitkan versi 1.
 
 | Gambar | Langkah |
 | --- | --- |
-| [01](01-catatan-semua.png) | Semua aksi: gagal masuk (merah, "password salah (1×/2×)"), masuk, role diubah, dinonaktifkan, pengaturan diubah, publish — terbaru di atas |
-| [02](02-filter-role-diubah.png) | Filter "Role diubah": hanya baris itu; keterangan menyebut pengguna yang diubah, nama panjang membungkus |
-| [03](03-filter-gagal-masuk.png) | Filter "Gagal masuk": 2 baris untuk pengguna uji |
+| [01](01-catatan-semua.png) | Cari email pengguna uji (detail peristiwa ikut dicari di server): gagal masuk (merah, "password salah (1×/2×)"), masuk, role diubah, dinonaktifkan — terbaru di atas. Pengaturan diubah dan publish diperiksa lewat filter Aksi |
+| [02](02-filter-role-diubah.png) | Filter Aksi "Role diubah": hanya baris itu; keterangan menyebut pengguna yang diubah, nama panjang membungkus |
+| [03](03-filter-gagal-masuk.png) | Filter Aksi: "Role diubah" dilepas, "Gagal masuk" dicentang (dua klik cepat): 2 baris untuk pengguna uji |
 
 Password yang salah tidak pernah tercatat atau tampil. Admin tidak melihat tab Catatan (penolakan baca di server diuji T-009a).
 

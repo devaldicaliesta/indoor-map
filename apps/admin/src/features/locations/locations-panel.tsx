@@ -1,9 +1,9 @@
 import {
+  type BuildingId,
+  BuildingIdSchema,
   can,
-  EMPTY_LOCATION_FILTER,
   type FeatureId,
   FeatureIdSchema,
-  filterLocations,
   type Location,
   LocationIdSchema,
   orderedUnits,
@@ -11,29 +11,33 @@ import {
 } from '@indoor/domain';
 import {
   Button,
+  type DataColumn,
+  DataTable,
   EmptyState,
-  Skeleton,
+  type FilterUpdate,
   StatusDot,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  type TableController,
 } from '@indoor/ui';
 import { TriangleAlertIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Can, useRole } from '../../app/auth/can';
+import { useTableState } from '../../hooks/use-table-state';
 import { ImportDialog } from '../import/import-dialog';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
+import { useFloors } from '../venues/floors/queries';
 import { DeleteLocationDialog } from './delete-location-dialog';
 import { buildingNames, floorNames, LOCATION_STATUS_LABELS, LOCATION_STATUS_TONE } from './labels';
-import { LocationFilters } from './location-filters';
 import { LocationSheet } from './location-sheet';
-import { useCategories, useLocations, useLocationTypes, useVenueUnits } from './queries';
-
-const PAGE_SIZE = 50;
+import { LOCATION_FILTER, locationFilters, toLocationPageFilters } from './location-table';
+import {
+  useCategories,
+  useLocation,
+  useLocationCodes,
+  useLocationPage,
+  useLocationTypes,
+  useVenueUnits,
+} from './queries';
 
 type Open =
   | { kind: 'form'; location: Location | null; unitId: FeatureId | null }
@@ -58,183 +62,184 @@ function UnitCell({ location }: { location: Location }) {
   );
 }
 
-/** Lokasi dari tautan editor: `?location=<id>` membuka lokasi, `?unit=<id>` membuat lokasi untuk unit itu. */
-function useDeepLink(locations: readonly Location[] | undefined, open: (value: Open) => void) {
+/**
+ * Tautan dari editor: `?location=<id>` membuka lokasi (walau di luar halaman tabel saat ini),
+ * `?unit=<id>` membuat lokasi untuk unit itu. Parameter tabel lain di URL tetap.
+ */
+function useDeepLink(venueId: VenueId, open: (value: Open) => void) {
   const [params, setParams] = useSearchParams();
   const locationId = LocationIdSchema.safeParse(params.get('location'));
   const unitId = FeatureIdSchema.safeParse(params.get('unit'));
+  const target = useLocation(venueId, locationId.success ? locationId.data : null);
   useEffect(() => {
-    if (!locations || (!locationId.success && !unitId.success)) return;
-    const found = locationId.success ? locations.find((l) => l.id === locationId.data) : undefined;
-    if (found) open({ kind: 'form', location: found, unitId: null });
+    if (!unitId.success && (!locationId.success || target.isPending)) return;
+    if (target.data) open({ kind: 'form', location: target.data, unitId: null });
     else if (unitId.success) open({ kind: 'form', location: null, unitId: unitId.data });
-    setParams({}, { replace: true });
+    setParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        next.delete('location');
+        next.delete('unit');
+        return next;
+      },
+      { replace: true },
+    );
   }, [
-    locations,
     locationId.success,
-    locationId.data,
     unitId.success,
     unitId.data,
+    target.isPending,
+    target.data,
     open,
     setParams,
   ]);
 }
 
+/** Gedung terpilih di URL (bukan Area Luar), untuk pilihan filter lantai. */
+function useSelectedBuilding(): BuildingId | null {
+  const [params] = useSearchParams();
+  const parsed = BuildingIdSchema.safeParse(params.get(LOCATION_FILTER.building));
+  return parsed.success ? parsed.data : null;
+}
+
 export function LocationsPanel({ venueId }: { venueId: VenueId }) {
   const role = useRole();
   const canEdit = role !== null && can(role, 'location.edit');
-  const locations = useLocations(venueId);
   const categories = useCategories(venueId);
   const types = useLocationTypes(venueId);
-  const [importing, setImporting] = useState(false);
-  const typeName = (id: string) => types.data?.find((t) => t.id === id)?.name ?? '';
   const units = useVenueUnits(venueId);
+  const codes = useLocationCodes(venueId);
   const buildings = useBuildings(venueId);
   const outdoorName = useOutdoorLayer(venueId).data?.name ?? 'Area Luar';
-  const [filter, setFilter] = useState(EMPTY_LOCATION_FILTER);
-  const [page, setPage] = useState(0);
+  const floors = useFloors(useSelectedBuilding()).data;
+  const [importing, setImporting] = useState(false);
   const [open, setOpen] = useState<Open>(null);
-  useDeepLink(locations.data, setOpen);
+  useDeepLink(venueId, setOpen);
 
-  const all = locations.data ?? [];
-  const filtered = useMemo(() => filterLocations(all, filter), [all, filter]);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const current = Math.min(page, pageCount - 1);
-  const rows = filtered.slice(current * PAGE_SIZE, (current + 1) * PAGE_SIZE);
+  const filters = locationFilters({
+    categories: categories.data,
+    types: types.data,
+    buildings: buildings.data,
+    outdoorName,
+    floors,
+  });
+  const table = useTableState({ filters });
+  // Ganti gedung mengosongkan lantai dalam satu perubahan URL (lantai milik gedung lama).
+  const controller = useMemo<TableController>(
+    () => ({
+      ...table,
+      setFilter: (key: string, update: FilterUpdate) =>
+        key === LOCATION_FILTER.building
+          ? table.setFilters({ [key]: update, [LOCATION_FILTER.floor]: [] })
+          : table.setFilter(key, update),
+    }),
+    [table],
+  );
+  const { q, page, size } = table.state;
+  const result = useLocationPage(venueId, {
+    q,
+    filters: toLocationPageFilters(table.state),
+    page,
+    size,
+  });
+
+  const typeName = (id: string) => types.data?.find((t) => t.id === id)?.name ?? '';
   const categoryName = new Map((categories.data ?? []).map((c) => [c.id, c.name]));
+  const columns: DataColumn<Location>[] = [
+    { id: 'code', header: 'Kode', cell: (l) => l.code ?? '—', className: 'font-mono' },
+    {
+      id: 'name',
+      header: 'Nama',
+      className: 'min-w-48 whitespace-normal',
+      cell: (l) => {
+        const text = l.categoryIds.flatMap((id) => categoryName.get(id) ?? []).join(' · ');
+        return (
+          <>
+            <span className="font-bold">{l.name}</span>
+            {text ? <span className="block text-ink-muted text-sm">{text}</span> : null}
+          </>
+        );
+      },
+    },
+    { id: 'type', header: 'Tipe', cell: (l) => typeName(l.locationTypeId) },
+    {
+      id: 'building',
+      header: 'Gedung',
+      cell: (l) => buildingNames(l.units, outdoorName).join(', ') || '—',
+    },
+    { id: 'floor', header: 'Lantai', cell: (l) => floorNames(l.units).join(', ') || '—' },
+    { id: 'unit', header: 'Unit', cell: (l) => <UnitCell location={l} /> },
+    {
+      id: 'status',
+      header: 'Status',
+      cell: (l) => (
+        <StatusDot
+          tone={LOCATION_STATUS_TONE[l.status].tone}
+          hollow={LOCATION_STATUS_TONE[l.status].hollow}
+        >
+          {LOCATION_STATUS_LABELS[l.status]}
+        </StatusDot>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Aksi',
+      className: 'text-right',
+      cell: (location) => (
+        <div className="flex justify-end gap-2">
+          <Button size="sm" onClick={() => setOpen({ kind: 'form', location, unitId: null })}>
+            {canEdit ? 'Ubah' : 'Lihat'}
+          </Button>
+          {canEdit ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-danger"
+              onClick={() => setOpen({ kind: 'delete', location })}
+            >
+              Hapus
+            </Button>
+          ) : null}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="grid gap-4">
-      <div className="flex items-start gap-4">
-        <div className="min-w-0 flex-1">
-          <LocationFilters
-            value={filter}
-            categories={categories.data ?? []}
-            buildings={buildings.data ?? []}
-            outdoorName={outdoorName}
-            onChange={(next) => {
-              setFilter(next);
-              setPage(0);
-            }}
+      <DataTable
+        label="Lokasi"
+        columns={columns}
+        rows={result.data?.rows}
+        rowKey={(l) => l.id}
+        total={result.data?.total ?? 0}
+        table={controller}
+        search={{ placeholder: 'Cari nama, kode lokasi, atau kode unit' }}
+        filters={filters}
+        loading={result.isFetching}
+        error={result.error?.message ?? null}
+        onRetry={() => void result.refetch()}
+        actions={
+          <Can action="location.edit">
+            <Button disabled={!types.data?.length} onClick={() => setImporting(true)}>
+              Import
+            </Button>
+            <Button
+              variant="primary"
+              disabled={!types.data?.length}
+              onClick={() => setOpen({ kind: 'form', location: null, unitId: null })}
+            >
+              Tambah lokasi
+            </Button>
+          </Can>
+        }
+        empty={
+          <EmptyState
+            title="Belum ada lokasi"
+            description="Tambah lokasi pertama, lalu tautkan ke unit yang sudah digambar di Editor Peta."
           />
-        </div>
-        <Can action="location.edit">
-          <Button disabled={!types.data?.length} onClick={() => setImporting(true)}>
-            Import
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!types.data?.length}
-            onClick={() => setOpen({ kind: 'form', location: null, unitId: null })}
-          >
-            Tambah lokasi
-          </Button>
-        </Can>
-      </div>
-      {locations.isPending ? (
-        <Skeleton className="h-40 w-full" />
-      ) : locations.error ? (
-        <p className="text-danger">{locations.error.message}</p>
-      ) : all.length === 0 ? (
-        <EmptyState
-          title="Belum ada lokasi"
-          description="Tambah lokasi pertama, lalu tautkan ke unit yang sudah digambar di Editor Peta."
-        />
-      ) : (
-        <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Kode</TableHead>
-                <TableHead>Nama</TableHead>
-                <TableHead>Tipe</TableHead>
-                <TableHead>Gedung</TableHead>
-                <TableHead>Lantai</TableHead>
-                <TableHead>Unit</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((location) => {
-                const tone = LOCATION_STATUS_TONE[location.status];
-                const categoryText = location.categoryIds
-                  .flatMap((id) => categoryName.get(id) ?? [])
-                  .join(' · ');
-                return (
-                  <TableRow key={location.id}>
-                    <TableCell className="font-mono">{location.code ?? '—'}</TableCell>
-                    <TableCell className="min-w-48 whitespace-normal">
-                      <span className="font-bold">{location.name}</span>
-                      {categoryText ? (
-                        <span className="block text-ink-muted text-sm">{categoryText}</span>
-                      ) : null}
-                    </TableCell>
-                    <TableCell>{typeName(location.locationTypeId)}</TableCell>
-                    <TableCell>
-                      {buildingNames(location.units, outdoorName).join(', ') || '—'}
-                    </TableCell>
-                    <TableCell>{floorNames(location.units).join(', ') || '—'}</TableCell>
-                    <TableCell>
-                      <UnitCell location={location} />
-                    </TableCell>
-                    <TableCell>
-                      <StatusDot tone={tone.tone} hollow={tone.hollow}>
-                        {LOCATION_STATUS_LABELS[location.status]}
-                      </StatusDot>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => setOpen({ kind: 'form', location, unitId: null })}
-                        >
-                          {canEdit ? 'Ubah' : 'Lihat'}
-                        </Button>
-                        {canEdit ? (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-danger"
-                            onClick={() => setOpen({ kind: 'delete', location })}
-                          >
-                            Hapus
-                          </Button>
-                        ) : null}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-          <div className="flex items-center justify-end gap-2 text-sm">
-            <span className="font-mono tabular-nums">
-              {filtered.length === 0
-                ? 'Tidak ada lokasi yang cocok dengan filter.'
-                : `${current * PAGE_SIZE + 1}–${Math.min((current + 1) * PAGE_SIZE, filtered.length)} dari ${filtered.length}`}
-            </span>
-            <Button
-              size="sm"
-              variant="ghost"
-              aria-label="Halaman sebelumnya"
-              disabled={current === 0}
-              onClick={() => setPage(current - 1)}
-            >
-              ‹
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              aria-label="Halaman berikutnya"
-              disabled={current >= pageCount - 1}
-              onClick={() => setPage(current + 1)}
-            >
-              ›
-            </Button>
-          </div>
-        </>
-      )}
+        }
+      />
       {open?.kind === 'form' && types.data ? (
         <LocationSheet
           key={open.location?.id ?? `new-${open.unitId ?? ''}`}
@@ -243,7 +248,7 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
           location={open.location}
           initialUnitId={open.unitId}
           readOnly={!canEdit}
-          locations={all}
+          locations={codes.data ?? []}
           categories={categories.data ?? []}
           units={units.data ?? []}
           outdoorName={outdoorName}

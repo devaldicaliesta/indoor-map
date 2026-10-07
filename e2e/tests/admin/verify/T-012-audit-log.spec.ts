@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '../../../fixtures';
+import { DataTablePage } from '../../../pages/data-table';
 import { LoginPage } from '../../../pages/login-page';
 import { inviteUser } from '../../../support/auth-users';
 
@@ -13,8 +14,9 @@ async function capture(page: Page, name: string) {
 async function openAuditTab(page: Page) {
   await page.goto('/settings');
   await page.getByRole('tab', { name: 'Catatan' }).click();
-  await expect(page.getByLabel('Aksi')).toBeVisible();
-  await expect(page.locator('[data-slot="skeleton"]')).toHaveCount(0);
+  const audit = new DataTablePage(page, 'Log audit');
+  await audit.ready();
+  return audit;
 }
 
 test.describe('T-012 Catatan peristiwa penting', () => {
@@ -48,25 +50,28 @@ test.describe('T-012 Catatan peristiwa penting', () => {
     expect(publishedVenue.venue.id).toBeTruthy();
 
     await loginAs('super_admin');
-    await openAuditTab(page);
-    const rows = page.getByRole('row').filter({ hasText: user.email });
+    const audit = await openAuditTab(page);
+    // Pengaturan dan publish dilakukan Super Admin: dicari lewat filter aksi (log dibagi halaman).
+    await audit.check('Aksi', ['Pengaturan diubah']);
+    await expect(audit.rows.filter({ hasText: 'URL publik Visitor' }).first()).toBeVisible();
+    await audit.check('Aksi', ['Pengaturan diubah', 'Publish']);
+    await expect(audit.rows.first()).toContainText('Publish');
+    await audit.removeFilter(/Hapus filter Aksi/);
+
+    // Peristiwa akun undangan: cari emailnya (detail peristiwa ikut dicari di server).
+    await audit.searchFor(user.email);
+    const rows = audit.rows;
     await expect(rows.filter({ hasText: 'Gagal masuk' })).toHaveCount(2);
     await expect(rows.filter({ hasText: 'password salah (2×)' })).toHaveCount(1);
     await expect(rows.filter({ hasText: 'Masuk' }).filter({ hasNotText: 'Gagal' })).toHaveCount(1);
     await expect(rows.filter({ hasText: 'Role diubah' })).toContainText('Viewer → Editor');
     await expect(rows.filter({ hasText: 'Pengguna dinonaktifkan' })).toHaveCount(1);
-    await expect(
-      page.getByRole('row').filter({ hasText: 'URL publik Visitor' }).first(),
-    ).toBeVisible();
-    await expect(page.getByRole('row').filter({ hasText: 'Publish' }).first()).toBeVisible();
     await capture(page, '01-catatan-semua');
 
     // Filter aksi: hanya baris aksi itu.
-    await page.getByLabel('Aksi').click();
-    await page.getByRole('option', { name: 'Role diubah' }).click();
-    const body = page.locator('tbody');
-    await expect(body.getByRole('row').filter({ hasText: user.email })).toHaveCount(1);
-    const actions = await body.getByRole('row').locator('td:nth-child(2)').allTextContents();
+    await audit.check('Aksi', ['Role diubah']);
+    await expect(rows).toHaveCount(1);
+    const actions = await rows.locator('td:nth-child(2)').allTextContents();
     expect(new Set(actions)).toEqual(new Set(['Role diubah']));
     // Keterangan panjang (nama beraksen + email) membungkus, tidak melebar keluar halaman.
     const overflow = await page
@@ -75,9 +80,9 @@ test.describe('T-012 Catatan peristiwa penting', () => {
     expect(overflow).toBeLessThanOrEqual(0);
     await capture(page, '02-filter-role-diubah');
 
-    await page.getByLabel('Aksi').click();
-    await page.getByRole('option', { name: 'Gagal masuk' }).click();
-    await expect(body.getByRole('row').filter({ hasText: user.email })).toHaveCount(2);
+    // Pilihan ganda: lepas "Role diubah", centang "Gagal masuk".
+    await audit.check('Aksi', ['Role diubah', 'Gagal masuk']);
+    await expect(rows).toHaveCount(2);
     await capture(page, '03-filter-gagal-masuk');
 
     // Isi rahasia tidak pernah tampil (password yang salah tidak dicatat).

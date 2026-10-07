@@ -3,21 +3,20 @@ import type { VenueId } from '@indoor/domain';
 import {
   Badge,
   Button,
-  EmptyState,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  type DataColumn,
+  DataTable,
+  dateRangeOf,
+  type FilterDef,
   toast,
 } from '@indoor/ui';
 import { useState } from 'react';
 import { Can } from '../../app/auth/can';
 import { inVenueTime } from '../../app/format';
-import { usePublicationHistory, useRollback } from './queries';
+import { useTableState } from '../../hooks/use-table-state';
+import { usePublicationHistoryPage, useRollback } from './queries';
 import { ReleaseDialog } from './release-dialog';
+
+const FILTERS: FilterDef[] = [{ kind: 'dateRange', key: 'terbit', label: 'Terbit' }];
 
 function originLabel(entry: PublicationEntry) {
   return entry.origin === 'rollback' ? `Rollback dari v${entry.sourceVersion}` : 'Publish';
@@ -60,15 +59,55 @@ function RollbackDialog({
 
 /** Riwayat versi: nomor, waktu, penerbit, catatan, asal; versi lama bisa diaktifkan kembali. */
 export function VersionHistory({ venueId, timezone }: { venueId: VenueId; timezone: string }) {
-  const history = usePublicationHistory(venueId);
   const [target, setTarget] = useState<PublicationEntry | null>(null);
+  const table = useTableState({ filters: FILTERS, defaultSize: 10 });
+  const { q, page, size } = table.state;
+  const range = dateRangeOf(table.state.filters.terbit);
+  const history = usePublicationHistoryPage(venueId, {
+    q,
+    page,
+    size,
+    filters: { from: range.from || null, to: range.to || null, timeZone: timezone },
+  });
 
-  if (history.isPending) return <Skeleton className="h-32" />;
-  if (history.error) {
-    return (
-      <EmptyState title="Riwayat versi tidak bisa dimuat" description={history.error.message} />
-    );
-  }
+  const columns: DataColumn<PublicationEntry>[] = [
+    {
+      id: 'version',
+      header: 'Versi',
+      className: 'whitespace-nowrap font-bold font-mono',
+      cell: (entry) => (
+        <>
+          v{entry.version} {entry.isActive ? <Badge className="ml-1 font-sans">Aktif</Badge> : null}
+        </>
+      ),
+    },
+    {
+      id: 'time',
+      header: 'Waktu',
+      className: 'whitespace-nowrap',
+      cell: (entry) => inVenueTime(entry.publishedAt, timezone),
+    },
+    { id: 'publisher', header: 'Penerbit', cell: (entry) => entry.publisherName ?? '–' },
+    {
+      id: 'notes',
+      header: 'Catatan',
+      className: 'min-w-48 whitespace-pre-line',
+      cell: (entry) => entry.notes ?? '–',
+    },
+    { id: 'origin', header: 'Asal', className: 'whitespace-nowrap', cell: originLabel },
+    {
+      id: 'actions',
+      header: <span className="sr-only">Aksi</span>,
+      className: 'text-right',
+      cell: (entry) =>
+        entry.isActive ? null : (
+          <Can action="publish.rollback">
+            <Button onClick={() => setTarget(entry)}>Aktifkan kembali</Button>
+          </Can>
+        ),
+    },
+  ];
+
   return (
     <section
       aria-labelledby="history-title"
@@ -77,47 +116,20 @@ export function VersionHistory({ venueId, timezone }: { venueId: VenueId; timezo
       <h2 id="history-title" className="font-bold">
         Riwayat versi
       </h2>
-      {history.data.length === 0 ? (
-        <p className="text-ink-muted">Belum ada versi yang diterbitkan.</p>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Versi</TableHead>
-              <TableHead>Waktu</TableHead>
-              <TableHead>Penerbit</TableHead>
-              <TableHead>Catatan</TableHead>
-              <TableHead>Asal</TableHead>
-              <TableHead>
-                <span className="sr-only">Aksi</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {history.data.map((entry) => (
-              <TableRow key={entry.version}>
-                <TableCell className="whitespace-nowrap font-bold font-mono">
-                  v{entry.version}{' '}
-                  {entry.isActive ? <Badge className="ml-1 font-sans">Aktif</Badge> : null}
-                </TableCell>
-                <TableCell className="whitespace-nowrap">
-                  {inVenueTime(entry.publishedAt, timezone)}
-                </TableCell>
-                <TableCell>{entry.publisherName ?? '–'}</TableCell>
-                <TableCell className="min-w-48 whitespace-pre-line">{entry.notes ?? '–'}</TableCell>
-                <TableCell className="whitespace-nowrap">{originLabel(entry)}</TableCell>
-                <TableCell className="text-right">
-                  {entry.isActive ? null : (
-                    <Can action="publish.rollback">
-                      <Button onClick={() => setTarget(entry)}>Aktifkan kembali</Button>
-                    </Can>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+      <DataTable
+        label="Riwayat versi"
+        columns={columns}
+        rows={history.data?.rows}
+        rowKey={(entry) => String(entry.version)}
+        total={history.data?.total ?? 0}
+        table={table}
+        search={{ placeholder: 'Cari versi (v12), catatan, atau penerbit' }}
+        filters={FILTERS}
+        loading={history.isFetching}
+        error={history.error?.message ?? null}
+        onRetry={() => void history.refetch()}
+        empty={<p className="text-ink-muted">Belum ada versi yang diterbitkan.</p>}
+      />
       {target ? (
         <RollbackDialog venueId={venueId} entry={target} onClose={() => setTarget(null)} />
       ) : null}

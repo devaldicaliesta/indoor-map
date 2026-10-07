@@ -47,11 +47,16 @@ export interface TableState {
 /** Nilai baru filter, atau fungsi dari nilai terbaru (aman untuk klik beruntun yang cepat). */
 export type FilterUpdate = readonly string[] | ((current: readonly string[]) => readonly string[]);
 
-/** Keadaan tabel beserta pengubahnya; disediakan `useTableState` (status di URL). */
+/**
+ * Keadaan tabel beserta pengubahnya: `useTableState` di Admin (status di URL) atau
+ * `useLocalTableState` (di memori, untuk tabel di sheet dan dialog).
+ */
 export interface TableController {
   state: TableState;
   setQuery: (q: string) => void;
   setFilter: (key: string, update: FilterUpdate) => void;
+  /** Beberapa filter sekaligus dalam satu perubahan URL (mis. ganti gedung mengosongkan lantai). */
+  setFilters: (updates: Readonly<Record<string, FilterUpdate>>) => void;
   clearFilters: () => void;
   setPage: (page: number) => void;
   setSize: (size: PageSize) => void;
@@ -121,6 +126,20 @@ export function calendarDate(timestamp: string | Date, timeZone?: string): strin
     day: '2-digit',
     ...(timeZone ? { timeZone } : {}),
   }).format(new Date(timestamp));
+}
+
+/**
+ * Rentang setelah pengguna mengubah satu ujungnya. Bila ujung itu melewati ujung lain, ujung lain
+ * ikut bergeser ke tanggal yang sama; menukar keduanya membuat isian berpindah di depan pengguna.
+ */
+export function withRangeEnd(
+  range: { from: string; to: string },
+  end: 'from' | 'to',
+  value: string,
+): { from: string; to: string } {
+  if (end === 'from')
+    return { from: value, to: value && range.to && value > range.to ? value : range.to };
+  return { from: value && range.from && value < range.from ? value : range.from, to: value };
 }
 
 /** Waktu jatuh di rentang tanggal [dari, sampai] (inklusif); batas kosong berarti terbuka. */

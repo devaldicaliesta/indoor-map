@@ -1,7 +1,17 @@
-import type { FilterDef, FilterUpdate, PageSize, TableController, TableState } from '@indoor/ui';
+import {
+  type FilterDef,
+  type TableChange,
+  type TableController,
+  tableController,
+} from '@indoor/ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
-import { readTableState, type TableUrlOptions, writeTableState } from './table-url';
+import {
+  pendingAfterRender,
+  readTableState,
+  type TableUrlOptions,
+  writeTableState,
+} from './table-url';
 
 /** Identitas filter yang memengaruhi pembacaan URL (kunci, jenis, dan nilai pilihan). */
 const signature = (filters: readonly FilterDef[]) =>
@@ -31,12 +41,26 @@ export function useTableState(options: TableUrlOptions): TableController {
     [search, key, options.prefix, options.defaultSize],
   );
 
+  // `setSearchParams(fn)` memberi `fn` URL dari render terakhir, sehingga dua perubahan sebelum
+  // render berikutnya (dua centang cepat di menu filter) saling menimpa. URL yang sudah ditulis
+  // tetapi belum dirender menjadi dasar perubahan berikutnya.
+  const pending = useRef<string[]>([]);
+  useEffect(() => {
+    pending.current = pendingAfterRender(pending.current, search);
+  }, [search]);
+
   const update = useCallback(
-    (change: (state: TableState) => TableState) =>
+    (change: TableChange) =>
       setParams(
-        (previous) => {
-          const current = readTableState(previous, latest.current);
-          return writeTableState(previous, change(current), latest.current);
+        (rendered) => {
+          const base = new URLSearchParams(pending.current.at(-1) ?? rendered);
+          const next = writeTableState(
+            base,
+            change(readTableState(base, latest.current)),
+            latest.current,
+          );
+          pending.current = [...pending.current, next.toString()];
+          return next;
         },
         { replace: true },
       ),
@@ -50,19 +74,5 @@ export function useTableState(options: TableUrlOptions): TableController {
     if (normalized.toString() !== current.toString()) setParams(normalized, { replace: true });
   }, [search, state, setParams]);
 
-  return useMemo(
-    () => ({
-      state,
-      setQuery: (q: string) => update((s) => ({ ...s, q, page: 1 })),
-      setFilter: (filterKey: string, change: FilterUpdate) =>
-        update((s) => {
-          const values = typeof change === 'function' ? change(s.filters[filterKey] ?? []) : change;
-          return { ...s, filters: { ...s.filters, [filterKey]: values }, page: 1 };
-        }),
-      clearFilters: () => update((s) => ({ ...s, q: '', filters: {}, page: 1 })),
-      setPage: (page: number) => update((s) => ({ ...s, page })),
-      setSize: (size: PageSize) => update((s) => ({ ...s, size, page: 1 })),
-    }),
-    [state, update],
-  );
+  return useMemo(() => tableController(state, update), [state, update]);
 }

@@ -11,18 +11,17 @@ import {
 import { instructionPlaceholders } from '@indoor/routing';
 import {
   Button,
+  type DataColumn,
+  DataTable,
+  type FilterDef,
   Input,
+  queryRows,
   Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   toast,
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
 import { useRole } from '../../../app/auth/can';
+import { useTableState } from '../../../hooks/use-table-state';
 import { FormNotice } from '../../auth/auth-layout';
 import {
   ACTION_LABELS,
@@ -36,7 +35,23 @@ type Templates = Record<InstructionAction, InstructionText>;
 
 const LANGUAGE_LABELS: Record<SnapshotLanguage, string> = { id: 'Indonesia', en: 'Inggris' };
 
-function TextCell({
+const FILTERS: FilterDef[] = [
+  {
+    kind: 'select',
+    key: 'status',
+    label: 'Status',
+    allLabel: 'Semua instruksi',
+    options: [
+      { value: 'diubah', label: 'Diubah dari bawaan' },
+      { value: 'bawaan', label: 'Sama dengan bawaan' },
+    ],
+  },
+];
+
+const placeholders = (action: InstructionAction) =>
+  instructionPlaceholders(action).map((name) => `{${name}}`);
+
+function TextField({
   action,
   language,
   text,
@@ -53,7 +68,7 @@ function TextCell({
 }) {
   const id = `instruction-${action}-${language}`;
   return (
-    <TableCell className="min-w-56 align-top">
+    <>
       <Input
         id={id}
         aria-label={`${ACTION_LABELS[action]} (${LANGUAGE_LABELS[language]})`}
@@ -69,7 +84,7 @@ function TextCell({
       >
         {error ?? previewInstruction(action, text, language)}
       </p>
-    </TableCell>
+    </>
   );
 }
 
@@ -84,6 +99,7 @@ function InstructionsForm({
 }) {
   const canEdit = role !== null && can(role, 'settings.edit');
   const [values, setValues] = useState<Templates>(templates);
+  const table = useTableState({ filters: FILTERS });
   const save = useSaveInstructionTemplates(venueId);
   const errors = Object.fromEntries(
     INSTRUCTION_ACTIONS.map((action) => [action, validateInstruction(action, values[action])]),
@@ -109,62 +125,98 @@ function InstructionsForm({
   const reset = (action: InstructionAction) =>
     setValues((v) => ({ ...v, [action]: DEFAULT_INSTRUCTION_TEMPLATES[action] }));
 
+  const hasErrors = (action: InstructionAction) => Object.keys(errors[action]).length > 0;
+  const result = queryRows(INSTRUCTION_ACTIONS, table.state, {
+    text: (action) => [
+      ACTION_LABELS[action],
+      ...placeholders(action),
+      ...Object.values(values[action]),
+    ],
+    filters: {
+      status: (action, selected) => selected.includes(isDefault(action) ? 'bawaan' : 'diubah'),
+    },
+  });
+  // Isian yang salah bisa tersembunyi oleh cari/filter; tanpa pesan ini tombol simpan mati tanpa alasan.
+  const hiddenErrors = INSTRUCTION_ACTIONS.filter(
+    (action) => hasErrors(action) && !result.rows.includes(action),
+  );
+
+  const columns: DataColumn<InstructionAction>[] = [
+    {
+      id: 'action',
+      header: 'Aksi',
+      className: 'align-top font-bold',
+      cell: (action) => ACTION_LABELS[action],
+    },
+    {
+      id: 'placeholders',
+      header: 'Placeholder',
+      className: 'align-top font-mono text-sm',
+      cell: (action) => placeholders(action).join(' '),
+    },
+    ...(['id', 'en'] as const).map(
+      (language): DataColumn<InstructionAction> => ({
+        id: language,
+        header: `Bahasa ${LANGUAGE_LABELS[language]}`,
+        className: 'min-w-56 align-top',
+        cell: (action) => (
+          <TextField
+            action={action}
+            language={language}
+            text={values[action]}
+            error={errors[action][language]}
+            disabled={!canEdit}
+            onChange={(value) => setText(action, language, value)}
+          />
+        ),
+      }),
+    ),
+    ...(canEdit
+      ? [
+          {
+            id: 'reset',
+            header: 'Aksi',
+            className: 'text-right align-top',
+            cell: (action: InstructionAction) => (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                aria-label={`Kembalikan ${ACTION_LABELS[action]} ke bawaan`}
+                disabled={isDefault(action)}
+                onClick={() => reset(action)}
+              >
+                Bawaan
+              </Button>
+            ),
+          },
+        ]
+      : []),
+  ];
+
   return (
     <form className="grid gap-4" onSubmit={submit} noValidate>
       <p className="max-w-prose text-ink-muted text-sm">
         Teks setiap langkah rute di Visitor dan test route. Teks Inggris yang kosong memakai teks
         Indonesia. Di bawah setiap isian tampil contoh kalimatnya.
       </p>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Aksi</TableHead>
-              <TableHead>Placeholder</TableHead>
-              <TableHead>Bahasa Indonesia</TableHead>
-              <TableHead>Bahasa Inggris</TableHead>
-              {canEdit ? <TableHead className="text-right">Aksi</TableHead> : null}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {INSTRUCTION_ACTIONS.map((action) => (
-              <TableRow key={action}>
-                <TableCell className="align-top font-bold">{ACTION_LABELS[action]}</TableCell>
-                <TableCell className="align-top font-mono text-sm">
-                  {instructionPlaceholders(action)
-                    .map((name) => `{${name}}`)
-                    .join(' ')}
-                </TableCell>
-                {(['id', 'en'] as const).map((language) => (
-                  <TextCell
-                    key={language}
-                    action={action}
-                    language={language}
-                    text={values[action]}
-                    error={errors[action][language]}
-                    disabled={!canEdit}
-                    onChange={(value) => setText(action, language, value)}
-                  />
-                ))}
-                {canEdit ? (
-                  <TableCell className="text-right align-top">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      aria-label={`Kembalikan ${ACTION_LABELS[action]} ke bawaan`}
-                      disabled={isDefault(action)}
-                      onClick={() => reset(action)}
-                    >
-                      Bawaan
-                    </Button>
-                  </TableCell>
-                ) : null}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        label="Template instruksi"
+        columns={columns}
+        rows={result.rows}
+        rowKey={(action) => action}
+        total={result.total}
+        table={table}
+        search={{ placeholder: 'Cari aksi, placeholder, atau teks instruksi' }}
+        filters={FILTERS}
+        empty={null}
+      />
+      {hiddenErrors.length > 0 ? (
+        <FormNotice tone="error">
+          Isian {hiddenErrors.map((action) => ACTION_LABELS[action]).join(', ')} belum benar dan
+          sedang tersembunyi oleh cari atau filter.
+        </FormNotice>
+      ) : null}
       {save.error ? <FormNotice tone="error">{save.error.message}</FormNotice> : null}
       {canEdit ? (
         <Button

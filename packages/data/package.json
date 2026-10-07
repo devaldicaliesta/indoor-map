@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./testing/full-venue": "./test/support/full-venue.ts"
+    "./testing/full-venue": "./test/support/full-venue.ts",
+    "./testing/large-venue": "./test/support/large-venue.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

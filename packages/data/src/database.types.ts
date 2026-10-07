@@ -1660,6 +1660,95 @@ export type Database = {
           isSetofReturn: true;
         };
       };
+      search_closures: {
+        Args: {
+          p_from?: string;
+          p_query?: string;
+          p_states?: string[];
+          p_time_zone?: string;
+          p_to?: string;
+          p_venue_id: string;
+        };
+        Returns: {
+          connector_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          edge_id: string | null;
+          ends_at: string | null;
+          feature_id: string | null;
+          id: string;
+          reason: string;
+          starts_at: string;
+          updated_at: string;
+          venue_id: string;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'closures';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      search_locations: {
+        Args: {
+          p_building?: string;
+          p_category_id?: string;
+          p_floor_id?: string;
+          p_query?: string;
+          p_statuses?: Database['public']['Enums']['location_status'][];
+          p_type_id?: string;
+          p_unlinked_only?: boolean;
+          p_venue_id: string;
+        };
+        Returns: {
+          code: string | null;
+          created_at: string;
+          custom_fields: NonNullable<Json>;
+          description: string | null;
+          id: string;
+          location_type_id: string;
+          logo_path: string | null;
+          name: string;
+          opening_date: string | null;
+          photo_paths: string[];
+          status: Database['public']['Enums']['location_status'];
+          updated_at: string;
+          venue_id: string;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'locations';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      search_publications: {
+        Args: {
+          p_from?: string;
+          p_query?: string;
+          p_time_zone?: string;
+          p_to?: string;
+          p_venue_id: string;
+        };
+        Returns: {
+          id: string;
+          is_active: boolean;
+          notes: string | null;
+          origin: Database['public']['Enums']['publication_origin'];
+          published_at: string;
+          published_by: string | null;
+          snapshot_path: string;
+          source_version: number | null;
+          venue_id: string;
+          version: number;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'publications';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       set_search_aliases: {
         Args: {
           p_keywords: string[];

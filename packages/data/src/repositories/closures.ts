@@ -1,7 +1,7 @@
-import type { Closure, ClosureInput, VenueId } from '@indoor/domain';
+import type { Closure, ClosureInput, ClosureStatus, VenueId } from '@indoor/domain';
 import type { Tables } from '../database.types';
 import { toDataError } from '../errors';
-import { fetchAllPages } from '../pagination';
+import { fetchAllPages, listPage, type Page, type PageQuery } from '../pagination';
 import type { Db } from '../supabase';
 
 type ClosureRow = Pick<
@@ -9,9 +9,23 @@ type ClosureRow = Pick<
   'id' | 'feature_id' | 'edge_id' | 'connector_id' | 'reason' | 'starts_at' | 'ends_at'
 >;
 
+/** Filter tabel Penutupan; keadaan dihitung server terhadap waktu sekarang. */
+export interface ClosurePageFilters {
+  states: readonly ClosureStatus[];
+  /** Rentang tanggal kalender (YYYY-MM-DD) yang beririsan dengan masa berlaku penutupan. */
+  from: string | null;
+  to: string | null;
+  timeZone: string;
+}
+
 export interface ClosuresRepository {
   /** Penutupan venue yang belum berakhir pada `now`: yang sedang berlaku dan yang terjadwal. */
   listCurrent(venueId: VenueId, now: Date): Promise<Closure[]>;
+  /**
+   * Satu halaman penutupan (termasuk yang sudah selesai), terbaru mulai lebih dulu, disaring di
+   * server (`search_closures`): kata kunci mencari alasan dan nama sasaran.
+   */
+  listPage(venueId: VenueId, query: PageQuery<ClosurePageFilters>): Promise<Page<Closure>>;
   create(venueId: VenueId, input: ClosureInput): Promise<Closure>;
   /** Mengakhiri sekarang atau memperpanjang; `null` = sampai diakhiri. */
   setEndsAt(id: string, endsAt: string | null): Promise<Closure>;
@@ -60,6 +74,27 @@ export function createClosuresRepository(db: Db): ClosuresRepository {
           .range(from, to),
       );
       return rows.map(mapClosureRow);
+    },
+    listPage(venueId, { q, filters, page, size }) {
+      const args = {
+        p_venue_id: venueId,
+        p_query: q,
+        ...(filters.states.length ? { p_states: [...filters.states] } : {}),
+        ...(filters.from ? { p_from: filters.from } : {}),
+        ...(filters.to ? { p_to: filters.to } : {}),
+        p_time_zone: filters.timeZone,
+      };
+      return listPage(
+        (from, to) =>
+          db
+            .rpc('search_closures', args, { count: 'exact' })
+            .select(COLUMNS)
+            .order('starts_at', { ascending: false })
+            .order('id')
+            .range(from, to),
+        { page, size },
+        (rows) => rows.map(mapClosureRow),
+      );
     },
     async create(venueId, input) {
       const { data, error } = await db

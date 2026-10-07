@@ -74,7 +74,8 @@ export function LocationSheet({
   location: Location | null;
   initialUnitId: FeatureId | null;
   readOnly: boolean;
-  locations: readonly Location[];
+  /** Kode dan nama lokasi lain di venue, untuk memeriksa kode ganda. */
+  locations: readonly { id: string; code: string | null; name: string }[];
   categories: readonly CategoryWithUsage[];
   units: readonly VenueUnit[];
   outdoorName: string;

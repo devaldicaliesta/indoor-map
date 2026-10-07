@@ -53,5 +53,9 @@ docker run --rm --network host -v "$PWD/k6:/scripts" \
   grafana/k6 run /scripts/load.js
 ```
 
+Skenario `tables` (T-503) membuka tabel server Lokasi, Penutupan, Riwayat publish, dan Log audit
+(cari, filter, pindah halaman) dengan `LOAD_TABLE_USERS` Admin (bawaan 10); ambang p95 < 500 ms.
+Lama tahan beban diatur `LOAD_HOLD` (bawaan `2m`).
+
 `pnpm check` hanya menjalankan test generator fixture (`test/`); spec di atas dijalankan manual
 karena butuh instalasi yang berjalan.

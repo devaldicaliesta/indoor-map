@@ -1,4 +1,5 @@
 export { type DataColumn, DataTable, type DataTableProps } from './data-table';
+export { type TableChange, tableController, useLocalTableState } from './table-controller';
 export {
   type ClientPage,
   type ClientQuery,
@@ -24,4 +25,5 @@ export {
   type TableController,
   type TableState,
   withinDateRange,
+  withRangeEnd,
 } from './table-state';

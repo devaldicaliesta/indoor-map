@@ -1,4 +1,4 @@
-import type { LocationImages } from '@indoor/data';
+import type { LocationImages, LocationPageFilters, PageQuery } from '@indoor/data';
 import type {
   CategoryId,
   CategoryInput,
@@ -9,7 +9,7 @@ import type {
   LocationTypeInput,
   VenueId,
 } from '@indoor/domain';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { data } from '../../app/data-client';
 
 const keys = {
@@ -89,6 +89,35 @@ export function useLocations(venueId: VenueId) {
   return useQuery({
     queryKey: keys.locations(venueId),
     queryFn: () => data.locations.list(venueId),
+  });
+}
+
+/**
+ * Satu halaman tabel Lokasi dari server. Kuncinya di bawah `locations` sehingga ikut
+ * diperbarui setiap kali lokasi berubah; halaman lama tetap tampil selama halaman baru dimuat.
+ */
+export function useLocationPage(venueId: VenueId, query: PageQuery<LocationPageFilters>) {
+  return useQuery({
+    queryKey: [...keys.locations(venueId), 'page', query],
+    queryFn: () => data.locations.listPage(venueId, query),
+    placeholderData: keepPreviousData,
+  });
+}
+
+/** Lokasi dari tautan langsung `?location=<id>` (bisa di luar halaman tabel). */
+export function useLocation(venueId: VenueId, id: LocationId | null) {
+  return useQuery({
+    queryKey: [...keys.locations(venueId), 'one', id],
+    queryFn: () => (id ? data.locations.get(id) : null),
+    enabled: id !== null,
+  });
+}
+
+/** Kode dan nama semua lokasi untuk memeriksa kode ganda; dimuat saat formulir dibuka. */
+export function useLocationCodes(venueId: VenueId) {
+  return useQuery({
+    queryKey: [...keys.locations(venueId), 'codes'],
+    queryFn: () => data.locations.codes(venueId),
   });
 }
 

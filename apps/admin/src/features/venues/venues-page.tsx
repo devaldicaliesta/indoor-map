@@ -1,25 +1,25 @@
-import type { Venue } from '@indoor/domain';
+import { VENUE_TEMPLATES, VENUE_TYPES, type Venue } from '@indoor/domain';
 import {
   Button,
+  type DataColumn,
+  DataTable,
   EmptyState,
+  type FilterDef,
+  queryRows,
   Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from '@indoor/ui';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { Can } from '../../app/auth/can';
 import { data } from '../../app/data-client';
 import { inVenueTime } from '../../app/format';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
+import { useTableState } from '../../hooks/use-table-state';
 import { QuotaNotice, useQuotaBlock } from '../license/quota-notice';
 import { BuildingsPanel } from './buildings/buildings-panel';
 import { DeleteVenueDialog } from './delete-venue-dialog';
@@ -28,82 +28,140 @@ import { VenueFormDialog } from './venue-form-dialog';
 
 type Dialog = { kind: 'form'; venue: Venue | null } | { kind: 'delete'; venue: Venue } | null;
 
+/** Dua tabel di satu halaman (tab Gedung dan Semua venue): parameter URL diberi awalan. */
+const VENUE_PREFIX = 'v.';
+
+function venueFilters(venues: readonly Venue[] | undefined): FilterDef[] {
+  return [
+    {
+      kind: 'select',
+      key: 'tipe',
+      label: 'Tipe venue',
+      allLabel: 'Semua tipe venue',
+      options: VENUE_TYPES.map((value) => ({ value, label: VENUE_TEMPLATES[value].label })),
+    },
+    {
+      kind: 'select',
+      key: 'zona',
+      label: 'Zona waktu',
+      allLabel: 'Semua zona waktu',
+      options:
+        venues &&
+        [...new Set(venues.map((v) => v.timezone))]
+          .sort()
+          .map((value) => ({ value, label: value })),
+    },
+  ];
+}
+
 function VenuesTable({
+  actions,
   onEdit,
   onDelete,
 }: {
+  actions: ReactNode;
   onEdit: (v: Venue) => void;
   onDelete: (v: Venue) => void;
 }) {
   const venues = useVenuesDetailed();
-  if (venues.isPending) return <Skeleton className="h-40 w-full" />;
-  if (venues.error) return <p className="text-danger">{venues.error.message}</p>;
-  if (venues.data.length === 0) {
-    return (
-      <EmptyState
-        title="Belum ada venue"
-        description="Tambah venue pertama, lalu tambahkan gedung dan lantainya."
-      />
-    );
-  }
+  const filters = venueFilters(venues.data);
+  const table = useTableState({ filters, prefix: VENUE_PREFIX });
+  const result = venues.data
+    ? queryRows(venues.data, table.state, {
+        text: (v) => [v.name, v.address],
+        filters: {
+          tipe: (v, values) => values.includes(v.venueType),
+          zona: (v, values) => values.includes(v.timezone),
+        },
+      })
+    : undefined;
+  const columns: DataColumn<Venue>[] = [
+    {
+      id: 'logo',
+      header: <span className="sr-only">Logo</span>,
+      className: 'w-12',
+      cell: (venue) =>
+        venue.logoPath ? (
+          <img
+            src={data.venues.logoUrl(venue.logoPath)}
+            alt=""
+            className="size-8 rounded-sm border border-line object-contain"
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="block size-8 rounded-sm border border-line border-dashed"
+          />
+        ),
+    },
+    {
+      id: 'name',
+      header: 'Nama',
+      className: 'min-w-48 whitespace-normal font-bold',
+      cell: (venue) => venue.name,
+    },
+    { id: 'type', header: 'Tipe', cell: (venue) => VENUE_TEMPLATES[venue.venueType].label },
+    {
+      id: 'address',
+      header: 'Alamat',
+      className: 'max-w-72 truncate',
+      cell: (venue) => venue.address ?? '—',
+    },
+    {
+      id: 'timezone',
+      header: 'Zona waktu',
+      className: 'font-mono',
+      cell: (venue) => venue.timezone,
+    },
+    {
+      id: 'updated',
+      header: 'Diubah (waktu venue)',
+      className: 'font-mono tabular-nums',
+      cell: (venue) => inVenueTime(venue.updatedAt, venue.timezone),
+    },
+    {
+      id: 'actions',
+      header: 'Aksi',
+      className: 'text-right',
+      cell: (venue) => (
+        <Can action="venue.edit">
+          <div className="flex justify-end gap-2">
+            <Button size="sm" onClick={() => onEdit(venue)}>
+              Ubah
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-danger"
+              onClick={() => onDelete(venue)}
+            >
+              Hapus
+            </Button>
+          </div>
+        </Can>
+      ),
+    },
+  ];
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-12">
-            <span className="sr-only">Logo</span>
-          </TableHead>
-          <TableHead>Nama</TableHead>
-          <TableHead>Alamat</TableHead>
-          <TableHead>Zona waktu</TableHead>
-          <TableHead>Diubah (waktu venue)</TableHead>
-          <TableHead className="text-right">Aksi</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {venues.data.map((venue) => (
-          <TableRow key={venue.id}>
-            <TableCell>
-              {venue.logoPath ? (
-                <img
-                  src={data.venues.logoUrl(venue.logoPath)}
-                  alt=""
-                  className="size-8 rounded-sm border border-line object-contain"
-                />
-              ) : (
-                <span
-                  aria-hidden="true"
-                  className="block size-8 rounded-sm border border-line border-dashed"
-                />
-              )}
-            </TableCell>
-            <TableCell className="min-w-48 whitespace-normal font-bold">{venue.name}</TableCell>
-            <TableCell className="max-w-72 truncate">{venue.address ?? '—'}</TableCell>
-            <TableCell className="font-mono">{venue.timezone}</TableCell>
-            <TableCell className="font-mono tabular-nums">
-              {inVenueTime(venue.updatedAt, venue.timezone)}
-            </TableCell>
-            <TableCell className="text-right">
-              <Can action="venue.edit">
-                <div className="flex justify-end gap-2">
-                  <Button size="sm" onClick={() => onEdit(venue)}>
-                    Ubah
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-danger"
-                    onClick={() => onDelete(venue)}
-                  >
-                    Hapus
-                  </Button>
-                </div>
-              </Can>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <DataTable
+      label="Venue"
+      columns={columns}
+      rows={result?.rows}
+      rowKey={(venue) => venue.id}
+      total={result?.total ?? 0}
+      table={table}
+      search={{ placeholder: 'Cari nama atau alamat venue' }}
+      filters={filters}
+      actions={actions}
+      error={venues.error?.message ?? null}
+      onRetry={() => void venues.refetch()}
+      empty={
+        <EmptyState
+          title="Belum ada venue"
+          description="Tambah venue pertama, lalu tambahkan gedung dan lantainya."
+        />
+      }
+    />
   );
 }
 
@@ -126,11 +184,19 @@ function SelectedVenueBuildings() {
 export function VenuesPage() {
   const [dialog, setDialog] = useState<Dialog>(null);
   const venueQuota = useQuotaBlock('venues');
+  // Tab di URL agar muat ulang membuka tab yang sama beserta cari/filter tabelnya.
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('tab') === 'venues' ? 'venues' : 'buildings';
   return (
     <ModuleRoute module="venues">
       {(access) => (
         <ModulePage module="venues" access={access}>
-          <Tabs defaultValue="buildings">
+          <Tabs
+            value={tab}
+            onValueChange={(value) =>
+              setParams(value === 'venues' ? { tab: value } : {}, { replace: true })
+            }
+          >
             <TabsList>
               <TabsTrigger value="buildings">Gedung</TabsTrigger>
               <TabsTrigger value="venues">Semua venue</TabsTrigger>
@@ -139,19 +205,19 @@ export function VenuesPage() {
               <SelectedVenueBuildings />
             </TabsContent>
             <TabsContent value="venues" className="grid gap-4">
-              <div className="flex items-center justify-end gap-3">
-                <Can action="venue.edit">
-                  <QuotaNotice message={venueQuota} />
-                  <Button
-                    variant="primary"
-                    disabled={venueQuota !== null}
-                    onClick={() => setDialog({ kind: 'form', venue: null })}
-                  >
-                    Tambah venue
-                  </Button>
-                </Can>
-              </div>
               <VenuesTable
+                actions={
+                  <Can action="venue.edit">
+                    <QuotaNotice message={venueQuota} />
+                    <Button
+                      variant="primary"
+                      disabled={venueQuota !== null}
+                      onClick={() => setDialog({ kind: 'form', venue: null })}
+                    >
+                      Tambah venue
+                    </Button>
+                  </Can>
+                }
                 onEdit={(venue) => setDialog({ kind: 'form', venue })}
                 onDelete={(venue) => setDialog({ kind: 'delete', venue })}
               />

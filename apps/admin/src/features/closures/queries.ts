@@ -1,10 +1,11 @@
+import type { ClosurePageFilters, PageQuery } from '@indoor/data';
 import type { ClosureInput, VenueId } from '@indoor/domain';
 import { buildRouteGraph, routeDataFromDraft } from '@indoor/routing';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { data } from '../../app/data-client';
 import { useConnectors, useVenueFloors } from '../editor/connectors/queries';
-import { closuresKey } from '../editor/graph/graph-queries';
+import { CLOSURE_REFRESH_MS, closuresKey } from '../editor/graph/graph-queries';
 import { editorQueues } from '../editor/session-helpers';
 import type { ClosurePlaces } from './closure-model';
 
@@ -57,6 +58,19 @@ export function useClosureNetwork(venueId: VenueId) {
     });
     return { places: network, routeGraph: buildRouteGraph(routeData) };
   }, [places, connectors, graph, features]);
+}
+
+/**
+ * Satu halaman tabel Penutupan dari server (termasuk yang sudah selesai). Keadaan dihitung
+ * server terhadap waktu sekarang, jadi dimuat ulang tiap menit seperti daftar di editor.
+ */
+export function useClosurePage(venueId: VenueId, query: PageQuery<ClosurePageFilters>) {
+  return useQuery({
+    queryKey: [...closuresKey(venueId), 'page', query],
+    queryFn: () => data.closures.listPage(venueId, query),
+    placeholderData: keepPreviousData,
+    refetchInterval: CLOSURE_REFRESH_MS,
+  });
 }
 
 export function useClosureMutations(venueId: VenueId) {
