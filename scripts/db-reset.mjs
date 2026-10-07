@@ -27,5 +27,7 @@ const pgOptions = [process.env.PGOPTIONS, `-c seed.admin_password=${escaped}`]
 const result = spawnSync('supabase', ['db', 'reset', ...process.argv.slice(2)], {
   stdio: 'inherit',
   env: { ...process.env, PGOPTIONS: pgOptions },
+  // Di Windows bin pnpm berupa supabase.cmd, yang hanya bisa dijalankan lewat shell.
+  shell: process.platform === 'win32',
 });
 process.exit(result.status ?? 1);
