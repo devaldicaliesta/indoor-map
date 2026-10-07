@@ -1,4 +1,3 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import type { Server } from 'node:http';
@@ -10,6 +9,7 @@ import { createVendorStub, licenseIdFor } from '../../../../tools/vendor-stub/sr
 import { createRepositories, type DataClient } from '../../src/client';
 import type { Database } from '../../src/database.types';
 import { DataError } from '../../src/errors';
+import { sql } from './psql';
 
 const url = process.env.SUPABASE_API_URL ?? '';
 const anonKey = process.env.SUPABASE_ANON_KEY ?? '';
@@ -19,13 +19,6 @@ const DEV_KEY = fileURLToPath(
   new URL('../../../../tools/license-cli/dev-keys/license-private.pkcs8.b64', import.meta.url),
 );
 
-const dbUrl = process.env.SUPABASE_DB_URL ?? '';
-
-/** SQL langsung sebagai postgres untuk menyiapkan keadaan yang sengaja tidak bisa dicapai API. */
-const sql = (statements: string) =>
-  execFileSync('psql', [dbUrl, '-Atq', '-v', 'ON_ERROR_STOP=1', '-c', statements], {
-    encoding: 'utf8',
-  });
 
 const newDb = (key: string) =>
   createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false } });

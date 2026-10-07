@@ -1,4 +1,3 @@
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import type { Server } from 'node:http';
 import { createClient } from '@supabase/supabase-js';
@@ -7,6 +6,7 @@ import { createVendorStub, licenseIdFor } from '../../../../tools/vendor-stub/sr
 import { createRepositories, type DataClient } from '../../src/client';
 import type { Database } from '../../src/database.types';
 import { DataError } from '../../src/errors';
+import { sql } from './psql';
 
 const url = process.env.SUPABASE_API_URL ?? '';
 const anonKey = process.env.SUPABASE_ANON_KEY ?? '';
@@ -16,12 +16,6 @@ const PASSWORD = 'Integrasi-2026!';
 const DAY_MS = 86_400_000;
 const STUB_PORT = 8091;
 const LICENSE_ID = licenseIdFor('DEV-ONLINE-0001');
-
-/** SQL langsung sebagai postgres untuk keadaan yang sengaja tidak bisa dicapai API. */
-const sql = (statements: string) =>
-  execFileSync('psql', [dbUrl, '-Atq', '-v', 'ON_ERROR_STOP=1', '-c', statements], {
-    encoding: 'utf8',
-  }).trim();
 
 const newDb = (key: string) =>
   createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
