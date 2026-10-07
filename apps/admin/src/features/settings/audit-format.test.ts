@@ -42,6 +42,12 @@ describe('describeAuditDetails', () => {
     expect(describeAuditDetails(event('publish', {}))).toBe('');
   });
 
+  it('rollback menyebut versi baru, versi asalnya, dan venue', () => {
+    expect(
+      describeAuditDetails(event('rollback', { version: 7, source_version: 5, venue: 'Mal Demo' })),
+    ).toBe('Versi 7 dari v5 · Mal Demo');
+  });
+
   it('perubahan lisensi menyebut id dan asalnya', () => {
     expect(
       describeAuditDetails(event('license_changed', { license_id: 'LIC-1', source: 'checkin' })),

@@ -1,8 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import { buildSnapshot, validateVenue } from '../src';
-import { campusVenue, hospitalVenue, mallVenue } from './fixtures/demo-venues';
+import {
+  airportVenue,
+  campusVenue,
+  factoryVenue,
+  hospitalVenue,
+  mallVenue,
+  officeVenue,
+} from './fixtures/demo-venues';
 
-const VENUES = { mal: mallVenue, 'rumah sakit': hospitalVenue, kampus: campusVenue };
+const VENUES = {
+  mal: mallVenue,
+  'rumah sakit': hospitalVenue,
+  kampus: campusVenue,
+  perkantoran: officeVenue,
+  bandara: airportVenue,
+  pabrik: factoryVenue,
+};
 const CONTEXT = { today: '2026-10-03', floorPlans: [] };
 
 describe.each(Object.entries(VENUES))('venue demo %s', (_, make) => {

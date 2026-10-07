@@ -42,7 +42,12 @@ export function hospitalVenue(): SnapshotSource {
         name,
         {
           type: typeOf[k],
-          id: v.category(typeOf[k], name.toLowerCase().replace(/\s+/g, '-'), name),
+          id: v.category(
+            typeOf[k],
+            name.toLowerCase().replace(/\s+/g, '-'),
+            name,
+            CATEGORY_COLORS[k],
+          ),
         },
       ];
     }),
