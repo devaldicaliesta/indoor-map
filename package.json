@@ -7,7 +7,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --filter=!@indoor/landing",
+    "dev:landing": "pnpm --filter @indoor/landing dev",
     "build": "turbo run build",
     "check": "turbo run typecheck lint test",
     "test": "turbo run test",

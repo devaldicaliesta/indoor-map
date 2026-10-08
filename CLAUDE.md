@@ -27,6 +27,7 @@ Urutan baca lengkap untuk orang baru ada di `docs/00-README.md`.
 ```
 apps/admin        Admin: editor peta, CRUD, publish, lisensi
 apps/visitor      Visitor (HP) dan Info Point (route /ip/:code)
+apps/landing      landing page vendor + form trial (situs vendor, bukan bagian paket klien)
 packages/domain   tipe, skema zod, aturan validasi — TANPA dependensi UI
 packages/routing  graf, A*, konektor, instruksi — TANPA dependensi UI
 packages/map-core wrapper MapLibre: style, layer 2D/3D, georeferensi, kamera
@@ -34,7 +35,7 @@ packages/data     satu-satunya pintu ke Supabase (repository)
 packages/ui       komponen shadcn yang sudah dikustom + design token
 supabase/         migrations (SQL murni), functions (Edge Functions)
 services/         layanan pendamping (cad-converter: DXF → gambar per layer, Python)
-e2e/              test E2E Playwright (alur utama), satu konfigurasi untuk Admin dan Visitor
+e2e/              test E2E Playwright (alur utama), satu konfigurasi untuk Admin, Visitor, dan landing
 docs/             playbook, dibaca per kebutuhan task
 ```
 
@@ -42,7 +43,8 @@ docs/             playbook, dibaca per kebutuhan task
 
 ```
 pnpm install          pasang dependensi
-pnpm dev              jalankan semua app
+pnpm dev              jalankan Admin dan Visitor
+pnpm dev:landing      jalankan landing page vendor (port 5175)
 pnpm check            typecheck + lint + test (wajib hijau sebelum PR)
 pnpm test             test saja
 pnpm test:integration test yang butuh Supabase lokal berjalan (RLS lewat repository)

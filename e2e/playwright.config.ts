@@ -3,6 +3,29 @@ import { env } from './env';
 
 const CI = Boolean(process.env.CI);
 
+// Landing page adalah situs vendor yang berdiri sendiri: bila hanya proyek landing yang
+// dijalankan, server Admin dan Visitor tidak perlu dinyalakan.
+const args = process.argv.slice(2);
+const projectArgs = args.flatMap((arg, i) =>
+  arg.startsWith('--project=') ? [arg.slice(10)] : arg === '--project' ? [args[i + 1] ?? ''] : [],
+);
+const onlyLanding = projectArgs.length > 0 && projectArgs.every((name) => name === 'landing');
+
+const appServers = [
+  {
+    command: 'pnpm --filter @indoor/admin dev',
+    url: env.adminUrl,
+    reuseExistingServer: !CI,
+    timeout: 120_000,
+  },
+  {
+    command: 'pnpm --filter @indoor/visitor dev',
+    url: env.visitorUrl,
+    reuseExistingServer: !CI,
+    timeout: 120_000,
+  },
+];
+
 export default defineConfig({
   testDir: './tests',
   globalSetup: './global-setup.ts',
@@ -30,6 +53,23 @@ export default defineConfig({
     navigationTimeout: 30_000,
   },
   projects: [
+    {
+      // Landing page vendor (T-505): desktop 1280 × 800; spec mengganti ke HP 360 px bila perlu.
+      name: 'landing',
+      testMatch: 'landing/**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: env.landingUrl,
+        viewport: { width: 1280, height: 800 },
+        launchOptions: {
+          args: [
+            '--use-angle=swiftshader',
+            '--enable-unsafe-swiftshader',
+            '--ignore-gpu-blocklist',
+          ],
+        },
+      },
+    },
     {
       name: 'visitor',
       testMatch: 'visitor/**/*.spec.ts',
@@ -82,16 +122,11 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'pnpm --filter @indoor/admin dev',
-      url: env.adminUrl,
+      command: 'pnpm --filter @indoor/landing dev',
+      url: env.landingUrl,
       reuseExistingServer: !CI,
       timeout: 120_000,
     },
-    {
-      command: 'pnpm --filter @indoor/visitor dev',
-      url: env.visitorUrl,
-      reuseExistingServer: !CI,
-      timeout: 120_000,
-    },
+    ...(onlyLanding ? [] : appServers),
   ],
 });
