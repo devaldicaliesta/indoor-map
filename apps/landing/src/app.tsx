@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { SiteFooter, SiteHeader } from './chrome';
 import { useDocumentMeta, useLanguage } from './language';
+import { Contact } from './sections/contact';
 import { Buildings, Features, Hero, HowItWorks, Licensing, Screens } from './sections/content';
 import { Demo } from './sections/demo';
-import { TrialForm } from './sections/trial-form';
 
 export function LandingPage() {
   const { copy } = useLanguage();
   useDocumentMeta(copy.meta.title, copy.meta.description);
-  // Tautan berjangkar (mis. /#trial) dibuka sebelum isi dirender React; gulir setelah tampil.
+  // Tautan berjangkar (mis. /#kontak) dibuka sebelum isi dirender React; gulir setelah tampil.
   useEffect(() => {
     const target = window.location.hash.slice(1);
     if (target) document.getElementById(target)?.scrollIntoView();
@@ -24,7 +24,7 @@ export function LandingPage() {
         <HowItWorks />
         <Licensing />
         <Screens />
-        <TrialForm />
+        <Contact />
       </main>
       <SiteFooter />
     </>

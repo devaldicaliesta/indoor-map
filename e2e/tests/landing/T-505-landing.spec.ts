@@ -1,5 +1,4 @@
 import { expect, type Page, test } from '@playwright/test';
-import { waitForMail } from '../../support/mailpit';
 
 const shot = (name: string) => `evidence/T-505/${name}.png`;
 
@@ -12,9 +11,10 @@ async function noHorizontalScroll(page: Page) {
 
 /**
  * Landing page vendor (T-505): isi lengkap ID/EN di HP dan desktop, video motion graphic, peta 3D
- * interaktif (konser dan rumah sakit), form trial ke Mailpit, validasi, dan kebijakan privasi.
+ * interaktif (konser dan rumah sakit), ajakan kontak lewat email, dan kebijakan privasi. Form trial
+ * belum dipasang di situs terbit (branch landing-publish).
  */
-test.describe('T-505 Landing page dan form trial', () => {
+test.describe('T-505 Landing page', () => {
   test('TC-LND-01 isi lengkap ID/EN di desktop dan HP 360 px tanpa geser ke samping', async ({
     page,
   }) => {
@@ -33,7 +33,7 @@ test.describe('T-505 Landing page dan form trial', () => {
       'Cara kerja',
       'On-premise dan lisensi',
       'Tangkapan layar',
-      'Minta trial gratis',
+      'Hubungi kami',
     ]) {
       await expect(page.getByRole('heading', { level: 2, name })).toBeAttached();
     }
@@ -95,60 +95,26 @@ test.describe('T-505 Landing page dan form trial', () => {
     await section.screenshot({ path: shot('08-demo-rumah-sakit') });
   });
 
-  test('TC-LND-03 isian wajib, email salah, durasi di luar 14–30, tanpa persetujuan', async ({
-    page,
-  }) => {
-    await page.goto('/?lang=id#trial');
-    const form = page.locator('#trial form');
-    await form.getByRole('button', { name: 'Kirim permintaan' }).click();
-    await expect(form.getByRole('alert').first()).toContainText('Periksa isian yang ditandai');
-    await expect(form.getByLabel('Nama lengkap')).toHaveAttribute('aria-invalid', 'true');
-    await expect(form.getByLabel('Nama lengkap')).toBeFocused();
-    await expect(form.getByText('Centang persetujuan untuk melanjutkan.')).toBeVisible();
-
-    await form.getByLabel('Email kantor').fill('bukan-email');
-    await form.getByLabel('Lama trial (hari)').fill('31');
-    await form.getByRole('button', { name: 'Kirim permintaan' }).click();
-    await expect(form.getByText('Format tidak valid.').first()).toBeVisible();
-    await expect(form.getByText('Harus 14 sampai 30 hari.')).toBeVisible();
-    await page.locator('#trial').screenshot({ path: shot('09-form-galat') });
+  test('ajakan kontak: tombol utama menuju bagian kontak dengan email vendor', async ({ page }) => {
+    await page.goto('/?lang=id');
+    await page.getByRole('link', { name: 'Hubungi kami' }).first().click();
+    await expect(page).toHaveURL(/#kontak$/);
+    const contact = page.locator('#kontak');
+    await expect(contact.getByRole('link', { name: 'Kirim email' })).toHaveAttribute(
+      'href',
+      'mailto:panduarahid@gmail.com',
+    );
+    await expect(page.locator('form')).toHaveCount(0);
+    await contact.screenshot({ path: shot('09-kontak') });
   });
 
-  test('TC-LND-02 form sah terkirim: email ke vendor dan konfirmasi ke pemohon di Mailpit', async ({
-    page,
-  }) => {
-    const suffix = Date.now().toString(36);
-    const email = `calon-${suffix}@malcontoh.co.id`;
-    await page.goto('/?lang=id#trial');
-    const form = page.locator('#trial form');
-    await form.getByLabel('Nama lengkap').fill('Rina Wijaya');
-    await form.getByLabel('Instansi / perusahaan').fill(`Mal Contoh ${suffix}`);
-    await form.getByLabel('Jabatan').fill('Manajer Operasional');
-    await form.getByLabel('Email kantor').fill(email);
-    await form.getByLabel('Nomor telepon / WhatsApp').fill('+62 812-3456-7890');
-    await form.getByLabel('Jenis gedung').selectOption('mall');
-    await form.getByLabel('Perkiraan luas lantai').selectOption('20k-50k');
-    await form.getByLabel('Lama trial (hari)').fill('30');
-    await form.getByRole('checkbox').check();
-    await page.locator('#trial').screenshot({ path: shot('10-form-terisi') });
-    await form.getByRole('button', { name: 'Kirim permintaan' }).click();
-    await expect(page.getByRole('status')).toContainText('Permintaan terkirim');
-    await page.locator('#trial').screenshot({ path: shot('11-form-terkirim') });
-
-    const confirmation = await waitForMail(email);
-    expect(confirmation.subject).toBe('Permintaan trial PanduArah diterima');
-    expect(confirmation.text).toContain(`Permintaan trial 30 hari untuk Mal Contoh ${suffix}`);
-    const vendor = await waitForMail('panduarahid@gmail.com');
-    expect(vendor.subject).toContain('Permintaan trial:');
-  });
-
-  test('kebijakan privasi ID/EN dan tautan dari form', async ({ page }) => {
-    await page.goto('/?lang=id#trial');
-    await page.getByRole('link', { name: 'kebijakan privasi', exact: true }).click();
+  test('kebijakan privasi ID/EN dan tautan dari kaki halaman', async ({ page }) => {
+    await page.goto('/?lang=id');
+    await page.getByRole('contentinfo').getByRole('link', { name: 'Kebijakan privasi' }).click();
     await expect(page).toHaveURL(/\/privasi\/\?lang=id$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Kebijakan privasi' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Hak Anda' })).toBeVisible();
-    await page.screenshot({ path: shot('12-privasi-id'), fullPage: true });
+    await page.screenshot({ path: shot('10-privasi-id'), fullPage: true });
     await page.getByRole('button', { name: 'English' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Privacy policy' })).toBeVisible();
     await page.getByRole('link', { name: /Back to home/ }).click();

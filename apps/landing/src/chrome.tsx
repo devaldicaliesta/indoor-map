@@ -72,7 +72,7 @@ export function SiteHeader({ sections = true }: { sections?: boolean }) {
         <div className="ml-auto flex items-center gap-2">
           <LanguageSwitch />
           <Button asChild variant="primary" className="hidden sm:inline-flex">
-            <a href={sections ? '#trial' : home(language, '#trial')}>{copy.nav.trial}</a>
+            <a href={sections ? '#kontak' : home(language, '#kontak')}>{copy.nav.contact}</a>
           </Button>
         </div>
       </div>
