@@ -9,6 +9,70 @@ export interface LicenseQuota {
   buildings: number;
   floors: number;
   infoPoints: number;
+  // Batas tambahan (T-504, terutama paket trial). Yang tidak diisi berarti tidak dibatasi,
+  // sehingga berkas lisensi lama tetap sah dan tanda tangannya tetap cocok.
+  /** Fitur peta per lantai. */
+  features?: number;
+  locations?: number;
+  originPoints?: number;
+  /** Pengguna Admin aktif. */
+  users?: number;
+  /** Total Storage (denah, foto, ikon, snapshot) dalam MB. */
+  storageMb?: number;
+  /** Ukuran satu berkas unggahan dalam MB. */
+  maxUploadMb?: number;
+  /** Baris per impor massal. */
+  importRows?: number;
+  /** Publish per venue per hari (zona waktu venue). */
+  publishPerDay?: number;
+}
+
+/** Batas yang boleh tidak ada di berkas lisensi; urutannya dipakai tampilan. */
+export const OPTIONAL_QUOTA_KEYS = [
+  'features',
+  'locations',
+  'originPoints',
+  'users',
+  'storageMb',
+  'maxUploadMb',
+  'importRows',
+  'publishPerDay',
+] as const satisfies readonly (keyof LicenseQuota)[];
+
+/** Paket trial: 14–30 hari dengan batas data agar server tidak berat (T-504). */
+export const TRIAL_PLAN = 'trial';
+export const TRIAL_MIN_DAYS = 14;
+export const TRIAL_MAX_DAYS = 30;
+
+/** Batas bawaan paket trial (`21-F2-task.md` T-504); vendor bisa menyesuaikan per permintaan. */
+export const TRIAL_QUOTA: Required<LicenseQuota> = {
+  venues: 1,
+  buildings: 2,
+  floors: 6,
+  infoPoints: 2,
+  features: 1000,
+  locations: 300,
+  originPoints: 20,
+  users: 5,
+  storageMb: 1024,
+  maxUploadMb: 20,
+  importRows: 500,
+  publishPerDay: 20,
+};
+
+/** Trial membuka semua fitur berbayar agar calon klien bisa mencoba semuanya. */
+export const TRIAL_FEATURES = ['3d', 'info_point', 'cad_import'];
+
+export const isTrialLicense = (license: Pick<LicensePayload, 'plan'>): boolean =>
+  license.plan === TRIAL_PLAN;
+
+/** Lama trial yang boleh diterbitkan; pesan bila di luar 14–30 hari. */
+export function trialDaysProblem(days: number): string | null {
+  if (!Number.isInteger(days)) return 'Lama trial harus bilangan bulat hari.';
+  if (days < TRIAL_MIN_DAYS || days > TRIAL_MAX_DAYS) {
+    return `Lama trial harus ${TRIAL_MIN_DAYS}–${TRIAL_MAX_DAYS} hari.`;
+  }
+  return null;
 }
 
 /** Isi yang ditandatangani vendor. Tanggal dalam ISO 8601 UTC. */
@@ -86,6 +150,15 @@ const sameKeys = (value: object, keys: readonly string[]) => {
   return own.length === keys.length && keys.every((k) => own.includes(k));
 };
 
+/** Kunci wajib semuanya ada, kunci pilihan boleh ada, selain itu ditolak. */
+const knownKeys = (value: object, required: readonly string[], optional: readonly string[]) => {
+  const own = Object.keys(value);
+  return (
+    required.every((k) => own.includes(k)) &&
+    own.every((k) => required.includes(k) || optional.includes(k))
+  );
+};
+
 /** Payload dari objek apa pun; `null` bila bentuknya tidak persis sesuai format. */
 export function readLicensePayload(value: unknown): LicensePayload | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
@@ -94,9 +167,15 @@ export function readLicensePayload(value: unknown): LicensePayload | null {
   const v = value as Record<(typeof PAYLOAD_KEYS)[number], unknown>;
   const quota = v.quota;
   if (typeof quota !== 'object' || quota === null || Array.isArray(quota)) return null;
-  if (!sameKeys(quota, QUOTA_KEYS)) return null;
-  const q = quota as Record<(typeof QUOTA_KEYS)[number], unknown>;
+  if (!knownKeys(quota, QUOTA_KEYS, OPTIONAL_QUOTA_KEYS)) return null;
+  const q = quota as Record<keyof LicenseQuota, unknown>;
   if (!QUOTA_KEYS.every((k) => isCount(q[k]))) return null;
+  if (!OPTIONAL_QUOTA_KEYS.every((k) => q[k] === undefined || isCount(q[k]))) return null;
+  // Hanya kunci yang ada di berkas yang ikut, agar bait yang diperiksa sama dengan yang ditandatangani.
+  const optional: Partial<LicenseQuota> = {};
+  for (const k of OPTIONAL_QUOTA_KEYS) {
+    if (q[k] !== undefined) optional[k] = q[k] as number;
+  }
   if (!Array.isArray(v.features) || !v.features.every((f) => isText(f, 64))) return null;
   if (
     !isText(v.plan, 64) ||
@@ -118,6 +197,7 @@ export function readLicensePayload(value: unknown): LicensePayload | null {
       buildings: q.buildings as number,
       floors: q.floors as number,
       infoPoints: q.infoPoints as number,
+      ...optional,
     },
     features: [...(v.features as string[])],
     instanceId: v.instanceId,

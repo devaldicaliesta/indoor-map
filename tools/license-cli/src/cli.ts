@@ -12,9 +12,14 @@ import {
   importLicensePublicKey,
   type LicenseFile,
   type LicensePayload,
+  type LicenseQuota,
   licenseSigningBytes,
   readLicensePayload,
+  TRIAL_FEATURES,
+  TRIAL_PLAN,
+  TRIAL_QUOTA,
   toBase64,
+  trialDaysProblem,
   verifyLicense,
 } from '../../../packages/domain/src/license.ts';
 
@@ -24,9 +29,13 @@ const PUBLIC_KEY_FILE = 'license-public.b64';
 const USAGE = `Pemakaian:
   license-cli keygen --out <folder di luar repo>
   license-cli issue --key <kunci privat> --client <nama> --plan <paket> --instance <instance_id>
-                    --until <YYYY-MM-DD> [--from <YYYY-MM-DD>] [--venues n] [--buildings n]
-                    [--floors n] [--info-points n] [--features 3d,info_point] [--id <licenseId>]
-                    --out <berkas.json>
+                    (--until <YYYY-MM-DD> | --days n) [--from <YYYY-MM-DD>] [--venues n]
+                    [--buildings n] [--floors n] [--info-points n] [--features-per-floor n]
+                    [--locations n] [--origin-points n] [--users n] [--storage-mb n]
+                    [--max-upload-mb n] [--import-rows n] [--publish-per-day n]
+                    [--features 3d,info_point] [--id <licenseId>] --out <berkas.json>
+  Paket trial (--plan trial): --days 14..30, batas trial bawaan (bisa ditimpa per opsi) dan
+  semua fitur.
   license-cli inspect <berkas.json> [--public-key <base64>] [--instance <instance_id>]`;
 
 class CliError extends Error {}
@@ -86,15 +95,73 @@ function startOfDay(value: string, flag: string): string {
   return `${value}T00:00:00Z`;
 }
 
-function count(value: string | undefined, flag: string, fallback: number): number {
-  if (value === undefined) return fallback;
+function count(value: string | undefined, flag: string): number | undefined {
+  if (value === undefined) return undefined;
   const n = Number(value);
   if (!Number.isInteger(n) || n < 0) throw new CliError(`--${flag} harus bilangan bulat ≥ 0.`);
   return n;
 }
 
+/** Opsi baris perintah per kunci kuota. */
+const QUOTA_FLAGS: [keyof LicenseQuota, string][] = [
+  ['venues', 'venues'],
+  ['buildings', 'buildings'],
+  ['floors', 'floors'],
+  ['infoPoints', 'info-points'],
+  ['features', 'features-per-floor'],
+  ['locations', 'locations'],
+  ['originPoints', 'origin-points'],
+  ['users', 'users'],
+  ['storageMb', 'storage-mb'],
+  ['maxUploadMb', 'max-upload-mb'],
+  ['importRows', 'import-rows'],
+  ['publishPerDay', 'publish-per-day'],
+];
+
+/** Paket berbayar tanpa opsi kuota: satu venue dan gedung, 10 lantai, tanpa Info Point. */
+const PAID_DEFAULT: LicenseQuota = { venues: 1, buildings: 1, floors: 10, infoPoints: 0 };
+const DAY_MS = 86_400_000;
+
+function quotaFrom(options: Record<string, string | undefined>, trial: boolean): LicenseQuota {
+  const quota: LicenseQuota = { ...(trial ? TRIAL_QUOTA : PAID_DEFAULT) };
+  for (const [key, flag] of QUOTA_FLAGS) {
+    const value = count(options[flag], flag);
+    if (value !== undefined) quota[key] = value;
+  }
+  return quota;
+}
+
+/** Tanggal berakhir dari --until atau --days; trial wajib 14–30 hari. */
+function validUntilFrom(
+  options: Record<string, string | undefined>,
+  validFrom: string,
+  trial: boolean,
+) {
+  if (options.until && options.days)
+    throw new CliError('Pakai --until atau --days, bukan keduanya.');
+  let validUntil: string;
+  if (options.days) {
+    const days = Number(options.days);
+    if (!Number.isInteger(days) || days < 1) throw new CliError('--days harus bilangan bulat ≥ 1.');
+    validUntil = new Date(Date.parse(validFrom) + days * DAY_MS)
+      .toISOString()
+      .replace(/\.\d{3}Z$/, 'Z');
+  } else if (options.until) {
+    validUntil = startOfDay(options.until, 'until');
+  } else {
+    throw new CliError(`--until atau --days wajib diisi.
+
+${USAGE}`);
+  }
+  if (trial) {
+    const problem = trialDaysProblem((Date.parse(validUntil) - Date.parse(validFrom)) / DAY_MS);
+    if (problem) throw new CliError(problem);
+  }
+  return validUntil;
+}
+
 async function issue(options: Record<string, string | undefined>, now: Date): Promise<LicenseFile> {
-  for (const flag of ['key', 'client', 'plan', 'instance', 'until', 'out']) {
+  for (const flag of ['key', 'client', 'plan', 'instance', 'out']) {
     if (!options[flag]) throw new CliError(`--${flag} wajib diisi.\n\n${USAGE}`);
   }
   const keyText = readFileSync(options.key as string, 'utf8').trim();
@@ -104,19 +171,17 @@ async function issue(options: Record<string, string | undefined>, now: Date): Pr
       throw new CliError('Kunci privat tidak bisa dibaca (harus keluaran `license-cli keygen`).');
     });
   const today = now.toISOString().slice(0, 10);
+  const trial = (options.plan as string).trim() === TRIAL_PLAN;
+  const validFrom = startOfDay(options.from ?? today, 'from');
+  const validUntil = validUntilFrom(options, validFrom, trial);
   const candidate = {
     licenseId: options.id ?? `LIC-${randomUUID().slice(0, 8).toUpperCase()}`,
     client: (options.client as string).trim(),
     plan: (options.plan as string).trim(),
-    validFrom: startOfDay(options.from ?? today, 'from'),
-    validUntil: startOfDay(options.until as string, 'until'),
-    quota: {
-      venues: count(options.venues, 'venues', 1),
-      buildings: count(options.buildings, 'buildings', 1),
-      floors: count(options.floors, 'floors', 10),
-      infoPoints: count(options['info-points'], 'info-points', 0),
-    },
-    features: (options.features ?? '')
+    validFrom,
+    validUntil,
+    quota: quotaFrom(options, trial),
+    features: (options.features ?? (trial ? TRIAL_FEATURES.join(',') : ''))
       .split(',')
       .map((f) => f.trim())
       .filter(Boolean),
@@ -182,10 +247,8 @@ export async function run(
           'instance',
           'from',
           'until',
-          'venues',
-          'buildings',
-          'floors',
-          'info-points',
+          'days',
+          ...QUOTA_FLAGS.map(([, flag]) => flag),
           'features',
           'id',
           'public-key',

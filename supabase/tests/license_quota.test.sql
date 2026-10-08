@@ -76,7 +76,8 @@ select throws_ok(
   'IM422', null, 'Info Point melebihi kuota ditolak'
 );
 select results_eq(
-  $$ select used = quota from public.license_usage() order by kind $$,
+  $$ select used = quota from public.license_usage()
+     where kind in ('venues', 'buildings', 'floors', 'infoPoints') order by kind $$,
   $$ values (true), (true), (true), (true) $$,
   'Pemakaian sama dengan kuota untuk keempat jenis'
 );

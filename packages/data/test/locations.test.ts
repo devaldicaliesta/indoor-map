@@ -241,12 +241,18 @@ describe('jam operasional', () => {
 });
 
 describe('import lokasi', () => {
-  it('ditulis per batch 200 baris; kemajuan dilaporkan setelah setiap batch', async () => {
+  it('batas baris lisensi diperiksa dulu, lalu ditulis per batch 200 baris dengan kemajuan', async () => {
     const sizes: number[] = [];
+    const checks: unknown[] = [];
     const db = {
-      rpc: async (_name: string, args: { p_rows: unknown[] }) => {
-        sizes.push(args.p_rows.length);
-        return { data: args.p_rows.length, error: null };
+      rpc: async (name: string, args: { p_rows: unknown[] | number }) => {
+        if (name === 'license_import_check') {
+          checks.push(args.p_rows);
+          return { data: null, error: null };
+        }
+        const rows = args.p_rows as unknown[];
+        sizes.push(rows.length);
+        return { data: rows.length, error: null };
       },
     } as unknown as Db;
     const write = {
@@ -267,8 +273,35 @@ describe('import lokasi', () => {
       Array.from({ length: 450 }, () => write),
       (n) => progress.push(n),
     );
+    expect(checks).toEqual([450]);
     expect(sizes).toEqual([200, 200, 50]);
     expect(progress).toEqual([200, 400, 450]);
     expect(saved).toBe(450);
+  });
+});
+
+describe('import lokasi melebihi batas lisensi', () => {
+  it('ditolak server sebelum batch pertama dikirim', async () => {
+    const sent: string[] = [];
+    const db = {
+      rpc: async (name: string) => {
+        sent.push(name);
+        return name === 'license_import_check'
+          ? {
+              data: null,
+              error: {
+                code: 'IM422',
+                message: 'Batas trial tercapai: baris impor 501/500.',
+                details: null,
+                hint: null,
+              },
+            }
+          : { data: 0, error: null };
+      },
+    } as unknown as Db;
+    await expect(
+      createLocationsRepository(db).importRows(VENUE as VenueId, TYPE as LocationTypeId, []),
+    ).rejects.toThrow('Batas trial tercapai: baris impor 501/500.');
+    expect(sent).toEqual(['license_import_check']);
   });
 });

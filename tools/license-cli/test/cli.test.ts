@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { TRIAL_QUOTA } from '../../../packages/domain/src/license.ts';
 import { run } from '../src/cli';
 
 const NOW = new Date('2026-10-03T00:00:00Z');
@@ -121,5 +122,71 @@ describe('license-cli', () => {
       },
     );
     expect(out).toContain('Status: SAH');
+  });
+});
+
+describe('trial (T-504)', () => {
+  const trialArgs = (days: string, extra: string[] = []) => [
+    'issue',
+    '--key',
+    join(keys, 'license-private.pkcs8.b64'),
+    '--client',
+    'Mal Calon Klien',
+    '--plan',
+    'trial',
+    '--instance',
+    'inst-trial',
+    '--from',
+    '2026-10-03',
+    '--days',
+    days,
+    '--out',
+    licensePath,
+    ...extra,
+  ];
+
+  it('14 dan 30 hari terbit dengan batas trial bawaan dan semua fitur; 13 dan 31 hari ditolak', async () => {
+    for (const days of ['14', '30']) {
+      const result = await run(trialArgs(days), NOW);
+      expect(result.code, result.out).toBe(0);
+      const file = JSON.parse(readFileSync(licensePath, 'utf8'));
+      expect(file.plan).toBe('trial');
+      expect((Date.parse(file.validUntil) - Date.parse(file.validFrom)) / 86_400_000).toBe(
+        Number(days),
+      );
+      expect(file.quota).toEqual(TRIAL_QUOTA);
+      expect(file.features).toEqual(['3d', 'info_point', 'cad_import']);
+    }
+    for (const days of ['13', '31']) {
+      const result = await run(trialArgs(days), NOW);
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('14–30 hari');
+    }
+    // --until yang menghasilkan 31 hari juga ditolak.
+    const until = trialArgs('14').map((a) =>
+      a === '--days' ? '--until' : a === '14' ? '2026-11-03' : a,
+    );
+    expect((await run(until, NOW)).out).toContain('14–30 hari');
+  });
+
+  it('batas trial bisa ditimpa per opsi dan berkasnya sah menurut inspect', async () => {
+    const result = await run(
+      trialArgs('21', ['--locations', '500', '--publish-per-day', '40']),
+      NOW,
+    );
+    expect(result.code).toBe(0);
+    const file = JSON.parse(readFileSync(licensePath, 'utf8'));
+    expect(file.quota).toEqual({ ...TRIAL_QUOTA, locations: 500, publishPerDay: 40 });
+    const inspect = await run(['inspect', licensePath, '--public-key', publicKey], NOW);
+    expect(inspect.code, inspect.out).toBe(0);
+  });
+
+  it('paket berbayar: --days boleh, batas tambahan hanya bila diminta, --until dan --days bersamaan ditolak', async () => {
+    const paid = issueArgs().filter((a, i, all) => a !== '--until' && all[i - 1] !== '--until');
+    expect((await run([...paid, '--days', '365', '--users', '25'], NOW)).code).toBe(0);
+    const file = JSON.parse(readFileSync(licensePath, 'utf8'));
+    expect(file.quota).toEqual({ venues: 2, buildings: 1, floors: 10, infoPoints: 10, users: 25 });
+    expect((await run(issueArgs(['--days', '30']), NOW)).out).toContain('bukan keduanya');
+    expect((await run(issueArgs(['--users', '-1']), NOW)).code).toBe(1);
   });
 });

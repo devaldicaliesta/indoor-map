@@ -1,6 +1,7 @@
 // Edge Function license-activate: memasang lisensi instalasi dan membuat Super Admin pertama.
 //   { mode: "online", licenseKey }  → minta berkas ke server vendor untuk instance ini
 //   { mode: "manual", license }     → berkas lisensi yang diunggah
+//   { mode: "trial", name, institution, email } → trial otomatis dari server vendor (T-504)
 //   { mode: "first_admin", fullName, email, password }
 // Berkas selalu diverifikasi di sini (tanda tangan vendor, instance, masa berlaku) sebelum
 // disimpan; SQL lalu mempercayai baris `licenses`. Kunci lisensi hanya diteruskan ke vendor
@@ -60,14 +61,14 @@ async function status(): Promise<Status> {
 }
 
 /** Berkas dari server vendor; kunci lisensi tidak disimpan di instalasi. */
-async function fromVendor(licenseKey: string, instanceId: string): Promise<unknown> {
+async function fromVendor(path: string, payload: Record<string, unknown>): Promise<unknown> {
   if (!vendorUrl) throw new ActivationError(503, 'unknown', 'Alamat server vendor belum diatur.');
   let response: Response;
   try {
-    response = await fetch(`${vendorUrl.replace(/\/+$/, '')}/v1/activate`, {
+    response = await fetch(`${vendorUrl.replace(/\/+$/, '')}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ licenseKey, instanceId }),
+      body: JSON.stringify(payload),
       signal: AbortSignal.timeout(15_000),
     });
   } catch {
@@ -80,9 +81,29 @@ async function fromVendor(licenseKey: string, instanceId: string): Promise<unkno
   const body = (await response.json().catch(() => null)) as { message?: unknown } | null;
   if (!response.ok) {
     const message = typeof body?.message === 'string' ? body.message : response.statusText;
-    throw new ActivationError(response.status === 404 ? 404 : 422, 'invalid', `Vendor: ${message}`);
+    // 429: vendor membatasi laju permintaan trial per alamat IP.
+    const status = response.status === 404 || response.status === 429 ? response.status : 422;
+    throw new ActivationError(status, 'invalid', `Vendor: ${message}`);
   }
   return body;
+}
+
+/** Isian "Mulai trial": nama, instansi, dan email pemohon (hanya diteruskan ke vendor). */
+function trialRequest(input: Record<string, unknown>) {
+  const field = (key: string) => {
+    const value = input[key];
+    return typeof value === 'string' ? value.trim() : '';
+  };
+  const name = field('name');
+  const institution = field('institution');
+  const email = field('email').toLowerCase();
+  if (!name || !institution || name.length > 200 || institution.length > 200) {
+    throw new ActivationError(400, 'invalid', 'Nama dan instansi wajib diisi.');
+  }
+  if (!EMAIL.test(email) || email.length > 200) {
+    throw new ActivationError(400, 'invalid', 'Alamat email tidak valid.');
+  }
+  return { name, institution, email };
 }
 
 async function install(file: unknown, source: 'online' | 'manual', instanceId: string) {
@@ -184,7 +205,15 @@ async function handle(request: Request, input: Record<string, unknown>) {
     const key = typeof input.licenseKey === 'string' ? input.licenseKey.trim() : '';
     if (!key || key.length > 200)
       throw new ActivationError(400, 'invalid', 'Kunci lisensi wajib diisi.');
-    const file = await fromVendor(key, current.instance_id);
+    const file = await fromVendor('/v1/activate', {
+      licenseKey: key,
+      instanceId: current.instance_id,
+    });
+    return { license: await install(file, 'online', current.instance_id) };
+  }
+  if (input.mode === 'trial') {
+    const request = trialRequest(input);
+    const file = await fromVendor('/v1/trial', { ...request, instanceId: current.instance_id });
     return { license: await install(file, 'online', current.instance_id) };
   }
   if (input.mode === 'manual') {

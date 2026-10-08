@@ -1550,6 +1550,7 @@ export type Database = {
         Returns: string;
       };
       license_features: { Args: Record<PropertyKey, never>; Returns: string[] };
+      license_import_check: { Args: { p_rows: number }; Returns: undefined };
       license_install: {
         Args: {
           p_license_id: string;
@@ -1572,10 +1573,12 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: {
           instance_id: string;
+          is_trial: boolean;
           needs_admin: boolean;
           state: string;
         }[];
       };
+      license_upload_check: { Args: { p_bytes: number }; Returns: undefined };
       license_usage: {
         Args: Record<PropertyKey, never>;
         Returns: {

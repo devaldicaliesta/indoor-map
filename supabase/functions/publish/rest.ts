@@ -38,6 +38,9 @@ async function toPublishError(response: Response): Promise<PublishError> {
       return new PublishError(404, 'not_found', message);
     case 'IM409':
       return new PublishError(409, 'conflict', message);
+    // Batas lisensi: pemakaian melebihi paket atau publish per hari (trial) tercapai.
+    case 'IM422':
+      return new PublishError(422, 'invalid', message);
     default:
       return new PublishError(502, 'unknown', `Data draft tidak bisa dibaca: ${message}`);
   }

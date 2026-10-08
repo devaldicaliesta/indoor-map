@@ -1,4 +1,4 @@
-import type { FirstAdminInput } from '@indoor/data';
+import type { FirstAdminInput, TrialRequest } from '@indoor/data';
 import type { PaidFeature } from '@indoor/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { data } from '../../app/data-client';
@@ -44,6 +44,15 @@ export function useActivateOnline() {
   });
 }
 
+/** Trial otomatis: instalasi meminta lisensi trial ke vendor lalu memasangnya. */
+export function useStartTrial() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: TrialRequest) => data.license.startTrial(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['license'] }),
+  });
+}
+
 export function useActivateManual() {
   const refresh = useRefreshStatus();
   return useMutation({
@@ -68,6 +77,15 @@ export const licenseUsageKey = ['license', 'usage'] as const;
 /** Pemakaian kuota paket; dimuat ulang setiap kali data struktur berubah. */
 export function useLicenseUsage() {
   return useQuery({ queryKey: licenseUsageKey, queryFn: () => data.license.usage() });
+}
+
+/** Batas per tindakan (ukuran unggahan, baris impor) dari lisensi berlaku. */
+export function useLicenseLimits() {
+  return useQuery({
+    queryKey: ['license', 'limits'],
+    queryFn: () => data.license.limits(),
+    staleTime: 5 * 60_000,
+  });
 }
 
 export function useLicenseDetails() {

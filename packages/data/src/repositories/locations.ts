@@ -422,6 +422,9 @@ export function createLocationsRepository(db: Db): LocationsRepository {
     },
 
     async importRows(venueId, typeId, rows, onProgress) {
+      // Batas baris per impor dari lisensi (trial: 500), diperiksa server sebelum batch pertama.
+      const allowed = await db.rpc('license_import_check', { p_rows: rows.length });
+      if (allowed.error) throw toDataError(allowed.error);
       let saved = 0;
       for (let start = 0; start < rows.length; start += IMPORT_BATCH) {
         const batch = rows.slice(start, start + IMPORT_BATCH);

@@ -117,6 +117,11 @@ export function createFloorPlansRepository(db: Db): FloorPlansRepository {
         throw new DataError('invalid', { message: 'Pilih minimal satu layer DXF.' });
       }
 
+      // Batas unggah dan Storage lisensi (trial: 20 MB per berkas) dengan pesan yang jelas;
+      // Storage tetap menolak lewat trigger bila pemeriksaan ini dilewati.
+      const allowed = await db.rpc('license_upload_check', { p_bytes: input.source.size });
+      if (allowed.error) throw toDataError(allowed.error);
+
       const venueId = await venueOf(floorId);
       const base = `${venueId}/${floorId}/${Date.now()}`;
       const sourcePath = `${base}-source.${check.format}`;

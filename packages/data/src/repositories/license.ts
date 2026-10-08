@@ -1,4 +1,11 @@
-import { enabledFeatures, type PaidFeature, QUOTA_KINDS, type QuotaUsage } from '@indoor/domain';
+import {
+  enabledFeatures,
+  LIMIT_KINDS,
+  type LicenseLimits,
+  type PaidFeature,
+  QUOTA_KINDS,
+  type QuotaUsage,
+} from '@indoor/domain';
 import { type LicensePayload, readLicensePayload } from '@indoor/domain/license';
 import { DataError, toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
@@ -21,6 +28,15 @@ export interface LicenseStatus {
   instanceId: string;
   /** Instalasi baru: Super Admin pertama belum dibuat. */
   needsAdmin: boolean;
+  /** Lisensi berlaku berpaket trial (T-504). */
+  isTrial: boolean;
+}
+
+/** Isian "Mulai trial" di halaman aktivasi; diteruskan ke server vendor. */
+export interface TrialRequest {
+  name: string;
+  institution: string;
+  email: string;
 }
 
 /** Ringkasan lisensi yang baru dipasang. */
@@ -59,6 +75,11 @@ export interface LicenseRepository {
   status(): Promise<LicenseStatus>;
   /** Kunci lisensi diteruskan ke server vendor; tidak disimpan di instalasi. */
   activateOnline(licenseKey: string): Promise<ActivatedLicense>;
+  /**
+   * Trial otomatis: instalasi meminta lisensi trial ke server vendor (online) lalu langsung
+   * memasangnya. Vendor menolak trial kedua untuk instalasi, email, atau domain yang sama.
+   */
+  startTrial(input: TrialRequest): Promise<ActivatedLicense>;
   /** Berkas lisensi (JSON) dari vendor, diverifikasi server sebelum dipasang. */
   activateManual(license: unknown): Promise<ActivatedLicense>;
   /** Hanya untuk instalasi baru yang sudah berlisensi dan belum punya Super Admin. */
@@ -69,6 +90,8 @@ export interface LicenseRepository {
   checkIn(): Promise<CheckinResult>;
   /** Pemakaian per jenis kuota; server menolak penambahan melebihi kuota. */
   usage(): Promise<QuotaUsage[]>;
+  /** Batas per tindakan (ukuran unggahan, baris impor); `null` = tidak dibatasi. */
+  limits(): Promise<LicenseLimits>;
   /** Lisensi berlaku beserta keadaan check-in; `null` tanpa lisensi. Hanya Super Admin. */
   details(): Promise<LicenseDetails | null>;
   /** Fitur berbayar yang dibuka lisensi berlaku. */
@@ -102,7 +125,12 @@ export function createLicenseRepository(db: Db): LicenseRepository {
       const [row] = data;
       if (!row) throw toDataError(new Error('Status lisensi kosong.'));
       const state = STATES.find((s) => s === row.state) ?? 'missing';
-      return { state, instanceId: row.instance_id, needsAdmin: row.needs_admin };
+      return {
+        state,
+        instanceId: row.instance_id,
+        needsAdmin: row.needs_admin,
+        isTrial: row.is_trial,
+      };
     },
 
     async activateOnline(licenseKey) {
@@ -110,6 +138,11 @@ export function createLicenseRepository(db: Db): LicenseRepository {
         mode: 'online',
         licenseKey,
       });
+      return license;
+    },
+
+    async startTrial(input) {
+      const { license } = await invoke<{ license: ActivatedLicense }>({ mode: 'trial', ...input });
       return license;
     },
 
@@ -135,6 +168,13 @@ export function createLicenseRepository(db: Db): LicenseRepository {
         const row = data.find((r) => r.kind === kind);
         return { kind, used: row?.used ?? 0, quota: row?.quota ?? null };
       });
+    },
+
+    async limits() {
+      const { data, error } = await db.rpc('license_usage');
+      if (error) throw toDataError(error);
+      const limit = (kind: string) => data.find((r) => r.kind === kind)?.quota ?? null;
+      return Object.fromEntries(LIMIT_KINDS.map((kind) => [kind, limit(kind)])) as LicenseLimits;
     },
 
     async validUntil() {

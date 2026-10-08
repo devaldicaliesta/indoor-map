@@ -4,6 +4,7 @@ import { LICENSE_PUBLIC_KEY } from '../../../packages/domain/src/license.publicK
 import {
   importLicensePublicKey,
   type LicenseFile,
+  TRIAL_QUOTA,
   verifyLicense,
 } from '../../../packages/domain/src/license.ts';
 import { createVendorStub, licenseIdFor } from '../src/server';
@@ -107,5 +108,69 @@ describe('vendor-stub check-in', () => {
       (await post('/v1/checkin', { licenseId: 'LIC-ASING', instanceId: 'inst-c' })).status,
     ).toBe(404);
     expect((await checkin('inst-lain')).status).toBe(409);
+  });
+});
+
+describe('trial otomatis (T-504)', () => {
+  let trialBase = '';
+  let stop: () => void;
+  const now = new Date('2026-10-08T03:00:00Z');
+
+  beforeAll(async () => {
+    const server = await createVendorStub({
+      now: () => now,
+      trialRateLimit: { max: 6, windowMs: 60_000 },
+    });
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    trialBase = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    stop = () => server.close();
+  });
+  afterAll(() => stop());
+
+  const requestTrial = (body: Record<string, unknown>) =>
+    fetch(`${trialBase}/v1/trial`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  const person = (instanceId: string, email: string) => ({
+    instanceId,
+    email,
+    name: 'Rina Calon Klien',
+    institution: 'Mal Contoh Raya',
+  });
+
+  it('menerbitkan trial 14 hari sah dengan batas trial; instalasi, email, dan domain kantor hanya sekali', async () => {
+    const response = await requestTrial(person('inst-t1', 'rina@malcontoh.co.id'));
+    expect(response.status).toBe(200);
+    const file = (await response.json()) as LicenseFile;
+    const key = await importLicensePublicKey(LICENSE_PUBLIC_KEY);
+    const result = await verifyLicense(file, key, 'inst-t1', now);
+    expect(result.valid).toBe(true);
+    expect(file).toMatchObject({ plan: 'trial', client: 'Mal Contoh Raya', quota: TRIAL_QUOTA });
+    expect((Date.parse(file.validUntil) - Date.parse(file.validFrom)) / 86_400_000).toBe(14);
+
+    const again = async (body: Record<string, unknown>) => {
+      const reply = await requestTrial(body);
+      return {
+        status: reply.status,
+        message: ((await reply.json()) as { message: string }).message,
+      };
+    };
+    expect(await again(person('inst-t1', 'lain@contoh.id'))).toEqual({
+      status: 409,
+      message: 'Instalasi ini sudah pernah mendapat trial.',
+    });
+    expect((await again(person('inst-t2', 'RINA@malcontoh.co.id'))).message).toMatch(/Email ini/);
+    expect((await again(person('inst-t3', 'budi@malcontoh.co.id'))).message).toMatch(
+      /Domain malcontoh\.co\.id/,
+    );
+    // Domain email umum dibatasi per alamat, bukan per domain.
+    expect((await requestTrial(person('inst-t4', 'satu@gmail.com'))).status).toBe(200);
+    expect((await requestTrial(person('inst-t5', 'dua@gmail.com'))).status).toBe(200);
+  });
+
+  it('isian wajib, email salah, dan laju per IP', async () => {
+    expect((await requestTrial({ instanceId: 'inst-x', email: 'a@b.id' })).status).toBe(429);
   });
 });

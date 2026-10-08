@@ -1,4 +1,5 @@
 import type { LicenseState } from '@indoor/data';
+import { TRIAL_MIN_DAYS } from '@indoor/domain/license';
 import {
   Button,
   Input,
@@ -15,7 +16,7 @@ import { Link, Navigate, useNavigate } from 'react-router';
 import { useCurrentProfile } from '../../app/auth/current-profile';
 import { AuthLayout, FormNotice } from '../auth/auth-layout';
 import { FirstAdminForm } from './first-admin-form';
-import { useActivateManual, useActivateOnline, useLicenseStatus } from './queries';
+import { useActivateManual, useActivateOnline, useLicenseStatus, useStartTrial } from './queries';
 import { VendorEmail } from './vendor-email';
 
 const STATE_NOTICE: Record<Exclude<LicenseState, 'active'>, string> = {
@@ -114,6 +115,74 @@ function ManualForm() {
 }
 
 /**
+ * Trial otomatis (T-504): nama, instansi, dan email diteruskan ke server vendor yang langsung
+ * menerbitkan lisensi trial untuk ID instalasi ini. Satu trial per instalasi, email, dan domain.
+ */
+function TrialForm() {
+  const start = useStartTrial();
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const field = (name: string) => String(form.get(name) ?? '').trim();
+    start.mutate(
+      {
+        name: field('trial-name'),
+        institution: field('trial-institution'),
+        email: field('trial-email'),
+      },
+      {
+        onSuccess: (license) =>
+          toast.success('Trial aktif', {
+            description: `${license.client} · ${TRIAL_MIN_DAYS} hari`,
+          }),
+      },
+    );
+  }
+  return (
+    <form className="grid gap-3" onSubmit={submit}>
+      <p className="text-ink-muted text-sm">
+        Coba semua fitur selama {TRIAL_MIN_DAYS} hari dengan batas data trial (1 venue, 2 gedung, 6
+        lantai, 300 lokasi, 5 pengguna). Data tetap ada saat lisensi berbayar dipasang.
+      </p>
+      <div className="grid gap-1">
+        <Label htmlFor="trial-name">Nama</Label>
+        <Input id="trial-name" name="trial-name" required maxLength={200} autoComplete="name" />
+      </div>
+      <div className="grid gap-1">
+        <Label htmlFor="trial-institution">Instansi</Label>
+        <Input
+          id="trial-institution"
+          name="trial-institution"
+          required
+          maxLength={200}
+          autoComplete="organization"
+        />
+      </div>
+      <div className="grid gap-1">
+        <Label htmlFor="trial-email">Email</Label>
+        <Input
+          id="trial-email"
+          name="trial-email"
+          type="email"
+          required
+          maxLength={200}
+          autoComplete="email"
+        />
+      </div>
+      {start.error ? <FormNotice tone="error">{start.error.message}</FormNotice> : null}
+      <Button type="submit" variant="primary" disabled={start.isPending}>
+        {start.isPending ? 'Meminta trial ke vendor…' : `Mulai trial ${TRIAL_MIN_DAYS} hari`}
+      </Button>
+      <p className="text-ink-muted text-sm">
+        Server tanpa internet: kirim ID instalasi di atas beserta nama dan instansi ke{' '}
+        <VendorEmail /> dengan judul "Permintaan trial". Vendor mengirim berkas lisensi trial untuk
+        dipasang di tab Unggah berkas.
+      </p>
+    </form>
+  );
+}
+
+/**
  * Aktivasi instalasi: kunci lisensi ke vendor (online) atau unggah berkas (cadangan), lalu
  * Super Admin pertama pada instalasi baru. Setelah ada Super Admin, hanya Super Admin yang
  * memasang lisensi; server menegakkan aturan yang sama.
@@ -137,7 +206,7 @@ export function ActivationPage() {
       </AuthLayout>
     );
   }
-  const { state, instanceId, needsAdmin } = status.data;
+  const { state, instanceId, needsAdmin, isTrial } = status.data;
   const isSuperAdmin = profile.data?.role === 'super_admin';
 
   if (state === 'active' && needsAdmin) {
@@ -156,7 +225,7 @@ export function ActivationPage() {
   return (
     <AuthLayout
       title={state === 'active' ? 'Pasang lisensi baru' : 'Aktivasi instalasi'}
-      description="Masukkan kunci lisensi dari vendor, atau unggah berkas lisensi bila server ini tidak bisa menghubungi vendor."
+      description="Mulai trial, masukkan kunci lisensi dari vendor, atau unggah berkas lisensi bila server ini tidak bisa menghubungi vendor."
     >
       {state === 'active' ? (
         <FormNotice tone="info">
@@ -170,11 +239,17 @@ export function ActivationPage() {
       )}
       <InstanceId value={instanceId} />
       {canInstall ? (
-        <Tabs defaultValue="online">
+        <Tabs defaultValue={state === 'missing' ? 'trial' : 'online'}>
           <TabsList>
+            {isTrial && state === 'active' ? null : (
+              <TabsTrigger value="trial">Mulai trial</TabsTrigger>
+            )}
             <TabsTrigger value="online">Kunci lisensi</TabsTrigger>
             <TabsTrigger value="manual">Unggah berkas</TabsTrigger>
           </TabsList>
+          <TabsContent value="trial" className="pt-3">
+            <TrialForm />
+          </TabsContent>
           <TabsContent value="online" className="pt-3">
             <OnlineForm />
           </TabsContent>
