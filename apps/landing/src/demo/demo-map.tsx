@@ -1,3 +1,5 @@
+// Tanpa ini MapLibre mencari worker di sebelah modulnya sendiri, yang tidak ada di build produksi.
+import '@indoor/map-core/worker';
 import {
   buildingFloors,
   buildSnapshot,
