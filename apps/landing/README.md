@@ -6,6 +6,11 @@ dari titik asal venue), cara kerja, model on-premise dan lisensi,
 tangkapan layar, ajakan kontak lewat email, dan kebijakan privasi (`/privasi/`). Dua bahasa (ID/EN,
 `?lang=en`). **Bukan bagian paket instalasi klien.**
 
+Versi terbit ada di branch `landing-publish` dan dihosting di Cloudflare Pages dengan domain
+**https://panduarah.my.id** (nameserver domain dari Rumahweb diarahkan ke Cloudflare). Alamat domain
+juga tertulis di tag canonical/Open Graph `index.html` dan `privasi/index.html`, `public/robots.txt`,
+dan `public/sitemap.xml`; ubah semuanya bila domain berganti.
+
 ```
 pnpm dev:landing                           # http://localhost:5175
 pnpm --filter @indoor/landing build        # dist/ siap di-host statis (index.html + privasi/index.html)
