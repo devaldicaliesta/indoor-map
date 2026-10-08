@@ -398,6 +398,16 @@ deno_version = 2
 SEND_EMAIL_HOOK_SECRET = "v1,whsec_z0/ZtG1axd3HvU9VjunIb/lgBMvIYwC6Ypk28OzYsmI="
 # Server vendor untuk aktivasi online; lokal memakai `tools/vendor-stub` di host (T-402).
 LICENSE_VENDOR_URL = "http://host.docker.internal:8091"
+# Form trial landing page (T-505): lokal dikirim ke Mailpit; server vendor memakai SMTP sungguhan
+# (password hanya di rahasia server vendor, tidak di repo).
+TRIAL_SMTP_HOST = "supabase_inbucket_indoor-map"
+TRIAL_SMTP_PORT = "1025"
+TRIAL_SMTP_FROM = "PanduArah <panduarahid@gmail.com>"
+
+# Form trial di landing page vendor (T-505): dipanggil pengunjung tanpa login; dilindungi
+# validasi, honeypot, dan batas laju per IP. Khusus server vendor, tidak ikut paket klien.
+[functions.trial-request]
+verify_jwt = false
 
 # Dipanggil GoTrue tanpa JWT; keasliannya diperiksa lewat tanda tangan Standard Webhooks.
 [functions.auth-email]

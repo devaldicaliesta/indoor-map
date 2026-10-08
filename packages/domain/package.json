@@ -7,6 +7,7 @@
     ".": "./src/index.ts",
     "./license": "./src/license.ts",
     "./license-public-key": "./src/license.publicKey.ts",
+    "./trial-request": "./src/trial-request.ts",
     "./fixtures/*": "./test/fixtures/*"
   },
   "scripts": {

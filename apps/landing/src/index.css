@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@import "@indoor/ui/styles.css";
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/*
+ * Hanya landing page: judul pemasaran lebih besar dari skala aplikasi (Admin/Visitor berhenti
+ * di 32 px, docs/05-desain-ui.md). Berat tetap 400 dan 700.
+ */
+@theme {
+  --text-3xl: 32px;
+  --text-3xl--line-height: 40px;
+  --text-4xl: 40px;
+  --text-4xl--line-height: 48px;
+  --text-5xl: 52px;
+  --text-5xl--line-height: 60px;
+}
