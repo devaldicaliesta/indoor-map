@@ -3,6 +3,7 @@ import {
   Building2Icon,
   FactoryIcon,
   GraduationCapIcon,
+  HeadsetIcon,
   HospitalIcon,
   Layers3Icon,
   type LucideIcon,
@@ -19,7 +20,6 @@ import {
   ShieldCheckIcon,
   ShoppingBagIcon,
   TicketIcon,
-  TimerIcon,
   WifiOffIcon,
 } from 'lucide-react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
@@ -129,7 +129,7 @@ export function Hero() {
           <p className="text-ink-muted text-lg">{copy.hero.lead}</p>
           <div className="flex flex-wrap gap-3">
             <Button asChild variant="primary">
-              <a href="#trial">{copy.hero.primary}</a>
+              <a href="#kontak">{copy.hero.primary}</a>
             </Button>
             <Button asChild>
               <a href="#demo">{copy.hero.secondary}</a>
@@ -180,6 +180,7 @@ export function Buildings() {
         items={copy.buildings.items}
         icons={[
           ShoppingBagIcon,
+          HeadsetIcon,
           HospitalIcon,
           GraduationCapIcon,
           Building2Icon,
@@ -234,7 +235,7 @@ export function HowItWorks() {
 
 export function Licensing() {
   const { copy } = useLanguage();
-  const icons = [ServerIcon, ShieldCheckIcon, TimerIcon];
+  const icons = [ServerIcon, ShieldCheckIcon, HeadsetIcon];
   return (
     <Section id="lisensi" title={copy.license.title} lead={copy.license.lead}>
       <ul className="m-0 grid list-none gap-4 p-0 md:grid-cols-3">
@@ -251,7 +252,7 @@ export function Licensing() {
       </ul>
       <div>
         <Button asChild variant="primary">
-          <a href="#trial">{copy.hero.primary}</a>
+          <a href="#kontak">{copy.hero.primary}</a>
         </Button>
       </div>
     </Section>

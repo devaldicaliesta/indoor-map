@@ -26,7 +26,7 @@ describe('teks landing ID/EN (TC-LND-01)', () => {
 
   it('teks EN memang diterjemahkan', () => {
     expect(COPY.en.hero.title).not.toBe(COPY.id.hero.title);
-    expect(COPY.en.trial.submit).toBe('Send request');
+    expect(COPY.en.contact.title).toBe('Contact us');
   });
 });
 
@@ -51,17 +51,5 @@ describe('bahasa awal', () => {
     expect(await initial('', null, ['id-ID'])).toBe('id');
     expect(await initial('', null, ['fr-FR'])).toBe('id');
     expect(await initial('?lang=xx', null, ['fr-FR'])).toBe('id');
-  });
-});
-
-describe('alamat form trial', () => {
-  it('memakai VITE_TRIAL_ENDPOINT bila ada, selain itu fungsi trial-request Supabase', async () => {
-    vi.stubEnv('VITE_TRIAL_ENDPOINT', '');
-    vi.stubEnv('VITE_SUPABASE_URL', 'https://api.vendor.test/');
-    const { trialEndpoint } = await import('../src/sections/trial-form');
-    expect(trialEndpoint()).toBe('https://api.vendor.test/functions/v1/trial-request');
-    vi.stubEnv('VITE_TRIAL_ENDPOINT', 'https://vendor.test/trial');
-    expect(trialEndpoint()).toBe('https://vendor.test/trial');
-    vi.unstubAllEnvs();
   });
 });

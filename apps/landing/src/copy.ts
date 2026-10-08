@@ -1,23 +1,16 @@
-import type {
-  BuildingSize,
-  BuildingType,
-  TrialRequestField,
-  TrialRequestProblem,
-} from '@indoor/domain/trial-request';
-
 /** Teks landing page dalam dua bahasa; bentuk EN harus sama persis dengan ID. */
 const id = {
   meta: {
     title: 'PanduArah — Navigasi dalam gedung untuk mal, rumah sakit, kampus, dan event',
     description:
-      'Peta interaktif 2D/3D dan petunjuk arah langkah demi langkah untuk gedung Anda. Dipasang di server sendiri. Coba gratis 14–30 hari.',
+      'Peta interaktif 2D/3D dan petunjuk arah langkah demi langkah untuk gedung Anda. Dipasang di server sendiri.',
   },
   nav: {
     features: 'Fitur',
     demo: 'Demo 3D',
     how: 'Cara kerja',
     license: 'Lisensi',
-    trial: 'Minta trial',
+    contact: 'Hubungi kami',
     language: 'Bahasa',
     menu: 'Menu',
     skip: 'Langsung ke isi',
@@ -26,13 +19,13 @@ const id = {
     eyebrow: 'Navigasi dalam gedung',
     title: 'Pengunjung tidak lagi tersesat di gedung Anda.',
     lead: 'PanduArah membuat peta interaktif 2D dan 3D serta petunjuk arah langkah demi langkah untuk mal, rumah sakit, kampus, bandara, kawasan industri, dan event. Semua berjalan di server Anda sendiri.',
-    primary: 'Minta trial gratis',
+    primary: 'Hubungi kami',
     secondary: 'Coba peta 3D',
     videoLabel: 'Video animasi PanduArah: denah gedung menjadi peta 3D dengan rute dan pengunjung',
     play: 'Putar video',
     pause: 'Jeda video',
     facts: [
-      ['14–30 hari', 'trial gratis'],
+      ['QR & tautan', 'tanpa pasang aplikasi'],
       ['2D & 3D', 'peta bertingkat'],
       ['ID / EN', 'dua bahasa'],
       ['On-premise', 'data di server Anda'],
@@ -110,8 +103,8 @@ const id = {
         'Jumlah venue, gedung, lantai, dan Info Point sesuai kebutuhan; fitur 3D dan impor CAD per paket.',
       ],
       [
-        'Trial 14–30 hari',
-        'Semua fitur dengan batas data trial. Pasang lisensi berbayar kapan saja tanpa kehilangan data.',
+        'Pendampingan',
+        'Kami bantu instalasi di server Anda dan menjawab pertanyaan admin lewat email.',
       ],
     ],
   },
@@ -124,53 +117,10 @@ const id = {
       ['info-point', 'Info Point layar sentuh di lobi'],
     ],
   },
-  trial: {
-    title: 'Minta trial gratis',
-    lead: 'Isi data di bawah. Kami mengirim konfirmasi ke email Anda dan membantu instalasi.',
-    name: 'Nama lengkap',
-    institution: 'Instansi / perusahaan',
-    jobTitle: 'Jabatan',
-    email: 'Email kantor',
-    phone: 'Nomor telepon / WhatsApp',
-    buildingType: 'Jenis gedung',
-    buildingSize: 'Perkiraan luas lantai',
-    choose: 'Pilih…',
-    durationDays: 'Lama trial (hari)',
-    durationHint: '14 sampai 30 hari',
-    installId: 'ID instalasi (opsional)',
-    installHint: 'Bila server sudah terpasang: salin dari halaman Aktivasi.',
-    consent: 'Saya setuju data ini dipakai untuk memproses permintaan trial sesuai',
-    privacy: 'kebijakan privasi',
-    honeypot: 'Jangan diisi',
-    submit: 'Kirim permintaan',
-    sending: 'Mengirim…',
-    sent: 'Terima kasih! Permintaan terkirim. Cek email Anda untuk konfirmasi.',
-    rateLimited: 'Terlalu banyak kiriman. Coba lagi sebentar lagi.',
-    failed: 'Permintaan belum terkirim. Coba lagi, atau email kami di',
-    fixErrors: 'Periksa isian yang ditandai.',
-    types: {
-      mall: 'Mal / pusat belanja',
-      hospital: 'Rumah sakit',
-      campus: 'Kampus / sekolah',
-      office: 'Perkantoran',
-      airport: 'Bandara / terminal',
-      industrial: 'Kawasan industri / pabrik',
-      event: 'Event / konser / pameran',
-      other: 'Lainnya',
-    } satisfies Record<BuildingType, string>,
-    sizes: {
-      lt5k: 'Kurang dari 5.000 m²',
-      '5k-20k': '5.000–20.000 m²',
-      '20k-50k': '20.000–50.000 m²',
-      gt50k: 'Lebih dari 50.000 m²',
-    } satisfies Record<BuildingSize, string>,
-    problems: {
-      required: 'Wajib diisi.',
-      too_long: 'Terlalu panjang.',
-      invalid: 'Format tidak valid.',
-      out_of_range: 'Harus 14 sampai 30 hari.',
-    } satisfies Record<TrialRequestProblem, string>,
-    consentRequired: 'Centang persetujuan untuk melanjutkan.',
+  contact: {
+    title: 'Hubungi kami',
+    lead: 'Ingin memasang PanduArah di gedung Anda atau melihat demo? Kirim email berisi nama gedung, jenis gedung, dan perkiraan luasnya. Kami membalas dalam satu hari kerja.',
+    email: 'Kirim email',
   },
   footer: {
     tagline: 'Indoor Navigation',
@@ -185,15 +135,15 @@ const id = {
     sections: [
       [
         'Data yang kami kumpulkan',
-        'Saat Anda mengirim form "Minta trial": nama, instansi, jabatan, email, nomor telepon, jenis dan luas gedung, lama trial, dan ID instalasi bila diisi. Alamat IP pengirim dicatat di email permintaan untuk mencegah penyalahgunaan.',
+        'Landing page ini tidak memiliki form. Bila Anda mengirim email ke kami, kami menerima alamat email, nama, dan isi pesan yang Anda tulis.',
       ],
       [
         'Untuk apa',
-        'Hanya untuk memproses permintaan trial, menerbitkan lisensi trial, membantu instalasi, dan menghubungi Anda tentang PanduArah. Kami tidak menjual data dan tidak memakainya untuk iklan pihak lain.',
+        'Hanya untuk membalas pertanyaan Anda, membantu instalasi, dan menghubungi Anda tentang PanduArah. Kami tidak menjual data dan tidak memakainya untuk iklan pihak lain.',
       ],
       [
         'Penyimpanan',
-        'Data dikirim ke kotak email vendor dan disimpan paling lama 12 bulan, kecuali Anda menjadi klien. Landing page ini tidak memakai cookie pelacak; pilihan bahasa disimpan di peramban Anda sendiri.',
+        'Email disimpan di kotak email vendor paling lama 12 bulan, kecuali Anda menjadi klien. Landing page ini tidak memakai cookie pelacak; pilihan bahasa disimpan di peramban Anda sendiri.',
       ],
       [
         'Hak Anda',
@@ -214,14 +164,14 @@ const en: Copy = {
   meta: {
     title: 'PanduArah — Indoor navigation for malls, hospitals, campuses, and events',
     description:
-      'Interactive 2D/3D maps and step-by-step directions inside your building. Runs on your own server. Free 14–30 day trial.',
+      'Interactive 2D/3D maps and step-by-step directions inside your building. Runs on your own server.',
   },
   nav: {
     features: 'Features',
     demo: '3D demo',
     how: 'How it works',
     license: 'Licensing',
-    trial: 'Request a trial',
+    contact: 'Contact us',
     language: 'Language',
     menu: 'Menu',
     skip: 'Skip to content',
@@ -230,13 +180,13 @@ const en: Copy = {
     eyebrow: 'Indoor navigation',
     title: 'Visitors never get lost in your building again.',
     lead: 'PanduArah creates interactive 2D and 3D maps with step-by-step directions for malls, hospitals, campuses, airports, industrial estates, and events. Everything runs on your own server.',
-    primary: 'Request a free trial',
+    primary: 'Contact us',
     secondary: 'Try the 3D map',
     videoLabel: 'PanduArah animation: a floor plan becomes a 3D map with a route and visitors',
     play: 'Play video',
     pause: 'Pause video',
     facts: [
-      ['14–30 days', 'free trial'],
+      ['QR & link', 'no app to install'],
       ['2D & 3D', 'multi-floor maps'],
       ['ID / EN', 'two languages'],
       ['On-premise', 'data on your server'],
@@ -325,10 +275,7 @@ const en: Copy = {
         'License per plan',
         'Venues, buildings, floors, and Info Points as needed; 3D and CAD import per plan.',
       ],
-      [
-        '14–30 day trial',
-        'All features with trial data limits. Install a paid license anytime without losing data.',
-      ],
+      ['Support', 'We help install on your server and answer admin questions by email.'],
     ],
   },
   screens: {
@@ -340,53 +287,10 @@ const en: Copy = {
       ['info-point', 'Touch-screen Info Point in a lobby'],
     ],
   },
-  trial: {
-    title: 'Request a free trial',
-    lead: 'Fill in the form. We will email you a confirmation and help with installation.',
-    name: 'Full name',
-    institution: 'Organisation / company',
-    jobTitle: 'Job title',
-    email: 'Work email',
-    phone: 'Phone / WhatsApp',
-    buildingType: 'Building type',
-    buildingSize: 'Approximate floor area',
-    choose: 'Choose…',
-    durationDays: 'Trial length (days)',
-    durationHint: '14 to 30 days',
-    installId: 'Installation ID (optional)',
-    installHint: 'If the server is already installed: copy it from the Activation page.',
-    consent: 'I agree that this data is used to process my trial request according to the',
-    privacy: 'privacy policy',
-    honeypot: 'Leave empty',
-    submit: 'Send request',
-    sending: 'Sending…',
-    sent: 'Thank you! Your request was sent. Check your email for the confirmation.',
-    rateLimited: 'Too many submissions. Please try again shortly.',
-    failed: 'Your request was not sent. Try again, or email us at',
-    fixErrors: 'Please check the highlighted fields.',
-    types: {
-      mall: 'Mall / shopping centre',
-      hospital: 'Hospital',
-      campus: 'Campus / school',
-      office: 'Office',
-      airport: 'Airport / terminal',
-      industrial: 'Industrial estate / factory',
-      event: 'Event / concert / exhibition',
-      other: 'Other',
-    },
-    sizes: {
-      lt5k: 'Under 5,000 m²',
-      '5k-20k': '5,000–20,000 m²',
-      '20k-50k': '20,000–50,000 m²',
-      gt50k: 'Over 50,000 m²',
-    },
-    problems: {
-      required: 'Required.',
-      too_long: 'Too long.',
-      invalid: 'Invalid format.',
-      out_of_range: 'Must be 14 to 30 days.',
-    },
-    consentRequired: 'Tick the consent box to continue.',
+  contact: {
+    title: 'Contact us',
+    lead: 'Want PanduArah in your building or a live demo? Email us your building name, type, and approximate size. We reply within one business day.',
+    email: 'Send an email',
   },
   footer: {
     tagline: 'Indoor Navigation',
@@ -401,15 +305,15 @@ const en: Copy = {
     sections: [
       [
         'Data we collect',
-        'When you send the "Request a trial" form: name, organisation, job title, email, phone number, building type and size, trial length, and installation ID if provided. The sender IP address is included in the request email to prevent abuse.',
+        'This site has no forms. If you email us, we receive your email address, name, and the message you write.',
       ],
       [
         'Why',
-        'Only to process your trial request, issue a trial license, help with installation, and contact you about PanduArah. We do not sell your data or use it for third-party advertising.',
+        'Only to answer your questions, help with installation, and contact you about PanduArah. We do not sell your data or use it for third-party advertising.',
       ],
       [
         'Retention',
-        'The data is sent to the vendor mailbox and kept for at most 12 months unless you become a client. This site uses no tracking cookies; your language choice is stored in your own browser.',
+        'Emails are kept in the vendor mailbox for at most 12 months unless you become a client. This site uses no tracking cookies; your language choice is stored in your own browser.',
       ],
       [
         'Your rights',
@@ -426,4 +330,3 @@ const en: Copy = {
 
 export const COPY = { id, en } as const;
 export type Language = keyof typeof COPY;
-export type TrialFieldName = TrialRequestField;
