@@ -5,18 +5,12 @@ import {
   buildSnapshot,
   initialMapView,
   mapLabels,
-  parseFacilityIcon,
   type Snapshot,
-  unitColors,
   visibleFloorIds,
 } from '@indoor/domain';
 import { concertVenue, hospitalVenue } from '@indoor/domain/fixtures/demo-venues/index.ts';
 import {
-  type CrowdArea,
-  categoryIconTypeId,
-  categoryUnitColors,
   createMap,
-  type FacilityIconSpec,
   type FloorFeatureCollection,
   featureBounds,
   type MapInstance,
@@ -28,12 +22,15 @@ import {
   setMapLabel,
   setViewMode,
 } from '@indoor/map-core';
-import { cn, FloorSwitcher, MapControls, pictogramSvg } from '@indoor/ui';
+import { cn, FloorSwitcher, MapControls } from '@indoor/ui';
 import { UsersRoundIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import '@indoor/map-core/styles.css';
 import { useLanguage } from '../language';
+import { crowdAreas, floorCollection, iconSpecs } from './demo-layers';
 import { LABEL_FONT } from './label-font';
+import { DestinationPicker, RouteCard } from './route-card';
+import { useDemoRoute } from './use-demo-route';
 
 export type DemoVenue = 'concert' | 'hospital';
 
@@ -50,69 +47,6 @@ const snapshotOf = (venue: DemoVenue) => {
   }
   return snapshot;
 };
-
-/** Fitur lantai dengan pelat lantai dari footprint dan warna kategori, seperti Visitor. */
-function floorCollection(snapshot: Snapshot, floorIds: readonly string[]): FloorFeatureCollection {
-  const visible = new Set(floorIds);
-  const colors = new Map(
-    [...unitColors(snapshot)].map(([id, color]) => [id, categoryUnitColors(color)]),
-  );
-  const footprints = new Map(snapshot.buildings.map((b) => [b.id, b.footprint]));
-  const slabs: FloorFeatureCollection['features'] = snapshot.floors.flatMap((floor) => {
-    const footprint = floor.buildingId ? footprints.get(floor.buildingId) : null;
-    if (!footprint || !visible.has(floor.id)) return [];
-    return [
-      {
-        type: 'Feature',
-        geometry: footprint,
-        properties: { id: `slab-${floor.id}`, kind: 'corridor', floorId: floor.id },
-      },
-    ] as FloorFeatureCollection['features'];
-  });
-  return {
-    type: 'FeatureCollection',
-    features: [...slabs, ...snapshot.features.features]
-      .filter((f) => visible.has(f.properties.floorId))
-      .map((f) => {
-        const paint = colors.get(f.properties.id);
-        return paint
-          ? { ...f, properties: { ...f.properties, color: paint.fill, outline: paint.outline } }
-          : f;
-      }),
-  };
-}
-
-function iconSpecs(snapshot: Snapshot): FacilityIconSpec[] {
-  const svg = (icon: string | null) => {
-    const parsed = parseFacilityIcon(icon);
-    return parsed?.kind === 'builtin' ? { svg: pictogramSvg(parsed.key) } : null;
-  };
-  const typeColor = new Map(snapshot.locationTypes.map((t) => [t.id, t.color]));
-  return [
-    ...snapshot.facilityTypes.map((type) => ({
-      typeId: type.id,
-      isSafety: type.isSafety,
-      source: svg(type.icon),
-    })),
-    ...snapshot.categories.map((category) => ({
-      typeId: categoryIconTypeId(category.id),
-      isSafety: false,
-      background: category.color ?? typeColor.get(category.locationTypeId) ?? undefined,
-      ring: '#ffffff',
-      source: svg(category.icon),
-    })),
-  ];
-}
-
-function crowdAreas(snapshot: Snapshot, floorIds: readonly string[]): CrowdArea[] {
-  const visible = new Set(floorIds);
-  return snapshot.features.features.flatMap((f) => {
-    if (f.properties.kind !== 'unit' || !visible.has(f.properties.floorId)) return [];
-    if (f.geometry.type !== 'Polygon') return [];
-    const ring = f.geometry.coordinates[0];
-    return ring ? [{ floorId: f.properties.floorId, ring: ring as CrowdArea['ring'] }] : [];
-  });
-}
 
 /**
  * Peta demo interaktif di landing page: venue demo konser stadion atau rumah sakit dibangun
@@ -166,6 +100,13 @@ function VenueDemo({
     () => (floorId ? visibleFloorIds(snapshot, floorId) : []),
     [snapshot, floorId],
   );
+  const route = useDemoRoute({
+    map,
+    snapshot,
+    buildingId: view.buildingId,
+    floorIds,
+    setFloorId,
+  });
 
   // Peta dibuat ulang per venue agar ikon dan kamera mengikuti venue itu.
   useEffect(() => {
@@ -238,7 +179,7 @@ function VenueDemo({
     return <p className="rounded-lg border border-line bg-surface p-6">{copy.demo.failed}</p>;
 
   return (
-    <div className="grid gap-3">
+    <div className="grid min-w-0 gap-3">
       <div className="flex flex-wrap items-center gap-2">
         <fieldset
           aria-label={copy.demo.title}
@@ -273,6 +214,14 @@ function VenueDemo({
         </button>
         <span className="text-ink-muted text-sm">{copy.demo.note}</span>
       </div>
+      {route.origin ? (
+        <DestinationPicker
+          snapshot={snapshot}
+          origin={route.origin}
+          target={route.target}
+          onChange={route.setTarget}
+        />
+      ) : null}
       <div className="relative h-[460px] overflow-hidden rounded-lg border border-line bg-canvas sm:h-[560px]">
         <div
           ref={container}
@@ -282,7 +231,22 @@ function VenueDemo({
           data-venue={venue}
           data-floor-id={floorId ?? ''}
           data-people={people ? 'on' : 'off'}
+          data-route={route.plan ? (route.plan.ok ? 'ok' : 'failed') : 'none'}
         />
+        {route.origin && route.target && route.plan ? (
+          <RouteCard
+            snapshot={snapshot}
+            index={route.index}
+            origin={route.origin}
+            target={route.target}
+            plan={route.plan}
+            buildingId={view.buildingId}
+            floorId={floorId}
+            floors={floors}
+            onFloor={setFloorId}
+            onClose={() => route.setTarget(null)}
+          />
+        ) : null}
         <div className="pointer-events-none absolute top-3 right-3 bottom-3 flex flex-col items-end justify-between gap-3">
           <div className="pointer-events-auto">
             {floors.length > 1 ? (
