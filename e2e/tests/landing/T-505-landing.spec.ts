@@ -11,7 +11,7 @@ async function noHorizontalScroll(page: Page) {
 
 /**
  * Landing page vendor (T-505): isi lengkap ID/EN di HP dan desktop, video motion graphic, peta 3D
- * interaktif (konser dan rumah sakit), ajakan kontak lewat email, dan kebijakan privasi. Form trial
+ * interaktif (konser dan rumah sakit) dengan rute ke lokasi yang diklik, ajakan kontak lewat email, dan kebijakan privasi. Form trial
  * belum dipasang di situs terbit (branch landing-publish).
  */
 test.describe('T-505 Landing page', () => {
@@ -95,6 +95,58 @@ test.describe('T-505 Landing page', () => {
     await section.screenshot({ path: shot('08-demo-rumah-sakit') });
   });
 
+  test('rute di peta demo: pilih tujuan, klik lokasi di peta, rute antarlantai', async ({
+    page,
+  }) => {
+    await page.goto('/?lang=id#demo');
+    const map = page.getByTestId('demo-map');
+    await expect(map).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
+    await expect(map).toHaveAttribute('data-route', 'none');
+    const destination = page.getByLabel('Tujuan');
+    const card = page.getByRole('region', { name: 'Rute' });
+
+    await destination.selectOption({ label: 'Area Disabilitas' });
+    await expect(map).toHaveAttribute('data-route', 'ok');
+    await expect(card).toContainText('Dari Gerbang 1 (Utama)');
+    await expect(card).toContainText('Area Disabilitas');
+    await expect(card.getByRole('listitem').first()).toContainText('Gerbang 1 (Utama)');
+    await page.waitForTimeout(1500);
+    await page.locator('#demo').screenshot({ path: shot('09-rute-pilih-tujuan') });
+    await card.getByRole('button', { name: 'Hapus rute' }).click();
+    await expect(map).toHaveAttribute('data-route', 'none');
+    await expect(destination).toHaveValue('');
+
+    // Klik ruang di peta (bukan dari daftar): sapu beberapa titik sampai mengenai lokasi.
+    const box = await map.boundingBox();
+    if (!box) throw new Error('peta demo tidak tampil');
+    for (const fy of [0.35, 0.45, 0.55, 0.65]) {
+      for (const fx of [0.35, 0.45, 0.55, 0.65]) {
+        await page.mouse.click(box.x + box.width * fx, box.y + box.height * fy);
+        if ((await map.getAttribute('data-route')) === 'ok') break;
+      }
+      if ((await map.getAttribute('data-route')) === 'ok') break;
+    }
+    await expect(map).toHaveAttribute('data-route', 'ok');
+    await expect(card).toBeVisible();
+
+    // Rumah sakit: tujuan di lantai atas, rute lewat konektor dengan pilihan lantai di kartu.
+    await page.getByRole('button', { name: 'Rumah sakit' }).click();
+    await expect(map).toHaveAttribute('data-venue', 'hospital');
+    await expect(map).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
+    const upstairs = await destination.locator('optgroup').nth(1).locator('option').first();
+    await destination.selectOption(String(await upstairs.getAttribute('value')));
+    await expect(map).toHaveAttribute('data-route', 'ok');
+    const floors = card
+      .getByRole('group', { name: 'Lantai' })
+      .getByRole('button', { pressed: false });
+    await expect(floors.first()).toBeVisible();
+    const before = await map.getAttribute('data-floor-id');
+    await floors.first().click();
+    await expect(map).not.toHaveAttribute('data-floor-id', before ?? '');
+    await page.waitForTimeout(1500);
+    await page.locator('#demo').screenshot({ path: shot('10-rute-antarlantai') });
+  });
+
   test('ajakan kontak: tombol utama menuju bagian kontak dengan email vendor', async ({ page }) => {
     await page.goto('/?lang=id');
     await page.getByRole('link', { name: 'Hubungi kami' }).first().click();
@@ -105,7 +157,7 @@ test.describe('T-505 Landing page', () => {
       'mailto:panduarahid@gmail.com',
     );
     await expect(page.locator('form')).toHaveCount(0);
-    await contact.screenshot({ path: shot('09-kontak') });
+    await contact.screenshot({ path: shot('11-kontak') });
   });
 
   test('kebijakan privasi ID/EN dan tautan dari kaki halaman', async ({ page }) => {
@@ -114,7 +166,7 @@ test.describe('T-505 Landing page', () => {
     await expect(page).toHaveURL(/\/privasi\/\?lang=id$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Kebijakan privasi' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Hak Anda' })).toBeVisible();
-    await page.screenshot({ path: shot('10-privasi-id'), fullPage: true });
+    await page.screenshot({ path: shot('12-privasi-id'), fullPage: true });
     await page.getByRole('button', { name: 'English' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Privacy policy' })).toBeVisible();
     await page.getByRole('link', { name: /Back to home/ }).click();
