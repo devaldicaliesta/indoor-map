@@ -48,6 +48,7 @@ export type {
   LicenseRepository,
   LicenseState,
   LicenseStatus,
+  TrialRequest,
 } from './repositories/license';
 export type { LocationTypesRepository } from './repositories/location-types';
 export type {

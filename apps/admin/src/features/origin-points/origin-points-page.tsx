@@ -27,6 +27,7 @@ import { FormNotice } from '../auth/auth-layout';
 import { floorLabel } from '../closures/closure-model';
 import { useVenueFloors } from '../editor/connectors/queries';
 import { InfoPointsPanel } from '../info-points/info-points-panel';
+import { QuotaNotice, useQuotaBlock } from '../license/quota-notice';
 import { OriginDialog, type OriginDialogTarget } from './origin-dialog';
 import { floorFilter, PATH_FILTER, pathState } from './point-filters';
 import { downloadPdf, downloadPng, qrCard } from './qr-download';
@@ -72,6 +73,7 @@ function Origins({ venue }: { venue: VenueSummary }) {
       })
     : undefined;
   const url = publicUrl.data ?? null;
+  const originQuota = useQuotaBlock('originPoints');
   const qrUrl = (point: OriginPoint) => (url ? originPointUrl(url, venue.id, point.code) : null);
   const floorOf = (point: OriginPoint) => (places ? floorLabel(places, point.floorId) : '');
   const place = (point: OriginPoint) => `${point.name} · ${floorOf(point)}`;
@@ -173,9 +175,16 @@ function Origins({ venue }: { venue: VenueSummary }) {
         onRetry={() => void points.refetch()}
         actions={
           canEdit ? (
-            <Button variant="primary" disabled={!url} onClick={() => setDialog({ point: null })}>
-              Tambah titik asal
-            </Button>
+            <>
+              <QuotaNotice message={originQuota} />
+              <Button
+                variant="primary"
+                disabled={!url || originQuota !== null}
+                onClick={() => setDialog({ point: null })}
+              >
+                Tambah titik asal
+              </Button>
+            </>
           ) : null
         }
         empty={

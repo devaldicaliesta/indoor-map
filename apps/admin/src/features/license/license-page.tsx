@@ -3,10 +3,15 @@ import {
   daysRemaining,
   FEATURE_LABELS,
   isQuotaFull,
+  LIMIT_KINDS,
+  LIMIT_LABELS,
+  type LicenseLimits,
   type PaidFeature,
   QUOTA_LABELS,
   type QuotaUsage,
+  quotaReachedPrefix,
 } from '@indoor/domain';
+import { isTrialLicense } from '@indoor/domain/license';
 import {
   Button,
   type DataColumn,
@@ -21,7 +26,7 @@ import { Link } from 'react-router';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useTableState } from '../../hooks/use-table-state';
 import { FormNotice } from '../auth/auth-layout';
-import { useCheckIn, useLicenseDetails, useLicenseUsage } from './queries';
+import { useCheckIn, useLicenseDetails, useLicenseLimits, useLicenseUsage } from './queries';
 import { VendorEmail } from './vendor-email';
 
 const date = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -120,8 +125,25 @@ const USAGE_FILTERS: FilterDef[] = [
   },
 ];
 
-const USAGE_COLUMNS: DataColumn<QuotaUsage>[] = [
-  { id: 'kind', header: 'Kuota', cell: (u) => QUOTA_LABELS[u.kind] },
+/** Keterangan pemakaian yang dihitung terbanyak, bukan total. */
+const USAGE_HINTS: Partial<Record<QuotaUsage['kind'], string>> = {
+  features: 'lantai terpadat',
+  publishPerDay: 'terbanyak hari ini',
+};
+
+const usageColumns = (trial: boolean): DataColumn<QuotaUsage>[] => [
+  {
+    id: 'kind',
+    header: 'Kuota',
+    cell: (u) => (
+      <>
+        {QUOTA_LABELS[u.kind]}
+        {USAGE_HINTS[u.kind] ? (
+          <span className="block text-ink-muted text-sm">{USAGE_HINTS[u.kind]}</span>
+        ) : null}
+      </>
+    ),
+  },
   {
     id: 'used',
     header: 'Pemakaian',
@@ -153,7 +175,7 @@ const USAGE_COLUMNS: DataColumn<QuotaUsage>[] = [
               bisa menambah data dan publish lagi.
             </span>
           ) : full ? (
-            <span className="text-sm">Kuota paket tercapai</span>
+            <span className="text-sm">{quotaReachedPrefix(trial)}</span>
           ) : null}
         </>
       );
@@ -161,7 +183,7 @@ const USAGE_COLUMNS: DataColumn<QuotaUsage>[] = [
   },
 ];
 
-function UsageTable({ usage }: { usage: QuotaUsage[] }) {
+function UsageTable({ usage, trial }: { usage: QuotaUsage[]; trial: boolean }) {
   const table = useTableState({ filters: USAGE_FILTERS });
   const result = queryRows(usage, table.state, {
     text: (u) => [QUOTA_LABELS[u.kind]],
@@ -171,7 +193,7 @@ function UsageTable({ usage }: { usage: QuotaUsage[] }) {
     <div className="max-w-3xl">
       <DataTable
         label="Kuota lisensi"
-        columns={USAGE_COLUMNS}
+        columns={usageColumns(trial)}
         rows={result.rows}
         rowKey={(u) => u.kind}
         total={result.total}
@@ -184,9 +206,29 @@ function UsageTable({ usage }: { usage: QuotaUsage[] }) {
   );
 }
 
+/** Batas per tindakan: tidak punya pemakaian berjalan, diperiksa setiap unggahan dan impor. */
+function ActionLimits({ limits }: { limits: LicenseLimits }) {
+  return (
+    <section aria-labelledby="action-limits" className="grid max-w-3xl gap-2">
+      <h2 id="action-limits" className="font-bold">
+        Batas per tindakan
+      </h2>
+      <dl className="grid gap-1 sm:grid-cols-2">
+        {LIMIT_KINDS.map((kind) => (
+          <div key={kind} className="flex justify-between gap-4 border-line border-b py-1">
+            <dt>{LIMIT_LABELS[kind]}</dt>
+            <dd className="font-mono">{limits[kind] ?? 'Tanpa batas'}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 function LicenseContent() {
   const details = useLicenseDetails();
   const usage = useLicenseUsage();
+  const limits = useLicenseLimits();
   if (details.isPending || usage.isPending) return <Skeleton className="h-64 max-w-3xl" />;
   if (details.error) return <FormNotice tone="error">{details.error.message}</FormNotice>;
   if (usage.error) return <FormNotice tone="error">{usage.error.message}</FormNotice>;
@@ -206,7 +248,14 @@ function LicenseContent() {
         <FormNotice tone="error">Check-in terakhir gagal: {details.data.checkinError}</FormNotice>
       ) : null}
       <Summary details={details.data} />
-      <UsageTable usage={usage.data} />
+      {isTrialLicense(details.data.license) ? (
+        <FormNotice tone="info">
+          Lisensi trial: data dibatasi agar server tidak berat. Pasang lisensi berbayar untuk
+          mengangkat batas; semua data trial tetap ada.
+        </FormNotice>
+      ) : null}
+      <UsageTable usage={usage.data} trial={isTrialLicense(details.data.license)} />
+      {limits.data ? <ActionLimits limits={limits.data} /> : null}
     </div>
   );
 }

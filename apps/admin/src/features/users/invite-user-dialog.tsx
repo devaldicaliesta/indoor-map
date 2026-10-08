@@ -14,11 +14,13 @@ import {
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
 import { FormNotice } from '../auth/auth-layout';
+import { QuotaNotice, useQuotaBlock } from '../license/quota-notice';
 import { useInviteUser } from './queries';
 import { RoleSelect } from './role-select';
 
 export function InviteUserDialog() {
   const [open, setOpen] = useState(false);
+  const userQuota = useQuotaBlock('users');
   const [role, setRole] = useState<AppRole>('editor');
   const invite = useInviteUser();
 
@@ -48,8 +50,11 @@ export function InviteUserDialog() {
         if (!next) invite.reset();
       }}
     >
+      <QuotaNotice message={userQuota} />
       <DialogTrigger asChild>
-        <Button variant="primary">Tambah pengguna</Button>
+        <Button variant="primary" disabled={userQuota !== null}>
+          Tambah pengguna
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -1,6 +1,7 @@
 import {
   type ImportPlan,
   type ImportRow,
+  importTooLarge,
   type LocationType,
   planImport,
   type VenueId,
@@ -31,6 +32,7 @@ import { useState } from 'react';
 import { Field } from '../../app/components/field';
 import { data } from '../../app/data-client';
 import { FormNotice } from '../auth/auth-layout';
+import { useLicenseLimits, useLicenseStatus } from '../license/queries';
 import { useCategories, useLocations, useVenueUnits } from '../locations/queries';
 import { downloadCsvTemplate, downloadXlsxTemplate, readTable } from './import-files';
 
@@ -137,6 +139,10 @@ export function ImportDialog({
   const [saving, setSaving] = useState<number | null>(null);
   const ready = Boolean(locations && categories && units && type);
   const valid = plan?.rows.filter((r) => r.write) ?? [];
+  // Batas baris per impor dari lisensi (trial: 500); server memeriksa lagi sebelum menyimpan.
+  const limits = useLicenseLimits().data;
+  const trial = useLicenseStatus().data?.isTrial ?? false;
+  const tooLarge = limits ? importTooLarge(valid.length, limits, trial) : null;
 
   async function choose(file: File | undefined) {
     setPlan(null);
@@ -251,10 +257,11 @@ export function ImportDialog({
                 </p>
               ) : null}
               <PlanTable key={fileName ?? ''} plan={plan} />
+              {tooLarge ? <FormNotice tone="error">{tooLarge}</FormNotice> : null}
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="primary"
-                  disabled={valid.length === 0 || saving !== null}
+                  disabled={valid.length === 0 || saving !== null || tooLarge !== null}
                   onClick={() => void saveValid()}
                 >
                   {saving !== null

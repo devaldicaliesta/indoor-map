@@ -19,7 +19,6 @@ const DEV_KEY = fileURLToPath(
   new URL('../../../../tools/license-cli/dev-keys/license-private.pkcs8.b64', import.meta.url),
 );
 
-
 const newDb = (key: string) =>
   createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 
@@ -105,7 +104,7 @@ describe.runIf(url && anonKey && serviceKey)('aktivasi lisensi', () => {
 
   it('status bisa dibaca tanpa login', async () => {
     const status = await createRepositories(newDb(anonKey)).license.status();
-    expect(status).toEqual({ state: 'active', instanceId, needsAdmin: false });
+    expect(status).toEqual({ state: 'active', instanceId, needsAdmin: false, isTrial: false });
   });
 
   it('tanpa lisensi API menolak perubahan; data tetap terbaca', async () => {

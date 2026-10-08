@@ -24,6 +24,7 @@ import { useSearchParams } from 'react-router';
 import { Can, useRole } from '../../app/auth/can';
 import { useTableState } from '../../hooks/use-table-state';
 import { ImportDialog } from '../import/import-dialog';
+import { QuotaNotice, useQuotaBlock } from '../license/quota-notice';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
 import { useFloors } from '../venues/floors/queries';
 import { DeleteLocationDialog } from './delete-location-dialog';
@@ -113,6 +114,7 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
   const outdoorName = useOutdoorLayer(venueId).data?.name ?? 'Area Luar';
   const floors = useFloors(useSelectedBuilding()).data;
   const [importing, setImporting] = useState(false);
+  const locationQuota = useQuotaBlock('locations');
   const [open, setOpen] = useState<Open>(null);
   useDeepLink(venueId, setOpen);
 
@@ -224,9 +226,10 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
             <Button disabled={!types.data?.length} onClick={() => setImporting(true)}>
               Import
             </Button>
+            <QuotaNotice message={locationQuota} />
             <Button
               variant="primary"
-              disabled={!types.data?.length}
+              disabled={!types.data?.length || locationQuota !== null}
               onClick={() => setOpen({ kind: 'form', location: null, unitId: null })}
             >
               Tambah lokasi

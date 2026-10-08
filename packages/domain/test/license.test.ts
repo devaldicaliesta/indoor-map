@@ -2,11 +2,16 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   canonicalize,
   importLicensePublicKey,
+  isTrialLicense,
   type LicenseFile,
   type LicensePayload,
   licenseSigningBytes,
   readLicensePayload,
+  TRIAL_FEATURES,
+  TRIAL_PLAN,
+  TRIAL_QUOTA,
   toBase64,
+  trialDaysProblem,
   verifyLicense,
 } from '../src/license';
 import { LICENSE_PUBLIC_KEY } from '../src/license.publicKey';
@@ -168,5 +173,62 @@ describe('kunci publik vendor', () => {
     const read = readLicensePayload(p);
     expect(read).toEqual(p);
     expect(read?.quota).not.toBe(p.quota);
+  });
+});
+
+describe('batas trial (T-504)', () => {
+  const trial = (): LicensePayload => ({
+    ...payload(),
+    plan: TRIAL_PLAN,
+    validUntil: '2026-01-15T00:00:00Z',
+    quota: { ...TRIAL_QUOTA },
+    features: [...TRIAL_FEATURES],
+  });
+
+  it('batas tambahan terbaca dan tetap ikut tanda tangan; lisensi lama tanpa batas tambahan tetap sah', async () => {
+    const file = await sign(trial());
+    const result = await verifyLicense(file, publicKey, INSTANCE, new Date('2026-01-05T00:00:00Z'));
+    expect(result.valid && result.license.quota).toEqual(TRIAL_QUOTA);
+    expect(result.valid && isTrialLicense(result.license)).toBe(true);
+    // Kuota diedit setelah ditandatangani: tanda tangan tidak cocok.
+    const edited = { ...file, quota: { ...file.quota, locations: 100_000 } };
+    expect(await verifyLicense(edited, publicKey, INSTANCE, NOW)).toEqual({
+      valid: false,
+      reason: 'bad_signature',
+    });
+    // Batas tambahan yang dihapus dari berkas juga ketahuan.
+    const { locations: _dropped, ...fewer } = file.quota;
+    expect(await verifyLicense({ ...file, quota: fewer }, publicKey, INSTANCE, NOW)).toMatchObject({
+      valid: false,
+      reason: 'bad_signature',
+    });
+    const old = await verifyLicense(await sign(payload()), publicKey, INSTANCE, NOW);
+    expect(old.valid && Object.keys(old.license.quota)).toEqual([
+      'venues',
+      'buildings',
+      'floors',
+      'infoPoints',
+    ]);
+  });
+
+  it('sebagian batas tambahan saja boleh; kunci tak dikenal dan nilai negatif ditolak', () => {
+    const base = payload();
+    expect(
+      readLicensePayload({ ...base, quota: { ...base.quota, publishPerDay: 5 } })?.quota,
+    ).toEqual({ ...base.quota, publishPerDay: 5 });
+    expect(readLicensePayload({ ...base, quota: { ...base.quota, rooms: 5 } })).toBeNull();
+    expect(readLicensePayload({ ...base, quota: { ...base.quota, users: -1 } })).toBeNull();
+    expect(readLicensePayload({ ...base, quota: { ...base.quota, storageMb: 1.5 } })).toBeNull();
+    const { venues: _v, ...missing } = base.quota;
+    expect(readLicensePayload({ ...base, quota: { ...missing, users: 5 } })).toBeNull();
+  });
+
+  it('lama trial 14–30 hari', () => {
+    expect(trialDaysProblem(14)).toBeNull();
+    expect(trialDaysProblem(30)).toBeNull();
+    expect(trialDaysProblem(13)).toMatch(/14–30/);
+    expect(trialDaysProblem(31)).toMatch(/14–30/);
+    expect(trialDaysProblem(14.5)).toMatch(/bulat/);
+    expect(isTrialLicense(payload())).toBe(false);
   });
 });

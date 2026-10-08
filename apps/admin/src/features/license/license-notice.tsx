@@ -1,7 +1,8 @@
 import { licenseNotice } from '@indoor/domain';
 import { TriangleAlertIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useCheckinOverdueSince, useLicenseValidUntil } from './queries';
+import { Link } from 'react-router';
+import { useCheckinOverdueSince, useLicenseStatus, useLicenseValidUntil } from './queries';
 import { VendorEmail } from './vendor-email';
 
 const date = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -22,13 +23,29 @@ function Banner({ children }: { children: ReactNode }) {
   );
 }
 
-/** Pengingat H-30/H-7/H-1 dan masa tenggang setelah lisensi berakhir. */
+/** Trial: sisa hari selalu tampil; lalu pengingat H-30/H-7/H-1 dan masa tenggang. */
 function ValidityNotice() {
   const validUntil = useLicenseValidUntil();
+  const status = useLicenseStatus();
   if (!validUntil.data) return null;
-  const notice = licenseNotice(validUntil.data, new Date());
+  const notice = licenseNotice(validUntil.data, new Date(), {
+    trial: status.data?.isTrial ?? false,
+  });
   if (!notice) return null;
   const ends = date.format(new Date(validUntil.data));
+  if (notice.kind === 'trial') {
+    return (
+      <Banner>
+        <strong>Trial — sisa {notice.days} hari</strong> (berakhir {ends}). Batas data trial
+        berlaku; lihat pemakaiannya di{' '}
+        <Link to="/license" className="font-bold underline underline-offset-4">
+          halaman Lisensi
+        </Link>
+        . Pasang lisensi berbayar untuk mengangkat batas tanpa kehilangan data; hubungi{' '}
+        <VendorEmail />.
+      </Banner>
+    );
+  }
   if (notice.kind === 'grace') {
     return (
       <Banner>
