@@ -50,7 +50,7 @@ export function Demo() {
   );
   return (
     <Section id="demo" title={copy.demo.title} lead={copy.demo.lead}>
-      <div ref={anchor}>
+      <div ref={anchor} className="min-w-0">
         {load ? (
           <DemoBoundary
             fallback={
