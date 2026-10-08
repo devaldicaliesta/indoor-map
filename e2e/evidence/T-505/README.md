@@ -2,7 +2,8 @@
 
 Spec: `e2e/tests/landing/T-505-landing.spec.ts` (proyek Playwright `landing`; hanya server landing
 yang dinyalakan bila dijalankan sendiri: `pnpm --filter @indoor/e2e exec playwright test --project=landing`).
-Hasil di branch `landing-publish`: **4 lulus** (2026-10-08). Form trial dilepas dari situs terbit;
+Hasil di branch `landing-publish`: **5 lulus** (2026-10-08), dijalankan terhadap **build produksi**
+(`vite build` + `vite preview`), bukan dev server. Form trial dilepas dari situs terbit;
 bukti form (TC-LND-02/03/04/05/07) ada di branch pengembangan T-505.
 
 | Gambar | Isi | TC |
@@ -12,8 +13,10 @@ bukti form (TC-LND-02/03/04/05/07) ada di branch pengembangan T-505.
 | [04](04-hp-en.png), [05](05-hp-id-penuh.png) | HP 360 px EN (pilihan diingat) dan ID, tanpa geser ke samping | TC-LND-01 |
 | [06](06-demo-konser-3d.png), [07](07-demo-konser-l2.png) | Peta 3D interaktif konser stadion dengan orang mini; ganti ke L2 | — |
 | [08](08-demo-rumah-sakit.png) | Peta 3D rumah sakit (venue berganti, orang mini dimatikan lalu dinyalakan) | — |
-| [09](09-kontak.png) | Tombol "Hubungi kami" menuju bagian kontak dengan tautan email vendor; tidak ada form | — |
-| [10](10-privasi-id.png) | Kebijakan privasi dari kaki halaman, ID lalu EN | TC-LND-08 |
+| [09](09-rute-pilih-tujuan.png) | Pilih tujuan "Area Disabilitas": lokasi disorot, rute dari Gerbang 1 (Utama), jarak dan langkah di kartu; lalu klik ruang di peta juga menampilkan rute | — |
+| [10](10-rute-antarlantai.png) | Rumah sakit: tujuan di L1 dari Lobi Utama (GF), pilihan lantai rute di kartu | — |
+| [11](11-kontak.png) | Tombol "Hubungi kami" menuju bagian kontak dengan tautan email vendor; tidak ada form | — |
+| [12](12-privasi-id.png) | Kebijakan privasi dari kaki halaman, ID lalu EN | TC-LND-08 |
 
 ## Langkah manual
 

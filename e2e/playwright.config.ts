@@ -122,7 +122,10 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'pnpm --filter @indoor/landing dev',
+      // Landing diuji dari build produksi (seperti di hosting statis), bukan dev server: worker
+      // MapLibre yang tidak ikut di-bundle hanya terlihat di build produksi.
+      command:
+        'pnpm --filter @indoor/landing build && pnpm --filter @indoor/landing preview --port 5175',
       url: env.landingUrl,
       reuseExistingServer: !CI,
       timeout: 120_000,
