@@ -1,15 +1,50 @@
 # Aturan branch
 
-Semua pekerjaan dilakukan di **satu branch kerja**: `claude/vibrant-davinci-uyrrka`.
+Struktur branch sejak 2026-10-09 (keputusan pemilik). Menggantikan aturan satu branch
+`claude/vibrant-davinci-uyrrka`.
+
+```
+production   ← yang diterbitkan (Cloudflare Pages). Hanya diisi dari main
+   ▲ merge saat rilis
+main         ← kode stabil, CI hijau. Default branch GitHub
+   ▲ PR
+develop      ← integrasi pengembangan harian
+   ▲ PR
+feature/<nama>   ← fitur besar atau rangkaian task (mis. feature/trial-hosting)
+```
+
+| Branch | Isi | Siapa yang mengubah |
+| --- | --- | --- |
+| `production` | Versi yang sedang live di Cloudflare Pages (landing, nanti Admin dan Visitor hosting) | Hanya merge dari `main` saat rilis |
+| `main` | Kode stabil yang sudah lolos `pnpm check` dan review | Hanya lewat PR dari `develop` |
+| `develop` | Gabungan pekerjaan terbaru; task kecil boleh langsung di sini | Agen dan pemilik |
+| `feature/<nama>` | Rangkaian task satu fitur (lihat tabel di bawah) | Agen; dihapus setelah digabung ke `develop` |
+
+Dokumen (`docs/`, `PROGRESS.md`, PRD) ikut di branch yang sama dengan kodenya, agar status task
+selalu sinkron dengan kode.
+
+## Branch fitur yang aktif
+
+| Branch | Task | Dokumen |
+| --- | --- | --- |
+| `feature/trial-hosting` | T-611 s.d. T-618 | `23-trial-hosting.md` |
+
+Task di luar daftar ini dikerjakan langsung di `develop`.
 
 ## Wajib
 
-- **Jangan membuat branch baru**, termasuk `task/T-xxx-slug` atau `claude/<nama-acak>` yang dibuat otomatis oleh sesi.
-- Sebelum mulai: `git fetch origin claude/vibrant-davinci-uyrrka` lalu `git checkout -B claude/vibrant-davinci-uyrrka origin/claude/vibrant-davinci-uyrrka`.
-- Commit dan push langsung ke branch ini: `git push -u origin claude/vibrant-davinci-uyrrka`.
-- Bila sesi sudah terlanjur berada di branch lain, pindahkan commit-nya ke `claude/vibrant-davinci-uyrrka` (merge/fast-forward), push ke sana, lalu branch lain itu boleh dihapus.
+- Sebelum mulai: `git fetch origin <branch>` lalu `git checkout -B <branch> origin/<branch>`
+  (`<branch>` = branch fitur task itu, atau `develop`).
+- Commit dan push ke branch itu: `git push -u origin <branch>`.
+- Sesi cloud yang otomatis berada di `claude/<nama-acak>`: pindahkan commit-nya ke branch yang
+  benar (merge atau fast-forward), push ke sana, lalu hapus branch `claude/…` itu.
+- Jangan push langsung ke `main` atau `production`.
 - Satu task tetap satu rangkaian commit dengan pesan `T-xxx: ringkasan singkat`.
+- PR dibuka hanya bila diminta: `feature/…` → `develop`, `develop` → `main`.
+- Branch fitur yang sudah digabung dihapus, lalu barisnya dihapus dari tabel di atas.
 
-## Tidak berlaku lagi
+## Rilis ke production
 
-Aturan "branch `task/T-xxx-slug`" di `CLAUDE.md`, `06-alur-kerja.md`, dan `/kerjakan-task` digantikan oleh dokumen ini. PR dibuka hanya bila diminta, dari `claude/vibrant-davinci-uyrrka` ke `main`.
+1. PR `develop` → `main`, CI hijau, merge.
+2. `git checkout production && git merge --ff-only origin/main && git push origin production`.
+3. Cloudflare Pages membangun ulang otomatis dari `production`.

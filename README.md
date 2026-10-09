@@ -13,7 +13,7 @@ Logo resmi dan turunannya: `packages/ui/src/brand/` (sumber pemilik di `docs/bra
 1. Baca `docs/00-README.md` untuk peta playbook.
 2. Status pekerjaan ada di `docs/PROGRESS.md`.
 3. Aturan kerja untuk agen AI ada di `CLAUDE.md`.
-4. Semua pekerjaan di satu branch: `claude/vibrant-davinci-uyrrka`. Jangan membuat branch baru (`docs/07-aturan-branch.md`).
+4. Branch: `develop` untuk pengembangan, `feature/<nama>` untuk fitur besar, `main` stabil, `production` yang diterbitkan (`docs/07-aturan-branch.md`).
 
 ## Status saat ini
 
