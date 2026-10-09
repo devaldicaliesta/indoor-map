@@ -178,7 +178,7 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-592 | 2FA dan SSO Admin | — | menunggu | |
 | T-593 | API dan webhook integrasi | — | menunggu | |
 | T-594 | Export GeoJSON dan IMDF | — | menunggu | |
-| T-595 | Vendor Portal minimal | T-504, T-505 | menunggu | |
+| T-595 | Vendor Portal minimal | T-504, T-505 | menunggu | Bagian lisensi on-premise ditunda (2026-10-09); dasbor trial hosting dipisah ke T-617 |
 | T-596 | Bantuan dan dokumentasi pengguna | T-599 | menunggu | |
 | T-597 | Monitoring server di Admin | T-411 | menunggu | |
 | T-598 | Notifikasi email operasional | T-591 (ringkasan saja) | menunggu | Jenis lain tidak menunggu T-591 |
@@ -187,9 +187,24 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-602 | Dokumen legal penjualan | — | menunggu | |
 | T-603 | Uji keamanan + pentest | — | menunggu | |
 | T-604 | Proses rilis + dukungan versi | T-511 | menunggu | |
-| T-605 | Lingkungan demo penjualan | T-501, T-511 | menunggu | |
+| T-605 | Lingkungan demo penjualan | T-501, T-511 | menunggu | Demo publik Visitor di hosting dikerjakan di T-613 |
 | T-606 | Materi pelatihan klien | T-596 | menunggu | |
 | T-607 | Uji beban dan kapasitas server | T-511, T-597 | menunggu | Smoke dan normal jadi gerbang setiap rilis F2 |
+
+## F2-K · Trial ter-hosting (`23-trial-hosting.md`)
+
+Keputusan pemilik 2026-10-09: trial otomatis di Supabase Free + Cloudflare Pages Free, ruang kerja per venue, 17 hari. Instalasi on-premise ditunda.
+
+| Task | Judul | Bergantung pada | Status | Catatan |
+| --- | --- | --- | --- | --- |
+| T-611 | Ruang kerja per venue | – | menunggu | Rencana rinci perlu disetujui pemilik sebelum kode |
+| T-612 | Mode hosting dan kuota per venue | T-611 | menunggu | |
+| T-613 | Slug venue dan demo publik | T-611 | menunggu | |
+| T-614 | Permintaan dan verifikasi trial | T-612, T-613 | menunggu | |
+| T-615 | Siklus hidup trial | T-614 | menunggu | |
+| T-616 | Landing untuk trial otomatis | T-614 | menunggu | |
+| T-617 | Dasbor vendor minimal | T-615, T-592 | menunggu | |
+| T-618 | Panduan setup hosting | T-615 | menunggu | Dijalankan pemilik di akun Supabase dan Cloudflare |
 
 ## Pertanyaan terbuka
 
@@ -198,6 +213,8 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 (Tidak ada pertanyaan terbuka.)
 
 ## Catatan keputusan
+
+- [2026-10-09] F2-K — **Diputuskan pemilik: trial ter-hosting otomatis** (`23-trial-hosting.md`). Pemohon trial langsung mendapat Admin (`admin.panduarah.id`) dan Visitor (`app.panduarah.id/v/<slug>`) di server vendor: satu project Supabase Free + Cloudflare Pages Free, biaya Rp0. Pemisahan antar-trial lewat ruang kerja per venue (RLS), bukan project per trial. Trial tetap 17 hari (pengingat hari 14, terkunci hari 17, dihapus hari 24), maksimal 15 trial aktif (lebih dari itu antre), batas data kecil dan tanpa impor CAD. Demo publik hanya Visitor (`/v/demo`). Dasbor vendor setelah trial otomatis jalan. Instalasi on-premise (lisensi berkas, `deploy/`, trial on-premise 14–30 hari) ditunda tanpa perubahan perilaku.
 
 - [2026-10-08] T-505 — **Landing page sebagai situs vendor terpisah**: `apps/landing` tidak dijalankan `pnpm dev` (laptop tetap ringan; `pnpm dev:landing`), dan fungsi `trial-request` hanya untuk server vendor sehingga dikecualikan dari image klien. Skala huruf judul landing diperluas sampai 52 px khusus landing (aplikasi tetap maksimal 32 px). Peta demo memakai fixture demo yang sama dengan `pnpm db:seed-demo` dan dimuat malas agar Lighthouse mobile ≥ 90. Video motion graphic dirender dari kode (bisa diulang setelah desain berubah), bukan rekaman layar.
 - [2026-10-08] T-504 — **Batas trial di server, bukan hanya di Admin**: setiap batas dibaca dari `quota` lisensi berlaku (vendor bisa menyesuaikan per permintaan) dan ditegakkan trigger/fungsi SQL, sehingga API langsung pun ditolak. Batas per impor tidak bisa ditegakkan per batch (impor dikirim 200 baris per panggilan), jadi repository memanggil `license_import_check` sebelum batch pertama; jumlah lokasi tetap dijaga kuota lokasi. Snapshot publish dihitung ke Storage tetapi tidak ditolak agar publish/rollback tidak gagal di tengah jalan. Domain email umum (gmail.com, yahoo.com, outlook.com, …) dibatasi per alamat email, bukan per domain, agar calon klien berbeda tidak saling memblokir; domain kantor tetap sekali per domain.
