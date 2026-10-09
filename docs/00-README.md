@@ -22,6 +22,7 @@ Playbook ini membawa proyek dari repo kosong sampai produk siap dijual, dalam ur
 | `14-R4-komersial.md` | Task T-401 s.d. T-412 | Rilis 4 |
 | `20-F2-fase-2.md` | Daftar fase 2 dan backlog (keputusan pemilik) | Saat merencanakan F2 |
 | `21-F2-task.md` | Task T-501 s.d. T-607 dan roadmap rilis F2.1–F2.5 (fase 2) | Fase 2 |
+| `23-trial-hosting.md` | PRD, arsitektur, dan task T-611 s.d. T-618 trial ter-hosting (F2-K) | Task F2-K |
 | `22-F2-verifikasi-e2e.md` | Alur verifikasi E2E dan uji beban Fase 2, gerbang rilis F2 | Setiap task F2 |
 | `16-test-case.md` | Katalog test case QA: fungsi, CRUD, UI/UX, keamanan, NFR; §15 untuk F2 | Sebelum dan selama T-307a; setiap task F2 |
 | `15-verifikasi-e2e.md` | T-307a: verifikasi E2E CRUD & UI/UX semua task `review` | Sebelum T-307 |
