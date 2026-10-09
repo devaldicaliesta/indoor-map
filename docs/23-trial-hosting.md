@@ -9,14 +9,14 @@ trial otomatis yang berjalan di server vendor (bukan di server klien). Instalasi
 | Hal | Keputusan |
 | --- | --- |
 | Tujuan | Calon klien yang meminta trial langsung mendapat Admin dan Visitor sendiri, tanpa campur tangan vendor |
-| Infrastruktur | Satu project **Supabase Free** + **Cloudflare Pages Free** + domain `panduarah.id` (DNS di Cloudflare Free). Biaya Rp0 per bulan |
+| Infrastruktur | Satu project **Supabase Free** + **Cloudflare Pages Free** + domain `panduarah.my.id` (DNS di Cloudflare Free). Biaya Rp0 per bulan |
 | Pemisahan antar-trial | **Ruang kerja per venue** di satu database: pengguna trial hanya bisa mengakses venue miliknya, dijaga RLS |
 | Lama trial | **17 hari, tetap** (pemohon tidak memilih). Pengingat hari ke-14, terkunci hari ke-17, dihapus hari ke-24 |
 | Batas data trial | 1 venue, 1 gedung, 3 lantai, 1.000 fitur per lantai, 100 lokasi, 10 titik asal, 2 Info Point, 2 pengguna, Storage 50 MB, berkas 5 MB, impor 100 baris, 10 publish per hari |
 | Kapasitas | Maksimal **15 trial aktif**. Lebih dari itu pemohon masuk antrean |
 | Fitur | 3D dan Info Point aktif. **Impor CAD tidak tersedia** (converter Python butuh server) |
-| Demo publik | Visitor saja, data contoh, tanpa login, di `app.panduarah.id/v/demo` (menggantikan sebagian T-605) |
-| Dashboard vendor | Dibuat setelah trial otomatis jalan (tahap 6), di `vendor.panduarah.id` |
+| Demo publik | Visitor saja, data contoh, tanpa login, di `app.panduarah.my.id/v/demo` (menggantikan sebagian T-605) |
+| Dashboard vendor | Dibuat setelah trial otomatis jalan (tahap 6), di `vendor.panduarah.my.id` |
 | Naik kelas | Pindah ke Supabase Pro bila trial aktif sering penuh. Arsitektur tidak berubah |
 
 ## 2 · PRD
@@ -38,8 +38,8 @@ belum punya server, dan setiap trial manual memakan waktu vendor.
 ### 2.3 Alur pengguna
 
 ```
-① panduarah.id → "Lihat demo" → app.panduarah.id/v/demo (tanpa login)
-② panduarah.id → "Minta trial" → isi form (nama, instansi, jabatan, email, telepon,
+① panduarah.my.id → "Lihat demo" → app.panduarah.my.id/v/demo (tanpa login)
+② panduarah.my.id → "Minta trial" → isi form (nama, instansi, jabatan, email, telepon,
    jenis gedung, luas, bahasa)
 ③ Email verifikasi → klik link (berlaku 24 jam)
 ④ Sistem: cek blokir dan trial sebelumnya, cek kapasitas
@@ -47,8 +47,8 @@ belum punya server, dan setiap trial manual memakan waktu vendor.
    └─ tersedia → buat ruang kerja:
                  venue (nama instansi, slug unik) + data contoh sesuai jenis gedung,
                  akun Admin pemohon (hanya venue itu), masa trial 17 hari
-⑤ Email "Trial aktif": link Admin (admin.panduarah.id), link atur password,
-   link Visitor (app.panduarah.id/v/<slug>), panduan singkat
+⑤ Email "Trial aktif": link Admin (admin.panduarah.my.id), link atur password,
+   link Visitor (app.panduarah.my.id/v/<slug>), panduan singkat
 ⑥ Hari 0–17: pemohon memakai Admin dan Visitor. Banner "Trial — sisa N hari"
 ⑦ Hari 14: email pengingat
 ⑧ Hari 17: terkunci. Admin menampilkan "Trial berakhir, hubungi kami".
@@ -92,7 +92,7 @@ belum punya server, dan setiap trial manual memakan waktu vendor.
 - Pembayaran online dan konversi otomatis ke lisensi berbayar.
 - Memindahkan data trial ke server klien (dibahas bersama instalasi on-premise).
 - Impor CAD di trial hosting.
-- Subdomain per trial (`<slug>.panduarah.id`); Cloudflare Pages Free tidak mendukung wildcard.
+- Subdomain per trial (`<slug>.panduarah.my.id`); Cloudflare Pages Free tidak mendukung wildcard.
 
 ### 2.7 Ukuran keberhasilan
 
@@ -108,7 +108,7 @@ belum punya server, dan setiap trial manual memakan waktu vendor.
                           Cloudflare Free (DNS, HTTPS)
      ┌─────────────────┬──────────────────┬──────────────────┬─────────────────────┐
      ▼                 ▼                  ▼                  ▼                     ▼
- panduarah.id   admin.panduarah.id  app.panduarah.id   vendor.panduarah.id   (tahap 6)
+ panduarah.my.id   admin.panduarah.my.id  app.panduarah.my.id   vendor.panduarah.my.id   (tahap 6)
  Pages:         Pages:              Pages:             Pages:
  apps/landing   apps/admin          apps/visitor       apps/vendor
      │                 │                  │                  │

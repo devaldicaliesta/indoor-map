@@ -14,7 +14,7 @@ Playbook ini membawa proyek dari repo kosong sampai produk siap dijual, dalam ur
 | `04-model-data.md` | Entitas, aturan integritas, skema SQL lengkap | Task database atau `packages/data` |
 | `05-desain-ui.md` | Arah visual, token, tata letak, larangan | Task yang membuat UI |
 | `06-alur-kerja.md` | Siklus task, PR, test, definisi selesai (aturan branch: lihat `07`) | Pertama kali; saat membuka PR |
-| `07-aturan-branch.md` | Satu branch kerja `claude/vibrant-davinci-uyrrka`, tanpa branch baru | Setiap sesi, sebelum commit |
+| `07-aturan-branch.md` | Branch `production`, `main`, `develop`, `feature/<nama>` | Setiap sesi, sebelum commit |
 | `10-R0-fondasi.md` | Task T-001 s.d. T-012 | Rilis 0 |
 | `11-R1-inti-peta.md` | Task T-101 s.d. T-120 | Rilis 1 |
 | `12-R2-navigasi.md` | Task T-201 s.d. T-217 | Rilis 2 |
@@ -44,7 +44,7 @@ Task di rilis berikutnya tidak dimulai sebelum gerbang rilis sebelumnya lolos, k
 
 ## Cara memakai dengan agen (Claude Code)
 
-Satu sesi = satu task, di branch `claude/vibrant-davinci-uyrrka` (tanpa branch baru). Task berikutnya T-307a:
+Satu sesi = satu task, di branch fitur task itu atau `develop` (lihat `07-aturan-branch.md`). Task berikutnya T-307a:
 
 ```
 /kerjakan-task T-307a
@@ -66,7 +66,7 @@ Baca hanya dokumen yang dirujuk task. Selesai jika semua kriteria tercentang dan
 | Membuat repo, menyambungkan ke Claude | Menulis kode, migrasi, test |
 | `supabase start`, `pnpm install`, `npx shadcn add` bila agen tidak bisa menjalankan Docker | Menjalankan `pnpm check` |
 | Memeriksa screenshot di `e2e/evidence/` | Uji E2E Playwright + screenshot, memperbaiki berdasarkan laporan error Anda |
-| Review diff di `claude/vibrant-davinci-uyrrka` dan merge ke `main` | Memperbarui `PROGRESS.md` |
+| Review PR `develop` → `main`, rilis `main` → `production` | Memperbarui `PROGRESS.md` |
 | Keputusan produk (menjawab "Pertanyaan terbuka") | Mengusulkan opsi beserta dampaknya |
 
 Lingkungan cloud sering tidak bisa menjalankan Docker atau mengakses internet bebas. Jika `supabase start` gagal di sana, agen menulis migrasi dan test untuk paket murni, lalu Anda menjalankan database dan aplikasi di laptop.
