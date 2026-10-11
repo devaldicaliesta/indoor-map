@@ -33,6 +33,10 @@ T-611 dipecah tiga karena menyentuh RLS seluruh tabel, fungsi RPC, dan UI sekali
   4. pgTAP `venue_isolation.test.sql`: trial A ditolak baca/tulis venue B di tabel ber-venue;
      pengguna akses-semua tetap melihat semua.
   5. Regenerasi `packages/data/src/database.types.ts` (`pnpm db:types`).
+  6. Migrasi 0042: syarat venue untuk 18 kebijakan `storage.objects` — id venue ada di
+     `foldername[1]` untuk bucket `floor-plans` dan `snapshots`, dan di `[2]` untuk
+     `public-assets` (`categories`/`facility-types`/`locations`/`venues`). pgTAP
+     `venue_storage_isolation`.
 - **File:** `supabase/migrations/20261011003900_0039_venue_workspace.sql`,
   `supabase/migrations/20261012004100_0041_venue_rls_initplan.sql`,
   `supabase/tests/venue_isolation.test.sql`, `packages/data/src/database.types.ts`.
@@ -48,6 +52,8 @@ T-611 dipecah tiga karena menyentuh RLS seluruh tabel, fungsi RPC, dan UI sekali
   - [ ] Seluruh test on-premise tetap hijau tanpa diubah (`permissions_matrix` 720 uji) — NFR-HT-03.
   - [ ] pgTAP `venue_isolation` lulus: trial A tak bisa baca/insert/update/delete data venue B;
         trial tak bisa membuat venue; akses-semua tetap melihat semua.
+  - [ ] pgTAP `venue_storage_isolation` lulus: trial A tak bisa membaca atau mengunggah berkas
+        venue B di `floor-plans`, `public-assets`, dan `snapshots`.
   - [ ] `pnpm check` hijau.
 - **Jangan:** mengubah makna peran global; menghapus/mengganti nama kolom; menambah `hosting_mode`
   atau kuota per-venue (T-612); menjaga fungsi RPC (T-611c); mengubah `admin-users`/menu (T-611b).
