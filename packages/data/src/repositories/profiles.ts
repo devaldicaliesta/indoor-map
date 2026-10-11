@@ -10,7 +10,8 @@ import { DataError, toDataError } from '../errors';
 import { zeroRowsError } from '../mutations';
 import type { Db } from '../supabase';
 
-const COLUMNS = 'user_id, full_name, email, role, is_active, locked_until, created_at, updated_at';
+const COLUMNS =
+  'user_id, full_name, email, role, is_active, all_venues, locked_until, created_at, updated_at';
 
 export type ProfileRow = Pick<
   Tables<'profiles'>,
@@ -19,6 +20,7 @@ export type ProfileRow = Pick<
   | 'email'
   | 'role'
   | 'is_active'
+  | 'all_venues'
   | 'locked_until'
   | 'created_at'
   | 'updated_at'
@@ -31,6 +33,7 @@ export function mapProfileRow(row: ProfileRow): Profile {
     email: row.email,
     role: AppRoleSchema.parse(row.role),
     isActive: row.is_active,
+    allVenues: row.all_venues,
     lockedUntil: row.locked_until,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
