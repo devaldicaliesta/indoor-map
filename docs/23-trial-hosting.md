@@ -236,7 +236,9 @@ menolak semua tulis ke venue terkunci. Visitor yang tidak menemukan snapshot men
 
 | Task | Judul | Bergantung pada | Isi |
 | --- | --- | --- | --- |
-| T-611 | Ruang kerja per venue | – | §3.2: `venue_members`, `profiles.all_venues`, `app.can_access_venue`, RLS dan Storage, `admin-users`; pgTAP isolasi |
+| T-611a | Ruang kerja per venue: isolasi RLS | – | §3.2: `venue_members`, `profiles.all_venues`, `app.can_access_venue`, RLS semua tabel ber-venue; pgTAP isolasi. Rincian `24-F2-K-task.md` |
+| T-611b | `admin-users` + menu Admin sadar-venue | T-611a | §3.2, §3.6: daftar pengguna dan undangan per venue; sembunyikan menu sistem untuk `all_venues=false` |
+| T-611c | Jaga fungsi RPC/`security definer` ber-venue | T-611a | §3.5: guard `app.can_access_*` di publish, save_location, kunci edit, template, impor, alias, konektor, kuota |
 | T-612 | Mode hosting dan kuota per venue | T-611 | §3.4: `hosting_mode`, kuota trial per venue, venue terkunci menolak tulis |
 | T-613 | Slug venue dan demo publik | T-611 | `venues.slug`, `/v/:venue` menerima slug, demo `/v/demo` dari fixture `db:seed-demo` |
 | T-614 | Permintaan dan verifikasi trial | T-612, T-613 | §3.3, §3.5: skema `hosting`, `trial-request` diubah, `trial-verify`, `provision_trial`, email aktif |
