@@ -197,9 +197,11 @@ Keputusan pemilik 2026-10-09: trial otomatis di Supabase Free + Cloudflare Pages
 
 | Task | Judul | Bergantung pada | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| T-611 | Ruang kerja per venue | – | menunggu | Rencana rinci perlu disetujui pemilik sebelum kode |
-| T-612 | Mode hosting dan kuota per venue | T-611 | menunggu | |
-| T-613 | Slug venue dan demo publik | T-611 | menunggu | |
+| T-611a | Ruang kerja per venue: isolasi RLS | – | dikerjakan | Migrasi 0039 (`venue_members`, `profiles.all_venues`, `app.can_access_venue` + penyelesai parent, RLS semua tabel ber-venue, profil dibatasi, trial tak bisa membuat venue) + pgTAP `venue_isolation`. Rincian di `24-F2-K-task.md`. Jalur RPC bypass RLS dijaga di T-611c |
+| T-611b | `admin-users` + menu Admin sadar-venue | T-611a | menunggu | |
+| T-611c | Jaga fungsi RPC/`security definer` ber-venue | T-611a | menunggu | Wajib tinjauan `security-reviewer` |
+| T-612 | Mode hosting dan kuota per venue | T-611a | menunggu | |
+| T-613 | Slug venue dan demo publik | T-611a | menunggu | |
 | T-614 | Permintaan dan verifikasi trial | T-612, T-613 | menunggu | |
 | T-615 | Siklus hidup trial | T-614 | menunggu | |
 | T-616 | Landing untuk trial otomatis | T-614 | menunggu | |

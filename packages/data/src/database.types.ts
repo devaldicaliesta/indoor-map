@@ -1267,6 +1267,7 @@ export type Database = {
       };
       profiles: {
         Row: {
+          all_venues: boolean;
           created_at: string;
           email: string;
           failed_login_count: number;
@@ -1278,6 +1279,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          all_venues?: boolean;
           created_at?: string;
           email: string;
           failed_login_count?: number;
@@ -1289,6 +1291,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          all_venues?: boolean;
           created_at?: string;
           email?: string;
           failed_login_count?: number;
@@ -1452,6 +1455,39 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      venue_members: {
+        Row: {
+          created_at: string;
+          user_id: string;
+          venue_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          user_id: string;
+          venue_id: string;
+        };
+        Update: {
+          created_at?: string;
+          user_id?: string;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'venue_members_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+          {
+            foreignKeyName: 'venue_members_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       venues: {
         Row: {
