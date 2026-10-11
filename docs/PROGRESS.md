@@ -199,7 +199,7 @@ Keputusan pemilik 2026-10-09: trial otomatis di Supabase Free + Cloudflare Pages
 | --- | --- | --- | --- | --- |
 | T-611a | Ruang kerja per venue: isolasi RLS | – | dikerjakan | Migrasi 0039 (`venue_members`, `profiles.all_venues`, `app.can_access_venue` + penyelesai parent, RLS semua tabel ber-venue, profil dibatasi, trial tak bisa membuat venue) + pgTAP `venue_isolation`. Rincian di `24-F2-K-task.md`. Jalur RPC bypass RLS dijaga di T-611c |
 | T-611b | `admin-users` + menu Admin sadar-venue | T-611a | menunggu | |
-| T-611c | Jaga fungsi RPC/`security definer` ber-venue | T-611a | menunggu | Wajib tinjauan `security-reviewer` |
+| T-611c | Jaga fungsi RPC/`security definer` ber-venue | T-611a | review | Migrasi 0040: guard `can_access_venue/floor` di publish_begin/commit/abort + acquire/take_over_edit_lock (release self-scoped). Fungsi `invoker` (save_location, apply_template, import_locations, set_search_aliases, remove_field_definition, save_connector, delete_connector) aman lewat RLS 0039. pgTAP `venue_rpc_guards` (6) lulus; seluruh pgTAP hijau; `pnpm check` hijau. Tinjauan keamanan manual (skill `/security-review` otomatis tak jalan: CWD sesi bukan repo git) — tinjauan `security-reviewer` formal masih disarankan. Lanjutan: pastikan trial tak bisa akses fungsi/tabel system & license (T-611b/T-612) |
 | T-612 | Mode hosting dan kuota per venue | T-611a | menunggu | |
 | T-613 | Slug venue dan demo publik | T-611a | menunggu | |
 | T-614 | Permintaan dan verifikasi trial | T-612, T-613 | menunggu | |

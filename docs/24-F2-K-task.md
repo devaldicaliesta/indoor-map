@@ -9,7 +9,7 @@ T-611 dipecah tiga karena menyentuh RLS seluruh tabel, fungsi RPC, dan UI sekali
 | --- | --- | --- |
 | T-611a | Isolasi data lewat RLS (tabel + profil) | dikerjakan |
 | T-611b | `admin-users` dan menu Admin sadar-venue | menunggu |
-| T-611c | Jaga fungsi RPC/`security definer` ber-venue | menunggu |
+| T-611c | Jaga fungsi RPC/`security definer` ber-venue | review |
 
 ---
 
