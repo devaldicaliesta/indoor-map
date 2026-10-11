@@ -7,8 +7,8 @@ T-611 dipecah tiga karena menyentuh RLS seluruh tabel, fungsi RPC, dan UI sekali
 
 | Sub-task | Isi | Status |
 | --- | --- | --- |
-| T-611a | Isolasi data lewat RLS (tabel + profil) | dikerjakan |
-| T-611b | `admin-users` dan menu Admin sadar-venue | menunggu |
+| T-611a | Isolasi data lewat RLS (tabel + profil) | review |
+| T-611b | Menu Admin sadar-venue | review |
 | T-611c | Jaga fungsi RPC/`security definer` ber-venue | review |
 
 ---
@@ -34,7 +34,16 @@ T-611 dipecah tiga karena menyentuh RLS seluruh tabel, fungsi RPC, dan UI sekali
      pengguna akses-semua tetap melihat semua.
   5. Regenerasi `packages/data/src/database.types.ts` (`pnpm db:types`).
 - **File:** `supabase/migrations/20261011003900_0039_venue_workspace.sql`,
+  `supabase/migrations/20261012004100_0041_venue_rls_initplan.sql`,
   `supabase/tests/venue_isolation.test.sql`, `packages/data/src/database.types.ts`.
+- **Catatan performa (migrasi 0041):** menaruh `app.can_access_venue(venue_id)` langsung di
+  kebijakan membuatnya SubPlan per baris (tiap panggilan membaca `profiles` + `venue_members`) —
+  mengulang masalah yang dihilangkan 0037, dan integrasi `server-tables` TC-TBL-03 (20 halaman
+  × 100 baris dari 2.000 lokasi) melewati batas 20 detik. Bentuk yang dipakai sekarang:
+  `case when (select app.all_venues_user()) then true else <cek venue> end` — `(select …)` tanpa
+  acuan baris menjadi InitPlan (sekali per pernyataan) dan `case` menjamin short-circuit,
+  sehingga on-premise tidak membayar apa pun per baris. **Pelajaran:** jangan memanggil fungsi
+  ber-argumen kolom langsung di kebijakan RLS pada tabel besar.
 - **Selesai jika:**
   - [ ] Seluruh test on-premise tetap hijau tanpa diubah (`permissions_matrix` 720 uji) — NFR-HT-03.
   - [ ] pgTAP `venue_isolation` lulus: trial A tak bisa baca/insert/update/delete data venue B;
@@ -43,16 +52,32 @@ T-611 dipecah tiga karena menyentuh RLS seluruh tabel, fungsi RPC, dan UI sekali
 - **Jangan:** mengubah makna peran global; menghapus/mengganti nama kolom; menambah `hosting_mode`
   atau kuota per-venue (T-612); menjaga fungsi RPC (T-611c); mengubah `admin-users`/menu (T-611b).
 
-## T-611b · `admin-users` dan menu Admin sadar-venue
+## T-611b · Menu Admin sadar-venue
 
-- **Untuk:** FR-HT-04 (daftar pengguna per venue). **Bergantung pada:** T-611a.
-- **Langkah:** Edge Function `admin-users` memfilter dan membatasi undangan ke anggota venue
-  pengguna `all_venues=false` (lewat `venue_members`); halaman Pengguna Admin hanya menampilkan
-  anggota venue itu (batas jumlah ditegakkan di T-612); sembunyikan menu Sistem/Lisensi/Catatan
-  peristiwa saat `all_venues=false` (otorisasi tetap di server).
-- **File:** `supabase/functions/admin-users/index.ts`, `apps/admin/src/**` (menu, halaman Pengguna).
-- **Selesai jika:** pengguna trial hanya melihat/mengundang anggota venue-nya; menu sistem tak tampil;
-  integrasi + E2E. **Jangan:** menyentuh RLS (T-611a) atau kuota (T-612).
+- **Untuk:** FR-HT-04 (bagian UI). **Bergantung pada:** T-611a.
+- **Temuan saat dikerjakan (mengubah lingkup):** modul **Lisensi** dan **Pengguna** serta aksi
+  `settings.system`, `user.manage`, dan `license.manage` di `permissions.ts` **khusus
+  `super_admin`**, sedangkan pengguna trial berperan `admin` (arch §3.2: trial tidak pernah
+  Super Admin). Jadi menu sistem, lisensi, dan catatan peristiwa **sudah** tersembunyi untuk
+  trial lewat gating peran yang ada — tidak perlu kode baru. Satu-satunya celah khusus
+  `all_venues` adalah tombol "Tambah venue", yang server sudah tolak lewat RLS 0039 sehingga
+  hanya menuntun pengguna ke galat.
+- **Langkah (dikerjakan):**
+  1. `Profile.allVenues` ditambahkan di domain dan dipetakan dari kolom `profiles.all_venues`
+     (`COLUMNS` + `mapProfileRow`), sehingga klien tahu statusnya lewat `useCurrentProfile`.
+  2. Tombol "Tambah venue" disembunyikan saat `all_venues = false`.
+- **File:** `packages/domain/src/profile.ts`, `packages/data/src/repositories/profiles.ts`,
+  `packages/data/test/repositories.test.ts`, `apps/admin/src/features/venues/venues-page.tsx`.
+- **Selesai jika:**
+  - [x] Menu Sistem/Lisensi/Catatan tidak tampil untuk pengguna trial (dipenuhi gating peran).
+  - [x] Tombol "Tambah venue" tidak tampil saat `all_venues = false`.
+  - [x] `pnpm check` hijau; perilaku on-premise tak berubah (`all_venues` default true).
+- **Dipindah ke T-612:** kemampuan admin-venue **mengundang** anggota — butuh modul Pengguna
+  tampil untuk admin-venue dan perubahan Edge Function `admin-users` (kini `requireSuperAdmin`,
+  jadi trial sudah terkunci total). Tidak dikerjakan di sini karena tak terpisahkan dari
+  penegakan **batas 2 pengguna**, yang memang milik T-612; mengizinkan undangan tanpa batas di
+  layanan gratis justru berisiko.
+- **Jangan:** menyentuh RLS (T-611a), fungsi RPC (T-611c), atau kuota/undangan (T-612).
 
 ## T-611c · Jaga fungsi RPC/`security definer` ber-venue
 
