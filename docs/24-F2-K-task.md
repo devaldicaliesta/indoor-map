@@ -225,3 +225,27 @@ T-612 dipecah tiga dengan pola yang sama:
         service role bisa.
   - [x] Domain (16) dan data (+4) hijau; E2E `T-613-slug` (2) di build produksi Visitor.
   - [x] `db:seed-demo` menulis `slugs/demo.json` → RS Demo Harapan.
+
+---
+
+T-614 dipecah dua: **a** permintaan + keputusan verifikasi, **b** provisioning ruang kerja.
+
+## T-614a · Permintaan trial dan keputusan verifikasi
+
+- **Untuk:** FR-HT-01, FR-HT-03, arch §3.3, §3.7. **Bergantung pada:** T-612, T-613.
+- **Langkah:**
+  1. Migrasi 0048: `hosting.trial_requests`, `hosting.blocklist`, `hosting.vendor_staff`,
+     `hosting.trials.request_id`. Pembungkus `public.hosting_request_{create,verify,requeue,get}`
+     hanya untuk service role (skema `hosting` tidak diekspos PostgREST).
+  2. `hosting_request_verify(token_hash)` → `invalid` · `expired` · `rejected` (blokir/duplikat) ·
+     `queued` (kapasitas penuh) · `provision`. Slot dipesan (status `active`) di bawah advisory
+     lock agar dua verifikasi bersamaan tidak melewati kapasitas. Kapasitas dari
+     `app.server_settings.trial_capacity` (bawaan 15) — naik kelas tanpa migrasi.
+  3. `trial-request`: `checkHostedTrialRequest`, honeypot, batas laju per IP, token 256 bit
+     (`_shared/token.ts`, yang disimpan hanya SHA-256), email verifikasi ke `TRIAL_VERIFY_URL`.
+     Balasan selalu sama untuk email apa pun (tidak membocorkan siapa yang pernah trial).
+- **Selesai jika:**
+  - [x] pgTAP `hosting_requests` (16): token sekali pakai dan kedaluwarsa, duplikat per domain
+        kantor dan per alamat untuk domain umum, blokir, antre saat penuh, requeue, service role saja.
+  - [x] Integrasi `trial-request` (3): permintaan tersimpan dengan hash token, email verifikasi,
+        validasi/honeypot/batas laju tetap.
