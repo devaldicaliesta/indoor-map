@@ -29,7 +29,7 @@ selalu sinkron dengan kode.
 
 | Branch | Task | Dokumen |
 | --- | --- | --- |
-| `feature/landing-redesign` | T-505: landing bergaya Mappedin, palet logo, mode terang/gelap | `PROGRESS.md` catatan 2026-10-12 |
+| — | Tidak ada (`feature/landing-redesign`, T-505 landing bergaya Mappedin, digabung ke `main` lewat PR #33 pada 2026-10-12) | — |
 
 Task di luar daftar ini dikerjakan langsung di `develop`.
 
