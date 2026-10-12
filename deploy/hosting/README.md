@@ -147,6 +147,9 @@ aktivitas (ditangani langkah 7).
 
 ## 5. Cloudflare Pages
 
+Langkah per klik (memperbarui landing yang sudah ada, membuat Admin dan Visitor, membawa kode ke
+`production`, dan masalah umum): **`deploy/hosting/cloudflare-pages.md`**. Ringkasnya:
+
 Hubungkan repo GitHub; *production branch* `production` (lihat `docs/07-aturan-branch.md`).
 Variabel `NODE_VERSION` = isi `.nvmrc`. Admin dan Visitor adalah SPA: tanpa `404.html`, Pages
 otomatis menyajikan `index.html` untuk alamat yang tidak dikenal.

@@ -45,6 +45,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,woff2,png,svg}'],
         // IBM Plex Sans hanya untuk Admin; Visitor memakai Atkinson Hyperlegible.
         globIgnores: ['**/ibm-plex-sans-*'],
+        // Bundel utama (MapLibre + app) ±2,1 MB melewati batas bawaan workbox 2 MiB; tanpa
+        // precache Visitor tidak terbuka saat offline (NFR-REL-03), jadi batasnya dinaikkan.
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: '/index.html',
         runtimeCaching: [
           {
