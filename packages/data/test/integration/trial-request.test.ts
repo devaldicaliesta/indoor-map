@@ -1,9 +1,9 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
+import { sql } from './psql';
 
 const url = process.env.SUPABASE_API_URL ?? '';
 const mailpit = process.env.SUPABASE_MAILPIT_URL ?? '';
-const VENDOR = 'panduarahid@gmail.com';
 
 interface MailpitMessage {
   ID: string;
@@ -40,7 +40,9 @@ const send = (body: Record<string, unknown>) =>
     body: JSON.stringify(body),
   });
 
-// Fungsi vendor `trial-request` (T-505) dengan SMTP lokal ke Mailpit (supabase/config.toml).
+// Fungsi vendor `trial-request` dengan SMTP lokal ke Mailpit (supabase/config.toml). Sejak trial
+// ter-hosting (T-614) permintaan disimpan dan pemohon menerima tautan verifikasi; tidak ada lagi
+// email rincian ke vendor per permintaan (leads ada di `hosting.trial_requests`).
 // Satu berkas berurutan: batas laju 5 kiriman per menit per alamat ikut terpakai oleh test lain.
 describe.runIf(url && mailpit)('form trial landing page', () => {
   const suffix = randomUUID().slice(0, 8);
@@ -60,20 +62,28 @@ describe.runIf(url && mailpit)('form trial landing page', () => {
     ...overrides,
   });
 
-  it('kiriman sah: email rincian ke vendor dan konfirmasi ke pemohon (TC-LND-02)', async () => {
+  it('kiriman sah: permintaan tersimpan dan pemohon menerima tautan verifikasi (TC-HT-01)', async () => {
     const response = await send(form({ name: '<b>Rina</b> Wijaya' }));
     expect(response.status).toBe(200);
     expect(response.headers.get('access-control-allow-origin')).toBe('*');
-    const vendor = await waitForMail(`to:"${VENDOR}" subject:"Mal Contoh ${suffix}"`);
-    expect(vendor.message.Subject).toBe(`Permintaan trial: Mal Contoh ${suffix} (21 hari)`);
-    expect(vendor.text).toContain('Jabatan: Manajer Operasional');
-    expect(vendor.text).toContain('Luas: 20.000–50.000 m²');
+    const mail = await waitForMail(`to:"rina-${suffix}@malcontoh.co.id"`);
+    expect(mail.message.Subject).toBe('Konfirmasi trial PanduArah Anda');
+    // Lama trial tetap 17 hari walau form lama mengirim 21.
+    expect(mail.text).toContain(`trial PanduArah 17 hari untuk Mal Contoh ${suffix}`);
     // HTML dari isian tampil sebagai teks (TC-LND-05).
-    expect(vendor.html).toContain('&lt;b&gt;Rina&lt;/b&gt; Wijaya');
-    expect(vendor.html).not.toContain('<b>Rina</b>');
-    const applicant = await waitForMail(`to:"rina-${suffix}@malcontoh.co.id"`);
-    expect(applicant.message.Subject).toBe('Permintaan trial PanduArah diterima');
-    expect(applicant.text).toContain('Permintaan trial 21 hari');
+    expect(mail.html).toContain('&lt;b&gt;Rina&lt;/b&gt; Wijaya');
+    expect(mail.html).not.toContain('<b>Rina</b>');
+    const token = /trial\/verifikasi\/\?token=([A-Za-z0-9_-]+)/.exec(mail.text)?.[1] ?? '';
+    expect(token).toHaveLength(43);
+    // Yang tersimpan hanya hash token (§3.7), berstatus belum diverifikasi, berlaku 24 jam.
+    const row =
+      sql(`select status || '|' || (token_hash = '${createHash('sha256').update(token).digest('hex')}')
+      || '|' || (token_expires_at between now() + interval '23 hours' and now() + interval '25 hours')
+      from hosting.trial_requests where email = 'rina-${suffix}@malcontoh.co.id'`);
+    expect(row).toBe('unverified|true|true');
+    expect(sql(`select count(*) from hosting.trial_requests where token_hash = '${token}'`)).toBe(
+      '0',
+    );
   });
 
   it('honeypot terisi dan isian tidak sah ditolak tanpa email (TC-LND-03/04/05)', async () => {
@@ -83,9 +93,8 @@ describe.runIf(url && mailpit)('form trial landing page', () => {
     expect(bot.status).toBe(400);
     const invalid = await send(form({ email: 'bukan-email', durationDays: 31, consent: false }));
     expect(invalid.status).toBe(422);
-    expect(await invalid.json()).toMatchObject({
-      problems: { email: 'invalid', durationDays: 'out_of_range', consent: 'required' },
-    });
+    // Lama trial tidak lagi dipilih pemohon: nilai lama diabaikan, bukan ditolak.
+    expect((await invalid.json()).problems).toEqual({ email: 'invalid', consent: 'required' });
     const injected = await send(
       form({ institution: `Mal ${suffix}\r\nBcc: korban-${suffix}@contoh.id` }),
     );

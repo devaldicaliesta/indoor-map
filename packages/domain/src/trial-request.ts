@@ -137,3 +137,38 @@ export function createRateLimiter(max: number, windowMs: number) {
     return true;
   };
 }
+
+/** Lama trial ter-hosting (F2-K, `23-trial-hosting.md` §1): tetap, pemohon tidak memilih. */
+export const HOSTED_TRIAL_DAYS = 17;
+
+/** Isian form trial ter-hosting: tanpa lama trial dan tanpa ID instalasi. */
+export type HostedTrialRequestInput = Omit<TrialRequestInput, 'durationDays' | 'installId'>;
+
+export type HostedTrialRequestCheck =
+  | { ok: true; value: HostedTrialRequestInput }
+  | { ok: false; problems: Partial<Record<TrialRequestField, TrialRequestProblem>> };
+
+/**
+ * Memeriksa isian form trial ter-hosting dengan aturan yang sama dengan `checkTrialRequest`;
+ * `durationDays` dan `installId` dari form lama diabaikan.
+ */
+export function checkHostedTrialRequest(input: Record<string, unknown>): HostedTrialRequestCheck {
+  const check = checkTrialRequest({ ...input, durationDays: TRIAL_MIN_DAYS, installId: '' });
+  if (!check.ok) return check;
+  const { name, institution, title, email, phone, buildingType, buildingSize, consent, language } =
+    check.value;
+  return {
+    ok: true,
+    value: {
+      name,
+      institution,
+      title,
+      email,
+      phone,
+      buildingType,
+      buildingSize,
+      consent,
+      language,
+    },
+  };
+}

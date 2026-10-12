@@ -1,9 +1,11 @@
 import {
   parsePublishedGraph,
   parsePublishedSnapshot,
+  SlugPointerSchema,
   type Snapshot,
   type SnapshotGraph,
   type VenueId,
+  type VenueSlug,
   withGraph,
 } from '@indoor/domain';
 import { DataError } from '../errors';
@@ -30,17 +32,30 @@ export interface SnapshotsRepository {
   latestWithGraph(venueId: VenueId): Promise<Snapshot>;
   /** URL publik logo, foto, atau ikon dari path yang tercatat di snapshot. */
   assetUrl(path: string): string;
+  /** URL publik penunjuk `slugs/{slug}.json`; service worker Visitor meng-cache URL ini. */
+  slugPointerUrl(slug: VenueSlug): string;
+  /**
+   * Id venue pemilik slug, dari penunjuk yang ditulis setiap publish (`/v/<slug>`).
+   * `prefetched`: respons `slugPointerUrl` yang sudah diminta dari HTML Visitor.
+   */
+  venueIdForSlug(slug: VenueSlug, prefetched?: Promise<Response>): Promise<VenueId>;
 }
 
 /** Kode `DataError` saat layanan Visitor dihentikan karena lisensi. */
 export const SERVICE_INACTIVE = 'service_inactive';
+/** Kode `DataError` saat masa trial ter-hosting venue berakhir (T-615). */
+export const TRIAL_ENDED = 'trial_ended';
 
 export function createSnapshotsRepository(db: Db): SnapshotsRepository {
   const latestUrl = (venueId: VenueId) =>
     db.storage.from(SNAPSHOTS_BUCKET).getPublicUrl(`${venueId}/latest.json`).data.publicUrl;
 
+  const slugPointerUrl = (slug: VenueSlug) =>
+    db.storage.from(SNAPSHOTS_BUCKET).getPublicUrl(`slugs/${slug}.json`).data.publicUrl;
+
   return {
     latestUrl,
+    slugPointerUrl,
 
     async latest(venueId, prefetched) {
       let response: Response;
@@ -64,6 +79,13 @@ export function createSnapshotsRepository(db: Db): SnapshotsRepository {
         throw new DataError('forbidden', {
           code: SERVICE_INACTIVE,
           message: 'Layanan peta tidak aktif.',
+        });
+      }
+      // Trial ter-hosting berakhir (hari ke-17): siklus hidup menulis penanda ini (T-615).
+      if (typeof body === 'object' && body !== null && 'trialEnded' in body) {
+        throw new DataError('forbidden', {
+          code: TRIAL_ENDED,
+          message: 'Masa trial peta ini sudah berakhir.',
         });
       }
       try {
@@ -106,6 +128,27 @@ export function createSnapshotsRepository(db: Db): SnapshotsRepository {
 
     assetUrl(path) {
       return db.storage.from(ASSETS_BUCKET).getPublicUrl(path).data.publicUrl;
+    },
+
+    async venueIdForSlug(slug, prefetched) {
+      let response: Response;
+      try {
+        // Diperiksa ulang ke server: slug bisa berpindah venue setelah publish berikutnya.
+        response = await (prefetched ?? fetch(slugPointerUrl(slug), { cache: 'no-cache' }));
+      } catch (cause) {
+        throw new DataError('network', { cause });
+      }
+      if (response.status === 400 || response.status === 404) {
+        throw new DataError('not_found', { message: 'Alamat peta ini tidak ditemukan.' });
+      }
+      if (!response.ok) {
+        throw new DataError('unknown', { message: `Peta tidak bisa dimuat (${response.status}).` });
+      }
+      const pointer = SlugPointerSchema.safeParse(await response.json().catch(() => null));
+      if (!pointer.success) {
+        throw new DataError('invalid', { message: 'Alamat peta ini tidak bisa dibaca.' });
+      }
+      return pointer.data.venueId;
     },
   };
 }

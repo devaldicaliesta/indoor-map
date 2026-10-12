@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../language';
+import { DEMO_URL } from '../trial/api';
 
 export function Section({
   id,
@@ -129,10 +130,11 @@ export function Hero() {
           <p className="text-ink-muted text-lg">{copy.hero.lead}</p>
           <div className="flex flex-wrap gap-3">
             <Button asChild variant="primary">
-              <a href="#kontak">{copy.hero.primary}</a>
+              <a href="#trial">{copy.hero.primary}</a>
             </Button>
+            {/* Demo publik = Visitor sungguhan berisi venue demo (T-613), bukan cuplikan. */}
             <Button asChild>
-              <a href="#demo">{copy.hero.secondary}</a>
+              <a href={DEMO_URL}>{copy.hero.secondary}</a>
             </Button>
           </div>
           <ul className="m-0 grid list-none grid-cols-2 gap-4 p-0 sm:grid-cols-4">
@@ -252,7 +254,7 @@ export function Licensing() {
       </ul>
       <div>
         <Button asChild variant="primary">
-          <a href="#kontak">{copy.hero.primary}</a>
+          <a href="#kontak">{copy.nav.contact}</a>
         </Button>
       </div>
     </Section>

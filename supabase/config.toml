@@ -403,10 +403,24 @@ LICENSE_VENDOR_URL = "http://host.docker.internal:8091"
 TRIAL_SMTP_HOST = "supabase_inbucket_indoor-map"
 TRIAL_SMTP_PORT = "1025"
 TRIAL_SMTP_FROM = "PanduArah <panduarahid@gmail.com>"
+# Trial ter-hosting (T-614): halaman hasil verifikasi di landing dev (`pnpm dev:landing`).
+TRIAL_VERIFY_URL = "http://localhost:5175/trial/verifikasi/"
+TRIAL_ADMIN_URL = "http://localhost:5173"
+TRIAL_VISITOR_URL = "http://localhost:5174"
 
 # Form trial di landing page vendor (T-505): dipanggil pengunjung tanpa login; dilindungi
 # validasi, honeypot, dan batas laju per IP. Khusus server vendor, tidak ikut paket klien.
 [functions.trial-request]
+verify_jwt = false
+
+# Halaman verifikasi trial di landing (T-614b): pemohon belum punya akun; yang diperiksa token
+# 256 bit dari email (hanya hash-nya di database), sekali pakai, berlaku 24 jam.
+[functions.trial-verify]
+verify_jwt = false
+
+# Dipanggil pg_cron (pg_net) tiap jam di project ter-hosting (T-615); hanya mengerjakan yang sudah
+# jatuh tempo menurut database, jadi panggilan tanpa JWT dari luar tidak mengubah apa pun lebih awal.
+[functions.trial-lifecycle]
 verify_jwt = false
 
 # Dipanggil GoTrue tanpa JWT; keasliannya diperiksa lewat tanda tangan Standard Webhooks.

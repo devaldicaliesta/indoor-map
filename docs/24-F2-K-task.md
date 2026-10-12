@@ -193,3 +193,190 @@ T-612 dipecah tiga dengan pola yang sama:
         `users` (Super Admin mengundang, Editor ditolak) tetap lulus.
 - **Jangan:** mengubah role/status anggota oleh Admin venue (tidak diminta §3.2; RLS `profiles`
   tetap khusus Super Admin).
+
+---
+
+## T-613 · Slug venue dan demo publik
+
+- **Untuk:** FR-HT-07, §1 demo publik `app.panduarah.my.id/v/demo`. **Bergantung pada:** T-611a.
+- **Keputusan bentuk:** slug **tidak** diselesaikan lewat RPC per kunjungan. Visitor sengaja hanya
+  membaca berkas Storage (prefetch dari HTML, cache service worker untuk offline, tanpa beban
+  database per pengunjung di Supabase Free), jadi setiap publish menulis penunjuk
+  `snapshots/slugs/{slug}.json` = `{ "venueId": … }`. Slug baru/berpindah berlaku pada publish
+  berikutnya, sama seperti isi peta.
+- **Langkah:**
+  1. Migrasi 0047: `venues.slug` + `venues_slug_format` + `venues_slug_key`; trigger
+     `venues_slug_guard` — hanya pengguna akses-semua atau jalur tanpa pengguna (service role
+     provisioning) yang boleh mengisi/mengganti slug.
+  2. `_shared/snapshot-files.ts` `writeLatest`: setelah `latest.json`, tulis penunjuk bila venue
+     ber-slug (dipakai publish dan license-service).
+  3. Domain `venue-slug.ts`: `VenueSlugSchema`, `SlugPointerSchema`, `parseVenueRef`.
+  4. Data `snapshots.slugPointerUrl` / `venueIdForSlug` (`not_found` → "Peta belum tersedia").
+  5. Visitor: rute `/v/:venue`; slug → penunjuk → tampilan venue biasa; parameter tautan dibaca
+     dengan id hasil penunjuk. `index.html` memprefetch penunjuk lalu `latest.json`; aturan
+     NetworkFirst service worker mencakup `snapshots/slugs/`.
+  6. `db:seed-demo`: slug `demo` (RS Demo Harapan), `demo-mal`, `demo-kampus`, `demo-kantor`,
+     `demo-bandara`, `demo-pabrik`, `demo-konser`.
+- **Untuk T-614/T-615:** provisioning mengisi slug sebelum publish pertama; penghapusan hari ke-24
+  juga menghapus `slugs/{slug}.json`; mengunci cukup menghapus `{venue}/latest.json` (penunjuk
+  tetap, Visitor menampilkan "Trial berakhir" setelah T-615).
+- **Selesai jika:**
+  - [x] pgTAP `venue_slug` (8): bentuk, keunikan, trial tak bisa mengganti slug, vendor dan
+        service role bisa.
+  - [x] Domain (16) dan data (+4) hijau; E2E `T-613-slug` (2) di build produksi Visitor.
+  - [x] `db:seed-demo` menulis `slugs/demo.json` → RS Demo Harapan.
+
+---
+
+T-614 dipecah dua: **a** permintaan + keputusan verifikasi, **b** provisioning ruang kerja.
+
+## T-614a · Permintaan trial dan keputusan verifikasi
+
+- **Untuk:** FR-HT-01, FR-HT-03, arch §3.3, §3.7. **Bergantung pada:** T-612, T-613.
+- **Langkah:**
+  1. Migrasi 0048: `hosting.trial_requests`, `hosting.blocklist`, `hosting.vendor_staff`,
+     `hosting.trials.request_id`. Pembungkus `public.hosting_request_{create,verify,requeue,get}`
+     hanya untuk service role (skema `hosting` tidak diekspos PostgREST).
+  2. `hosting_request_verify(token_hash)` → `invalid` · `expired` · `rejected` (blokir/duplikat) ·
+     `queued` (kapasitas penuh) · `provision`. Slot dipesan (status `active`) di bawah advisory
+     lock agar dua verifikasi bersamaan tidak melewati kapasitas. Kapasitas dari
+     `app.server_settings.trial_capacity` (bawaan 15) — naik kelas tanpa migrasi.
+  3. `trial-request`: `checkHostedTrialRequest`, honeypot, batas laju per IP, token 256 bit
+     (`_shared/token.ts`, yang disimpan hanya SHA-256), email verifikasi ke `TRIAL_VERIFY_URL`.
+     Balasan selalu sama untuk email apa pun (tidak membocorkan siapa yang pernah trial).
+- **Selesai jika:**
+  - [x] pgTAP `hosting_requests` (16): token sekali pakai dan kedaluwarsa, duplikat per domain
+        kantor dan per alamat untuk domain umum, blokir, antre saat penuh, requeue, service role saja.
+  - [x] Integrasi `trial-request` (3): permintaan tersimpan dengan hash token, email verifikasi,
+        validasi/honeypot/batas laju tetap.
+
+## T-614b · Provisioning ruang kerja trial
+
+- **Untuk:** FR-HT-02, FR-HT-06, NFR-HT-01, arch §3.5. **Bergantung pada:** T-614a.
+- **Keputusan bentuk:**
+  - Data contoh = venue demo **di database** (slug `demo-*`, T-613), bukan berkas templat
+    terpisah: satu sumber kebenaran dengan `/v/demo` dan landing. Konsekuensi: project ter-hosting
+    wajib menjalankan `db:seed-demo` (T-618).
+  - Ukuran contoh sengaja di bawah batas trial (2/3 lantai, 60/100 lokasi, 5/10 titik asal,
+    1/2 Info Point) agar pemohon bisa menambah datanya tanpa menghapus contoh lebih dulu.
+  - Publish pertama dijalankan **sebagai pemohon** (akun dibuat dengan password acak 256 bit yang
+    tak pernah dikirim, masuk sekali, publish, keluar). Guard publish tidak diberi jalur service
+    role — identitas `published_by` dan semua pemeriksaan tetap berlaku.
+- **Langkah:**
+  1. Domain (Deno, tidak diekspor dari index — seperti `trial-request`): `trialSample`,
+     `TRIAL_TEMPLATES` (jenis gedung → slug demo + `venue_type`), `slugFromName`; `venueRows` +
+     `withNewIds` (diekspor). Diuji terhadap ketujuh fixture demo: muat di batas, rujukan utuh,
+     lolos `validateVenue` tanpa Error.
+  2. Migrasi 0049: `hosting.insert_rows` (kolom dari kunci baris pertama, sisanya bawaan) dan
+     `public.hosting_provision_trial` — satu transaksi; tolak tanpa `hosting_mode` atau bila
+     permintaan tidak `active`/sudah punya ruang kerja; slug unik `-2`, `-3`, …; Area Luar penanda
+     diganti Area Luar venue baru; tipe "Lokasi" bawaan diganti tipe dari contoh; `trials` ditulis
+     sebelum data contoh sehingga trigger kuota menegakkan batas trial.
+  3. Edge Function `trial-verify` (`index.ts`, `provision.ts`, `mails.ts`; SMTP bersama di
+     `_shared/trial-mail.ts`): keputusan → email antrean/vendor, atau provisioning → email
+     "Trial siap" (tautan buat password via `generate_link` recovery ke `TRIAL_ADMIN_URL/reset-password`,
+     Admin, Visitor `TRIAL_VISITOR_URL/v/<slug>`, tanggal berakhir) + email vendor. Gagal → akun
+     dihapus, `hosting_request_requeue`, pemohon menerima email antrean, vendor diberi tahu.
+  4. `config.toml`: `[functions.trial-verify] verify_jwt = false`; `TRIAL_ADMIN_URL`,
+     `TRIAL_VISITOR_URL` lokal. `.dockerignore`: `trial-verify` tidak ikut image klien.
+- **Untuk T-618:** izinkan `https://admin.panduarah.my.id/**` di Auth → URL Configuration
+  (redirect tautan password); rahasia `TRIAL_*`; `db:seed-demo` di project ter-hosting.
+- **Selesai jika:**
+  - [x] pgTAP `hosting_provision` (14): penjaga mode hosting dan status, isi ruang kerja, Area
+        Luar, sekali per permintaan, slug unik, batas trial membatalkan seluruh transaksi.
+  - [x] Integrasi `trial-verify` (3): ruang kerja + publish + penunjuk slug + email + vendor,
+        token sekali pakai, antre saat penuh, token asal ditolak; lulus di DB bersih (venue
+        templat uji) maupun dengan venue demo sungguhan.
+  - [x] Ke-8 jenis gedung diprovisikan dari venue demo sungguhan: 2 lantai, ≤ 60 lokasi,
+        publish pertama sukses, ±1–2 detik.
+
+---
+
+T-615 dipecah dua: **a** server (jadwal, email, Storage, antrean), **b** tampilan.
+
+## T-615a · Siklus hidup trial (server)
+
+- **Untuk:** FR-HT-08 (email), FR-HT-09, FR-HT-10, arch §3.5. **Bergantung pada:** T-614.
+- **Keputusan bentuk:**
+  - Mengunci = penanda `{ "trialEnded": true }` di `latest.json` (seperti penanda
+    `serviceInactive` lisensi), bukan menghapus berkasnya: Visitor bisa membedakan "trial berakhir"
+    dari "belum pernah terbit". Versi bernomor tetap sampai hari 24 (bucket publik; diterima §3.5).
+  - Langkah jatuh tempo diputuskan SQL, dikerjakan Edge Function, semuanya idempoten — panggilan
+    tanpa JWT dari luar tidak mempercepat apa pun.
+- **Langkah:**
+  1. Migrasi 0050: `hosting_lifecycle_{remind,lock,locked_venues,expired,files,purge}`,
+     `hosting_queue_next`; `license_service_state` mengecualikan venue terkunci;
+     `app.request_trial_lifecycle` + `cron.schedule('trial-lifecycle', '27 * * * *')`.
+  2. Edge Function `trial-lifecycle`; aktivasi bersama `trial-verify/activate.ts` (email antrean
+     hanya saat klik tautan, tidak setiap percobaan ulang); email `reminderMail`, `endedMail`,
+     vendor `ended`.
+  3. `config.toml` `[functions.trial-lifecycle] verify_jwt = false`; `.dockerignore`.
+- **Selesai jika:**
+  - [x] pgTAP `hosting_lifecycle` (18): tiap fase sekali, trial lewat waktu tidak diingatkan,
+        lisensi aktif lagi tidak membuka trial terkunci, berkas + penunjuk slug didaftar, purge
+        menolak yang belum jatuh tempo, akun dan venue hilang tetapi leads tetap, antrean
+        menghormati kapasitas, jadwal terdaftar.
+  - [x] Integrasi `trial-hosting` (7): alur penuh dengan email nyata di Mailpit.
+
+## T-615b · Tampilan trial (banner, "Trial berakhir")
+
+- **Untuk:** FR-HT-08 (banner), FR-HT-09 (Admin dan Visitor terkunci). **Bergantung pada:** T-615a.
+- **Langkah:**
+  1. Domain `hosted-trial.ts`; data `repositories/trial.ts` (+ uji unit); `TRIAL_ENDED` di
+     repositori snapshot.
+  2. Admin `features/trial/hosted-trial.tsx`: `useHostedTrial(enabled)` (hanya `all_venues=false`,
+     dibaca ulang tiap jam), `HostedTrialNotice`, `HostedTrialEnded`; dipasang di `AppLayout`.
+  3. Visitor: `markerReason` + `useUnavailableText` (kunci terjemahan literal, sesuai uji i18n)
+     di `/v/…` dan Info Point; `venue.trialEnded*` id/en.
+- **Selesai jika:**
+  - [x] E2E Admin: banner "Trial — sisa 10 hari", lalu "Trial berakhir" setelah `trial-lifecycle`
+        sungguhan mengunci. E2E Visitor: "Masa trial peta ini sudah berakhir".
+  - [x] `pnpm check` hijau (termasuk uji i18n Visitor).
+
+---
+
+## T-616 · Landing untuk trial otomatis
+
+- **Untuk:** FR-HT-01 (form → email verifikasi), FR-HT-02 (hasil verifikasi), §1 demo publik.
+  **Bergantung pada:** T-614.
+- **Langkah:**
+  1. `apps/landing/src/trial/`: `copy.ts` (ID/EN), `api.ts` (fetch langsung ke `trial-request` dan
+     `trial-verify`; hasil verifikasi di-cache per token karena token sekali pakai),
+     `trial-form.tsx`, `verify-page.tsx`. Halaman `trial/verifikasi/index.html` (entri Vite ketiga).
+  2. Hero, navigasi, dan bagian demo: "Coba gratis 17 hari" → `#trial`, "Lihat demo" → Visitor
+     `/v/demo`.
+  3. Kebijakan privasi ID/EN diperbarui untuk form trial; migrasi 0051
+     `hosting_lifecycle_forget` + langkah `lupakan` di `trial-lifecycle` menegakkan masa simpan 12
+     bulan yang dijanjikan.
+  4. `TRIAL_VERIFY_URL` berakhiran `/` (halaman statis, sama dengan `/privasi/`).
+- **Untuk T-618:** Cloudflare Pages landing butuh `VITE_SUPABASE_URL` project ter-hosting dan
+  `VITE_VISITOR_URL`; rahasia `TRIAL_VERIFY_URL=https://panduarah.my.id/trial/verifikasi/` dan
+  `TRIAL_ALLOWED_ORIGIN=https://panduarah.my.id` di Edge Function.
+- **Selesai jika:**
+  - [x] E2E `T-616-trial`: galat kolom, panel "Cek email", email di Mailpit, tautan membuat ruang
+        kerja ("Ruang kerja Anda siap", tautan Admin dan Visitor `/v/<slug>`), token hilang dari
+        alamat, tautan kedua "Tautan tidak berlaku". E2E landing T-505 tetap lulus.
+  - [x] Uji unit teks trial ID/EN; pgTAP `hosting_retention` (4).
+
+---
+
+## T-618 · Panduan setup hosting
+
+- **Untuk:** arch §1 (infrastruktur Rp0), §3.6, §3.8. **Bergantung pada:** T-615.
+- **Hasil:** `deploy/hosting/README.md` — urutan langkah pemilik dari project Supabase kosong sampai
+  uji asap, ditambah tabel operasional (leads, blokir, kapasitas, buka kunci, privasi, lisensi).
+- **Temuan keamanan yang mengubah urutan langkah:**
+  1. `LICENSE_PUBLIC_KEY` di repo = kunci DEV; kunci privatnya ada di
+     `tools/license-cli/dev-keys/`. Project yang bisa dijangkau publik wajib memakai kunci vendor
+     asli (`license-cli keygen`) sebelum `functions deploy`.
+  2. Selama belum ada Super Admin, halaman aktivasi membolehkan siapa pun memasang lisensi dan
+     membuat Super Admin pertama. Panduan membuat Super Admin vendor lewat dashboard + SQL sebelum
+     Admin dipasang di domain publik.
+- **Pendukung di repo:** `pnpm db:seed-demo:hosted` + env `SEED_ADMIN_EMAIL`, `SEED_VISITOR_URL`,
+  `SEED_DEMO_USERS=0`; `.github/workflows/hosting-keepalive.yml`; banner lisensi instalasi hanya
+  untuk pengguna akses-semua.
+- **Selesai jika:**
+  - [x] Panduan lengkap: Supabase, fungsi + rahasia, Auth, Super Admin + lisensi, Cloudflare Pages,
+        DNS, data demo, keepalive, uji asap.
+  - [x] Seed ter-hosting disimulasikan terhadap Supabase lokal: 7 venue demo ber-slug, 0 akun demo.
+  - [ ] **Pemilik** menjalankan panduan di akun vendor (di luar jangkauan repo).
