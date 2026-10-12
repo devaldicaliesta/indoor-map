@@ -48,6 +48,10 @@ T-611 dipecah tiga karena menyentuh RLS seluruh tabel, fungsi RPC, dan UI sekali
   acuan baris menjadi InitPlan (sekali per pernyataan) dan `case` menjamin short-circuit,
   sehingga on-premise tidak membayar apa pun per baris. **Pelajaran:** jangan memanggil fungsi
   ber-argumen kolom langsung di kebijakan RLS pada tabel besar.
+- **Catatan hak akses (migrasi 0043):** loop per golongan di 0039 mengikuti golongan 0001, padahal
+  0009 sudah memindahkan `facility_types` ke Admin/Super Admin; akibatnya Editor kembali bisa
+  menulis jenis fasilitas. **Pelajaran:** `alter policy` massal harus dicocokkan dengan kebijakan
+  yang berlaku (`pg_policies`), bukan dengan migrasi pembuatnya.
 - **Selesai jika:**
   - [ ] Seluruh test on-premise tetap hijau tanpa diubah (`permissions_matrix` 720 uji) — NFR-HT-03.
   - [ ] pgTAP `venue_isolation` lulus: trial A tak bisa baca/insert/update/delete data venue B;
@@ -97,3 +101,44 @@ T-611 dipecah tiga karena menyentuh RLS seluruh tabel, fungsi RPC, dan UI sekali
   yang menerima venue. Migrasi baru (redefinisi fungsi), pgTAP per fungsi.
 - **Selesai jika:** pgTAP membuktikan tiap fungsi menolak venue di luar akses pemanggil; on-premise
   tetap hijau. **Wajib tinjauan `security-reviewer` (§3.7).**
+
+---
+
+T-612 dipecah tiga dengan pola yang sama:
+
+| Sub-task | Isi | Status |
+| --- | --- | --- |
+| T-612a | Mode hosting dan kuota per venue | review |
+| T-612b | Venue trial terkunci menolak tulis | menunggu |
+| T-612c | Undangan anggota oleh admin-venue | menunggu |
+
+## T-612a · Mode hosting dan kuota per venue
+
+- **Untuk:** FR-HT-05, arch §3.4, NFR-HT-03. **Bergantung pada:** T-611a.
+- **Konteks:** kuota lisensi (0030, 0038) dihitung global — benar untuk on-premise (satu klien
+  per database), salah untuk project ter-hosting (sampai 15 trial per database): trial pertama
+  yang memakai 100 lokasi akan memblokir trial lain.
+- **Langkah (migrasi 0044):**
+  1. `app.hosting_mode()` membaca baris `hosting_mode` di `app.server_settings` (tabel kunci/nilai,
+     jadi bukan kolom seperti tertulis di §3.4). Default false.
+  2. Skema `hosting` (tak diekspos PostgREST) + `hosting.trials`. `request_id` ditambahkan T-614
+     bersama `trial_requests`.
+  3. `app.trial_quota()` = batas §1. `app.trial_venue(v)` = mode hosting + baris `trials` aktif.
+  4. **Satu pintu cakupan:** `app.quota_scope(v)` mengembalikan `v` hanya untuk venue trial,
+     selain itu NULL. Semua jalur (trigger kuota, publish per hari, Storage, cek publish berlebih,
+     cakupan pemanggil) lewat sini, sehingga on-premise tetap global — termasuk lisensi yang
+     kuotanya dibagi beberapa venue.
+  5. `quota_limit/quota_used(kind, venue)`; versi lama tanpa venue tetap ada. `license_usage` dan
+     pra-cek unggah/impor memakai cakupan pemanggil (`app.quota_venue()`) tanpa ubah tanda tangan.
+  6. Batas 2 pengguna ditegakkan di `venue_members` (hanya keanggotaan yang tahu venue-nya).
+  7. Pesan "Batas trial tercapai" juga untuk venue trial walau lisensi server berpaket `hosting`.
+- **Urutan wajib untuk T-614:** `hosting.trials` diisi **sebelum** `venue_members`, kalau tidak
+  batas 2 pengguna belum berlaku saat anggota pertama ditambahkan.
+- **File:** `supabase/migrations/20261012004400_0044_hosting_mode_venue_quota.sql`,
+  `supabase/tests/venue_quota.test.sql`.
+- **Selesai jika:**
+  - [x] pgTAP `venue_quota` (25): tanpa mode hosting tak berubah; dengan mode hosting batas trial
+        per venue, pemakaian per venue, venue non-trial memakai lisensi server, batas pengguna dan
+        Storage per venue, `license_usage` trial memakai angka venue-nya.
+  - [x] Seluruh pgTAP 1129/1129, integrasi 84/84, `pnpm check` hijau.
+- **Jangan:** mengunci venue (T-612b); mengubah `admin-users` (T-612c).
