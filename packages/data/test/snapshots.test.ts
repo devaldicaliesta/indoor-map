@@ -99,3 +99,12 @@ describe('alamat slug Visitor', () => {
     expect((error as DataError).kind).toBe('invalid');
   });
 });
+
+describe('penanda latest.json', () => {
+  it('trial ter-hosting berakhir: forbidden dengan kode trial_ended', async () => {
+    respondWith(Response.json({ trialEnded: true }));
+    const error = await latestError();
+    expect(error.kind).toBe('forbidden');
+    expect(error.code).toBe('trial_ended');
+  });
+});

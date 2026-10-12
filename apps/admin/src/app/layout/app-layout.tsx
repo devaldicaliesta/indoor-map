@@ -3,6 +3,11 @@ import { cn } from '@indoor/ui';
 import { Outlet } from 'react-router';
 import { useIdleSignOut } from '../../features/auth/idle-sign-out';
 import { LicenseNotice } from '../../features/license/license-notice';
+import {
+  HostedTrialEnded,
+  HostedTrialNotice,
+  useHostedTrial,
+} from '../../features/trial/hosted-trial';
 import { AccountMenu } from './account-menu';
 import { NarrowScreenNotice } from './narrow-screen-notice';
 import { Sidebar } from './sidebar';
@@ -12,6 +17,7 @@ import { VenuePicker } from './venue-picker';
 export function AppLayout({ profile }: { profile: Profile }) {
   useIdleSignOut();
   const collapsed = useSidebar((s) => s.collapsed);
+  const trial = useHostedTrial(!profile.allVenues).data ?? null;
   return (
     <div
       className={cn(
@@ -26,9 +32,16 @@ export function AppLayout({ profile }: { profile: Profile }) {
         <AccountMenu profile={profile} />
       </header>
       <main className="min-h-0 overflow-auto">
-        <NarrowScreenNotice />
-        <LicenseNotice />
-        <Outlet />
+        {trial?.locked ? (
+          <HostedTrialEnded trial={trial} />
+        ) : (
+          <>
+            <NarrowScreenNotice />
+            <LicenseNotice />
+            {trial ? <HostedTrialNotice trial={trial} /> : null}
+            <Outlet />
+          </>
+        )}
       </main>
     </div>
   );

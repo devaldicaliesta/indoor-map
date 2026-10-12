@@ -1,4 +1,4 @@
-import { DataError, SERVICE_INACTIVE } from '@indoor/data';
+import { DataError, SERVICE_INACTIVE, TRIAL_ENDED } from '@indoor/data';
 import {
   type DeepLink,
   decodeDeepLink,
@@ -28,25 +28,40 @@ import { useVenueBranding } from '../features/venue/use-venue-branding';
 import { VenueInfo } from '../features/venue/venue-info';
 import { applyVenueLanguage, showLanguage } from '../i18n';
 
-/** Belum ada peta terbit, atau layanan dihentikan karena lisensi venue berakhir. */
-function Unavailable({ reason = 'unavailable' }: { reason?: 'unavailable' | 'serviceInactive' }) {
+type UnavailableReason = 'unavailable' | 'serviceInactive' | 'trialEnded';
+
+/** Judul dan penjelasan per alasan peta tidak bisa dibuka; kunci ditulis utuh (uji i18n). */
+export function useUnavailableText(reason: UnavailableReason) {
   const { t } = useTranslation();
+  switch (reason) {
+    case 'serviceInactive':
+      return {
+        title: t('venue.serviceInactiveTitle'),
+        description: t('venue.serviceInactiveDescription'),
+      };
+    case 'trialEnded':
+      return { title: t('venue.trialEndedTitle'), description: t('venue.trialEndedDescription') };
+    default:
+      return { title: t('venue.unavailableTitle'), description: t('venue.unavailableDescription') };
+  }
+}
+
+/** Belum ada peta terbit, layanan dihentikan karena lisensi, atau trial ter-hosting berakhir. */
+function Unavailable({ reason = 'unavailable' }: { reason?: UnavailableReason }) {
+  const message = useUnavailableText(reason);
   return (
     <VisitorShell>
-      <PanelMessage
-        title={
-          reason === 'serviceInactive'
-            ? t('venue.serviceInactiveTitle')
-            : t('venue.unavailableTitle')
-        }
-        description={
-          reason === 'serviceInactive'
-            ? t('venue.serviceInactiveDescription')
-            : t('venue.unavailableDescription')
-        }
-      />
+      <PanelMessage title={message.title} description={message.description} />
     </VisitorShell>
   );
+}
+
+/** Penanda di `latest.json` (lisensi, trial) menjadi alasan yang ditampilkan; selain itu null. */
+export function markerReason(error: unknown): 'serviceInactive' | 'trialEnded' | null {
+  if (!(error instanceof DataError)) return null;
+  if (error.code === SERVICE_INACTIVE) return 'serviceInactive';
+  if (error.code === TRIAL_ENDED) return 'trialEnded';
+  return null;
 }
 
 function Loading() {
@@ -94,9 +109,8 @@ function VenueView({ venueId }: { venueId: VenueId }) {
     if (snapshot.error instanceof DataError && snapshot.error.kind === 'not_found') {
       return <Unavailable />;
     }
-    if (snapshot.error instanceof DataError && snapshot.error.code === SERVICE_INACTIVE) {
-      return <Unavailable reason="serviceInactive" />;
-    }
+    const marker = markerReason(snapshot.error);
+    if (marker) return <Unavailable reason={marker} />;
     return <LoadFailed onRetry={() => void snapshot.refetch()} />;
   }
 
