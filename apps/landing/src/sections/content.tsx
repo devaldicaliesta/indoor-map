@@ -26,31 +26,45 @@ import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../language';
 import { DEMO_URL } from '../trial/api';
 
+const TONES = {
+  canvas: 'bg-canvas',
+  surface: 'bg-surface',
+  night: 'bg-night text-on-night',
+} as const;
+
 export function Section({
   id,
   title,
   lead,
   tone = 'canvas',
+  align = 'start',
   children,
 }: {
   id: string;
   title: string;
   lead?: string;
-  tone?: 'canvas' | 'surface';
+  tone?: keyof typeof TONES;
+  align?: 'start' | 'center';
   children: ReactNode;
 }) {
   return (
     <section
       id={id}
       aria-labelledby={`${id}-judul`}
-      className={cn('scroll-mt-16 py-16', tone === 'surface' ? 'bg-surface' : 'bg-canvas')}
+      className={cn('scroll-mt-16 py-20', TONES[tone])}
     >
-      <div className="mx-auto grid max-w-6xl gap-8 px-4">
-        <div className="grid max-w-2xl gap-3">
-          <h2 id={`${id}-judul`} className="font-bold text-3xl leading-tight">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4">
+        <div className={cn('grid max-w-2xl gap-3', align === 'center' && 'mx-auto text-center')}>
+          <h2 id={`${id}-judul`} className="display font-bold text-3xl sm:text-4xl">
             {title}
           </h2>
-          {lead ? <p className="text-ink-muted text-lg">{lead}</p> : null}
+          {lead ? (
+            <p
+              className={cn('text-lg', tone === 'night' ? 'text-on-night-muted' : 'text-ink-muted')}
+            >
+              {lead}
+            </p>
+          ) : null}
         </div>
         {children}
       </div>
@@ -87,7 +101,7 @@ function MotionVideo() {
     }
   }
   return (
-    <figure className="relative m-0 overflow-hidden rounded-lg border border-line bg-ink shadow-float">
+    <figure className="relative m-0 overflow-hidden rounded-lg border border-night-line bg-night shadow-float">
       <video
         ref={video}
         className="block aspect-video w-full"
@@ -115,25 +129,99 @@ function MotionVideo() {
   );
 }
 
+/** Latar hero di separuh kanan: denah samar, ruang berbagi dinding seperti denah sungguhan. */
+function HeroPlan() {
+  const rooms = [
+    [60, 40, 210, 250],
+    [270, 40, 240, 250],
+    [590, 40, 210, 250],
+    [60, 330, 450, 250],
+    [590, 330, 210, 250],
+    [60, 660, 220, 180],
+    [280, 660, 230, 180],
+    [590, 660, 210, 180],
+  ];
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      viewBox="0 0 800 840"
+      preserveAspectRatio="xMinYMid slice"
+      // Di layar sempit teks hero menempati seluruh lebar; denah hanya untuk layar lebar.
+      className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 lg:block"
+    >
+      <g fill="none" stroke="var(--night-line)" strokeWidth="1.5">
+        {rooms.map(([x, y, w, h]) => (
+          <rect key={`${x}-${y}`} x={x} y={y} width={w} height={h} />
+        ))}
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * Satu rute kuning (warna logo) mengelilingi video: dari titik asal di kiri bawah, menyusuri
+ * bawah dan sisi kanan, sampai tujuan di atas. Koordinat persen mengikuti ukuran video, jadi
+ * bentuknya sama di setiap lebar layar. Digambar sekali saat halaman dibuka (index.css).
+ */
+function HeroRoute() {
+  const line = {
+    fill: 'none',
+    stroke: 'var(--signal)',
+    strokeWidth: 10,
+    strokeLinecap: 'round',
+    pathLength: 1,
+  } as const;
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      // SVG absolut tidak meregang mengikuti inset; ukuran = video + 64 px lebar, + 88 px tinggi.
+      // Mulai 1280 px: di bawahnya video menempel tepi layar sehingga sisi kanan rute terpotong.
+      className="-top-10 -left-6 pointer-events-none absolute hidden h-[calc(100%+88px)] w-[calc(100%+64px)] overflow-visible xl:block"
+    >
+      <line {...line} className="hero-route hero-route-1" x1="0%" y1="100%" x2="100%" y2="100%" />
+      <line {...line} className="hero-route hero-route-2" x1="100%" y1="100%" x2="100%" y2="0%" />
+      <line {...line} className="hero-route hero-route-3" x1="100%" y1="0%" x2="82%" y2="0%" />
+      <circle
+        cx="0%"
+        cy="100%"
+        r="13"
+        fill="var(--night)"
+        stroke="var(--on-night)"
+        strokeWidth="5"
+      />
+      <g className="hero-route-stop">
+        <circle cx="82%" cy="0%" r="20" fill="var(--signal)" />
+        <circle cx="82%" cy="0%" r="7" fill="var(--night)" />
+      </g>
+    </svg>
+  );
+}
 export function Hero() {
   const { copy } = useLanguage();
   return (
-    <section aria-labelledby="hero-judul" className="bg-surface">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 lg:grid-cols-[1fr_1.1fr] lg:py-20">
-        <div className="grid gap-6">
-          <p className="w-fit rounded-sm bg-signal-soft px-2 py-1 font-bold text-sm uppercase tracking-wide">
-            {copy.hero.eyebrow}
-          </p>
-          <h1 id="hero-judul" className="font-bold text-4xl leading-tight sm:text-5xl">
+    <section
+      aria-labelledby="hero-judul"
+      className="relative overflow-hidden bg-night text-on-night"
+    >
+      <HeroPlan />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pt-14 pb-60 lg:grid-cols-[1.05fr_1fr] lg:pt-24 lg:pb-64">
+        <div className="grid gap-7">
+          <h1 id="hero-judul" className="display font-bold text-4xl sm:text-5xl lg:text-6xl">
             {copy.hero.title}
           </h1>
-          <p className="text-ink-muted text-lg">{copy.hero.lead}</p>
+          <p className="max-w-xl text-lg text-on-night-muted">{copy.hero.lead}</p>
           <div className="flex flex-wrap gap-3">
             <Button asChild variant="primary">
               <a href="#trial">{copy.hero.primary}</a>
             </Button>
             {/* Demo publik = Visitor sungguhan berisi venue demo (T-613), bukan cuplikan. */}
-            <Button asChild>
+            <Button
+              asChild
+              variant="ghost"
+              className="border border-on-night-muted text-on-night hover:bg-night-raised"
+            >
               <a href={DEMO_URL}>{copy.hero.secondary}</a>
             </Button>
           </div>
@@ -141,90 +229,115 @@ export function Hero() {
             {copy.hero.facts.map(([value, label]) => (
               <li key={value} className="border-signal border-l-4 pl-3">
                 <strong className="block">{value}</strong>
-                <span className="text-ink-muted text-sm">{label}</span>
+                <span className="text-on-night-muted text-sm">{label}</span>
               </li>
             ))}
           </ul>
         </div>
-        <MotionVideo />
+        <div className="relative">
+          <HeroRoute />
+          <MotionVideo />
+        </div>
       </div>
     </section>
   );
 }
 
-function CardGrid({ items, icons }: { items: string[][]; icons: LucideIcon[] }) {
+/** Piktogram ala papan penunjuk arah: simbol di kotak biru logo. */
+function Pictogram({ icon: Icon }: { icon: LucideIcon }) {
   return (
-    <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
-      {items.map(([title, body], i) => {
-        const Icon = icons[i] ?? Layers3Icon;
-        return (
-          <li
-            key={title}
-            className="grid content-start gap-2 rounded-lg border border-line bg-surface p-5"
-          >
-            <span className="flex size-10 items-center justify-center rounded-sm bg-signal-soft">
-              <Icon aria-hidden="true" className="size-5" strokeWidth={1.75} />
-            </span>
-            <h3 className="font-bold text-lg">{title}</h3>
-            <p className="text-ink-muted">{body}</p>
-          </li>
-        );
-      })}
-    </ul>
+    <span className="flex size-12 shrink-0 items-center justify-center rounded-sm bg-night text-on-night">
+      <Icon aria-hidden="true" className="size-6" strokeWidth={1.75} />
+    </span>
   );
 }
+
+const BUILDING_ICONS = [
+  ShoppingBagIcon,
+  HospitalIcon,
+  GraduationCapIcon,
+  Building2Icon,
+  PlaneIcon,
+  FactoryIcon,
+  TicketIcon,
+];
 
 export function Buildings() {
   const { copy } = useLanguage();
   return (
-    <Section id="gedung" title={copy.buildings.title} lead={copy.buildings.lead}>
-      <CardGrid
-        items={copy.buildings.items}
-        icons={[
-          ShoppingBagIcon,
-          HeadsetIcon,
-          HospitalIcon,
-          GraduationCapIcon,
-          Building2Icon,
-          PlaneIcon,
-          FactoryIcon,
-          TicketIcon,
-        ]}
-      />
+    <Section
+      id="gedung"
+      title={copy.buildings.title}
+      lead={copy.buildings.lead}
+      tone="canvas"
+      align="center"
+    >
+      <ul className="m-0 grid list-none gap-x-8 gap-y-10 p-0 sm:grid-cols-2 lg:grid-cols-4">
+        {copy.buildings.items.map(([title, body], i) => (
+          <li key={title} className="flex gap-4">
+            <Pictogram icon={BUILDING_ICONS[i] ?? Building2Icon} />
+            <div className="grid content-start gap-1">
+              <h3 className="font-bold text-lg">{title}</h3>
+              <p className="text-ink-muted">{body}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 }
 
+const FEATURE_ICONS = [
+  Layers3Icon,
+  RouteIcon,
+  QrCodeIcon,
+  MonitorSmartphoneIcon,
+  SearchIcon,
+  OctagonXIcon,
+  PenToolIcon,
+  WifiOffIcon,
+];
+
 export function Features() {
   const { copy } = useLanguage();
   return (
-    <Section id="fitur" title={copy.features.title} tone="surface">
-      <CardGrid
-        items={copy.features.items}
-        icons={[
-          Layers3Icon,
-          RouteIcon,
-          QrCodeIcon,
-          MonitorSmartphoneIcon,
-          SearchIcon,
-          OctagonXIcon,
-          PenToolIcon,
-          WifiOffIcon,
-        ]}
-      />
-    </Section>
+    <section id="fitur" aria-labelledby="fitur-judul" className="scroll-mt-16 bg-surface py-20">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 lg:grid-cols-[1fr_2fr]">
+        <h2
+          id="fitur-judul"
+          className="display font-bold text-3xl sm:text-4xl lg:sticky lg:top-24 lg:self-start"
+        >
+          {copy.features.title}
+        </h2>
+        <ul className="m-0 grid list-none gap-x-10 p-0 sm:grid-cols-2">
+          {copy.features.items.map(([title, body], i) => {
+            const Icon = FEATURE_ICONS[i] ?? Layers3Icon;
+            return (
+              <li key={title} className="grid content-start gap-2 border-line border-t py-6">
+                <Icon aria-hidden="true" className="size-6 text-accent-blue" strokeWidth={1.75} />
+                <h3 className="font-bold text-lg">{title}</h3>
+                <p className="text-ink-muted">{body}</p>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
   );
 }
 
 export function HowItWorks() {
   const { copy } = useLanguage();
   return (
-    <Section id="cara-kerja" title={copy.how.title} tone="surface">
-      <ol className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+    <Section id="cara-kerja" title={copy.how.title} tone="canvas">
+      <ol className="m-0 grid list-none gap-8 p-0 sm:grid-cols-2 lg:grid-cols-4">
         {copy.how.steps.map(([title, body], i) => (
-          <li key={title} className="grid content-start gap-2 border-ink border-t-4 pt-4">
-            <span className="font-bold font-mono text-ink-muted" aria-hidden="true">
-              0{i + 1}
+          <li key={title} className="grid content-start gap-3 border-signal border-t-4 pt-5">
+            <span
+              className="flex size-9 items-center justify-center rounded-sm bg-signal font-bold text-on-signal"
+              aria-hidden="true"
+            >
+              {i + 1}
             </span>
             <h3 className="font-bold text-lg">{title}</h3>
             <p className="text-ink-muted">{body}</p>
@@ -239,15 +352,15 @@ export function Licensing() {
   const { copy } = useLanguage();
   const icons = [ServerIcon, ShieldCheckIcon, HeadsetIcon];
   return (
-    <Section id="lisensi" title={copy.license.title} lead={copy.license.lead}>
-      <ul className="m-0 grid list-none gap-4 p-0 md:grid-cols-3">
+    <Section id="lisensi" title={copy.license.title} lead={copy.license.lead} tone="night">
+      <ul className="m-0 grid list-none gap-8 p-0 md:grid-cols-3">
         {copy.license.items.map(([title, body], i) => {
           const Icon = icons[i] ?? ServerIcon;
           return (
-            <li key={title} className="grid content-start gap-2 rounded-lg bg-ink p-6 text-surface">
-              <Icon aria-hidden="true" className="size-6 text-signal" strokeWidth={1.75} />
-              <h3 className="font-bold text-lg">{title}</h3>
-              <p className="text-line">{body}</p>
+            <li key={title} className="grid content-start gap-3 border-night-line border-t pt-6">
+              <Icon aria-hidden="true" className="size-7 text-signal" strokeWidth={1.75} />
+              <h3 className="font-bold text-xl">{title}</h3>
+              <p className="text-on-night-muted">{body}</p>
             </li>
           );
         })}
@@ -261,26 +374,28 @@ export function Licensing() {
   );
 }
 
+/** Tangkapan layar sebagai baris bergantian: gambar besar, judul, dan apa yang terlihat. */
 export function Screens() {
   const { copy } = useLanguage();
   return (
-    <Section id="tangkapan-layar" title={copy.screens.title}>
-      <ul className="m-0 grid list-none gap-6 p-0 md:grid-cols-2">
-        {copy.screens.items.map(([file, caption]) => (
-          <li key={file}>
-            <figure className="m-0 grid gap-2">
-              <img
-                src={`/screens/${file}.jpg`}
-                // Keterangan gambar sudah di figcaption; alt kosong agar tidak dibacakan dua kali.
-                alt=""
-                width={1280}
-                height={800}
-                loading="lazy"
-                decoding="async"
-                className="h-auto w-full rounded-lg border border-line bg-surface"
-              />
-              <figcaption className="text-ink-muted">{caption}</figcaption>
-            </figure>
+    <Section id="tangkapan-layar" title={copy.screens.title} tone="surface" align="center">
+      <ul className="m-0 grid list-none gap-20 p-0">
+        {copy.screens.items.map(([file, caption, detail], i) => (
+          <li key={file} className="grid items-center gap-8 lg:grid-cols-[2fr_3fr] lg:gap-14">
+            <div className={cn('grid gap-3', i % 2 === 1 && 'lg:order-last')}>
+              <h3 className="display font-bold text-2xl">{caption}</h3>
+              <p className="text-ink-muted text-lg">{detail}</p>
+            </div>
+            <img
+              src={`/screens/${file}.jpg`}
+              // Isi gambar dijelaskan judul di sampingnya; alt kosong agar tidak dibacakan dua kali.
+              alt=""
+              width={1280}
+              height={800}
+              loading="lazy"
+              decoding="async"
+              className="h-auto w-full rounded-lg border border-line bg-surface shadow-float"
+            />
           </li>
         ))}
       </ul>

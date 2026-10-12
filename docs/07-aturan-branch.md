@@ -29,7 +29,7 @@ selalu sinkron dengan kode.
 
 | Branch | Task | Dokumen |
 | --- | --- | --- |
-| — | Tidak ada (`feature/trial-hosting`, T-611 s.d. T-618, digabung ke `develop` lewat PR #28 dan dihapus 2026-10-12) | — |
+| `feature/landing-redesign` | T-505: landing bergaya Mappedin, palet logo, mode terang/gelap | `PROGRESS.md` catatan 2026-10-12 |
 
 Task di luar daftar ini dikerjakan langsung di `develop`.
 
