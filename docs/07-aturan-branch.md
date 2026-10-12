@@ -1,7 +1,9 @@
 # Aturan branch
 
 Struktur branch sejak 2026-10-09 (keputusan pemilik). Menggantikan aturan satu branch
-`claude/vibrant-davinci-uyrrka`.
+`claude/vibrant-davinci-uyrrka`, yang dihapus 2026-10-12 setelah isinya dipindah ke `develop`
+(jejaknya disimpan sebagai tag `arsip/claude-vibrant-davinci-uyrrka`; begitu pula
+`arsip/landing-publish`).
 
 ```
 production   ← yang diterbitkan (Cloudflare Pages). Hanya diisi dari main
@@ -27,7 +29,7 @@ selalu sinkron dengan kode.
 
 | Branch | Task | Dokumen |
 | --- | --- | --- |
-| `feature/trial-hosting` | T-611 s.d. T-618 | `23-trial-hosting.md` |
+| — | Tidak ada (`feature/trial-hosting`, T-611 s.d. T-618, digabung ke `develop` lewat PR #28 dan dihapus 2026-10-12) | — |
 
 Task di luar daftar ini dikerjakan langsung di `develop`.
 

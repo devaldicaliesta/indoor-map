@@ -106,7 +106,13 @@ test.describe('T-504 Lisensi trial', () => {
     const before = sql(
       "select count(*) || '|' || (select count(*) from public.locations) from public.venues",
     );
-    await superAdmin.license.activateManual(await devLicenseFile());
+    // Lisensi berbayar dengan kuota di atas pemakaian data demo: upgrade mengangkat batas
+    // trial sepenuhnya (bukan menukar dengan batas paket yang lebih kecil dari data yang ada).
+    await superAdmin.license.activateManual(
+      await devLicenseFile({
+        quota: { venues: 100000, buildings: 100000, floors: 100000, infoPoints: 100000 },
+      }),
+    );
     expect(
       sql("select count(*) || '|' || (select count(*) from public.locations) from public.venues"),
     ).toBe(before);

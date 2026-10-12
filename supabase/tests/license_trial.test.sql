@@ -213,8 +213,11 @@ select throws_ok('select public.license_import_check(1)', '42501', null,
 reset role;
 
 -- Turun ke trial dengan data melebihi batas: publish ditolak sampai data dikurangi.
+-- Batasnya diturunkan satu di bawah pemakaian sekarang (uji di atas sudah menambah satu lokasi),
+-- bukan dipatok angka tetap, agar hasilnya sama pada database kosong maupun berisi data demo.
 update public.licenses
-set payload = jsonb_set(jsonb_set(payload, '{quota,locations}', to_jsonb(1)),
+set payload = jsonb_set(
+  jsonb_set(payload, '{quota,locations}', to_jsonb(app.quota_used('locations') - 1)),
   '{quota,publishPerDay}', to_jsonb(1000))
 where is_current;
 select throws_like(

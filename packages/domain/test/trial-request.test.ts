@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { checkTrialRequest, createRateLimiter } from '../src/trial-request';
+import {
+  checkHostedTrialRequest,
+  checkTrialRequest,
+  createRateLimiter,
+} from '../src/trial-request';
 
 const valid = {
   name: 'Rina Wijaya',
@@ -89,5 +93,28 @@ describe('createRateLimiter', () => {
     expect(allow('1.2.3.4', t + 10)).toBe(false);
     expect(allow('5.6.7.8', t + 10)).toBe(true);
     expect(allow('1.2.3.4', t + 60_010)).toBe(true);
+  });
+});
+
+describe('checkHostedTrialRequest (T-614)', () => {
+  it('tanpa lama trial dan ID instalasi; isian lain diperiksa sama', () => {
+    const { durationDays: _days, installId: _id, ...hosted } = valid;
+    expect(checkHostedTrialRequest(hosted)).toEqual({
+      ok: true,
+      value: { ...hosted, email: 'rina@malcontoh.co.id' },
+    });
+  });
+
+  it('lama trial dan ID instalasi dari form lama diabaikan, bukan ditolak', () => {
+    const result = checkHostedTrialRequest({ ...valid, durationDays: 99, installId: 'x' });
+    expect(result.ok).toBe(true);
+    expect(result.ok && 'durationDays' in result.value).toBe(false);
+  });
+
+  it('isian tidak sah tetap ditolak', () => {
+    expect(checkHostedTrialRequest({ ...valid, email: 'bukan-email', consent: false })).toEqual({
+      ok: false,
+      problems: { email: 'invalid', consent: 'required' },
+    });
   });
 });

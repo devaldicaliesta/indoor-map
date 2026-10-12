@@ -18,7 +18,8 @@ import { QuotaNotice, useQuotaBlock } from '../license/quota-notice';
 import { useInviteUser } from './queries';
 import { RoleSelect } from './role-select';
 
-export function InviteUserDialog() {
+/** `roles`: role yang boleh diberikan pengundang ini (Admin venue tanpa Super Admin). */
+export function InviteUserDialog({ roles }: { roles: readonly AppRole[] }) {
   const [open, setOpen] = useState(false);
   const userQuota = useQuotaBlock('users');
   const [role, setRole] = useState<AppRole>('editor');
@@ -74,7 +75,13 @@ export function InviteUserDialog() {
           </div>
           <div className="grid gap-1">
             <Label htmlFor="invite-role">Role</Label>
-            <RoleSelect id="invite-role" label="Role" value={role} onChange={setRole} />
+            <RoleSelect
+              id="invite-role"
+              label="Role"
+              value={role}
+              onChange={setRole}
+              roles={roles}
+            />
           </div>
           {invite.error ? <FormNotice tone="error">{invite.error.message}</FormNotice> : null}
           <DialogFooter>

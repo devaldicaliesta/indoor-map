@@ -1,4 +1,3 @@
-import { DataError, SERVICE_INACTIVE } from '@indoor/data';
 import {
   type DeepLink,
   type FloorId,
@@ -18,7 +17,7 @@ import { InfoPointModeContext } from '../infopoint/info-point-mode';
 import { OfflineBadge } from '../infopoint/offline-badge';
 import { useIdle } from '../infopoint/use-idle';
 import { usePendingUpdate } from '../infopoint/use-pending-update';
-import { SnapshotExplorer } from './venue-page';
+import { markerReason, SnapshotExplorer, useUnavailableText } from './venue-page';
 
 /** Permukaan Info Point (huruf 20 px, target sentuh 60 px) selama halaman ini terbuka. */
 function useInfoPointSurface() {
@@ -57,6 +56,12 @@ function Message({ title, description }: { title: string; description: string })
       <PanelMessage title={title} description={description} />
     </VisitorShell>
   );
+}
+
+/** Penanda di `latest.json`: layanan dihentikan lisensi atau trial ter-hosting berakhir. */
+function MarkerMessage({ reason }: { reason: 'serviceInactive' | 'trialEnded' }) {
+  const message = useUnavailableText(reason);
+  return <Message title={message.title} description={message.description} />;
 }
 
 /**
@@ -114,14 +119,8 @@ function InfoPointScreen({ venueId, code }: { venueId: VenueId; code: string }) 
       </VisitorShell>
     );
   }
-  if (snapshot.error instanceof DataError && snapshot.error.code === SERVICE_INACTIVE) {
-    return (
-      <Message
-        title={t('venue.serviceInactiveTitle')}
-        description={t('venue.serviceInactiveDescription')}
-      />
-    );
-  }
+  const marker = markerReason(snapshot.error);
+  if (marker) return <MarkerMessage reason={marker} />;
   if (!view || !link) {
     return (
       <Message

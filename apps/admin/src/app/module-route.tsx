@@ -1,4 +1,9 @@
-import { type AdminModule, type ModuleAccess, moduleAccess, visibleModules } from '@indoor/domain';
+import {
+  type AdminModule,
+  type ModuleAccess,
+  moduleAccessFor,
+  visibleModulesFor,
+} from '@indoor/domain';
 import { Badge, EmptyState } from '@indoor/ui';
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router';
@@ -14,8 +19,8 @@ export function ModuleRoute({
   module: AdminModule;
   children: (access: ModuleAccess) => ReactNode;
 }) {
-  const role = useCurrentProfile().data?.role;
-  const access = role ? moduleAccess(role, module) : null;
+  const profile = useCurrentProfile().data;
+  const access = profile ? moduleAccessFor(profile, module) : null;
   if (!access) {
     return (
       <div className="p-6">
@@ -61,8 +66,8 @@ export function ModulePage({
 
 /** Beranda: menu pertama yang boleh diubah role ini (Operator → Penutupan), atau dibaca. */
 export function HomeRedirect() {
-  const role = useCurrentProfile().data?.role;
-  const modules = role ? visibleModules(role) : [];
+  const profile = useCurrentProfile().data;
+  const modules = profile ? visibleModulesFor(profile) : [];
   const target = modules.find((m) => m.access === 'edit') ?? modules[0];
   return <Navigate to={target ? MODULE_NAV[target.module].path : '/login'} replace />;
 }
