@@ -52,7 +52,9 @@
     "loadFailedDescription": "Periksa koneksi internet, lalu coba lagi.",
     "retry": "Coba lagi",
     "serviceInactiveTitle": "Layanan peta tidak aktif",
-    "serviceInactiveDescription": "Peta digital venue ini sedang tidak tersedia. Tanyakan ke petugas terdekat untuk petunjuk arah."
+    "serviceInactiveDescription": "Peta digital venue ini sedang tidak tersedia. Tanyakan ke petugas terdekat untuk petunjuk arah.",
+    "trialEndedTitle": "Masa trial peta ini sudah berakhir",
+    "trialEndedDescription": "Peta digital venue ini berasal dari trial PanduArah yang sudah selesai. Tanyakan ke petugas terdekat untuk petunjuk arah."
   },
   "infoPoint": {
     "notFoundTitle": "Info Point tidak ditemukan",

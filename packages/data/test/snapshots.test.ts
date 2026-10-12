@@ -1,4 +1,4 @@
-import { buildSnapshot, type VenueId } from '@indoor/domain';
+import { buildSnapshot, type VenueId, type VenueSlug } from '@indoor/domain';
 import { sampleSnapshotSource } from '@indoor/domain/fixtures/snapshot-source.ts';
 import { createClient } from '@supabase/supabase-js';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -64,5 +64,47 @@ describe('snapshot Visitor', () => {
     expect(repo.assetUrl('venues/a/logo.png')).toBe(
       'https://peta.test/storage/v1/object/public/public-assets/venues/a/logo.png',
     );
+  });
+});
+
+describe('alamat slug Visitor', () => {
+  const SLUG = 'demo' as VenueSlug;
+
+  it('penunjuk slug publik dibaca ulang ke server dan menghasilkan id venue', async () => {
+    const fetchMock = respondWith(Response.json({ venueId: VENUE }));
+    await expect(repo.venueIdForSlug(SLUG)).resolves.toBe(VENUE);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://peta.test/storage/v1/object/public/snapshots/slugs/demo.json',
+      { cache: 'no-cache' },
+    );
+  });
+
+  it('respons dari HTML dipakai alih-alih permintaan baru', async () => {
+    const fetchMock = respondWith(new TypeError('tidak boleh dipanggil'));
+    await expect(
+      repo.venueIdForSlug(SLUG, Promise.resolve(Response.json({ venueId: VENUE }))),
+    ).resolves.toBe(VENUE);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('slug yang belum pernah diterbitkan menjadi not_found', async () => {
+    respondWith(new Response('', { status: 400 }));
+    const error = await repo.venueIdForSlug(SLUG).catch((e: unknown) => e);
+    expect((error as DataError).kind).toBe('not_found');
+  });
+
+  it('penunjuk rusak ditolak sebagai invalid', async () => {
+    respondWith(Response.json({ venueId: 'bukan-uuid' }));
+    const error = await repo.venueIdForSlug(SLUG).catch((e: unknown) => e);
+    expect((error as DataError).kind).toBe('invalid');
+  });
+});
+
+describe('penanda latest.json', () => {
+  it('trial ter-hosting berakhir: forbidden dengan kode trial_ended', async () => {
+    respondWith(Response.json({ trialEnded: true }));
+    const error = await latestError();
+    expect(error.kind).toBe('forbidden');
+    expect(error.code).toBe('trial_ended');
   });
 });

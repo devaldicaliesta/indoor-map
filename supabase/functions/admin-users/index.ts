@@ -1,12 +1,13 @@
-// Edge Function admin-users: Super Admin mengundang pengguna baru.
+// Edge Function admin-users: Super Admin atau Admin venue (trial) mengundang pengguna baru.
 // Membuat akun Auth butuh service role, jadi tidak bisa dilakukan dari klien.
 // Memakai REST API Auth/PostgREST langsung, tanpa impor dari internet: fungsi tetap
 // bisa dimuat di server on-premise yang aksesnya ke registry dibatasi.
 import {
   CORS_HEADERS,
+  callerHeaders,
   fail,
   reply,
-  requireSuperAdmin,
+  requireCaller,
   serviceHeaders,
   url,
 } from '../_shared/auth.ts';
@@ -36,6 +37,32 @@ function parseInput(body: unknown): InviteInput | null {
   };
 }
 
+/**
+ * Siapa boleh mengundang, ke venue mana, dan dalam batas berapa diputuskan SQL
+ * (`user_invite_check`, migrasi 0046) atas nama pemanggil — sebelum email undangan dikirim.
+ * `venueId` null = undangan tingkat instalasi (Super Admin).
+ */
+async function inviteScope(
+  authorization: string,
+  role: Role,
+): Promise<{ venueId: string | null } | Response> {
+  const response = await fetch(`${url}/rest/v1/rpc/user_invite_check`, {
+    method: 'POST',
+    headers: callerHeaders(authorization),
+    body: JSON.stringify({ p_role: role }),
+  });
+  if (response.ok) return { venueId: (await response.json()) as string | null };
+  const { code, message } = (await response.json().catch(() => ({}))) as {
+    code?: string;
+    message?: string;
+  };
+  if (code === '42501') {
+    return fail(403, 'forbidden', message ?? 'Anda tidak bisa menambah pengguna.');
+  }
+  if (code === 'IM422') return fail(409, 'conflict', message ?? 'Batas pengguna tercapai.');
+  return fail(500, 'unknown', 'Pemeriksaan hak menambah pengguna gagal. Coba lagi.');
+}
+
 async function profileEmailExists(email: string): Promise<boolean> {
   const response = await fetch(
     `${url}/rest/v1/profiles?select=user_id&email=ilike.${encodeURIComponent(email)}`,
@@ -44,15 +71,26 @@ async function profileEmailExists(email: string): Promise<boolean> {
   return response.ok && ((await response.json()) as unknown[]).length > 0;
 }
 
+/** Akun baru dihapus bila langkah sesudah undangan gagal; profilnya ikut terhapus (cascade). */
+async function removeInvited(userId: string): Promise<void> {
+  await fetch(`${url}/auth/v1/admin/users/${userId}`, {
+    method: 'DELETE',
+    headers: serviceHeaders,
+  });
+}
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
   if (request.method !== 'POST') return fail(405, 'invalid', 'Metode tidak didukung.');
 
-  const caller = await requireSuperAdmin(request, 'menambah pengguna');
+  const caller = await requireCaller(request);
   if (caller instanceof Response) return caller;
 
   const input = parseInput(await request.json().catch(() => null));
   if (!input) return fail(400, 'invalid', 'Nama, email, dan role wajib diisi dengan benar.');
+
+  const scope = await inviteScope(request.headers.get('Authorization') ?? '', input.role);
+  if (scope instanceof Response) return scope;
 
   if (await profileEmailExists(input.email)) {
     return fail(409, 'conflict', `Email ${input.email} sudah terdaftar.`);
@@ -85,17 +123,35 @@ Deno.serve(async (request) => {
       full_name: input.fullName,
       email: input.email,
       role: input.role,
+      // Anggota venue hanya melihat venue itu (T-611a); undangan Super Admin tetap akses-semua.
+      all_venues: scope.venueId === null,
     }),
   });
   if (!profile.ok) {
     const { code } = (await profile.json().catch(() => ({}))) as { code?: string };
     if (code === '23505') return fail(409, 'conflict', `Email ${input.email} sudah terdaftar.`);
     // Akun baru tanpa profil dihapus; akun lama (konflik) tidak pernah disentuh.
-    await fetch(`${url}/auth/v1/admin/users/${invited.id}`, {
-      method: 'DELETE',
-      headers: serviceHeaders,
-    });
+    await removeInvited(invited.id);
     return fail(500, 'unknown', 'Profil pengguna gagal dibuat. Coba lagi.');
+  }
+
+  if (scope.venueId !== null) {
+    const member = await fetch(`${url}/rest/v1/venue_members`, {
+      method: 'POST',
+      headers: serviceHeaders,
+      body: JSON.stringify({ venue_id: scope.venueId, user_id: invited.id }),
+    });
+    if (!member.ok) {
+      // Batas pengguna ditegakkan ulang trigger (0044) bila dua undangan berbarengan.
+      const { code, message } = (await member.json().catch(() => ({}))) as {
+        code?: string;
+        message?: string;
+      };
+      await removeInvited(invited.id);
+      return code === 'IM422'
+        ? fail(409, 'conflict', message ?? 'Batas pengguna tercapai.')
+        : fail(500, 'unknown', 'Pengguna gagal ditambahkan ke venue. Coba lagi.');
+    }
   }
 
   return reply(201, { userId: invited.id });

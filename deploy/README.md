@@ -1,5 +1,8 @@
 # Paket instalasi on-premise PanduArah
 
+> Trial ter-hosting milik vendor (Supabase + Cloudflare Pages, F2-K) bukan paket ini: lihat
+> `deploy/hosting/README.md`.
+
 Satu server menjalankan seluruh platform PanduArah lewat Docker Compose:
 
 | Layanan     | Isi                                                                 |

@@ -1267,6 +1267,7 @@ export type Database = {
       };
       profiles: {
         Row: {
+          all_venues: boolean;
           created_at: string;
           email: string;
           failed_login_count: number;
@@ -1278,6 +1279,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          all_venues?: boolean;
           created_at?: string;
           email: string;
           failed_login_count?: number;
@@ -1289,6 +1291,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          all_venues?: boolean;
           created_at?: string;
           email?: string;
           failed_login_count?: number;
@@ -1453,6 +1456,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      venue_members: {
+        Row: {
+          created_at: string;
+          user_id: string;
+          venue_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          user_id: string;
+          venue_id: string;
+        };
+        Update: {
+          created_at?: string;
+          user_id?: string;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'venue_members_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+          {
+            foreignKeyName: 'venue_members_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       venues: {
         Row: {
           address: string | null;
@@ -1462,6 +1498,7 @@ export type Database = {
           id: string;
           logo_path: string | null;
           name: string;
+          slug: string | null;
           timezone: string;
           updated_at: string;
           venue_type: Database['public']['Enums']['venue_type'];
@@ -1474,6 +1511,7 @@ export type Database = {
           id?: string;
           logo_path?: string | null;
           name: string;
+          slug?: string | null;
           timezone?: string;
           updated_at?: string;
           venue_type?: Database['public']['Enums']['venue_type'];
@@ -1486,6 +1524,7 @@ export type Database = {
           id?: string;
           logo_path?: string | null;
           name?: string;
+          slug?: string | null;
           timezone?: string;
           updated_at?: string;
           venue_type?: Database['public']['Enums']['venue_type'];
@@ -1523,6 +1562,86 @@ export type Database = {
         Returns: undefined;
       };
       delete_connector: { Args: { p_id: string }; Returns: undefined };
+      hosting_lifecycle_expired: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          slug: string;
+          venue_id: string;
+        }[];
+      };
+      hosting_lifecycle_files: {
+        Args: { p_venue_id: string };
+        Returns: {
+          bucket_id: string;
+          name: string;
+        }[];
+      };
+      hosting_lifecycle_forget: { Args: Record<PropertyKey, never>; Returns: number };
+      hosting_lifecycle_lock: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          delete_at: string;
+          request_id: string;
+          venue_id: string;
+        }[];
+      };
+      hosting_lifecycle_locked_venues: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          venue_id: string;
+        }[];
+      };
+      hosting_lifecycle_purge: { Args: { p_venue_id: string }; Returns: undefined };
+      hosting_lifecycle_remind: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          ends_at: string;
+          request_id: string;
+          venue_id: string;
+        }[];
+      };
+      hosting_provision_trial: {
+        Args: {
+          p_outdoor_placeholder: string;
+          p_request_id: string;
+          p_rows: Json;
+          p_user_id: string;
+          p_venue: Json;
+        };
+        Returns: {
+          ends_at: string;
+          slug: string;
+          venue_id: string;
+        }[];
+      };
+      hosting_queue_next: { Args: Record<PropertyKey, never>; Returns: string };
+      hosting_request_create: {
+        Args: { p_ip: string; p_request: Json; p_token_hash: string };
+        Returns: string;
+      };
+      hosting_request_get: {
+        Args: { p_request_id: string };
+        Returns: {
+          building_size: string;
+          building_type: string;
+          email: string;
+          id: string;
+          institution: string;
+          language: string;
+          name: string;
+          phone: string;
+          status: string;
+          title: string;
+        }[];
+      };
+      hosting_request_requeue: { Args: { p_request_id: string }; Returns: undefined };
+      hosting_request_verify: {
+        Args: { p_token_hash: string };
+        Returns: {
+          outcome: string;
+          request_id: string;
+        }[];
+      };
       import_locations: {
         Args: { p_location_type_id: string; p_rows: Json; p_venue_id: string };
         Returns: number;
@@ -1765,6 +1884,61 @@ export type Database = {
       smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
       smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };
       take_over_edit_lock: { Args: { p_floor_id: string }; Returns: undefined };
+      trial_status: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          ends_at: string;
+          locked: boolean;
+          venue_id: string;
+        }[];
+      };
+      user_invite_check: {
+        Args: { p_role: Database['public']['Enums']['app_role'] };
+        Returns: string;
+      };
+      vendor_access: { Args: Record<PropertyKey, never>; Returns: string };
+      vendor_block: { Args: { p_note?: string; p_value: string }; Returns: string };
+      vendor_blocklist: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          created_at: string;
+          kind: string;
+          note: string;
+          value: string;
+        }[];
+      };
+      vendor_capacity: { Args: Record<PropertyKey, never>; Returns: number };
+      vendor_requests: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          building_size: string;
+          building_type: string;
+          created_at: string;
+          email: string;
+          ends_at: string;
+          extended_days: number;
+          id: string;
+          institution: string;
+          language: string;
+          last_published_at: string;
+          locked_at: string;
+          name: string;
+          phone: string;
+          published_versions: number;
+          queued_at: string;
+          reject_reason: string;
+          slug: string;
+          started_at: string;
+          status: string;
+          title: string;
+          venue_id: string;
+          verified_at: string;
+        }[];
+      };
+      vendor_trial_delete: { Args: { p_venue_id: string }; Returns: undefined };
+      vendor_trial_extend: { Args: { p_days: number; p_venue_id: string }; Returns: string };
+      vendor_trial_lock: { Args: { p_venue_id: string }; Returns: undefined };
+      vendor_unblock: { Args: { p_value: string }; Returns: undefined };
     };
     Enums: {
       app_role: 'super_admin' | 'admin' | 'editor' | 'operator' | 'viewer';

@@ -10,6 +10,7 @@ const id = {
     demo: 'Demo 3D',
     how: 'Cara kerja',
     license: 'Lisensi',
+    trial: 'Coba gratis',
     contact: 'Hubungi kami',
     language: 'Bahasa',
     menu: 'Menu',
@@ -19,8 +20,8 @@ const id = {
     eyebrow: 'Navigasi dalam gedung',
     title: 'Pengunjung tidak lagi tersesat di gedung Anda.',
     lead: 'PanduArah membuat peta interaktif 2D dan 3D serta petunjuk arah langkah demi langkah untuk mal, rumah sakit, kampus, bandara, kawasan industri, dan event. Semua berjalan di server Anda sendiri.',
-    primary: 'Hubungi kami',
-    secondary: 'Coba peta 3D',
+    primary: 'Coba gratis 17 hari',
+    secondary: 'Lihat demo',
     videoLabel: 'Video animasi PanduArah: denah gedung menjadi peta 3D dengan rute dan pengunjung',
     play: 'Putar video',
     pause: 'Jeda video',
@@ -69,6 +70,7 @@ const id = {
     people: 'Ilustrasi orang',
     mode2d: '2D',
     mode3d: '3D',
+    full: 'Buka demo lengkap',
     load: 'Muat peta 3D',
     loading: 'Memuat peta…',
     failed: 'Peta tidak bisa dimuat di peramban ini (butuh WebGL).',
@@ -127,7 +129,7 @@ const id = {
   },
   contact: {
     title: 'Hubungi kami',
-    lead: 'Ingin memasang PanduArah di gedung Anda atau melihat demo? Kirim email berisi nama gedung, jenis gedung, dan perkiraan luasnya. Kami membalas dalam satu hari kerja.',
+    lead: 'Ingin membeli lisensi, memasang PanduArah di server Anda sendiri, atau punya pertanyaan? Kirim email berisi nama gedung, jenis gedung, dan perkiraan luasnya. Kami membalas dalam satu hari kerja.',
     email: 'Kirim email',
   },
   footer: {
@@ -139,19 +141,19 @@ const id = {
   privacy: {
     title: 'Kebijakan privasi',
     back: 'Kembali ke beranda',
-    updated: 'Diperbarui 8 Oktober 2026',
+    updated: 'Diperbarui 12 Oktober 2026',
     sections: [
       [
         'Data yang kami kumpulkan',
-        'Landing page ini tidak memiliki form. Bila Anda mengirim email ke kami, kami menerima alamat email, nama, dan isi pesan yang Anda tulis.',
+        'Form trial meminta nama, instansi, jabatan, email, telepon, serta jenis dan perkiraan luas gedung, dan mencatat alamat IP pengirim untuk mencegah penyalahgunaan. Bila Anda mengirim email ke kami, kami menerima alamat email, nama, dan isi pesan yang Anda tulis.',
       ],
       [
         'Untuk apa',
-        'Hanya untuk membalas pertanyaan Anda, membantu instalasi, dan menghubungi Anda tentang PanduArah. Kami tidak menjual data dan tidak memakainya untuk iklan pihak lain.',
+        'Untuk membuat dan menjalankan ruang kerja trial Anda, mengirim email tentang trial (verifikasi, akses, pengingat), membalas pertanyaan, membantu instalasi, dan menghubungi Anda tentang PanduArah. Kami tidak menjual data dan tidak memakainya untuk iklan pihak lain.',
       ],
       [
         'Penyimpanan',
-        'Email disimpan di kotak email vendor paling lama 12 bulan, kecuali Anda menjadi klien. Landing page ini tidak memakai cookie pelacak; pilihan bahasa disimpan di peramban Anda sendiri.',
+        'Ruang kerja trial, berkasnya, dan akun trial dihapus otomatis 7 hari setelah trial berakhir. Isian form trial dan email disimpan paling lama 12 bulan, kecuali Anda menjadi klien. Landing page ini tidak memakai cookie pelacak; pilihan bahasa disimpan di peramban Anda sendiri.',
       ],
       [
         'Hak Anda',
@@ -159,7 +161,7 @@ const id = {
       ],
       [
         'Data pengunjung gedung',
-        'Aplikasi PanduArah di gedung klien berjalan di server klien. Pengelola gedung adalah pengendali data pengunjungnya; vendor tidak menerima data pengunjung.',
+        'Aplikasi PanduArah di gedung klien berjalan di server klien; pengelola gedung adalah pengendali data pengunjungnya dan vendor tidak menerimanya. Visitor trial dan demo yang berjalan di server vendor tidak meminta login dan tidak mengumpulkan data pribadi pengunjung.',
       ],
     ],
     contact: 'Pertanyaan tentang privasi:',
@@ -179,6 +181,7 @@ const en: Copy = {
     demo: '3D demo',
     how: 'How it works',
     license: 'Licensing',
+    trial: 'Free trial',
     contact: 'Contact us',
     language: 'Language',
     menu: 'Menu',
@@ -188,8 +191,8 @@ const en: Copy = {
     eyebrow: 'Indoor navigation',
     title: 'Visitors never get lost in your building again.',
     lead: 'PanduArah creates interactive 2D and 3D maps with step-by-step directions for malls, hospitals, campuses, airports, industrial estates, and events. Everything runs on your own server.',
-    primary: 'Contact us',
-    secondary: 'Try the 3D map',
+    primary: 'Try free for 17 days',
+    secondary: 'See the demo',
     videoLabel: 'PanduArah animation: a floor plan becomes a 3D map with a route and visitors',
     play: 'Play video',
     pause: 'Pause video',
@@ -244,6 +247,7 @@ const en: Copy = {
     people: 'People illustration',
     mode2d: '2D',
     mode3d: '3D',
+    full: 'Open the full demo',
     load: 'Load 3D map',
     loading: 'Loading map…',
     failed: 'The map cannot load in this browser (WebGL required).',
@@ -305,7 +309,7 @@ const en: Copy = {
   },
   contact: {
     title: 'Contact us',
-    lead: 'Want PanduArah in your building or a live demo? Email us your building name, type, and approximate size. We reply within one business day.',
+    lead: 'Want to buy a licence, install PanduArah on your own server, or have a question? Email us your building name, type, and approximate size. We reply within one business day.',
     email: 'Send an email',
   },
   footer: {
@@ -317,19 +321,19 @@ const en: Copy = {
   privacy: {
     title: 'Privacy policy',
     back: 'Back to home',
-    updated: 'Updated 8 October 2026',
+    updated: 'Updated 12 October 2026',
     sections: [
       [
         'Data we collect',
-        'This site has no forms. If you email us, we receive your email address, name, and the message you write.',
+        'The trial form asks for your name, organisation, job title, email, phone, and building type and approximate size, and records the sender IP address to prevent abuse. If you email us, we receive your email address, name, and the message you write.',
       ],
       [
         'Why',
-        'Only to answer your questions, help with installation, and contact you about PanduArah. We do not sell your data or use it for third-party advertising.',
+        'To create and run your trial workspace, send trial emails (verification, access, reminders), answer your questions, help with installation, and contact you about PanduArah. We do not sell your data or use it for third-party advertising.',
       ],
       [
         'Retention',
-        'Emails are kept in the vendor mailbox for at most 12 months unless you become a client. This site uses no tracking cookies; your language choice is stored in your own browser.',
+        'Trial workspaces, their files, and trial accounts are deleted automatically 7 days after the trial ends. Trial form entries and emails are kept for at most 12 months unless you become a client. This site uses no tracking cookies; your language choice is stored in your own browser.',
       ],
       [
         'Your rights',
@@ -337,7 +341,7 @@ const en: Copy = {
       ],
       [
         'Building visitor data',
-        "PanduArah at a client building runs on the client's server. The building operator controls its visitor data; the vendor does not receive it.",
+        "PanduArah at a client building runs on the client's server; the building operator controls its visitor data and the vendor does not receive it. Trial and demo Visitors running on the vendor's server require no sign-in and collect no personal visitor data.",
       ],
     ],
     contact: 'Privacy questions:',

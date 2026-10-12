@@ -1,6 +1,7 @@
 import { Button } from '@indoor/ui';
 import { Component, lazy, type ReactNode, Suspense, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../language';
+import { DEMO_URL } from '../trial/api';
 import { Section } from './content';
 
 // MapLibre dan data demo cukup besar, jadi dimuat hanya saat bagian demo hampir terlihat agar
@@ -65,6 +66,9 @@ export function Demo() {
           placeholder
         )}
       </div>
+      <Button asChild className="w-fit">
+        <a href={DEMO_URL}>{copy.demo.full}</a>
+      </Button>
     </Section>
   );
 }

@@ -34,6 +34,7 @@ import {
   type LocationTypesRepository,
 } from './repositories/location-types';
 import { createLocationsRepository, type LocationsRepository } from './repositories/locations';
+import { createMfaRepository, type MfaRepository } from './repositories/mfa';
 import { createNavGraphRepository, type NavGraphRepository } from './repositories/nav-graph';
 import {
   createOriginPointsRepository,
@@ -49,7 +50,9 @@ import {
   createSystemSettingsRepository,
   type SystemSettingsRepository,
 } from './repositories/system-settings';
+import { createTrialRepository, type TrialRepository } from './repositories/trial';
 import { createUsersRepository, type UsersRepository } from './repositories/users';
+import { createVendorRepository, type VendorRepository } from './repositories/vendor';
 import { createVenuesRepository, type VenuesRepository } from './repositories/venues';
 import type { Db } from './supabase';
 
@@ -82,13 +85,18 @@ export interface DataClient {
   instructionTemplates: InstructionTemplatesRepository;
   locations: LocationsRepository;
   locationTypes: LocationTypesRepository;
+  /** Verifikasi dua langkah Supabase Auth (TOTP); dipakai dasbor vendor. */
+  mfa: MfaRepository;
   navGraph: NavGraphRepository;
   originPoints: OriginPointsRepository;
   profiles: ProfilesRepository;
   publications: PublicationsRepository;
   snapshots: SnapshotsRepository;
   systemSettings: SystemSettingsRepository;
+  trial: TrialRepository;
   users: UsersRepository;
+  /** Dasbor vendor trial ter-hosting; hanya staf vendor ber-aal2 yang dilayani server. */
+  vendor: VendorRepository;
   venues: VenuesRepository;
 }
 
@@ -118,13 +126,16 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     instructionTemplates: createInstructionTemplatesRepository(db),
     locations: createLocationsRepository(db),
     locationTypes: createLocationTypesRepository(db),
+    mfa: createMfaRepository(db),
     navGraph: createNavGraphRepository(db),
     originPoints: createOriginPointsRepository(db),
     profiles,
     publications: createPublicationsRepository(db),
     snapshots: createSnapshotsRepository(db),
+    trial: createTrialRepository(db),
     systemSettings: createSystemSettingsRepository(db),
     users: createUsersRepository(db),
+    vendor: createVendorRepository(db),
     venues: createVenuesRepository(db),
   };
 }
