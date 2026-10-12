@@ -109,7 +109,7 @@ T-612 dipecah tiga dengan pola yang sama:
 | Sub-task | Isi | Status |
 | --- | --- | --- |
 | T-612a | Mode hosting dan kuota per venue | review |
-| T-612b | Venue trial terkunci menolak tulis | menunggu |
+| T-612b | Venue trial terkunci menolak tulis | review |
 | T-612c | Undangan anggota oleh admin-venue | menunggu |
 
 ## T-612a · Mode hosting dan kuota per venue
@@ -142,3 +142,26 @@ T-612 dipecah tiga dengan pola yang sama:
         Storage per venue, `license_usage` trial memakai angka venue-nya.
   - [x] Seluruh pgTAP 1129/1129, integrasi 84/84, `pnpm check` hijau.
 - **Jangan:** mengunci venue (T-612b); mengubah `admin-users` (T-612c).
+
+## T-612b · Venue trial terkunci menolak tulis
+
+- **Untuk:** FR-HT-09, arch §3.5 ("RLS menolak semua tulis ke venue terkunci"). **Bergantung pada:** T-612a.
+- **Langkah (migrasi 0045):**
+  1. `app.venue_locked(v)` = mode hosting + `trials.locked_at` terisi. `app.writable_venue_ids()` =
+     venue keanggotaan dikurangi yang terkunci; pasangan `writable_venue_keys` dan penyelesai
+     parent `can_write_floor/location/location_type`.
+  2. Kebijakan tulis (INSERT/UPDATE/DELETE di `public` dan `storage`) **dibaca dari `pg_policies`**
+     lalu hanya predikat venue yang ditukar ke versi tulis; cek peran yang berlaku tidak disentuh.
+     Baca tetap memakai predikat baca, jadi data masih terlihat sampai dihapus hari ke-24.
+  3. Trigger `before insert` pada `publications` dan `edit_locks`: jalur definer (publish, kunci
+     edit) ikut ditolak. Berlaku juga bagi service role — membuka kunci = mengosongkan `locked_at`.
+  4. `public.trial_status()` (definer, tetap terbaca setelah terkunci) untuk banner dan layar
+     "Trial berakhir" di T-615.
+- **File:** `supabase/migrations/20261012004500_0045_trial_lock_write.sql`,
+  `supabase/tests/venue_trial_lock.test.sql`, `packages/data/src/database.types.ts`.
+- **Selesai jika:**
+  - [x] pgTAP `venue_trial_lock` (13): tulis/unggah/publish/kunci edit ditolak, baca tetap boleh,
+        vendor akses-semua tetap bisa, tanpa mode hosting tak ada kunci, dan tak satu pun kebijakan
+        tulis masih memakai predikat baca.
+  - [x] Seluruh pgTAP 1142/1142 (termasuk `permissions_matrix` 720), integrasi 84/84, `pnpm check`.
+- **Belum:** repositori klien untuk `trial_status` dan tampilannya — T-615.

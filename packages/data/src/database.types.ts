@@ -1801,6 +1801,14 @@ export type Database = {
       smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
       smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };
       take_over_edit_lock: { Args: { p_floor_id: string }; Returns: undefined };
+      trial_status: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          ends_at: string;
+          locked: boolean;
+          venue_id: string;
+        }[];
+      };
     };
     Enums: {
       app_role: 'super_admin' | 'admin' | 'editor' | 'operator' | 'viewer';
