@@ -36,6 +36,13 @@ aktivitas (ditangani langkah 7).
    pnpm exec supabase link --project-ref <ref>
    pnpm exec supabase db push
    ```
+   Tanpa `supabase login` bisa juga langsung ke database. Host `db.<ref>.supabase.co` hanya punya
+   alamat IPv6; dari jaringan IPv4 pakai **session pooler** (Settings → Database → Connection
+   string → Session pooler). Password dengan karakter khusus harus di-encode (`@` → `%40`):
+   ```sh
+   pnpm exec supabase db push --dry-run \
+     --db-url 'postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres'
+   ```
    Migrasi memasang semuanya: tabel, RLS, bucket Storage, `pg_cron`, `pg_net`, skema `hosting`,
    dan jadwal `license-checkin`, `license-service`, `trial-lifecycle`.
 3. Tandai project ini sebagai server ter-hosting (SQL Editor):
@@ -93,6 +100,8 @@ aktivitas (ditangani langkah 7).
    lantai, dan Info Point dihitung untuk **seluruh project** (venue demo + semua trial), jadi beri
    ruang lega; batas per trial sudah ditegakkan terpisah (`app.trial_quota`). Tanpa `cad_import`
    (konverter DXF tidak berjalan di hosting).
+   Path kunci dan `--out` harus **absolut**: `pnpm --filter` menjalankan CLI dari
+   `tools/license-cli`, jadi path relatif terhadap root repo tidak ditemukan.
    ```sh
    pnpm --filter @indoor/license-cli license-cli issue --key ~/indoor-license-keys/license-private.pkcs8.b64 \
      --client "PanduArah Hosting" --plan hosting --instance <instance_id> --until 2027-12-31 \
