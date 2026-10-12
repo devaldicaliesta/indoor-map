@@ -8,6 +8,7 @@
 //   hari 17  email "Trial berakhir" + vendor; `latest.json` diganti penanda `trialEnded`
 //   hari 24  berkas Storage dihapus, lalu venue dan akunnya (`hosting_lifecycle_purge`)
 //   kapan pun ada slot: permintaan antre tertua dibuatkan ruang kerja
+//   12 bulan: isian form trial yang sudah selesai dilupakan (kebijakan privasi landing, T-616)
 import { reply, serviceHeaders, url } from '../_shared/auth.ts';
 import { putSnapshotFile, REVALIDATE } from '../_shared/snapshot-files.ts';
 import { activate, adminUrl, getRequest, logError, rpc, send } from '../trial-verify/activate.ts';
@@ -40,7 +41,7 @@ async function deleteFiles(venueId: string) {
 }
 
 Deno.serve(async () => {
-  const done = { reminded: 0, locked: 0, deleted: 0, activated: 0, failed: 0 };
+  const done = { reminded: 0, locked: 0, deleted: 0, activated: 0, forgotten: 0, failed: 0 };
   const attempt = async (what: string, step: () => Promise<void>) => {
     try {
       await step();
@@ -103,6 +104,10 @@ Deno.serve(async () => {
       if (result.outcome !== 'active') break;
       done.activated += 1;
     }
+  });
+
+  await attempt('lupakan', async () => {
+    done.forgotten = (await rpc<number>('hosting_lifecycle_forget')) ?? 0;
   });
 
   return reply(done.failed ? 500 : 200, done);

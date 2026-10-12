@@ -404,7 +404,7 @@ TRIAL_SMTP_HOST = "supabase_inbucket_indoor-map"
 TRIAL_SMTP_PORT = "1025"
 TRIAL_SMTP_FROM = "PanduArah <panduarahid@gmail.com>"
 # Trial ter-hosting (T-614): halaman hasil verifikasi di landing dev (`pnpm dev:landing`).
-TRIAL_VERIFY_URL = "http://localhost:5175/trial/verifikasi"
+TRIAL_VERIFY_URL = "http://localhost:5175/trial/verifikasi/"
 TRIAL_ADMIN_URL = "http://localhost:5173"
 TRIAL_VISITOR_URL = "http://localhost:5174"
 
