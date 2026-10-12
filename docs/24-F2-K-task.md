@@ -110,7 +110,7 @@ T-612 dipecah tiga dengan pola yang sama:
 | --- | --- | --- |
 | T-612a | Mode hosting dan kuota per venue | review |
 | T-612b | Venue trial terkunci menolak tulis | review |
-| T-612c | Undangan anggota oleh admin-venue | menunggu |
+| T-612c | Undangan anggota oleh admin-venue | review |
 
 ## T-612a · Mode hosting dan kuota per venue
 
@@ -165,3 +165,31 @@ T-612 dipecah tiga dengan pola yang sama:
         tulis masih memakai predikat baca.
   - [x] Seluruh pgTAP 1142/1142 (termasuk `permissions_matrix` 720), integrasi 84/84, `pnpm check`.
 - **Belum:** repositori klien untuk `trial_status` dan tampilannya — T-615.
+
+## T-612c · Undangan anggota oleh admin-venue
+
+- **Untuk:** arch §3.2 ("pengguna trial hanya melihat dan mengundang anggota venue-nya, batas 2
+  pengguna"). **Bergantung pada:** T-612a. Dipindah dari T-611b.
+- **Langkah:**
+  1. Migrasi 0046 `public.user_invite_check(role)` → NULL (Super Admin, tingkat instalasi) atau
+     id venue (Admin venue). Menolak `42501` untuk peran lain, Admin venue yang mengundang Super
+     Admin, keanggotaan ≠ 1 venue, dan venue terkunci; menolak `IM422` bila batas pengguna penuh.
+  2. `admin-users` memanggilnya dengan JWT pemanggil sebelum `auth/v1/invite`, lalu membuat profil
+     `all_venues = (venue null)` dan baris `venue_members`. Gagal sesudah undangan → akun dihapus.
+  3. Domain `permissions.ts`: `AdminUser` (`role` + `allVenues`), `moduleAccessFor`,
+     `visibleModulesFor`, `canInviteUsers`, `invitableRoles`. Shell Admin memakai versi ini.
+  4. Halaman Pengguna: mode baca untuk Admin venue (role sebagai teks, tanpa kolom aksi), tombol
+     undang dengan pilihan role tanpa Super Admin.
+- **File:** `supabase/migrations/20261012004600_0046_user_invite_check.sql`,
+  `supabase/tests/user_invite_check.test.sql`, `supabase/functions/admin-users/index.ts`,
+  `supabase/functions/_shared/auth.ts`, `packages/domain/src/permissions.ts` (+ test),
+  `apps/admin/src/app/{module-route.tsx,layout/sidebar.tsx,layout/app-layout.tsx}`,
+  `apps/admin/src/features/users/*`, `packages/data/test/integration/venue-invite.test.ts`.
+- **Selesai jika:**
+  - [x] pgTAP `user_invite_check` (9) dan integrasi `venue-invite` (4): anggota baru hanya venue
+        itu, anggota ketiga ditolak tanpa akun tersisa, Super Admin tak bisa diberikan, daftar
+        Pengguna hanya anggota venue.
+  - [x] Perilaku on-premise sama: domain diuji identik dengan aturan per role; integrasi
+        `users` (Super Admin mengundang, Editor ditolak) tetap lulus.
+- **Jangan:** mengubah role/status anggota oleh Admin venue (tidak diminta §3.2; RLS `profiles`
+  tetap khusus Super Admin).

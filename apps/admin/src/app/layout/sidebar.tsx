@@ -1,4 +1,4 @@
-import { type AppRole, visibleModules } from '@indoor/domain';
+import { type AdminUser, visibleModulesFor } from '@indoor/domain';
 import { BrandLogo, BrandSymbol, cn, Tooltip, TooltipContent, TooltipTrigger } from '@indoor/ui';
 import { EyeIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from 'lucide-react';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
@@ -54,7 +54,7 @@ function NavItem({
   );
 }
 
-export function Sidebar({ role }: { role: AppRole }) {
+export function Sidebar({ user }: { user: AdminUser }) {
   const collapsed = useSidebar((s) => s.collapsed);
   const toggle = useSidebar((s) => s.toggle);
   const ToggleIcon = collapsed ? PanelLeftOpenIcon : PanelLeftCloseIcon;
@@ -81,7 +81,7 @@ export function Sidebar({ role }: { role: AppRole }) {
         )}
       </div>
       <nav aria-label="Menu utama" className="flex flex-1 flex-col gap-0.5 p-2">
-        {visibleModules(role).map(({ module, access }) => {
+        {visibleModulesFor(user).map(({ module, access }) => {
           const { path, label, icon: Icon } = MODULE_NAV[module];
           const readOnly = access === 'read';
           return (
