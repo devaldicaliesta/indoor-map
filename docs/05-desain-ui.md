@@ -51,7 +51,7 @@ Mappedin adalah acuan produk terdekat. Ambil **pola tata letak dan alur interaks
 - Kanvas peta di tengah, toolbar alat vertikal di kiri, panel daftar fitur di kiri, panel properti kontekstual di kanan, pemilih gedung/lantai di atas, status draft dan tombol publish di kanan atas.
 
 ### Yang tidak ditiru
-- Warna merek, logo, ilustrasi, font, dan teks pemasaran Mappedin.
+- Warna merek, logo, ilustrasi, font, dan teks pemasaran Mappedin. Pengecualian: landing page vendor memakai Figtree (font open source OFL, juga dipakai Mappedin) atas keputusan pemilik 2026-10-12; Admin, Visitor, dan Info Point tidak.
 - Iklan layar penuh dan konten promosi di layar sentuh (di luar lingkup).
 - Blue dot dan fitur positioning.
 
@@ -102,6 +102,7 @@ Warna `--signal` dan `--route` dapat ditimpa branding venue (FR-VIS-07, R4), tet
 | Admin | IBM Plex Sans | 14 px |
 | Kode unit, koordinat, ID | IBM Plex Mono | 13 px |
 | Label peta | Atkinson Hyperlegible, halo putih 1,5 px | 12–14 px sesuai zoom |
+| Landing page vendor (`apps/landing`) | Figtree, di-host di app landing | 16 px, judul sampai 64 px |
 
 Skala: 12 · 14 · 16 · 20 · 24 · 32. Berat hanya 400 dan 700. Font di-host sendiri (on-premise), tidak memanggil Google Fonts saat runtime.
 
