@@ -418,6 +418,11 @@ verify_jwt = false
 [functions.trial-verify]
 verify_jwt = false
 
+# Dipanggil pg_cron (pg_net) tiap jam di project ter-hosting (T-615); hanya mengerjakan yang sudah
+# jatuh tempo menurut database, jadi panggilan tanpa JWT dari luar tidak mengubah apa pun lebih awal.
+[functions.trial-lifecycle]
+verify_jwt = false
+
 # Dipanggil GoTrue tanpa JWT; keasliannya diperiksa lewat tanda tangan Standard Webhooks.
 [functions.auth-email]
 verify_jwt = false
