@@ -82,7 +82,13 @@ aktivitas (ditangani langkah 7).
    ```
    Yang dipakai project ini: `publish`, `admin-users`, `auth-email`, `account-notice`,
    `system-settings`, `license-activate`, `license-checkin`, `license-service`, `trial-request`,
-   `trial-verify`, `trial-lifecycle`.
+   `trial-verify`, `trial-lifecycle`. Tanpa Docker: tambahkan `--use-api`.
+
+   Catatan kunci API: project Supabase baru memberi Edge Function **kunci format baru**
+   (`SUPABASE_SERVICE_ROLE_KEY` = `sb_secret_…`, `SUPABASE_ANON_KEY` = `sb_publishable_…`), bukan
+   JWT seperti Supabase lokal. Kode sudah menanganinya: akses service role selalu memasang kunci
+   rahasia di `apikey` dan `Authorization` sekaligus (`serviceHeaders`, `serviceRest`); kunci
+   publik + `Bearer <kunci rahasia>` ditolak kunci baru.
 
 ## 3. Super Admin vendor dan lisensi server (sebelum Admin dipublikasikan)
 
@@ -126,7 +132,11 @@ aktivitas (ditangani langkah 7).
    - *Send Email*: HTTP `https://<ref>.supabase.co/functions/v1/auth-email`; salin rahasianya ke
      `SEND_EMAIL_HOOK_SECRET` (langkah 2.1) lalu `supabase secrets set` ulang.
    - *Password Verification Attempt*: fungsi Postgres `app.hook_password_verification_attempt`
-     (penguncian setelah gagal masuk berulang).
+     (penguncian setelah gagal masuk berulang). **Hanya tersedia di paket berbayar** (Supabase
+     menolak dengan 402 di paket Free): di Free penguncian akun T-008 tidak aktif; percobaan
+     beruntun tetap diredam batas laju bawaan Auth (Authentication → Rate Limits).
+   - *Send Email* baru dinyalakan setelah SMTP sistem (langkah 4.4) terisi; tanpa SMTP, hook ini
+     membuat email reset password dan undangan gagal.
 4. Setelah Admin terbuka: **Pengaturan → Sistem** → URL publik Visitor
    `https://app.panduarah.my.id`, dan SMTP Gmail yang sama (email akun: reset password, undangan).
 
@@ -144,6 +154,8 @@ otomatis menyajikan `index.html` untuk alamat yang tidak dikenal.
 | Vendor | `vendor.panduarah.my.id` | — | — | Menyusul T-617 (dasbor vendor, butuh 2FA T-592) |
 
 `VITE_CAD_CONVERTER_URL` dibiarkan kosong: unggah DXF nonaktif (paket hosting tanpa impor CAD).
+`VITE_SUPABASE_ANON_KEY` boleh diisi kunci **publishable** (`sb_publishable_…`, Settings → API
+Keys); sudah diuji untuk login, RLS, dan Edge Function ber-JWT.
 
 ## 6. DNS
 
@@ -194,3 +206,4 @@ custom domain** — Cloudflare membuat CNAME-nya.
 | Membuka kunci trial | `update hosting.trials set locked_at = null, ends_at = now() + interval '7 days' where venue_id = '<venue>';` lalu Super Admin menerbitkan ulang peta venue itu |
 | Privasi | Isian form dihapus otomatis setelah 12 bulan (`hosting_lifecycle_forget`), ruang kerja 7 hari setelah trial berakhir — sesuai kebijakan privasi landing |
 | Lisensi server | Perpanjang sebelum berakhir (langkah 3) |
+| Perubahan peta belum tampil | CDN Storage Supabase menyimpan berkas publik sebentar walau `Cache-Control: no-cache`; terukur ±1–2 menit sampai hasil publish, kunci trial, atau penghapusan terlihat di Visitor |
