@@ -115,10 +115,13 @@ describe.runIf(url && serviceKey && mailpit)(
         sql(`select role || '/' || all_venues from public.profiles where email = '${email}'`),
       ).toBe('admin/false');
       expect(sql(`select count(*) from hosting.trials where venue_id = '${venueId}'`)).toBe('1');
-      // Data contoh tersalin dalam batas trial dan sudah diterbitkan untuk Visitor.
-      expect(
-        Number(sql(`select count(*) from public.buildings where venue_id = '${venueId}'`)),
-      ).toBe(1);
+      // Venue templat tersalin utuh (keputusan pemilik 2026-10-12) dan sudah terbit untuk Visitor.
+      const countOf = (table: string, venue: string) =>
+        sql(`select count(*) from public.${table} where venue_id = '${venue}'`);
+      const template = sql(`select id from public.venues where slug = '${TEMPLATE_SLUG}'`);
+      for (const table of ['buildings', 'floors', 'features', 'nav_edges', 'origin_points']) {
+        expect(countOf(table, venueId), table).toBe(countOf(table, template));
+      }
       expect(
         Number(sql(`select count(*) from public.locations where venue_id = '${venueId}'`)),
       ).toBeGreaterThan(0);

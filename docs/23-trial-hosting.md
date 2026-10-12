@@ -12,7 +12,7 @@ trial otomatis yang berjalan di server vendor (bukan di server klien). Instalasi
 | Infrastruktur | Satu project **Supabase Free** + **Cloudflare Pages Free** + domain `panduarah.my.id` (DNS di Cloudflare Free). Biaya Rp0 per bulan |
 | Pemisahan antar-trial | **Ruang kerja per venue** di satu database: pengguna trial hanya bisa mengakses venue miliknya, dijaga RLS |
 | Lama trial | **17 hari, tetap** (pemohon tidak memilih). Pengingat hari ke-14, terkunci hari ke-17, dihapus hari ke-24 |
-| Batas data trial | 1 venue, 1 gedung, 3 lantai, 1.000 fitur per lantai, 100 lokasi, 10 titik asal, 2 Info Point, 2 pengguna, Storage 50 MB, berkas 5 MB, impor 100 baris, 10 publish per hari |
+| Batas data trial | 1 venue, 4 gedung, 8 lantai, 1.000 fitur per lantai, 250 lokasi, 10 titik asal, 3 Info Point, 2 pengguna, Storage 50 MB, berkas 5 MB, impor 100 baris, 10 publish per hari. *Diubah 2026-10-12 (sebelumnya 1 gedung, 3 lantai, 100 lokasi, 2 Info Point) agar salinan venue demo yang utuh muat* |
 | Kapasitas | Maksimal **15 trial aktif**. Lebih dari itu pemohon masuk antrean |
 | Fitur | 3D dan Info Point aktif. **Impor CAD tidak tersedia** (converter Python butuh server) |
 | Demo publik | Visitor saja, data contoh, tanpa login, di `app.panduarah.my.id/v/demo` (menggantikan sebagian T-605) |
@@ -66,7 +66,7 @@ belum punya server, dan setiap trial manual memakan waktu vendor.
 | FR-HT-03 | Satu trial per alamat email, per domain email kantor (domain umum seperti gmail.com dihitung per alamat), dan dibatasi laju per IP |
 | FR-HT-04 | Pengguna trial hanya bisa membaca dan mengubah venue miliknya. Pengaturan sistem, lisensi, catatan peristiwa, dan pengguna lain tidak terlihat |
 | FR-HT-05 | Batas data trial (§1) ditolak di server dengan pesan "Batas trial tercapai: … n/n" |
-| FR-HT-06 | Venue baru berisi data contoh sesuai jenis gedung, bisa dihapus atau diubah pemohon |
+| FR-HT-06 | Venue baru berisi salinan **utuh** venue demo sesuai jenis gedung (peta yang sama dengan landing dan `/v/demo`), bisa dihapus atau diubah pemohon |
 | FR-HT-07 | Visitor trial di `/v/<slug>`; Info Point di `/ip/<kode>` seperti biasa |
 | FR-HT-08 | Banner sisa hari di Admin; email pengingat hari ke-14 |
 | FR-HT-09 | Hari ke-17 Admin dan Visitor venue itu terkunci; snapshot publik tidak bisa dibaca lagi |
@@ -210,7 +210,8 @@ menolak semua tulis ke venue terkunci. Visitor yang tidak menemukan snapshot men
   `security definer`, dan setiap policy Storage: pengguna trial A tidak bisa membaca atau
   mengubah data trial B.
 - Token verifikasi acak, disimpan sebagai hash, sekali pakai, berlaku 24 jam.
-- Akun vendor dengan 2FA (T-592) sebelum dasbor dibuka.
+- Akun vendor dengan 2FA sebelum dasbor dibuka: TOTP Supabase Auth, ditegakkan server lewat klaim
+  `aal2` (T-617; tidak menunggu 2FA Admin T-592).
 - Service role key hanya di rahasia Edge Function.
 - Tinjauan `security-reviewer` wajib untuk T-611, T-614, T-617.
 
@@ -244,7 +245,7 @@ menolak semua tulis ke venue terkunci. Visitor yang tidak menemukan snapshot men
 | T-614 | Permintaan dan verifikasi trial | T-612, T-613 | §3.3, §3.5: skema `hosting`, `trial-request` diubah, `trial-verify`, `provision_trial`, email aktif |
 | T-615 | Siklus hidup trial | T-614 | `trial-lifecycle` + pg_cron: pengingat, kunci, hapus, antrean; layar "Trial berakhir" Admin dan Visitor; banner |
 | T-616 | Landing untuk trial otomatis | T-614 | Form tanpa durasi, halaman cek email dan hasil verifikasi, tombol "Lihat demo" |
-| T-617 | Dasbor vendor minimal | T-615, T-592 | `apps/vendor` §2.4 FR-HT-14 |
+| T-617 | Dasbor vendor minimal | T-615 | `apps/vendor` §2.4 FR-HT-14, 2FA TOTP sendiri |
 | T-618 | Panduan setup hosting | T-615 | `deploy/hosting/README.md`: Supabase (migrasi, functions, rahasia, SMTP Auth, pg_cron), Cloudflare Pages (4 situs, env), DNS, GitHub Actions ping |
 
 Rincian langkah dan kriteria selesai setiap task ditulis di awal task masing-masing, mengikuti

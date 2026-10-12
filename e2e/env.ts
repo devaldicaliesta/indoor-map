@@ -24,6 +24,8 @@ export const env = {
   visitorUrl: process.env.E2E_VISITOR_URL ?? 'http://localhost:5174',
   /** Landing page vendor (T-505). */
   landingUrl: process.env.E2E_LANDING_URL ?? 'http://localhost:5175',
+  /** Dasbor vendor trial ter-hosting (T-617). */
+  vendorUrl: process.env.E2E_VENDOR_URL ?? 'http://localhost:5176',
   /** Mailpit Supabase lokal (`supabase status`), penampung email reset dan undangan. */
   mailpitUrl: process.env.E2E_MAILPIT_URL ?? 'http://127.0.0.1:54324',
 };

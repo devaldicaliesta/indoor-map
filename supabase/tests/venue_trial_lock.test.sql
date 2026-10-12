@@ -1,6 +1,8 @@
 -- T-612b: venue trial terkunci menolak tulis, tetapi tetap bisa dibaca (arch §3.5, FR-HT-09).
 begin;
 create extension if not exists pgtap with schema extensions;
+-- Mulai dari keadaan on-premise: test E2E dan integrasi sengaja membiarkan hosting_mode menyala.
+delete from app.server_settings where key in ('hosting_mode', 'trial_capacity');
 
 select plan(13);
 

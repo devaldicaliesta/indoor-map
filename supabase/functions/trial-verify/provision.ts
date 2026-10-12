@@ -16,11 +16,10 @@ import {
 import { venueRows, withNewIds } from '../../../packages/domain/src/venue-rows.ts';
 import { serviceHeaders, url } from '../_shared/auth.ts';
 import { newToken } from '../_shared/token.ts';
-import { callerRest } from '../publish/rest.ts';
+import { serviceRest } from '../publish/rest.ts';
 import { readSource } from '../publish/source.ts';
 
 const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 const anonHeaders = { apikey: anonKey, 'Content-Type': 'application/json' };
 
 // Penanda Area Luar venue demo di data contoh; SQL menggantinya dengan Area Luar venue baru.
@@ -110,7 +109,7 @@ async function firstPublish(email: string, password: string, venueId: string): P
 
 export async function provisionTrial(request: TrialRequest): Promise<Workspace> {
   const template = await templateVenue(request.building_type);
-  const source = await readSource(callerRest(`Bearer ${serviceKey}`), template.id, {
+  const source = await readSource(serviceRest(), template.id, {
     version: 0,
     publishedAt: new Date().toISOString(),
     enabledFeatures: [],

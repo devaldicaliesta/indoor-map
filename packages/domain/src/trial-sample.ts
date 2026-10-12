@@ -4,20 +4,20 @@ import type { SnapshotSource } from './snapshot-source.ts';
 import type { BuildingType } from './trial-request.ts';
 
 /**
- * Ukuran data contoh. Harus di dalam batas trial (`23-trial-hosting.md` §1, `app.trial_quota()`
- * migrasi 0044) — trigger kuota menolak provisioning yang melewatinya — dan sengaja DI BAWAHNYA
- * (lantai 2/3, lokasi 60/100, titik asal 5/10, Info Point 1/2) agar pemohon bisa langsung
- * menambah datanya sendiri tanpa menghapus contoh lebih dulu. Gedung tetap 1 (batas trial 1):
- * pemohon mengubah atau mengganti gedung contoh. `featuresPerFloor` adalah batas trial, bukan
- * pemangkasan: lantai venue demo harus jauh di bawahnya.
+ * Batas data trial (`23-trial-hosting.md` §1), sama dengan `app.trial_quota()` migrasi 0052 —
+ * trigger kuota menolak provisioning yang melewatinya. Keputusan pemilik 2026-10-12: trial berisi
+ * salinan venue demo yang UTUH, jadi batas ini dibuat lebih besar dari demo terbesar (3 gedung,
+ * 6 lantai, 195 lokasi, 3 titik asal, 2 Info Point) dengan sisa ruang untuk data pemohon;
+ * `trialSample` hanya memangkas bila suatu hari venue demo melewatinya. `featuresPerFloor` adalah
+ * pemeriksaan, bukan pemangkasan.
  */
 export const TRIAL_SAMPLE_LIMITS = {
-  buildings: 1,
-  floors: 2,
+  buildings: 4,
+  floors: 8,
   featuresPerFloor: 1000,
-  locations: 60,
-  originPoints: 5,
-  infoPoints: 1,
+  locations: 250,
+  originPoints: 10,
+  infoPoints: 3,
 } as const;
 export type TrialSampleLimits = { [K in keyof typeof TRIAL_SAMPLE_LIMITS]: number };
 
@@ -37,7 +37,8 @@ export const TRIAL_TEMPLATES: Record<BuildingType, { slug: string; venueType: st
 };
 
 /**
- * Venue demo dipangkas ke batas trial: gedung pertama (gedung bawaan lebih dulu), lantai
+ * Venue demo disalin utuh selama muat di batas trial (demo saat ini selalu muat); bila tidak,
+ * dipangkas: gedung pertama (gedung bawaan lebih dulu), lantai
  * terbawahnya, Area Luar, lalu semua yang merujuk ke sana — fitur, graf jalur, konektor dengan
  * minimal dua pemberhentian, lokasi, alias, titik asal, Info Point. Berkas milik venue demo
  * (logo, foto, ikon unggahan) tidak dibawa: path-nya ada di folder venue lain.

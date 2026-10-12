@@ -1576,6 +1576,7 @@ export type Database = {
           name: string;
         }[];
       };
+      hosting_lifecycle_forget: { Args: Record<PropertyKey, never>; Returns: number };
       hosting_lifecycle_lock: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -1895,6 +1896,49 @@ export type Database = {
         Args: { p_role: Database['public']['Enums']['app_role'] };
         Returns: string;
       };
+      vendor_access: { Args: Record<PropertyKey, never>; Returns: string };
+      vendor_block: { Args: { p_note?: string; p_value: string }; Returns: string };
+      vendor_blocklist: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          created_at: string;
+          kind: string;
+          note: string;
+          value: string;
+        }[];
+      };
+      vendor_capacity: { Args: Record<PropertyKey, never>; Returns: number };
+      vendor_requests: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          building_size: string;
+          building_type: string;
+          created_at: string;
+          email: string;
+          ends_at: string;
+          extended_days: number;
+          id: string;
+          institution: string;
+          language: string;
+          last_published_at: string;
+          locked_at: string;
+          name: string;
+          phone: string;
+          published_versions: number;
+          queued_at: string;
+          reject_reason: string;
+          slug: string;
+          started_at: string;
+          status: string;
+          title: string;
+          venue_id: string;
+          verified_at: string;
+        }[];
+      };
+      vendor_trial_delete: { Args: { p_venue_id: string }; Returns: undefined };
+      vendor_trial_extend: { Args: { p_days: number; p_venue_id: string }; Returns: string };
+      vendor_trial_lock: { Args: { p_venue_id: string }; Returns: undefined };
+      vendor_unblock: { Args: { p_value: string }; Returns: undefined };
     };
     Enums: {
       app_role: 'super_admin' | 'admin' | 'editor' | 'operator' | 'viewer';

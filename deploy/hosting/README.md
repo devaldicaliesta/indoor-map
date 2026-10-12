@@ -82,7 +82,13 @@ aktivitas (ditangani langkah 7).
    ```
    Yang dipakai project ini: `publish`, `admin-users`, `auth-email`, `account-notice`,
    `system-settings`, `license-activate`, `license-checkin`, `license-service`, `trial-request`,
-   `trial-verify`, `trial-lifecycle`.
+   `trial-verify`, `trial-lifecycle`. Tanpa Docker: tambahkan `--use-api`.
+
+   Catatan kunci API: project Supabase baru memberi Edge Function **kunci format baru**
+   (`SUPABASE_SERVICE_ROLE_KEY` = `sb_secret_…`, `SUPABASE_ANON_KEY` = `sb_publishable_…`), bukan
+   JWT seperti Supabase lokal. Kode sudah menanganinya: akses service role selalu memasang kunci
+   rahasia di `apikey` dan `Authorization` sekaligus (`serviceHeaders`, `serviceRest`); kunci
+   publik + `Bearer <kunci rahasia>` ditolak kunci baru.
 
 ## 3. Super Admin vendor dan lisensi server (sebelum Admin dipublikasikan)
 
@@ -115,6 +121,20 @@ aktivitas (ditangani langkah 7).
 5. Check-in lisensi ke server vendor (`LICENSE_VENDOR_URL`) belum ada untuk project ini; Super
    Admin akan melihat banner "check-in gagal" setelah 7 hari. Banner itu tidak tampil ke pemohon
    trial.
+6. Akun **dasbor vendor** (T-617): akun yang sudah punya profil (mis. Super Admin di atas) didaftarkan
+   sebagai staf vendor:
+   ```sql
+   insert into hosting.vendor_staff (user_id)
+   select id from auth.users where email = '<email vendor>';
+   ```
+   Dasbor juga mensyaratkan **verifikasi dua langkah**: di masuk pertama ke
+   `vendor.panduarah.my.id`, pindai QR dengan aplikasi autentikator (Google Authenticator,
+   Microsoft Authenticator, 1Password, …) lalu masukkan kodenya. Lakukan segera setelah akun
+   didaftarkan — siapa pun yang memegang password sebelum itu bisa memasang autentikatornya
+   sendiri; sesudahnya Supabase menolak pendaftaran autentikator baru tanpa kode yang sah.
+   Mencabut akses: `delete from hosting.vendor_staff where user_id = (select id from auth.users
+   where email = '<email>');`. Ponsel hilang: hapus faktornya di **Authentication → Users → (akun)
+   → MFA factors**, lalu daftarkan ulang lewat dasbor.
 
 ## 4. Auth
 
@@ -126,11 +146,25 @@ aktivitas (ditangani langkah 7).
    - *Send Email*: HTTP `https://<ref>.supabase.co/functions/v1/auth-email`; salin rahasianya ke
      `SEND_EMAIL_HOOK_SECRET` (langkah 2.1) lalu `supabase secrets set` ulang.
    - *Password Verification Attempt*: fungsi Postgres `app.hook_password_verification_attempt`
-     (penguncian setelah gagal masuk berulang).
+     (penguncian setelah gagal masuk berulang). **Hanya tersedia di paket berbayar** (Supabase
+     menolak dengan 402 di paket Free): di Free penguncian akun T-008 tidak aktif; percobaan
+     beruntun tetap diredam batas laju bawaan Auth (Authentication → Rate Limits).
+   - *Send Email* baru dinyalakan setelah SMTP sistem (langkah 4.4) terisi; tanpa SMTP, hook ini
+     membuat email reset password dan undangan gagal. Auth menunggu hook paling lama 5 detik,
+     sedangkan satu kiriman ke Gmail terukur ±6 detik, jadi `auth-email` menjawab dulu lalu
+     mengirim di latar; galat kirim tercatat di log fungsi `auth-email`.
+   - **Authentication → Rate Limits → email per jam**: bawaan Supabase hanya **2**; naikkan
+     (mis. 30) agar reset password dan undangan anggota tidak ditolak `over_email_send_rate_limit`.
+     Batas Gmail tetap ±500 email per hari (NFR-HT-05).
+   - **Authentication → Multi-Factor → TOTP (App Authenticator)**: *Enabled* (gratis di paket
+     Free; hanya MFA telepon yang berbayar). Dibutuhkan dasbor vendor; Admin belum memakainya.
 4. Setelah Admin terbuka: **Pengaturan → Sistem** → URL publik Visitor
    `https://app.panduarah.my.id`, dan SMTP Gmail yang sama (email akun: reset password, undangan).
 
 ## 5. Cloudflare Pages
+
+Langkah per klik (memperbarui landing yang sudah ada, membuat Admin dan Visitor, membawa kode ke
+`production`, dan masalah umum): **`deploy/hosting/cloudflare-pages.md`**. Ringkasnya:
 
 Hubungkan repo GitHub; *production branch* `production` (lihat `docs/07-aturan-branch.md`).
 Variabel `NODE_VERSION` = isi `.nvmrc`. Admin dan Visitor adalah SPA: tanpa `404.html`, Pages
@@ -141,9 +175,11 @@ otomatis menyajikan `index.html` untuk alamat yang tidak dikenal.
 | Landing (sudah ada) | `panduarah.my.id` | `pnpm --filter @indoor/landing build` | `apps/landing/dist` | `VITE_SUPABASE_URL`, `VITE_VISITOR_URL=https://app.panduarah.my.id` |
 | Admin | `admin.panduarah.my.id` | `pnpm --filter @indoor/admin build` | `apps/admin/dist` | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` |
 | Visitor | `app.panduarah.my.id` | `pnpm --filter @indoor/visitor build` | `apps/visitor/dist` | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` |
-| Vendor | `vendor.panduarah.my.id` | — | — | Menyusul T-617 (dasbor vendor, butuh 2FA T-592) |
+| Vendor (dasbor, T-617) | `vendor.panduarah.my.id` | `pnpm --filter @indoor/vendor build` | `apps/vendor/dist` | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_VISITOR_URL=https://app.panduarah.my.id` |
 
 `VITE_CAD_CONVERTER_URL` dibiarkan kosong: unggah DXF nonaktif (paket hosting tanpa impor CAD).
+`VITE_SUPABASE_ANON_KEY` boleh diisi kunci **publishable** (`sb_publishable_…`, Settings → API
+Keys); sudah diuji untuk login, RLS, dan Edge Function ber-JWT.
 
 ## 6. DNS
 
@@ -188,9 +224,11 @@ custom domain** — Cloudflare membuat CNAME-nya.
 
 | Kebutuhan | Cara |
 | --- | --- |
-| Melihat calon klien (sampai dasbor vendor T-617) | `select * from hosting.trial_requests order by created_at desc;` — vendor juga menerima email "Trial aktif", "Trial antre", "Trial berakhir", "Provisioning gagal" |
-| Menolak spam/pesaing | `insert into hosting.blocklist (value, kind) values ('spam.example', 'domain');` (atau `'nama@contoh.id', 'email'`) |
+| Melihat calon klien | **Dasbor vendor** `vendor.panduarah.my.id`: ringkasan kapasitas, trial aktif/antre/terkunci, semua leads, **Ekspor leads (CSV)**. Vendor juga menerima email "Trial aktif", "Trial antre", "Trial berakhir", "Provisioning gagal" |
+| Perpanjang, kunci, hapus trial | Dasbor vendor, tombol per baris. Perpanjangan total ≤ 17 hari per trial, hanya sebelum terkunci. Kunci = berakhir sekarang (email pemohon, Visitor "Trial berakhir", slot ke antrean); hapus = venue, berkas, akun pemohon dihapus tanpa email, lead tetap. Keduanya dikerjakan siklus hidup yang sama dengan jadwal tiap jam, dipanggil seketika oleh dasbor. Jejak: `select * from hosting.vendor_actions order by occurred_at desc;` |
+| Menolak spam/pesaing | Dasbor vendor → **Daftar blokir** (email, atau domain kantor; domain email umum seperti gmail.com ditolak — blokir alamatnya) |
 | Kapasitas | `update app.server_settings set value = '20' where key = 'trial_capacity';` — naik kelas ke Supabase Pro bila sering penuh; arsitektur tidak berubah |
 | Membuka kunci trial | `update hosting.trials set locked_at = null, ends_at = now() + interval '7 days' where venue_id = '<venue>';` lalu Super Admin menerbitkan ulang peta venue itu |
 | Privasi | Isian form dihapus otomatis setelah 12 bulan (`hosting_lifecycle_forget`), ruang kerja 7 hari setelah trial berakhir — sesuai kebijakan privasi landing |
 | Lisensi server | Perpanjang sebelum berakhir (langkah 3) |
+| Perubahan peta belum tampil | CDN Storage Supabase menyimpan berkas publik sebentar walau `Cache-Control: no-cache`; terukur ±1–2 menit sampai hasil publish, kunci trial, atau penghapusan terlihat di Visitor |

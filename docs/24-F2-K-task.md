@@ -257,8 +257,9 @@ T-614 dipecah dua: **a** permintaan + keputusan verifikasi, **b** provisioning r
   - Data contoh = venue demo **di database** (slug `demo-*`, T-613), bukan berkas templat
     terpisah: satu sumber kebenaran dengan `/v/demo` dan landing. Konsekuensi: project ter-hosting
     wajib menjalankan `db:seed-demo` (T-618).
-  - Ukuran contoh sengaja di bawah batas trial (2/3 lantai, 60/100 lokasi, 5/10 titik asal,
-    1/2 Info Point) agar pemohon bisa menambah datanya tanpa menghapus contoh lebih dulu.
+  - Ukuran contoh: **salinan utuh** venue demo (keputusan pemilik 2026-10-12, migrasi 0052);
+    batas trial dinaikkan ke 4 gedung, 8 lantai, 250 lokasi, 3 Info Point agar demo terbesar
+    muat dan pemohon masih bisa menambah datanya. Semula cuplikan 2 lantai / 60 lokasi.
   - Publish pertama dijalankan **sebagai pemohon** (akun dibuat dengan password acak 256 bit yang
     tak pernah dikirim, masuk sekali, publish, keluar). Guard publish tidak diberi jalur service
     role — identitas `published_by` dan semua pemeriksaan tetap berlaku.
@@ -357,6 +358,53 @@ T-615 dipecah dua: **a** server (jadwal, email, Storage, antrean), **b** tampila
         kerja ("Ruang kerja Anda siap", tautan Admin dan Visitor `/v/<slug>`), token hilang dari
         alamat, tautan kedua "Tautan tidak berlaku". E2E landing T-505 tetap lulus.
   - [x] Uji unit teks trial ID/EN; pgTAP `hosting_retention` (4).
+
+---
+
+## T-617 · Dasbor vendor minimal
+
+- **Untuk:** FR-HT-14 (ringkasan kapasitas, daftar trial, perpanjang total ≤ 17 hari, kunci, hapus,
+  ekspor leads CSV, blokir email/domain), arch §3.7 (akun vendor ber-2FA). **Bergantung pada:**
+  T-615. T-592 (2FA Admin) tidak ditunggu: dasbor memakai TOTP Supabase Auth sendiri dan server
+  mensyaratkannya, sehingga §3.7 terpenuhi tanpa mengubah login Admin.
+- **Langkah:**
+  1. Migrasi 0053: `app.vendor_session()` = `hosting_mode` + baris `hosting.vendor_staff` dengan
+     profil aktif + klaim JWT `aal = aal2`. RPC `vendor_access` (layar masuk: denied/mfa/ok),
+     `vendor_capacity`, `vendor_requests` (leads + ruang kerja + versi terbit; tanpa IP),
+     `vendor_blocklist`, `vendor_trial_extend` (kolom baru `trials.extended_days`, total ≤ 17,
+     hanya sebelum terkunci, pengingat dikirim lagi untuk masa baru), `vendor_trial_lock` (berakhir
+     sekarang), `vendor_trial_delete` (jatuh tempo dihapus sekarang, slot dilepas),
+     `vendor_block`/`vendor_unblock` (domain email umum ditolak). Jejak `hosting.vendor_actions`.
+  2. Kunci dan hapus tidak menduplikasi siklus hidup: SQL memajukan tanggal, lalu dasbor memanggil
+     `trial-lifecycle` seketika (email, penanda Visitor, Storage, antrean); bila gagal, jadwal tiap
+     jam menyelesaikannya.
+  3. `packages/domain` `vendor-dashboard.ts`: tahap lead (`ending`, `deleting` di antara putaran
+     siklus hidup), ringkasan, sisa perpanjangan, `parseBlockValue`, `leadsCsv` dengan pelindung
+     CSV injection (`spreadsheetSafe`). `packages/data`: `mfa` (status, daftar TOTP — pendaftaran
+     yang ditinggalkan dihapus dulu, verifikasi) dan `vendor`.
+  4. `apps/vendor` (`vendor.panduarah.my.id`, port 5176): password → pasang/verifikasi TOTP →
+     dasbor. Akun bukan staf dikeluarkan sebelum bisa memasang autentikator. Keluar otomatis 30
+     menit tidak aktif; cache dibersihkan saat keluar. `_headers` Cloudflare: noindex, tanpa
+     bingkai, tanpa Referer.
+  5. TOTP diaktifkan di `supabase/config.toml` (gratis di paket Free); panduan hosting dan
+     Cloudflare Pages diperbarui (situs ke-4, akun staf, faktor hilang).
+- **Tinjauan keamanan (§3.7):** semua RPC `security definer` + `search_path = ''`, dicabut dari
+  `anon`; tidak ada SQL dinamis; staf hanya bisa ditambah lewat SQL service role; password saja
+  tidak bisa mengganti autentikator (Supabase meminta aal2 bila sudah ada faktor terverifikasi,
+  dibuktikan test integrasi); perpanjangan dan kunci siklus hidup tidak berlomba (`for update`);
+  isian pemohon tampil sebagai teks React, tautan hanya `mailto:`/`tel:`/slug tervalidasi; IP dan
+  hash token tidak keluar dari database. Sisa risiko: siapa pun yang memegang password sebelum
+  autentikator pertama dipasang bisa memasangnya — panduan meminta pemasangan segera setelah akun
+  didaftarkan.
+- **Selesai jika:**
+  - [x] pgTAP `vendor_dashboard` (38): akses (anon, trial aal2, staf nonaktif, aal1, tanpa
+        `hosting_mode`), baca, perpanjang + batas 17, kunci lewat siklus hidup, hapus, blokir, jejak.
+  - [x] Domain `vendor-dashboard` (10); data `vendor` (7, termasuk vektor RFC 6238 helper TOTP);
+        integrasi `vendor-dashboard` (5) dengan TOTP Supabase Auth sungguhan.
+  - [x] E2E `T-617-vendor-dashboard` (2): pasang 2FA → dasbor → perpanjang → kunci → hapus →
+        ekspor CSV → blokir → masuk ulang dengan kode → keluar otomatis; akun bukan staf ditolak.
+        Bukti `e2e/evidence/T-617/`.
+  - [ ] **Pemilik** membuat project Pages `panduarah-vendor` dan memasang autentikator di akunnya.
 
 ---
 
