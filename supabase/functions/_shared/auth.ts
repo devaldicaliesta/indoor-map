@@ -1,4 +1,4 @@
-// Pemeriksaan pemanggil untuk Edge Function khusus Super Admin, lewat REST tanpa dependensi.
+// Pemeriksaan pemanggil Edge Function, lewat REST tanpa dependensi.
 
 export const url = Deno.env.get('SUPABASE_URL') ?? '';
 const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
@@ -55,6 +55,17 @@ async function isActiveSuperAdmin(userId: string): Promise<boolean> {
 export async function activeSuperAdmin(request: Request): Promise<Caller | null> {
   const caller = await callerFromToken(request.headers.get('Authorization') ?? '');
   return caller && (await isActiveSuperAdmin(caller.id)) ? caller : null;
+}
+
+/** Header REST atas nama pemanggil: RLS dan fungsi SQL melihat identitas pengguna itu. */
+export function callerHeaders(authorization: string) {
+  return { apikey: anonKey, Authorization: authorization, 'Content-Type': 'application/json' };
+}
+
+/** Mengembalikan pemanggil yang sesinya sah, atau Response 401 yang siap dikirim. */
+export async function requireCaller(request: Request): Promise<Caller | Response> {
+  const caller = await callerFromToken(request.headers.get('Authorization') ?? '');
+  return caller ?? fail(401, 'forbidden', 'Sesi tidak berlaku. Silakan masuk lagi.');
 }
 
 /** Mengembalikan pemanggil jika Super Admin aktif, atau Response 401/403 yang siap dikirim. */

@@ -56,6 +56,7 @@ export type {
   LocationPageFilters,
   LocationsRepository,
 } from './repositories/locations';
+export type { MfaRepository, MfaStatus, TotpEnrollment } from './repositories/mfa';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
 export type { OriginPointsRepository } from './repositories/origin-points';
 export type { ProfilesRepository } from './repositories/profiles';
@@ -66,7 +67,18 @@ export type {
   PublicationsRepository,
   PublishResult,
 } from './repositories/publications';
-export { SERVICE_INACTIVE, type SnapshotsRepository } from './repositories/snapshots';
+export {
+  SERVICE_INACTIVE,
+  type SnapshotsRepository,
+  TRIAL_ENDED,
+} from './repositories/snapshots';
 export type { SystemSettingsRepository } from './repositories/system-settings';
+export type { TrialRepository } from './repositories/trial';
 export type { InviteUserInput, UsersRepository } from './repositories/users';
+export type {
+  BlockEntry,
+  LifecycleRun,
+  VendorAccess,
+  VendorRepository,
+} from './repositories/vendor';
 export type { VenuesRepository } from './repositories/venues';

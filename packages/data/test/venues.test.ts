@@ -14,6 +14,7 @@ const row = {
   timezone: 'Asia/Jakarta',
   venue_type: 'custom' as const,
   default_building_id: null,
+  slug: 'demo',
   created_at: '2026-09-29T08:00:00+00:00',
   updated_at: '2026-09-29T08:00:00+00:00',
 };
@@ -25,6 +26,7 @@ describe('venue', () => {
       center: { type: 'Point', coordinates: [106.8272, -6.1754] },
       venueType: 'custom',
       defaultBuildingId: null,
+      slug: 'demo',
     });
   });
 

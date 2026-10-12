@@ -7,6 +7,7 @@ import {
   type VenueId,
   VenueIdSchema,
   type VenueInput,
+  VenueSlugSchema,
   type VenueSummary,
   type VenueTemplate,
   VenueTemplateSchema,
@@ -19,7 +20,7 @@ import { zeroRowsError } from '../mutations';
 import type { Db } from '../supabase';
 
 const COLUMNS =
-  'id, name, address, center, logo_path, timezone, venue_type, default_building_id, created_at, updated_at';
+  'id, name, address, center, logo_path, timezone, venue_type, default_building_id, slug, created_at, updated_at';
 const ASSETS_BUCKET = 'public-assets';
 const SNAPSHOTS_BUCKET = 'snapshots';
 const LOGO_TYPES: Record<string, string> = {
@@ -48,6 +49,7 @@ export function mapVenueRow(row: VenueRow): Venue {
     defaultBuildingId: row.default_building_id
       ? BuildingIdSchema.parse(row.default_building_id)
       : null,
+    slug: row.slug ? VenueSlugSchema.parse(row.slug) : null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

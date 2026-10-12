@@ -12,6 +12,8 @@ export interface Profile {
   email: string;
   role: AppRole;
   isActive: boolean;
+  /** true: akses semua venue (on-premise). false: hanya venue keanggotaannya (pengguna trial). */
+  allVenues: boolean;
   lockedUntil: string | null;
   createdAt: string;
   updatedAt: string;

@@ -27,6 +27,10 @@ melengkung, atau cincin dengan unit mengikuti lengkungannya) disusun `freeform.t
 URL publik Visitor di Pengaturan → Sistem diisi `http://localhost:5174` bila masih kosong, agar
 QR titik asal, "Coba", dan preview draft bisa dipakai.
 
+Setiap venue punya alamat pendek Visitor (T-613): `/v/demo` (RS Demo Harapan, sama dengan peta
+demo di landing), `/v/demo-mal`, `/v/demo-kampus`, `/v/demo-kantor`, `/v/demo-bandara`,
+`/v/demo-pabrik`, `/v/demo-konser`.
+
 Setiap venue juga mendapat:
 - **logo dan warna merek** (`logos/*.png`, dibuat `node scripts/demo-logos.mjs`): tampil di
   tabel Venue Admin, header Visitor, dan Info Point;

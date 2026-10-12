@@ -3,6 +3,11 @@ import { cn } from '@indoor/ui';
 import { Outlet } from 'react-router';
 import { useIdleSignOut } from '../../features/auth/idle-sign-out';
 import { LicenseNotice } from '../../features/license/license-notice';
+import {
+  HostedTrialEnded,
+  HostedTrialNotice,
+  useHostedTrial,
+} from '../../features/trial/hosted-trial';
 import { AccountMenu } from './account-menu';
 import { NarrowScreenNotice } from './narrow-screen-notice';
 import { Sidebar } from './sidebar';
@@ -12,6 +17,7 @@ import { VenuePicker } from './venue-picker';
 export function AppLayout({ profile }: { profile: Profile }) {
   useIdleSignOut();
   const collapsed = useSidebar((s) => s.collapsed);
+  const trial = useHostedTrial(!profile.allVenues).data ?? null;
   return (
     <div
       className={cn(
@@ -20,15 +26,24 @@ export function AppLayout({ profile }: { profile: Profile }) {
         collapsed ? 'grid-cols-[56px_minmax(0,1fr)]' : 'grid-cols-[240px_minmax(0,1fr)]',
       )}
     >
-      <Sidebar role={profile.role} />
+      <Sidebar user={profile} />
       <header className="flex h-14 min-w-0 items-center justify-between gap-4 border-line border-b bg-surface px-4">
         <VenuePicker />
         <AccountMenu profile={profile} />
       </header>
       <main className="min-h-0 overflow-auto">
-        <NarrowScreenNotice />
-        <LicenseNotice />
-        <Outlet />
+        {trial?.locked ? (
+          <HostedTrialEnded trial={trial} />
+        ) : (
+          <>
+            <NarrowScreenNotice />
+            {/* Lisensi instalasi urusan pengelola server; di project ter-hosting itu vendor,
+                bukan pemohon trial (yang melihat sisa hari trial-nya sendiri). */}
+            {profile.allVenues ? <LicenseNotice /> : null}
+            {trial ? <HostedTrialNotice trial={trial} /> : null}
+            <Outlet />
+          </>
+        )}
       </main>
     </div>
   );

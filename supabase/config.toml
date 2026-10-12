@@ -310,9 +310,11 @@ auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 max_enrolled_factors = 10
 
 # Control MFA via App Authenticator (TOTP)
+# Aktif untuk dasbor vendor (T-617): server mensyaratkan sesi aal2 bagi staf vendor. TOTP gratis
+# di semua paket Supabase (hanya MFA telepon yang berbayar). Admin belum memintanya (T-592).
 [auth.mfa.totp]
-enroll_enabled = false
-verify_enabled = false
+enroll_enabled = true
+verify_enabled = true
 
 # Configure MFA via Phone Messaging
 [auth.mfa.phone]
@@ -403,10 +405,24 @@ LICENSE_VENDOR_URL = "http://host.docker.internal:8091"
 TRIAL_SMTP_HOST = "supabase_inbucket_indoor-map"
 TRIAL_SMTP_PORT = "1025"
 TRIAL_SMTP_FROM = "PanduArah <panduarahid@gmail.com>"
+# Trial ter-hosting (T-614): halaman hasil verifikasi di landing dev (`pnpm dev:landing`).
+TRIAL_VERIFY_URL = "http://localhost:5175/trial/verifikasi/"
+TRIAL_ADMIN_URL = "http://localhost:5173"
+TRIAL_VISITOR_URL = "http://localhost:5174"
 
 # Form trial di landing page vendor (T-505): dipanggil pengunjung tanpa login; dilindungi
 # validasi, honeypot, dan batas laju per IP. Khusus server vendor, tidak ikut paket klien.
 [functions.trial-request]
+verify_jwt = false
+
+# Halaman verifikasi trial di landing (T-614b): pemohon belum punya akun; yang diperiksa token
+# 256 bit dari email (hanya hash-nya di database), sekali pakai, berlaku 24 jam.
+[functions.trial-verify]
+verify_jwt = false
+
+# Dipanggil pg_cron (pg_net) tiap jam di project ter-hosting (T-615); hanya mengerjakan yang sudah
+# jatuh tempo menurut database, jadi panggilan tanpa JWT dari luar tidak mengubah apa pun lebih awal.
+[functions.trial-lifecycle]
 verify_jwt = false
 
 # Dipanggil GoTrue tanpa JWT; keasliannya diperiksa lewat tanda tangan Standard Webhooks.

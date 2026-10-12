@@ -12,7 +12,7 @@ async function noHorizontalScroll(page: Page) {
 /**
  * Landing page vendor (T-505): isi lengkap ID/EN di HP dan desktop, video motion graphic, peta 3D
  * interaktif (konser dan rumah sakit) dengan rute ke lokasi yang diklik, ajakan kontak lewat email, dan kebijakan privasi. Form trial
- * belum dipasang di situs terbit (branch landing-publish).
+ * ter-hosting ditambahkan T-616 (T-616-trial.spec.ts); bagian kontak sendiri tetap tanpa form.
  */
 test.describe('T-505 Landing page', () => {
   test('TC-LND-01 isi lengkap ID/EN di desktop dan HP 360 px tanpa geser ke samping', async ({
@@ -156,7 +156,7 @@ test.describe('T-505 Landing page', () => {
       'href',
       'mailto:panduarahid@gmail.com',
     );
-    await expect(page.locator('form')).toHaveCount(0);
+    await expect(contact.locator('form')).toHaveCount(0);
     await contact.screenshot({ path: shot('11-kontak') });
   });
 

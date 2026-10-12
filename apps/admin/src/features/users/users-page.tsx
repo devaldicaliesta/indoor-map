@@ -1,4 +1,10 @@
-import { APP_ROLES, type Profile } from '@indoor/domain';
+import {
+  APP_ROLES,
+  canInviteUsers,
+  invitableRoles,
+  type ModuleAccess,
+  type Profile,
+} from '@indoor/domain';
 import {
   Button,
   type DataColumn,
@@ -63,7 +69,8 @@ function UserStatus({ profile }: { profile: Profile }) {
   return <StatusDot tone="ok">Aktif</StatusDot>;
 }
 
-function UsersTable() {
+/** `read`: Admin venue melihat anggota venue-nya tanpa mengubah role atau status. */
+function UsersTable({ access }: { access: ModuleAccess }) {
   const users = useUsers();
   const me = useCurrentProfile().data;
   const update = useUpdateUser();
@@ -93,6 +100,7 @@ function UsersTable() {
       })
     : undefined;
 
+  const editable = access === 'edit';
   const columns: DataColumn<Profile>[] = [
     {
       id: 'name',
@@ -111,17 +119,22 @@ function UsersTable() {
     {
       id: 'role',
       header: 'Role',
-      cell: (profile) => (
-        <RoleSelect
-          label={`Role ${profile.fullName}`}
-          value={profile.role}
-          disabled={!profile.isActive}
-          onChange={(role) => change(profile, { role }, `Role ${profile.fullName} diubah.`)}
-        />
-      ),
+      cell: (profile) =>
+        editable ? (
+          <RoleSelect
+            label={`Role ${profile.fullName}`}
+            value={profile.role}
+            disabled={!profile.isActive}
+            onChange={(role) => change(profile, { role }, `Role ${profile.fullName} diubah.`)}
+          />
+        ) : (
+          ROLE_LABELS[profile.role]
+        ),
     },
     { id: 'status', header: 'Status', cell: (profile) => <UserStatus profile={profile} /> },
-    {
+  ];
+  if (editable) {
+    columns.push({
       id: 'actions',
       header: 'Aksi',
       className: 'text-right',
@@ -142,8 +155,8 @@ function UsersTable() {
           {profile.isActive ? 'Nonaktifkan' : 'Aktifkan'}
         </Button>
       ),
-    },
-  ];
+    });
+  }
 
   return (
     <DataTable
@@ -168,11 +181,18 @@ function UsersTable() {
 }
 
 export function UsersPage() {
+  const me = useCurrentProfile().data;
   return (
     <ModuleRoute module="users">
       {(access) => (
-        <ModulePage module="users" access={access} actions={<InviteUserDialog />}>
-          <UsersTable />
+        <ModulePage
+          module="users"
+          access={access}
+          actions={
+            me && canInviteUsers(me) ? <InviteUserDialog roles={invitableRoles(me)} /> : null
+          }
+        >
+          <UsersTable access={access} />
         </ModulePage>
       )}
     </ModuleRoute>

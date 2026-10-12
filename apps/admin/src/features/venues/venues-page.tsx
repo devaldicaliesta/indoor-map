@@ -15,6 +15,7 @@ import {
 import { type ReactNode, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Can } from '../../app/auth/can';
+import { useCurrentProfile } from '../../app/auth/current-profile';
 import { data } from '../../app/data-client';
 import { inVenueTime } from '../../app/format';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
@@ -184,6 +185,9 @@ function SelectedVenueBuildings() {
 export function VenuesPage() {
   const [dialog, setDialog] = useState<Dialog>(null);
   const venueQuota = useQuotaBlock('venues');
+  // Pengguna ruang kerja per venue (trial) tidak bisa membuat venue baru: server menolaknya
+  // lewat RLS (T-611a), jadi tombolnya disembunyikan agar tidak menuntun ke galat.
+  const canAddVenue = useCurrentProfile().data?.allVenues ?? false;
   // Tab di URL agar muat ulang membuka tab yang sama beserta cari/filter tabelnya.
   const [params, setParams] = useSearchParams();
   const tab = params.get('tab') === 'venues' ? 'venues' : 'buildings';
@@ -207,16 +211,18 @@ export function VenuesPage() {
             <TabsContent value="venues" className="grid gap-4">
               <VenuesTable
                 actions={
-                  <Can action="venue.edit">
-                    <QuotaNotice message={venueQuota} />
-                    <Button
-                      variant="primary"
-                      disabled={venueQuota !== null}
-                      onClick={() => setDialog({ kind: 'form', venue: null })}
-                    >
-                      Tambah venue
-                    </Button>
-                  </Can>
+                  canAddVenue ? (
+                    <Can action="venue.edit">
+                      <QuotaNotice message={venueQuota} />
+                      <Button
+                        variant="primary"
+                        disabled={venueQuota !== null}
+                        onClick={() => setDialog({ kind: 'form', venue: null })}
+                      >
+                        Tambah venue
+                      </Button>
+                    </Can>
+                  ) : null
                 }
                 onEdit={(venue) => setDialog({ kind: 'form', venue })}
                 onDelete={(venue) => setDialog({ kind: 'delete', venue })}
