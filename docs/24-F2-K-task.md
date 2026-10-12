@@ -193,3 +193,35 @@ T-612 dipecah tiga dengan pola yang sama:
         `users` (Super Admin mengundang, Editor ditolak) tetap lulus.
 - **Jangan:** mengubah role/status anggota oleh Admin venue (tidak diminta §3.2; RLS `profiles`
   tetap khusus Super Admin).
+
+---
+
+## T-613 · Slug venue dan demo publik
+
+- **Untuk:** FR-HT-07, §1 demo publik `app.panduarah.my.id/v/demo`. **Bergantung pada:** T-611a.
+- **Keputusan bentuk:** slug **tidak** diselesaikan lewat RPC per kunjungan. Visitor sengaja hanya
+  membaca berkas Storage (prefetch dari HTML, cache service worker untuk offline, tanpa beban
+  database per pengunjung di Supabase Free), jadi setiap publish menulis penunjuk
+  `snapshots/slugs/{slug}.json` = `{ "venueId": … }`. Slug baru/berpindah berlaku pada publish
+  berikutnya, sama seperti isi peta.
+- **Langkah:**
+  1. Migrasi 0047: `venues.slug` + `venues_slug_format` + `venues_slug_key`; trigger
+     `venues_slug_guard` — hanya pengguna akses-semua atau jalur tanpa pengguna (service role
+     provisioning) yang boleh mengisi/mengganti slug.
+  2. `_shared/snapshot-files.ts` `writeLatest`: setelah `latest.json`, tulis penunjuk bila venue
+     ber-slug (dipakai publish dan license-service).
+  3. Domain `venue-slug.ts`: `VenueSlugSchema`, `SlugPointerSchema`, `parseVenueRef`.
+  4. Data `snapshots.slugPointerUrl` / `venueIdForSlug` (`not_found` → "Peta belum tersedia").
+  5. Visitor: rute `/v/:venue`; slug → penunjuk → tampilan venue biasa; parameter tautan dibaca
+     dengan id hasil penunjuk. `index.html` memprefetch penunjuk lalu `latest.json`; aturan
+     NetworkFirst service worker mencakup `snapshots/slugs/`.
+  6. `db:seed-demo`: slug `demo` (RS Demo Harapan), `demo-mal`, `demo-kampus`, `demo-kantor`,
+     `demo-bandara`, `demo-pabrik`, `demo-konser`.
+- **Untuk T-614/T-615:** provisioning mengisi slug sebelum publish pertama; penghapusan hari ke-24
+  juga menghapus `slugs/{slug}.json`; mengunci cukup menghapus `{venue}/latest.json` (penunjuk
+  tetap, Visitor menampilkan "Trial berakhir" setelah T-615).
+- **Selesai jika:**
+  - [x] pgTAP `venue_slug` (8): bentuk, keunikan, trial tak bisa mengganti slug, vendor dan
+        service role bisa.
+  - [x] Domain (16) dan data (+4) hijau; E2E `T-613-slug` (2) di build produksi Visitor.
+  - [x] `db:seed-demo` menulis `slugs/demo.json` → RS Demo Harapan.

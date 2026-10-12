@@ -3,19 +3,22 @@ import {
   type DeepLink,
   decodeDeepLink,
   type LanguageCode,
+  parseVenueRef,
   type Snapshot,
   type VenueId,
-  VenueIdSchema,
+  type VenueSlug,
 } from '@indoor/domain';
 import { Button, Skeleton } from '@indoor/ui';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router';
 import { PanelMessage } from '../app/panel-message';
 import { useMediaQuery } from '../app/use-media-query';
 import { DESKTOP_QUERY, VisitorShell } from '../app/visitor-shell';
+import { data } from '../data/client';
 import { useRouteSnapshot, useSnapshot } from '../data/loadSnapshot';
+import { takeSlugPrefetch } from '../data/prefetch';
 import { closuresQuery, useLiveClosures } from '../features/closures/use-live-closures';
 import { VenueMap } from '../features/map/venue-map';
 import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
@@ -46,8 +49,34 @@ function Unavailable({ reason = 'unavailable' }: { reason?: 'unavailable' | 'ser
   );
 }
 
-function VenueView({ venueId }: { venueId: VenueId }) {
+function Loading() {
+  return (
+    <VisitorShell>
+      <div className="grid gap-2" aria-busy="true">
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-2/3" />
+      </div>
+    </VisitorShell>
+  );
+}
+
+function LoadFailed({ onRetry }: { onRetry: () => void }) {
   const { t } = useTranslation();
+  return (
+    <VisitorShell>
+      <div className="grid justify-items-start gap-3">
+        <PanelMessage
+          title={t('venue.loadFailedTitle')}
+          description={t('venue.loadFailedDescription')}
+        />
+        <Button onClick={onRetry}>{t('venue.retry')}</Button>
+      </div>
+    </VisitorShell>
+  );
+}
+
+function VenueView({ venueId }: { venueId: VenueId }) {
   const snapshot = useSnapshot(venueId);
   // Penutupan hanya butuh id venue: diminta bersamaan dengan snapshot, bukan sesudahnya.
   const queryClient = useQueryClient();
@@ -55,21 +84,12 @@ function VenueView({ venueId }: { venueId: VenueId }) {
     void queryClient.prefetchQuery(closuresQuery(venueId));
   }, [queryClient, venueId]);
   const location = useLocation();
-  // Dibaca sekali per pembukaan: berpindah keadaan di dalam Visitor tidak mengubah URL.
-  const [link] = useState(() => decodeDeepLink(`${location.pathname}${location.search}`));
+  // Dibaca sekali per pembukaan: berpindah keadaan di dalam Visitor tidak mengubah URL. Path
+  // ditulis ulang dengan id venue agar parameter tautan juga berlaku untuk alamat slug.
+  const [link] = useState(() => decodeDeepLink(`/v/${venueId}${location.search}`));
   useVisitLanguage(link, snapshot.data?.venue.defaultLanguage);
 
-  if (snapshot.isPending) {
-    return (
-      <VisitorShell>
-        <div className="grid gap-2" aria-busy="true">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
-        </div>
-      </VisitorShell>
-    );
-  }
+  if (snapshot.isPending) return <Loading />;
   if (snapshot.error) {
     if (snapshot.error instanceof DataError && snapshot.error.kind === 'not_found') {
       return <Unavailable />;
@@ -77,17 +97,7 @@ function VenueView({ venueId }: { venueId: VenueId }) {
     if (snapshot.error instanceof DataError && snapshot.error.code === SERVICE_INACTIVE) {
       return <Unavailable reason="serviceInactive" />;
     }
-    return (
-      <VisitorShell>
-        <div className="grid justify-items-start gap-3">
-          <PanelMessage
-            title={t('venue.loadFailedTitle')}
-            description={t('venue.loadFailedDescription')}
-          />
-          <Button onClick={() => void snapshot.refetch()}>{t('venue.retry')}</Button>
-        </div>
-      </VisitorShell>
-    );
+    return <LoadFailed onRetry={() => void snapshot.refetch()} />;
   }
 
   return <SnapshotExplorer key={venueId} snapshot={snapshot.data} link={link} />;
@@ -147,7 +157,30 @@ function VenueExplorer({ snapshot }: { snapshot: Snapshot }) {
   );
 }
 
+/** `/v/<slug>`: penunjuk slug dibaca dari Storage, lalu sama dengan `/v/<id>`. */
+function SlugVenueView({ slug }: { slug: VenueSlug }) {
+  const venue = useQuery({
+    queryKey: ['venue-slug', slug],
+    queryFn: () =>
+      data.snapshots.venueIdForSlug(slug, takeSlugPrefetch(data.snapshots.slugPointerUrl(slug))),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+  if (venue.isPending) return <Loading />;
+  if (venue.error) {
+    if (venue.error instanceof DataError && venue.error.kind === 'not_found') {
+      return <Unavailable />;
+    }
+    return <LoadFailed onRetry={() => void venue.refetch()} />;
+  }
+  return <VenueView venueId={venue.data} />;
+}
+
 export function VenuePage() {
-  const parsed = VenueIdSchema.safeParse(useParams().venueId);
-  return parsed.success ? <VenueView venueId={parsed.data} /> : <Unavailable />;
+  const ref = parseVenueRef(useParams().venue);
+  if (!ref) return <Unavailable />;
+  return ref.kind === 'id' ? (
+    <VenueView venueId={ref.venueId} />
+  ) : (
+    <SlugVenueView slug={ref.slug} />
+  );
 }
