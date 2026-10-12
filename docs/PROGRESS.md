@@ -220,6 +220,8 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-12] Umum — **Branch GitHub dirapikan** sesuai `07-aturan-branch.md`: PR #22–#27 ternyata ter-merge ke `claude/vibrant-davinci-uyrrka` (masih default branch GitHub), sehingga `develop`/`main`/`production` belum berisi F2-K. Isi unik branch lama (bukti E2E T-504) dipindah, `feature/trial-hosting` digabung ke `develop` (PR #28) lalu `develop` ke `main`; default branch menjadi `main`; `claude/vibrant-davinci-uyrrka`, `landing-publish`, dan `feature/trial-hosting` dihapus (dua yang pertama disimpan sebagai tag `arsip/…`). `production` sengaja belum dimajukan: itu langkah publish setelah env Cloudflare terisi (`deploy/hosting/cloudflare-pages.md` langkah 0).
+
 - [2026-10-12] T-617 — Dasbor vendor memakai **TOTP Supabase Auth sendiri** (bukan menunggu T-592 2FA Admin): server mensyaratkan sesi `aal2` untuk setiap fungsi dasbor, sehingga §3.7 terpenuhi tanpa mengubah login Admin. "Perpanjang (total ≤ 17 hari)" FR-HT-14 ditafsirkan sebagai **total perpanjangan dari vendor ≤ 17 hari per trial** (trial bisa sampai 34 hari), hanya sebelum terkunci — membuka trial terkunci butuh penerbitan ulang peta dan tetap lewat SQL (Operasional). Hapus dari dasbor tidak mengirim email ke pemohon.
 
 - [2026-10-12] F2-K — **Diputuskan pemilik: ruang kerja trial berisi salinan venue demo yang utuh** (peta yang sama dengan landing dan `/v/demo`), bukan cuplikan 2 lantai / 60 lokasi. Batas trial dinaikkan agar demo terbesar muat dengan sisa ruang: gedung 1 → 4, lantai 3 → 8, lokasi 100 → 250, Info Point 2 → 3 (migrasi 0052; `TRIAL_SAMPLE_LIMITS` sama). Batas lain tetap.
