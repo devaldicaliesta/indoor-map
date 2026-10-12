@@ -357,3 +357,26 @@ T-615 dipecah dua: **a** server (jadwal, email, Storage, antrean), **b** tampila
         kerja ("Ruang kerja Anda siap", tautan Admin dan Visitor `/v/<slug>`), token hilang dari
         alamat, tautan kedua "Tautan tidak berlaku". E2E landing T-505 tetap lulus.
   - [x] Uji unit teks trial ID/EN; pgTAP `hosting_retention` (4).
+
+---
+
+## T-618 · Panduan setup hosting
+
+- **Untuk:** arch §1 (infrastruktur Rp0), §3.6, §3.8. **Bergantung pada:** T-615.
+- **Hasil:** `deploy/hosting/README.md` — urutan langkah pemilik dari project Supabase kosong sampai
+  uji asap, ditambah tabel operasional (leads, blokir, kapasitas, buka kunci, privasi, lisensi).
+- **Temuan keamanan yang mengubah urutan langkah:**
+  1. `LICENSE_PUBLIC_KEY` di repo = kunci DEV; kunci privatnya ada di
+     `tools/license-cli/dev-keys/`. Project yang bisa dijangkau publik wajib memakai kunci vendor
+     asli (`license-cli keygen`) sebelum `functions deploy`.
+  2. Selama belum ada Super Admin, halaman aktivasi membolehkan siapa pun memasang lisensi dan
+     membuat Super Admin pertama. Panduan membuat Super Admin vendor lewat dashboard + SQL sebelum
+     Admin dipasang di domain publik.
+- **Pendukung di repo:** `pnpm db:seed-demo:hosted` + env `SEED_ADMIN_EMAIL`, `SEED_VISITOR_URL`,
+  `SEED_DEMO_USERS=0`; `.github/workflows/hosting-keepalive.yml`; banner lisensi instalasi hanya
+  untuk pengguna akses-semua.
+- **Selesai jika:**
+  - [x] Panduan lengkap: Supabase, fungsi + rahasia, Auth, Super Admin + lisensi, Cloudflare Pages,
+        DNS, data demo, keepalive, uji asap.
+  - [x] Seed ter-hosting disimulasikan terhadap Supabase lokal: 7 venue demo ber-slug, 0 akun demo.
+  - [ ] **Pemilik** menjalankan panduan di akun vendor (di luar jangkauan repo).
