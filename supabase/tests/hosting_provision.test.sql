@@ -1,6 +1,8 @@
 -- T-614b: provisioning ruang kerja trial — satu transaksi, slug unik, batas trial berlaku.
 begin;
 create extension if not exists pgtap with schema extensions;
+-- Mulai dari keadaan on-premise: test E2E dan integrasi sengaja membiarkan hosting_mode menyala.
+delete from app.server_settings where key in ('hosting_mode', 'trial_capacity');
 
 select plan(14);
 

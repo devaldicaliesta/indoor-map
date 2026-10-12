@@ -9,9 +9,9 @@ Supabase sudah berjalan — skema, Edge Functions, rahasia, Auth, Super Admin, l
 | Landing | `panduarah.my.id` | yang sudah ada | **perbarui** (env baru + build ulang) |
 | Admin | `admin.panduarah.my.id` | baru | **buat** |
 | Visitor | `app.panduarah.my.id` | baru | **buat** |
-| Vendor | `vendor.panduarah.my.id` | baru | **buat** setelah dasbor vendor (T-617) terbit |
+| Vendor (dasbor) | `vendor.panduarah.my.id` | baru | **buat** (langkah 4) |
 
-Ketiganya dibangun dari repo yang sama (`devaldicaliesta/indoor-map`) dan branch **`production`**.
+Keempatnya dibangun dari repo yang sama (`devaldicaliesta/indoor-map`) dan branch **`production`**.
 Biaya Rp0 di paket Free: 500 build per bulan, berkas statis tanpa batas bandwidth.
 
 ## 0. Bawa kode ke `production`
@@ -30,7 +30,7 @@ di `feature/trial-hosting`:
    ```
    Push ini memicu build otomatis semua project Pages yang terhubung.
 
-> Sebelum langkah 3, pastikan env di langkah 1–3 di bawah sudah diisi; variabel `VITE_*`
+> Sebelum langkah 3, pastikan env di langkah 1–4 di bawah sudah diisi; variabel `VITE_*`
 > ditanam saat build, jadi build tanpa env menghasilkan situs yang tidak bisa menghubungi server.
 
 ## Nilai yang dipakai semua situs
@@ -97,7 +97,29 @@ Periksa:
 - Pasang ke layar utama HP (PWA), matikan data, buka lagi → peta tetap tampil (offline).
 - `https://app.panduarah.my.id/v/slug-tidak-ada` → "Peta belum tersedia".
 
-## 4. Hemat kuota build (opsional, disarankan)
+## 4. Vendor (dasbor) — project baru
+
+Dasbor staf vendor: kapasitas, daftar trial, perpanjang/kunci/hapus, ekspor leads CSV, daftar
+blokir. Sama dengan Admin, dengan:
+
+- *Project name* `panduarah-vendor`
+- *Build command* `pnpm --filter @indoor/vendor build`
+- *Build output directory* `apps/vendor/dist`
+- *Environment variables*: `NODE_VERSION`, `PNPM_VERSION`, `VITE_SUPABASE_URL`,
+  `VITE_SUPABASE_ANON_KEY`, `VITE_VISITOR_URL=https://app.panduarah.my.id` (tautan **Visitor** per trial)
+- Custom domain `vendor.panduarah.my.id`
+
+Sebelum dibuka: akun sudah didaftarkan sebagai staf vendor dan TOTP Supabase Auth menyala
+(README langkah 3.6 dan 4). Periksa:
+
+- Masuk dengan email + password vendor → **Pasang verifikasi dua langkah** → pindai QR dengan
+  aplikasi autentikator → kode → dasbor tampil dengan ringkasan "Slot trial terpakai n/15".
+- Keluar, masuk lagi → diminta **kode 6 digit** (bukan QR lagi).
+- Masuk dengan akun yang bukan staf vendor → "Akun ini bukan akun staf vendor."
+- `apps/vendor/public/_headers` membuat dasbor tidak diindeks dan tidak bisa dibingkai situs lain;
+  periksa di DevTools → Network → header `X-Robots-Tag: noindex, nofollow`.
+
+## 5. Hemat kuota build (opsional, disarankan)
 
 Setiap push ke `production` membangun ulang semua project. Batasi lewat **Settings → Build →
 Build watch paths** per project:
@@ -107,16 +129,18 @@ Build watch paths** per project:
 | Landing | `apps/landing/*`, `packages/*`, `package.json`, `pnpm-lock.yaml` |
 | Admin | `apps/admin/*`, `packages/*`, `package.json`, `pnpm-lock.yaml` |
 | Visitor | `apps/visitor/*`, `packages/*`, `package.json`, `pnpm-lock.yaml` |
+| Vendor | `apps/vendor/*`, `packages/*`, `package.json`, `pnpm-lock.yaml` |
 
 Dan **Settings → Build → Branch control → Preview branches: None**, agar branch lain tidak ikut
 dibangun dengan env produksi.
 
-## 5. Setelah semua tayang
+## 6. Setelah semua tayang
 
 1. Uji asap penuh (README langkah 8): minta trial dari landing dengan email sendiri → email
    verifikasi → "Ruang kerja Anda siap" → email "Trial siap" → buat password → Admin trial
    (banner "Trial — sisa 17 hari") → Visitor `/v/<slug>`.
-2. Hapus trial uji (README langkah 8.4).
+2. Buka dasbor vendor: trial uji tampil di tab **Aktif** → **Hapus** → lead tetap di **Semua leads**
+   berstatus "Dihapus" (pengganti README langkah 8.4).
 
 ## Masalah umum
 
@@ -129,3 +153,6 @@ dibangun dengan env produksi.
 | Form trial: "Permintaan belum terkirim" | `VITE_SUPABASE_URL` landing salah, atau landing dibuka dari alamat selain `https://panduarah.my.id` (CORS `TRIAL_ALLOWED_ORIGIN`) |
 | Tautan "buat password" ditolak | Supabase → Authentication → URL Configuration belum memuat `https://admin.panduarah.my.id/**` |
 | Peta baru terbit belum tampil | Cache CDN Storage Supabase ±1–2 menit |
+| Dasbor vendor: "Verifikasi dua langkah (TOTP) belum diaktifkan" | Supabase → Authentication → Multi-Factor → TOTP *Enabled* |
+| Dasbor vendor: "Akun ini bukan akun staf vendor" | Akun belum ada di `hosting.vendor_staff` atau profilnya nonaktif (README langkah 3.6) |
+| Ponsel autentikator hilang | Supabase → Authentication → Users → akun → hapus faktor MFA, lalu daftarkan ulang lewat dasbor |

@@ -1,0 +1,8 @@
+# Cloudflare Pages: dasbor berisi data calon klien, jadi tidak boleh diindeks, dibingkai situs
+# lain, atau membocorkan alamatnya lewat Referer.
+/*
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

@@ -56,6 +56,7 @@ export type {
   LocationPageFilters,
   LocationsRepository,
 } from './repositories/locations';
+export type { MfaRepository, MfaStatus, TotpEnrollment } from './repositories/mfa';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
 export type { OriginPointsRepository } from './repositories/origin-points';
 export type { ProfilesRepository } from './repositories/profiles';
@@ -74,4 +75,10 @@ export {
 export type { SystemSettingsRepository } from './repositories/system-settings';
 export type { TrialRepository } from './repositories/trial';
 export type { InviteUserInput, UsersRepository } from './repositories/users';
+export type {
+  BlockEntry,
+  LifecycleRun,
+  VendorAccess,
+  VendorRepository,
+} from './repositories/vendor';
 export type { VenuesRepository } from './repositories/venues';

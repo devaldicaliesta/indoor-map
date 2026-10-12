@@ -210,7 +210,8 @@ menolak semua tulis ke venue terkunci. Visitor yang tidak menemukan snapshot men
   `security definer`, dan setiap policy Storage: pengguna trial A tidak bisa membaca atau
   mengubah data trial B.
 - Token verifikasi acak, disimpan sebagai hash, sekali pakai, berlaku 24 jam.
-- Akun vendor dengan 2FA (T-592) sebelum dasbor dibuka.
+- Akun vendor dengan 2FA sebelum dasbor dibuka: TOTP Supabase Auth, ditegakkan server lewat klaim
+  `aal2` (T-617; tidak menunggu 2FA Admin T-592).
 - Service role key hanya di rahasia Edge Function.
 - Tinjauan `security-reviewer` wajib untuk T-611, T-614, T-617.
 
@@ -244,7 +245,7 @@ menolak semua tulis ke venue terkunci. Visitor yang tidak menemukan snapshot men
 | T-614 | Permintaan dan verifikasi trial | T-612, T-613 | §3.3, §3.5: skema `hosting`, `trial-request` diubah, `trial-verify`, `provision_trial`, email aktif |
 | T-615 | Siklus hidup trial | T-614 | `trial-lifecycle` + pg_cron: pengingat, kunci, hapus, antrean; layar "Trial berakhir" Admin dan Visitor; banner |
 | T-616 | Landing untuk trial otomatis | T-614 | Form tanpa durasi, halaman cek email dan hasil verifikasi, tombol "Lihat demo" |
-| T-617 | Dasbor vendor minimal | T-615, T-592 | `apps/vendor` §2.4 FR-HT-14 |
+| T-617 | Dasbor vendor minimal | T-615 | `apps/vendor` §2.4 FR-HT-14, 2FA TOTP sendiri |
 | T-618 | Panduan setup hosting | T-615 | `deploy/hosting/README.md`: Supabase (migrasi, functions, rahasia, SMTP Auth, pg_cron), Cloudflare Pages (4 situs, env), DNS, GitHub Actions ping |
 
 Rincian langkah dan kriteria selesai setiap task ditulis di awal task masing-masing, mengikuti

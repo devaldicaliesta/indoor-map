@@ -24,6 +24,12 @@ const appServers = [
     reuseExistingServer: !CI,
     timeout: 120_000,
   },
+  {
+    command: 'pnpm --filter @indoor/vendor dev',
+    url: env.vendorUrl,
+    reuseExistingServer: !CI,
+    timeout: 120_000,
+  },
 ];
 
 export default defineConfig({
@@ -87,6 +93,16 @@ export default defineConfig({
             '--ignore-gpu-blocklist',
           ],
         },
+      },
+    },
+    {
+      // Dasbor vendor trial ter-hosting (T-617): desktop, dipakai staf vendor.
+      name: 'vendor',
+      testMatch: 'vendor/**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: env.vendorUrl,
+        viewport: { width: 1440, height: 900 },
       },
     },
     {
