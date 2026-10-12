@@ -19,12 +19,13 @@ export function LandingPage() {
       <SiteHeader />
       <main id="isi">
         <Hero />
+        {/* Kartu peta demo menembus tepi bawah hero, jadi langsung setelahnya. */}
+        <Demo />
         <Buildings />
         <Features />
-        <Demo />
+        <Screens />
         <HowItWorks />
         <Licensing />
-        <Screens />
         <TrialForm />
         <Contact />
       </main>

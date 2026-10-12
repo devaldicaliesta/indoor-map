@@ -15,9 +15,9 @@ const id = {
     language: 'Bahasa',
     menu: 'Menu',
     skip: 'Langsung ke isi',
+    theme: 'Mode gelap',
   },
   hero: {
-    eyebrow: 'Navigasi dalam gedung',
     title: 'Pengunjung tidak lagi tersesat di gedung Anda.',
     lead: 'PanduArah membuat peta interaktif 2D dan 3D serta petunjuk arah langkah demi langkah untuk mal, rumah sakit, kampus, bandara, kawasan industri, dan event. Semua berjalan di server Anda sendiri.',
     primary: 'Coba gratis 17 hari',
@@ -121,10 +121,26 @@ const id = {
   screens: {
     title: 'Tangkapan layar',
     items: [
-      ['visitor-mall', 'Peta mal di HP: kategori berwarna dan rute antarlantai'],
-      ['visitor-concert', 'Konser stadion dalam 3D: zona festival, tribun, dan booth'],
-      ['admin-editor', 'Editor peta Admin: gambar ruang, jalur, dan konektor'],
-      ['info-point', 'Info Point layar sentuh di lobi'],
+      [
+        'visitor-mall',
+        'Peta mal di HP: kategori berwarna dan rute antarlantai',
+        'Pengunjung memindai QR, mencari toko, dan mengikuti rute lewat lift ke lantai lain.',
+      ],
+      [
+        'visitor-concert',
+        'Konser stadion dalam 3D: zona festival, tribun, dan booth',
+        'Peta bertingkat bisa diputar dan dimiringkan; warna kategori membuat setiap zona mudah dikenali.',
+      ],
+      [
+        'admin-editor',
+        'Editor peta Admin: gambar ruang, jalur, dan konektor',
+        'Pengelola menggambar ruang di atas denah, lalu peta diperiksa otomatis sebelum publish.',
+      ],
+      [
+        'info-point',
+        'Info Point layar sentuh di lobi',
+        'Layar sentuh menampilkan "Anda di sini" dan QR untuk melanjutkan rute di HP.',
+      ],
     ],
   },
   contact: {
@@ -153,7 +169,7 @@ const id = {
       ],
       [
         'Penyimpanan',
-        'Ruang kerja trial, berkasnya, dan akun trial dihapus otomatis 7 hari setelah trial berakhir. Isian form trial dan email disimpan paling lama 12 bulan, kecuali Anda menjadi klien. Landing page ini tidak memakai cookie pelacak; pilihan bahasa disimpan di peramban Anda sendiri.',
+        'Ruang kerja trial, berkasnya, dan akun trial dihapus otomatis 7 hari setelah trial berakhir. Isian form trial dan email disimpan paling lama 12 bulan, kecuali Anda menjadi klien. Landing page ini tidak memakai cookie pelacak; pilihan bahasa dan tema terang/gelap disimpan di peramban Anda sendiri.',
       ],
       [
         'Hak Anda',
@@ -186,9 +202,9 @@ const en: Copy = {
     language: 'Language',
     menu: 'Menu',
     skip: 'Skip to content',
+    theme: 'Dark mode',
   },
   hero: {
-    eyebrow: 'Indoor navigation',
     title: 'Visitors never get lost in your building again.',
     lead: 'PanduArah creates interactive 2D and 3D maps with step-by-step directions for malls, hospitals, campuses, airports, industrial estates, and events. Everything runs on your own server.',
     primary: 'Try free for 17 days',
@@ -301,10 +317,26 @@ const en: Copy = {
   screens: {
     title: 'Screenshots',
     items: [
-      ['visitor-mall', 'Mall map on a phone: coloured categories and a multi-floor route'],
-      ['visitor-concert', 'Stadium concert in 3D: festival zones, stands, and booths'],
-      ['admin-editor', 'Admin map editor: draw rooms, paths, and connectors'],
-      ['info-point', 'Touch-screen Info Point in a lobby'],
+      [
+        'visitor-mall',
+        'Mall map on a phone: coloured categories and a multi-floor route',
+        'Visitors scan a QR code, search for a store, and follow the route by lift to another floor.',
+      ],
+      [
+        'visitor-concert',
+        'Stadium concert in 3D: festival zones, stands, and booths',
+        'Rotate and tilt the multi-floor map; category colours make every zone easy to spot.',
+      ],
+      [
+        'admin-editor',
+        'Admin map editor: draw rooms, paths, and connectors',
+        'Managers draw rooms over the floor plan, and the map is checked automatically before publishing.',
+      ],
+      [
+        'info-point',
+        'Touch-screen Info Point in a lobby',
+        'The touch screen shows "You are here" and a QR code to continue the route on a phone.',
+      ],
     ],
   },
   contact: {
@@ -333,7 +365,7 @@ const en: Copy = {
       ],
       [
         'Retention',
-        'Trial workspaces, their files, and trial accounts are deleted automatically 7 days after the trial ends. Trial form entries and emails are kept for at most 12 months unless you become a client. This site uses no tracking cookies; your language choice is stored in your own browser.',
+        'Trial workspaces, their files, and trial accounts are deleted automatically 7 days after the trial ends. Trial form entries and emails are kept for at most 12 months unless you become a client. This site uses no tracking cookies; your language and light/dark theme choices are stored in your own browser.',
       ],
       [
         'Your rights',

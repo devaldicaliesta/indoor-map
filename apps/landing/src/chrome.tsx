@@ -2,6 +2,7 @@ import { BrandLogo, Button, cn, VENDOR_EMAIL } from '@indoor/ui';
 import { MailIcon } from 'lucide-react';
 import type { Language } from './copy';
 import { useLanguage } from './language';
+import { ThemeToggle } from './theme';
 
 /** Tautan antarhalaman tetap membawa bahasa yang dipilih. */
 export const home = (language: Language, hash = '') => `/?lang=${language}${hash}`;
@@ -35,25 +36,25 @@ function LanguageSwitch() {
   );
 }
 
-/** Kepala halaman: logo, navigasi bagian (desktop), bahasa, dan aksi utama. */
+/** Kepala halaman: logo, navigasi bagian (desktop), bahasa, tema, dan aksi utama. */
 export function SiteHeader({ sections = true }: { sections?: boolean }) {
   const { language, copy } = useLanguage();
+  const at = (hash: string) => (sections ? hash : home(language, hash));
   const links: [string, string][] = [
     ['#fitur', copy.nav.features],
     ['#demo', copy.nav.demo],
     ['#cara-kerja', copy.nav.how],
     ['#lisensi', copy.nav.license],
-    ['#trial', copy.nav.trial],
   ];
   return (
     <header className="sticky top-0 z-20 border-line border-b bg-surface/95 backdrop-blur">
       <a
         href="#isi"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-sm focus:bg-signal focus:px-3 focus:py-2 focus:font-bold"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-sm focus:bg-signal focus:px-3 focus:py-2 focus:font-bold focus:text-on-signal"
       >
         {copy.nav.skip}
       </a>
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2">
+      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2">
         <a href={home(language)} aria-label="PanduArah" className="shrink-0">
           <BrandLogo className="h-8 w-auto" label="" />
         </a>
@@ -72,8 +73,15 @@ export function SiteHeader({ sections = true }: { sections?: boolean }) {
         ) : null}
         <div className="ml-auto flex items-center gap-2">
           <LanguageSwitch />
+          <ThemeToggle />
+          <a
+            href={at('#kontak')}
+            className="hidden rounded-sm px-3 py-2 font-bold text-ink hover:bg-canvas md:inline-block"
+          >
+            {copy.nav.contact}
+          </a>
           <Button asChild variant="primary" className="hidden sm:inline-flex">
-            <a href={sections ? '#kontak' : home(language, '#kontak')}>{copy.nav.contact}</a>
+            <a href={at('#trial')}>{copy.nav.trial}</a>
           </Button>
         </div>
       </div>
@@ -84,15 +92,14 @@ export function SiteHeader({ sections = true }: { sections?: boolean }) {
 export function SiteFooter() {
   const { language, copy } = useLanguage();
   return (
-    <footer className="border-line border-t bg-ink text-surface">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 sm:grid-cols-[1fr_auto]">
-        <div className="grid gap-2">
-          <p className="font-bold text-xl">
-            PanduArah <span className="font-normal text-line">— {copy.footer.tagline}</span>
-          </p>
-          <p className="text-line text-sm">© 2026 PanduArah. {copy.footer.rights}</p>
+    <footer className="bg-night text-on-night">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-[1fr_auto]">
+        <div className="grid content-start gap-3">
+          <BrandLogo tone="white" className="h-8 w-auto" />
+          <p className="text-on-night-muted">{copy.footer.tagline}</p>
+          <p className="text-on-night-muted text-sm">© 2026 PanduArah. {copy.footer.rights}</p>
         </div>
-        <div className="grid gap-2 text-sm">
+        <div className="grid content-start gap-2 text-sm">
           <span className="font-bold">{copy.footer.contact}</span>
           <a href={`mailto:${VENDOR_EMAIL}`} className="flex items-center gap-2 underline">
             <MailIcon aria-hidden="true" className="size-4" strokeWidth={1.75} />

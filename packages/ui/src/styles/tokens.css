@@ -64,3 +64,41 @@
   --control-height: 60px;
   --panel-padding: 24px;
 }
+
+/*
+ * Landing vendor (apps/landing) saja: palet logo PanduArah menjadi palet situs — kuning logo
+ * untuk aksi utama, biru logo untuk hero dan aksen — dalam mode terang dan gelap. Admin dan
+ * Visitor tidak memakai atribut ini, jadi aturan "warna logo hanya untuk logo" tetap berlaku di sana.
+ */
+[data-site="landing"] {
+  --canvas: #f3f6fa;
+  --line: #d5dde8;
+  --signal: var(--brand-yellow);
+  --signal-soft: #ffe6a0;
+  /* Hitam logo, ditulis langsung: --brand-ink menjadi putih di mode gelap */
+  --on-signal: #04080b;
+  --accent-blue: var(--brand-blue);
+  /* Hero dan pita gelap: biru logo yang diturunkan */
+  --night: #0b2a52;
+  --night-raised: #12386b;
+  --on-night: #ffffff;
+  --on-night-muted: #c3d2e6;
+  --night-line: #2a5089;
+}
+
+/* Kontras teks diperiksa WCAG AA untuk --ink, --ink-muted, dan --accent di atas --surface dan --canvas. */
+[data-site="landing"][data-theme="dark"] {
+  --ink: #eef2f7;
+  --ink-muted: #a6b3c4;
+  --line: #22385a;
+  --surface: #0c1c30;
+  --canvas: #06121f;
+  --signal-soft: #5c4a0c;
+  --accent-blue: #8cb8ff;
+  --night: #0a2140;
+  --night-raised: #10305a;
+  --night-line: #244672;
+  /* Tulisan logo putih di latar gelap; simbol biru-kuning tetap */
+  --brand-ink: #ffffff;
+  --float-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+}
