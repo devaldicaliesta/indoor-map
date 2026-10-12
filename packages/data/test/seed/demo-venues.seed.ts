@@ -28,6 +28,13 @@ const url = process.env.SUPABASE_API_URL ?? '';
 const anonKey = process.env.SUPABASE_ANON_KEY ?? '';
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 const password = process.env.SEED_ADMIN_PASSWORD ?? '';
+// Project ter-hosting (`pnpm db:seed-demo:hosted`, deploy/hosting/README.md): Super Admin vendor,
+// URL Visitor publik, dan TANPA akun demo — akun demo memakai password seed yang sama dan tidak
+// boleh ada di server yang bisa dijangkau publik.
+const adminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@local.test';
+const visitorUrl =
+  process.env.SEED_VISITOR_URL ?? process.env.E2E_VISITOR_URL ?? 'http://localhost:5174';
+const withDemoUsers = process.env.SEED_DEMO_USERS !== '0';
 
 const centerOf = (source: SnapshotSource): [number, number] => {
   const ring = source.buildings[0]?.footprint?.coordinates[0] ?? [];
@@ -103,12 +110,12 @@ const logoFile = (key: string) =>
   new Blob([readFileSync(new URL(`./logos/${key}.png`, import.meta.url))], { type: 'image/png' });
 
 it.runIf(url && anonKey && password)('seed venue demo', { timeout: 900_000 }, async () => {
-  const db = await signedInDb(url, anonKey, { email: 'admin@local.test', password });
+  const db = await signedInDb(url, anonKey, { email: adminEmail, password });
   const data = createRepositories(db);
   // Tanpa URL publik Visitor, QR titik asal dan preview mati; demo lokal memakai Visitor dev.
   if (!(await data.systemSettings.get()).publicVisitorUrl) {
     await data.systemSettings.update({
-      publicVisitorUrl: process.env.E2E_VISITOR_URL ?? 'http://localhost:5174',
+      publicVisitorUrl: visitorUrl,
     });
   }
   for (const { make, type, address, logo, slug, color } of VENUES) {
@@ -136,7 +143,7 @@ it.runIf(url && anonKey && password)('seed venue demo', { timeout: 900_000 }, as
     const active = await data.publications.active(id);
     process.stdout.write(`${name}: ${venueId} (v${active?.version})\n`);
   }
-  if (serviceKey) {
+  if (serviceKey && withDemoUsers) {
     const service = createClient<Database>(url, serviceKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });

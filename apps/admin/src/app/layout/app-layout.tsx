@@ -37,7 +37,9 @@ export function AppLayout({ profile }: { profile: Profile }) {
         ) : (
           <>
             <NarrowScreenNotice />
-            <LicenseNotice />
+            {/* Lisensi instalasi urusan pengelola server; di project ter-hosting itu vendor,
+                bukan pemohon trial (yang melihat sisa hari trial-nya sendiri). */}
+            {profile.allVenues ? <LicenseNotice /> : null}
             {trial ? <HostedTrialNotice trial={trial} /> : null}
             <Outlet />
           </>
