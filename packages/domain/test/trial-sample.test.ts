@@ -45,7 +45,7 @@ describe.each(Object.entries(DEMO_BY_SLUG))('data contoh trial dari %s', (_, mak
 
   it('muat di batas trial', () => {
     const indoor = sample.floors.filter((f) => !f.isOutdoor);
-    expect(sample.buildings).toHaveLength(1);
+    expect(sample.buildings.length).toBeLessThanOrEqual(TRIAL_SAMPLE_LIMITS.buildings);
     expect(indoor.length).toBeGreaterThan(0);
     expect(indoor.length).toBeLessThanOrEqual(TRIAL_SAMPLE_LIMITS.floors);
     expect(sample.locations.length).toBeGreaterThan(0);
@@ -66,6 +66,18 @@ describe.each(Object.entries(DEMO_BY_SLUG))('data contoh trial dari %s', (_, mak
     const errors = validateVenue(sample, CONTEXT).filter((f) => f.severity === 'error');
     expect(errors.map((e) => e.message)).toEqual([]);
     expect(() => buildSnapshot(sample)).not.toThrow();
+  });
+
+  it('venue demo tersalin utuh (keputusan pemilik 2026-10-12)', () => {
+    const active = source.locations.filter((l) => l.status !== 'inactive_permanent');
+    expect(sample.buildings).toHaveLength(source.buildings.length);
+    expect(sample.floors).toHaveLength(source.floors.length);
+    expect(sample.features).toHaveLength(source.features.length);
+    expect(sample.locations).toHaveLength(active.length);
+    expect(sample.graph.edges).toHaveLength(source.graph.edges.length);
+    expect(sample.graph.connectors).toHaveLength(source.graph.connectors.length);
+    expect(sample.originPoints).toHaveLength(source.originPoints.length);
+    expect(sample.infoPoints).toHaveLength(source.infoPoints.length);
   });
 
   it('tidak membawa berkas milik venue demo', () => {

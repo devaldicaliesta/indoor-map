@@ -220,6 +220,8 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-10-12] F2-K — **Diputuskan pemilik: ruang kerja trial berisi salinan venue demo yang utuh** (peta yang sama dengan landing dan `/v/demo`), bukan cuplikan 2 lantai / 60 lokasi. Batas trial dinaikkan agar demo terbesar muat dengan sisa ruang: gedung 1 → 4, lantai 3 → 8, lokasi 100 → 250, Info Point 2 → 3 (migrasi 0052; `TRIAL_SAMPLE_LIMITS` sama). Batas lain tetap.
+
 - [2026-10-09] Umum — **Struktur branch baru** (`07-aturan-branch.md`): `production` (Cloudflare Pages), `main` (stabil, lewat PR), `develop` (pengembangan), `feature/<nama>` (mis. `feature/trial-hosting` untuk F2-K). `main` dimajukan ke pekerjaan terbaru (sebelumnya tertinggal sejak PR #7). Branch `claude/vibrant-davinci-uyrrka` dan `claude/festive-hopper-euidy3` diganti `develop`; `landing-publish` diganti `production` setelah Cloudflare Pages dipindah. Dokumen tetap bersama kode.
 
 - [2026-10-09] F2-K — **Diputuskan pemilik: trial ter-hosting otomatis** (`23-trial-hosting.md`). Pemohon trial langsung mendapat Admin (`admin.panduarah.my.id`) dan Visitor (`app.panduarah.my.id/v/<slug>`) di server vendor: satu project Supabase Free + Cloudflare Pages Free, biaya Rp0. Pemisahan antar-trial lewat ruang kerja per venue (RLS), bukan project per trial. Trial tetap 17 hari (pengingat hari 14, terkunci hari 17, dihapus hari 24), maksimal 15 trial aktif (lebih dari itu antre), batas data kecil dan tanpa impor CAD. Demo publik hanya Visitor (`/v/demo`). Dasbor vendor setelah trial otomatis jalan. Instalasi on-premise (lisensi berkas, `deploy/`, trial on-premise 14–30 hari) ditunda tanpa perubahan perilaku.
