@@ -24,8 +24,9 @@ aktivitas (ditangani langkah 7).
   ```sh
   pnpm --filter @indoor/license-cli license-cli keygen --out ~/indoor-license-keys
   ```
-  Ganti nilai `LICENSE_PUBLIC_KEY` di `packages/domain/src/license.publicKey.ts` dengan kunci
-  publik yang dihasilkan (commit rilis), lalu simpan kunci privatnya di luar repo dan cadangkan.
+  Simpan kunci privatnya di luar repo dan cadangkan. Kunci publiknya **tidak di-commit**: repo
+  tetap memakai kunci DEV karena tes E2E dan integrasi menandatangani lisensi dev. Kunci vendor
+  ditanam sementara setiap kali Edge Functions di-deploy (langkah 2.2).
 
 ## 1. Project Supabase
 
@@ -76,9 +77,15 @@ aktivitas (ditangani langkah 7).
    SEND_EMAIL_HOOK_SECRET=<rahasia hook dari langkah 4.3>
    ```
    Hapus berkas itu setelah dipasang.
-2. Pasang semua fungsi (pengaturan `verify_jwt` dibaca dari `supabase/config.toml`):
+2. Pasang semua fungsi (pengaturan `verify_jwt` dibaca dari `supabase/config.toml`) dengan
+   **kunci publik lisensi vendor** ditanam sementara, lalu kembalikan berkasnya. Tanpa langkah
+   ini `license-activate` di server memakai kunci DEV dan menolak lisensi bertanda tangan vendor:
    ```sh
+   key=$(cat ~/indoor-license-keys/license-public.b64)
+   sed -i "s|^export const LICENSE_PUBLIC_KEY = .*|export const LICENSE_PUBLIC_KEY = '$key';|" \
+     packages/domain/src/license.publicKey.ts
    pnpm exec supabase functions deploy
+   git checkout -- packages/domain/src/license.publicKey.ts
    ```
    Yang dipakai project ini: `publish`, `admin-users`, `auth-email`, `account-notice`,
    `system-settings`, `license-activate`, `license-checkin`, `license-service`, `trial-request`,
@@ -114,6 +121,9 @@ aktivitas (ditangani langkah 7).
      --venues 100 --buildings 200 --floors 600 --info-points 100 --features 3d,info_point \
      --out hosting.json
    ```
+   Di PowerShell kutip daftar fitur (`--features '3d,info_point'`): tanpa kutip PowerShell
+   membacanya sebagai array dan `3d` sebagai angka, sehingga lisensi berisi fitur `"3 info_point"`.
+   Periksa dengan `license-cli inspect hosting.json --public-key <kunci publik vendor>`.
 4. Pasang lisensi setelah Admin bisa dibuka (langkah 5): masuk sebagai Super Admin → halaman
    **Aktivasi instalasi** → tab **Unggah berkas** → pilih `hosting.json` → **Pasang lisensi**.
    Catat tanggal berakhirnya: **lisensi server yang kedaluwarsa menghentikan Visitor semua

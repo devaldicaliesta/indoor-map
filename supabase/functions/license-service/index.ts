@@ -30,7 +30,10 @@ async function readVersion(venueId: string, version: number): Promise<Snapshot> 
   return (await response.json()) as Snapshot;
 }
 
-Deno.serve(async () => {
+Deno.serve(async (request) => {
+  // Hanya database (pg_net, POST) yang memanggil; metode lain tidak boleh memicu sinkron ulang
+  // `latest.json` semua venue.
+  if (request.method !== 'POST') return reply(405, { message: 'Metode tidak didukung.' });
   try {
     const [status] = await rpc<{ state: string }[]>('license_status');
     const active = status?.state !== 'expired' && status?.state !== 'revoked';
