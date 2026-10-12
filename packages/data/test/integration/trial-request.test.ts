@@ -73,7 +73,7 @@ describe.runIf(url && mailpit)('form trial landing page', () => {
     // HTML dari isian tampil sebagai teks (TC-LND-05).
     expect(mail.html).toContain('&lt;b&gt;Rina&lt;/b&gt; Wijaya');
     expect(mail.html).not.toContain('<b>Rina</b>');
-    const token = /trial\/verifikasi\?token=([A-Za-z0-9_-]+)/.exec(mail.text)?.[1] ?? '';
+    const token = /trial\/verifikasi\/\?token=([A-Za-z0-9_-]+)/.exec(mail.text)?.[1] ?? '';
     expect(token).toHaveLength(43);
     // Yang tersimpan hanya hash token (§3.7), berstatus belum diverifikasi, berlaku 24 jam.
     const row =

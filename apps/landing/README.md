@@ -13,17 +13,24 @@ dan `public/sitemap.xml`; ubah semuanya bila domain berganti.
 
 ```
 pnpm dev:landing                           # http://localhost:5175
-pnpm --filter @indoor/landing build        # dist/ siap di-host statis (index.html + privasi/index.html)
+pnpm --filter @indoor/landing build        # dist/ siap di-host statis (index.html, privasi/, trial/verifikasi/)
 node scripts/landing-motion.mjs            # render ulang video motion graphic (public/media/)
 ```
 
-## Form trial (belum dipasang)
+## Trial otomatis (T-616)
 
-Di versi yang diterbitkan, form permintaan trial dilepas: tombol utama
-menuju bagian "Hubungi kami" yang berisi tautan email vendor, dan kebijakan privasi hanya membahas
-email yang dikirim pengunjung. Edge Function `supabase/functions/trial-request` dan aturan validasi
-`@indoor/domain/trial-request` tetap ada di repo dan tidak dipasang. Form trial otomatis dibuka
-lewat T-616 (`docs/23-trial-hosting.md`).
+Bagian **"Coba gratis 17 hari"** (`#trial`) mengirim form ke Edge Function `trial-request`;
+pemohon menerima email berisi tautan ke **`/trial/verifikasi/?token=…`** (halaman HTML ketiga,
+`noindex`, tanpa Referer), yang memanggil `trial-verify` lalu menampilkan hasilnya: ruang kerja
+siap (tautan Admin dan Visitor), antre, ditolak, kedaluwarsa, atau tidak berlaku. Token dihapus
+dari alamat setelah dibaca. Validasi di peramban memakai `@indoor/domain/trial-request`
+(`checkHostedTrialRequest`), sama dengan server. Tombol **"Lihat demo"** membuka Visitor
+sungguhan di `/v/demo` (T-613).
+
+Variabel build (Cloudflare Pages): `VITE_SUPABASE_URL` (project vendor ter-hosting) dan
+`VITE_VISITOR_URL` (bawaan `https://app.panduarah.my.id`). Kebijakan privasi menyebut isian form,
+alasan, dan masa simpannya; masa simpan 12 bulan ditegakkan `hosting_lifecycle_forget` (migrasi
+0051) lewat siklus hidup trial.
 
 ## Performa
 

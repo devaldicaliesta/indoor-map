@@ -332,3 +332,28 @@ T-615 dipecah dua: **a** server (jadwal, email, Storage, antrean), **b** tampila
   - [x] E2E Admin: banner "Trial — sisa 10 hari", lalu "Trial berakhir" setelah `trial-lifecycle`
         sungguhan mengunci. E2E Visitor: "Masa trial peta ini sudah berakhir".
   - [x] `pnpm check` hijau (termasuk uji i18n Visitor).
+
+---
+
+## T-616 · Landing untuk trial otomatis
+
+- **Untuk:** FR-HT-01 (form → email verifikasi), FR-HT-02 (hasil verifikasi), §1 demo publik.
+  **Bergantung pada:** T-614.
+- **Langkah:**
+  1. `apps/landing/src/trial/`: `copy.ts` (ID/EN), `api.ts` (fetch langsung ke `trial-request` dan
+     `trial-verify`; hasil verifikasi di-cache per token karena token sekali pakai),
+     `trial-form.tsx`, `verify-page.tsx`. Halaman `trial/verifikasi/index.html` (entri Vite ketiga).
+  2. Hero, navigasi, dan bagian demo: "Coba gratis 17 hari" → `#trial`, "Lihat demo" → Visitor
+     `/v/demo`.
+  3. Kebijakan privasi ID/EN diperbarui untuk form trial; migrasi 0051
+     `hosting_lifecycle_forget` + langkah `lupakan` di `trial-lifecycle` menegakkan masa simpan 12
+     bulan yang dijanjikan.
+  4. `TRIAL_VERIFY_URL` berakhiran `/` (halaman statis, sama dengan `/privasi/`).
+- **Untuk T-618:** Cloudflare Pages landing butuh `VITE_SUPABASE_URL` project ter-hosting dan
+  `VITE_VISITOR_URL`; rahasia `TRIAL_VERIFY_URL=https://panduarah.my.id/trial/verifikasi/` dan
+  `TRIAL_ALLOWED_ORIGIN=https://panduarah.my.id` di Edge Function.
+- **Selesai jika:**
+  - [x] E2E `T-616-trial`: galat kolom, panel "Cek email", email di Mailpit, tautan membuat ruang
+        kerja ("Ruang kerja Anda siap", tautan Admin dan Visitor `/v/<slug>`), token hilang dari
+        alamat, tautan kedua "Tautan tidak berlaku". E2E landing T-505 tetap lulus.
+  - [x] Uji unit teks trial ID/EN; pgTAP `hosting_retention` (4).

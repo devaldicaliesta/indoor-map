@@ -8,7 +8,7 @@
 // sehingga balasan di sini tidak membocorkan apakah sebuah email pernah trial.
 //
 // Rahasia lingkungan (tidak di repo): SMTP trial (`_shared/trial-mail.ts`), TRIAL_VERIFY_URL
-// (halaman hasil verifikasi di landing, bawaan https://panduarah.my.id/trial/verifikasi),
+// (halaman hasil verifikasi di landing, bawaan https://panduarah.my.id/trial/verifikasi/),
 // TRIAL_ALLOWED_ORIGIN (bawaan *).
 
 import {
@@ -23,7 +23,7 @@ import { sendMail } from '../_shared/smtp.ts';
 import { newToken, sha256Hex } from '../_shared/token.ts';
 import { button, paragraph, trialEnv, trialSmtpConfig } from '../_shared/trial-mail.ts';
 
-const verifyUrl = trialEnv('TRIAL_VERIFY_URL') || 'https://panduarah.my.id/trial/verifikasi';
+const verifyUrl = trialEnv('TRIAL_VERIFY_URL') || 'https://panduarah.my.id/trial/verifikasi/';
 const corsHeaders = {
   'Access-Control-Allow-Origin': trialEnv('TRIAL_ALLOWED_ORIGIN') || '*',
   'Access-Control-Allow-Headers': 'content-type',
