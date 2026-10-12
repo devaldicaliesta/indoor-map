@@ -1,7 +1,7 @@
 import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 import { COPY, type Copy, type Language } from './copy';
 
-// Satu-satunya data yang disimpan landing di perangkat: pilihan bahasa.
+// Data yang disimpan landing di perangkat hanya pilihan bahasa dan tema (theme.tsx).
 const STORAGE_KEY = 'panduarah-landing.language';
 
 function stored(): string | null {
