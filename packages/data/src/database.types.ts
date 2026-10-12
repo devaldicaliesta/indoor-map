@@ -1809,6 +1809,10 @@ export type Database = {
           venue_id: string;
         }[];
       };
+      user_invite_check: {
+        Args: { p_role: Database['public']['Enums']['app_role'] };
+        Returns: string;
+      };
     };
     Enums: {
       app_role: 'super_admin' | 'admin' | 'editor' | 'operator' | 'viewer';

@@ -1,4 +1,4 @@
-import type { AppRole } from './profile';
+import { APP_ROLES, type AppRole, type Profile } from './profile';
 
 /**
  * Matriks akses per role (docs/spec/05-user-flow.md "Struktur menu Admin").
@@ -90,4 +90,40 @@ const ACTION_ROLES: Record<AdminAction, readonly AppRole[]> = {
 
 export function can(role: AppRole, action: AdminAction): boolean {
   return ACTION_ROLES[action].includes(role);
+}
+
+/** Yang menentukan akses pengguna: role dan apakah ia menjangkau semua venue (T-611a). */
+export type AdminUser = Pick<Profile, 'role' | 'allVenues'>;
+
+/** Admin venue = pengguna trial ter-hosting: role `admin`, hanya venue keanggotaannya. */
+function isVenueAdmin(user: AdminUser): boolean {
+  return user.role === 'admin' && !user.allVenues;
+}
+
+/**
+ * Seperti `moduleAccess`, ditambah satu pengecualian: Admin venue melihat modul Pengguna dalam
+ * mode baca (anggota venue-nya) untuk mengundang anggota. Server: `user_invite_check` (0046).
+ */
+export function moduleAccessFor(user: AdminUser, module: AdminModule): ModuleAccess | null {
+  if (module === 'users' && isVenueAdmin(user)) return 'read';
+  return moduleAccess(user.role, module);
+}
+
+export function visibleModulesFor(
+  user: AdminUser,
+): { module: AdminModule; access: ModuleAccess }[] {
+  return ADMIN_MODULES.flatMap((module) => {
+    const access = moduleAccessFor(user, module);
+    return access ? [{ module, access }] : [];
+  });
+}
+
+/** Super Admin mengundang ke instalasi; Admin venue mengundang ke venue-nya (batas trial). */
+export function canInviteUsers(user: AdminUser): boolean {
+  return user.role === 'super_admin' || isVenueAdmin(user);
+}
+
+/** Role yang boleh diberikan saat mengundang: Admin venue tidak pernah membuat Super Admin. */
+export function invitableRoles(user: AdminUser): readonly AppRole[] {
+  return isVenueAdmin(user) ? APP_ROLES.filter((role) => role !== 'super_admin') : APP_ROLES;
 }
