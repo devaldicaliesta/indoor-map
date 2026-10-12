@@ -64,6 +64,7 @@ export * from './unit-colors';
 export * from './units';
 export * from './validation/geometry';
 export * from './validation/publish';
+export * from './vendor-dashboard';
 export * from './venue';
 export * from './venue-rows';
 export * from './venue-slug';

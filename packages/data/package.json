@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./testing/full-venue": "./test/support/full-venue.ts",
-    "./testing/large-venue": "./test/support/large-venue.ts"
+    "./testing/large-venue": "./test/support/large-venue.ts",
+    "./testing/totp": "./test/support/totp.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
