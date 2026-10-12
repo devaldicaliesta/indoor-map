@@ -84,6 +84,8 @@
   --on-night: #ffffff;
   --on-night-muted: #c3d2e6;
   --night-line: #2a5089;
+  /* Font Figtree (@font-face di apps/landing/src/index.css); Atkinson sebagai cadangan */
+  --font-body: "Figtree", var(--font-atkinson);
 }
 
 /* Kontras teks diperiksa WCAG AA untuk --ink, --ink-muted, dan --accent di atas --surface dan --canvas. */
