@@ -70,18 +70,38 @@ Deno.serve(async (request) => {
     });
   }
 
-  try {
-    for (const message of messages) {
-      const email = renderAuthEmail(data.email_action_type, {
-        email: message.to,
-        link: verifyLink(data, message.tokenHash),
-        code: message.code,
-      });
-      await sendMail(smtp, { to: message.to, ...email });
+  const emails = messages.map((message) => ({
+    to: message.to,
+    ...renderAuthEmail(data.email_action_type, {
+      email: message.to,
+      link: verifyLink(data, message.tokenHash),
+      code: message.code,
+    }),
+  }));
+  const send = async () => {
+    for (const email of emails) await sendMail(smtp, email);
+  };
+
+  // GoTrue menunggu hook paling lama 5 detik, sedangkan satu kiriman SMTP ke Gmail dari Supabase
+  // ter-hosting terukur ±5,5–6,5 detik: pengiriman dilanjutkan di latar setelah hook dijawab.
+  // Konfigurasi SMTP yang kosong tetap ditolak di atas; galat kirim dicatat di log fungsi.
+  const runtime = (globalThis as { EdgeRuntime?: { waitUntil(task: Promise<unknown>): void } })
+    .EdgeRuntime;
+  if (runtime) {
+    runtime.waitUntil(
+      send().catch((error: unknown) => {
+        const reason = error instanceof SmtpError ? error.message : String(error);
+        // biome-ignore lint/suspicious/noConsole: dikirim di latar; log Edge Runtime satu-satunya jejak galat.
+        console.error(`auth-email: email ke ${user.email} tidak terkirim. ${reason}`);
+      }),
+    );
+  } else {
+    try {
+      await send();
+    } catch (error) {
+      const reason = error instanceof SmtpError ? error.message : 'Kesalahan tak terduga.';
+      return hookError(500, `Email tidak terkirim. ${reason} Hubungi Super Admin.`);
     }
-  } catch (error) {
-    const reason = error instanceof SmtpError ? error.message : 'Kesalahan tak terduga.';
-    return hookError(500, `Email tidak terkirim. ${reason} Hubungi Super Admin.`);
   }
   return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
 });

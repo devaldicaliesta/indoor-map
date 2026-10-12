@@ -136,7 +136,12 @@ aktivitas (ditangani langkah 7).
      menolak dengan 402 di paket Free): di Free penguncian akun T-008 tidak aktif; percobaan
      beruntun tetap diredam batas laju bawaan Auth (Authentication → Rate Limits).
    - *Send Email* baru dinyalakan setelah SMTP sistem (langkah 4.4) terisi; tanpa SMTP, hook ini
-     membuat email reset password dan undangan gagal.
+     membuat email reset password dan undangan gagal. Auth menunggu hook paling lama 5 detik,
+     sedangkan satu kiriman ke Gmail terukur ±6 detik, jadi `auth-email` menjawab dulu lalu
+     mengirim di latar; galat kirim tercatat di log fungsi `auth-email`.
+   - **Authentication → Rate Limits → email per jam**: bawaan Supabase hanya **2**; naikkan
+     (mis. 30) agar reset password dan undangan anggota tidak ditolak `over_email_send_rate_limit`.
+     Batas Gmail tetap ±500 email per hari (NFR-HT-05).
 4. Setelah Admin terbuka: **Pengaturan → Sistem** → URL publik Visitor
    `https://app.panduarah.my.id`, dan SMTP Gmail yang sama (email akun: reset password, undangan).
 
