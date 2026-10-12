@@ -134,7 +134,12 @@ export function TrialForm() {
             <p className="text-lg">{copy.form.sentBody.replace('{email}', state.email)}</p>
           </div>
         ) : (
-          <form noValidate onSubmit={submit} onInput={edited} className="grid gap-4 sm:grid-cols-2">
+          <form
+            noValidate
+            onSubmit={submit}
+            onInput={edited}
+            className="grid gap-4 rounded-lg border border-line bg-canvas p-6 sm:grid-cols-2"
+          >
             {TEXT_FIELDS.map(([field, type, autoComplete]) => (
               <Field
                 key={field}

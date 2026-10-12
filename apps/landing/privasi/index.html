@@ -1,7 +1,21 @@
 <!doctype html>
-<html lang="id" data-surface="visitor">
+<html lang="id" data-surface="visitor" data-site="landing" data-theme="light">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Tema dipasang sebelum halaman digambar agar tidak berkedip; aturan sama dengan src/theme.tsx.
+      (() => {
+        let theme = "light";
+        try {
+          const saved = localStorage.getItem("panduarah-landing.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+          else if (matchMedia("(prefers-color-scheme: dark)").matches) theme = "dark";
+        } catch {
+          // Penyimpanan diblokir: mode terang.
+        }
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
       name="description"

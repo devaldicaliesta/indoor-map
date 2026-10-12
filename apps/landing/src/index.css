@@ -3,6 +3,11 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -13,13 +18,85 @@ html {
 
 /*
  * Hanya landing page: judul pemasaran lebih besar dari skala aplikasi (Admin/Visitor berhenti
- * di 32 px, docs/05-desain-ui.md). Berat tetap 400 dan 700.
+ * di 32 px, docs/05-desain-ui.md). Berat tetap 400 dan 700. Warna situs dari token
+ * `[data-site="landing"]` di packages/ui/src/styles/tokens.css.
  */
+@theme inline {
+  --color-night: var(--night);
+  --color-night-raised: var(--night-raised);
+  --color-on-night: var(--on-night);
+  --color-on-night-muted: var(--on-night-muted);
+  --color-night-line: var(--night-line);
+  --color-accent-blue: var(--accent-blue);
+}
+
 @theme {
   --text-3xl: 32px;
   --text-3xl--line-height: 40px;
   --text-4xl: 40px;
-  --text-4xl--line-height: 48px;
+  --text-4xl--line-height: 46px;
   --text-5xl: 52px;
-  --text-5xl--line-height: 60px;
+  --text-5xl--line-height: 58px;
+  --text-6xl: 64px;
+  --text-6xl--line-height: 68px;
+}
+
+/* Judul besar dirapatkan sedikit agar tetap padat seperti papan penunjuk arah. */
+.display {
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/*
+ * Satu-satunya gerak otomatis halaman: rute hero digambar sekali saat dibuka, ruas demi ruas
+ * dengan laju sama agar terbaca sebagai satu garis. Panjang ruas dinormalkan pathLength="1".
+ */
+.hero-route {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: hero-route-draw linear forwards;
+}
+
+.hero-route-1 {
+  animation-duration: 1s;
+  animation-delay: 0.3s;
+}
+
+.hero-route-2 {
+  animation-duration: 0.55s;
+  animation-delay: 1.3s;
+}
+
+.hero-route-3 {
+  animation-duration: 0.25s;
+  animation-delay: 1.85s;
+}
+
+.hero-route-stop {
+  opacity: 0;
+  animation: hero-route-stop 0.3s ease-out 2.1s forwards;
+}
+
+@keyframes hero-route-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes hero-route-stop {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-route {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .hero-route-stop {
+    animation: none;
+    opacity: 1;
+  }
 }
