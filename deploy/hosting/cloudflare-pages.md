@@ -14,24 +14,23 @@ Supabase sudah berjalan — skema, Edge Functions, rahasia, Auth, Super Admin, l
 Keempatnya dibangun dari repo yang sama (`devaldicaliesta/indoor-map`) dan branch **`production`**.
 Biaya Rp0 di paket Free: 500 build per bulan, berkas statis tanpa batas bandwidth.
 
-## 0. Bawa kode ke `production`
+## 0. Bawa kode ke `production` (langkah terakhir)
 
-Cloudflare hanya membangun `production` (`docs/07-aturan-branch.md`). Fitur trial ter-hosting masih
-di `feature/trial-hosting`:
+Cloudflare hanya membangun `production` (`docs/07-aturan-branch.md`). Kode trial ter-hosting sudah
+ada di `main` (PR #28 ke `develop`, lalu `develop` ke `main`, 2026-10-12); `production` sengaja
+belum dimajukan. Isi dulu env dan buat project di langkah 1–4, **baru** majukan `production`:
 
-1. GitHub → **Pull requests → New**: `develop` ← `feature/trial-hosting`; tunggu CI hijau, merge.
-2. PR `main` ← `develop`; CI hijau, merge.
-3. Majukan `production`:
-   ```sh
-   git fetch origin
-   git checkout production
-   git merge --ff-only origin/main
-   git push origin production
-   ```
-   Push ini memicu build otomatis semua project Pages yang terhubung.
+```sh
+git fetch origin
+git checkout production
+git merge --ff-only origin/main
+git push origin production
+```
 
-> Sebelum langkah 3, pastikan env di langkah 1–4 di bawah sudah diisi; variabel `VITE_*`
-> ditanam saat build, jadi build tanpa env menghasilkan situs yang tidak bisa menghubungi server.
+Push ini memicu build otomatis semua project Pages yang terhubung.
+
+> Variabel `VITE_*` ditanam saat build: project yang dibangun sebelum env-nya diisi menghasilkan
+> situs yang tidak bisa menghubungi server — isi env, lalu **Retry deployment**.
 
 ## Nilai yang dipakai semua situs
 
