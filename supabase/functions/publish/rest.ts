@@ -1,6 +1,6 @@
 // Akses PostgREST dengan JWT pemanggil, sehingga RLS dan pemeriksaan izin di fungsi SQL
 // berlaku seperti saat Admin membuka datanya sendiri. Tanpa supabase-js (lihat admin-users).
-import { url } from '../_shared/auth.ts';
+import { serviceHeaders, url } from '../_shared/auth.ts';
 
 const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
 
@@ -53,11 +53,21 @@ export interface CallerRest {
 }
 
 export function callerRest(authorization: string): CallerRest {
-  const headers = {
-    apikey: anonKey,
-    Authorization: authorization,
-    'Content-Type': 'application/json',
-  };
+  return restWith({ apikey: anonKey, Authorization: authorization });
+}
+
+/**
+ * Akses sebagai service role (melewati RLS), mis. membaca venue demo untuk data contoh trial
+ * (T-614b). Kunci rahasia dipakai di `apikey` DAN `Authorization`: hanya pasangan ini yang
+ * berlaku untuk kunci JWT lama (lokal) maupun kunci baru `sb_secret_…` yang diberikan Supabase
+ * ter-hosting ke Edge Function. Kunci publik + `Bearer <kunci rahasia>` ditolak kunci baru.
+ */
+export function serviceRest(): CallerRest {
+  return restWith(serviceHeaders);
+}
+
+function restWith(credentials: Record<string, string>): CallerRest {
+  const headers = { ...credentials, 'Content-Type': 'application/json' };
   return {
     async select<T>(table: string, query: string) {
       const rows: T[] = [];

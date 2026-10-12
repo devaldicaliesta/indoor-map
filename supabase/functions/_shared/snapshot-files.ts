@@ -17,12 +17,27 @@ export async function putSnapshotFile(path: string, body: string, cacheControl: 
   if (!response.ok) throw new Error(`${path} gagal disimpan: ${await response.text()}`);
 }
 
+/** Slug venue (T-613); `null` bila venue hanya dibuka lewat id. */
+async function venueSlug(venueId: string): Promise<string | null> {
+  const response = await fetch(
+    `${url}/rest/v1/venues?select=slug&id=eq.${encodeURIComponent(venueId)}`,
+    { headers: serviceHeaders },
+  );
+  if (!response.ok) throw new Error(`Slug venue gagal dibaca: ${await response.text()}`);
+  const [row] = (await response.json()) as { slug: string | null }[];
+  return row?.slug ?? null;
+}
+
 /**
  * `latest.json` tanpa graf + `v{n}.graph.json`. Graf ditulis lebih dulu agar Visitor yang membaca
- * `latest.json` baru selalu menemukan berkas grafnya.
+ * `latest.json` baru selalu menemukan berkas grafnya. Venue ber-slug juga mendapat penunjuk
+ * `slugs/{slug}.json` untuk alamat `/v/<slug>`, ditulis terakhir agar selalu menunjuk venue
+ * yang `latest.json`-nya sudah ada.
  */
 export async function writeLatest(venueId: string, snapshot: Snapshot) {
   const { core, graph } = splitSnapshot(snapshot);
   await putSnapshotFile(`${venueId}/${core.graphPath}`, JSON.stringify(graph), IMMUTABLE);
   await putSnapshotFile(`${venueId}/latest.json`, JSON.stringify(core), REVALIDATE);
+  const slug = await venueSlug(venueId);
+  if (slug) await putSnapshotFile(`slugs/${slug}.json`, JSON.stringify({ venueId }), REVALIDATE);
 }

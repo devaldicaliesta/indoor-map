@@ -4,6 +4,7 @@ import { useDocumentMeta, useLanguage } from './language';
 import { Contact } from './sections/contact';
 import { Buildings, Features, Hero, HowItWorks, Licensing, Screens } from './sections/content';
 import { Demo } from './sections/demo';
+import { TrialForm } from './trial/trial-form';
 
 export function LandingPage() {
   const { copy } = useLanguage();
@@ -24,6 +25,7 @@ export function LandingPage() {
         <HowItWorks />
         <Licensing />
         <Screens />
+        <TrialForm />
         <Contact />
       </main>
       <SiteFooter />

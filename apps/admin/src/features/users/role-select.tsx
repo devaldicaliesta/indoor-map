@@ -8,12 +8,15 @@ export function RoleSelect({
   disabled,
   label,
   id,
+  roles = APP_ROLES,
 }: {
   value: AppRole;
   onChange: (role: AppRole) => void;
   disabled?: boolean;
   label: string;
   id?: string;
+  /** Role yang bisa dipilih; bawaan semua role. */
+  roles?: readonly AppRole[];
 }) {
   return (
     <Select
@@ -25,7 +28,7 @@ export function RoleSelect({
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {APP_ROLES.map((role) => (
+        {roles.map((role) => (
           <SelectItem key={role} value={role}>
             {ROLE_LABELS[role]}
           </SelectItem>

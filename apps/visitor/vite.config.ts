@@ -45,15 +45,20 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,woff2,png,svg}'],
         // IBM Plex Sans hanya untuk Admin; Visitor memakai Atkinson Hyperlegible.
         globIgnores: ['**/ibm-plex-sans-*'],
+        // Bundel utama (MapLibre + app) ±2,1 MB melewati batas bawaan workbox 2 MiB; tanpa
+        // precache Visitor tidak terbuka saat offline (NFR-REL-03), jadi batasnya dinaikkan.
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: '/index.html',
         runtimeCaching: [
           {
             // Snapshot venue: selalu ditanyakan ke server lebih dulu agar versi terbaru terpakai;
             // bila tidak berubah server membalas 304 (ETag) sehingga isinya diambil dari cache
             // browser. Saat server tidak terjangkau atau lambat, versi tersimpan yang dipakai.
+            // Penunjuk slug (`slugs/{slug}.json`) diperlakukan sama agar `/v/<slug>` juga terbuka
+            // tanpa jaringan.
             urlPattern: ({ url }) =>
               url.pathname.includes('/storage/v1/object/public/snapshots/') &&
-              url.pathname.endsWith('/latest.json'),
+              (url.pathname.endsWith('/latest.json') || url.pathname.includes('/snapshots/slugs/')),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'snapshots',

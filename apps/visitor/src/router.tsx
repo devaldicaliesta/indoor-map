@@ -20,7 +20,7 @@ export const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { path: '/', element: <HomePage /> },
-      { path: '/v/:venueId', element: <VenuePage /> },
+      { path: '/v/:venue', element: <VenuePage /> },
       { path: '/ip/:code', element: <InfoPointPage /> },
       { path: '/preview', element: <PreviewPage /> },
       ...devRoutes,

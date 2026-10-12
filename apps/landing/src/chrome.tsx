@@ -43,6 +43,7 @@ export function SiteHeader({ sections = true }: { sections?: boolean }) {
     ['#demo', copy.nav.demo],
     ['#cara-kerja', copy.nav.how],
     ['#lisensi', copy.nav.license],
+    ['#trial', copy.nav.trial],
   ];
   return (
     <header className="sticky top-0 z-20 border-line border-b bg-surface/95 backdrop-blur">

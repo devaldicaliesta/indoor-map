@@ -3,8 +3,8 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-// Situs vendor statis (T-505): beranda dan kebijakan privasi sebagai dua halaman HTML, sehingga
-// bisa di-host di mana saja tanpa aturan rewrite.
+// Situs vendor statis (T-505): beranda, kebijakan privasi, dan verifikasi trial (T-616) sebagai
+// halaman HTML terpisah, sehingga bisa di-host di mana saja tanpa aturan rewrite.
 export default defineConfig({
   // .env.local dibaca dari root repo agar satu file dipakai semua app.
   envDir: '../..',
@@ -24,6 +24,7 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
         privacy: resolve(import.meta.dirname, 'privasi/index.html'),
+        trialVerify: resolve(import.meta.dirname, 'trial/verifikasi/index.html'),
       },
     },
   },
