@@ -289,3 +289,31 @@ T-614 dipecah dua: **a** permintaan + keputusan verifikasi, **b** provisioning r
         templat uji) maupun dengan venue demo sungguhan.
   - [x] Ke-8 jenis gedung diprovisikan dari venue demo sungguhan: 2 lantai, ≤ 60 lokasi,
         publish pertama sukses, ±1–2 detik.
+
+---
+
+T-615 dipecah dua: **a** server (jadwal, email, Storage, antrean), **b** tampilan.
+
+## T-615a · Siklus hidup trial (server)
+
+- **Untuk:** FR-HT-08 (email), FR-HT-09, FR-HT-10, arch §3.5. **Bergantung pada:** T-614.
+- **Keputusan bentuk:**
+  - Mengunci = penanda `{ "trialEnded": true }` di `latest.json` (seperti penanda
+    `serviceInactive` lisensi), bukan menghapus berkasnya: Visitor bisa membedakan "trial berakhir"
+    dari "belum pernah terbit". Versi bernomor tetap sampai hari 24 (bucket publik; diterima §3.5).
+  - Langkah jatuh tempo diputuskan SQL, dikerjakan Edge Function, semuanya idempoten — panggilan
+    tanpa JWT dari luar tidak mempercepat apa pun.
+- **Langkah:**
+  1. Migrasi 0050: `hosting_lifecycle_{remind,lock,locked_venues,expired,files,purge}`,
+     `hosting_queue_next`; `license_service_state` mengecualikan venue terkunci;
+     `app.request_trial_lifecycle` + `cron.schedule('trial-lifecycle', '27 * * * *')`.
+  2. Edge Function `trial-lifecycle`; aktivasi bersama `trial-verify/activate.ts` (email antrean
+     hanya saat klik tautan, tidak setiap percobaan ulang); email `reminderMail`, `endedMail`,
+     vendor `ended`.
+  3. `config.toml` `[functions.trial-lifecycle] verify_jwt = false`; `.dockerignore`.
+- **Selesai jika:**
+  - [x] pgTAP `hosting_lifecycle` (18): tiap fase sekali, trial lewat waktu tidak diingatkan,
+        lisensi aktif lagi tidak membuka trial terkunci, berkas + penunjuk slug didaftar, purge
+        menolak yang belum jatuh tempo, akun dan venue hilang tetapi leads tetap, antrean
+        menghormati kapasitas, jadwal terdaftar.
+  - [x] Integrasi `trial-hosting` (7): alur penuh dengan email nyata di Mailpit.

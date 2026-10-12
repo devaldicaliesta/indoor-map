@@ -1562,6 +1562,43 @@ export type Database = {
         Returns: undefined;
       };
       delete_connector: { Args: { p_id: string }; Returns: undefined };
+      hosting_lifecycle_expired: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          slug: string;
+          venue_id: string;
+        }[];
+      };
+      hosting_lifecycle_files: {
+        Args: { p_venue_id: string };
+        Returns: {
+          bucket_id: string;
+          name: string;
+        }[];
+      };
+      hosting_lifecycle_lock: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          delete_at: string;
+          request_id: string;
+          venue_id: string;
+        }[];
+      };
+      hosting_lifecycle_locked_venues: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          venue_id: string;
+        }[];
+      };
+      hosting_lifecycle_purge: { Args: { p_venue_id: string }; Returns: undefined };
+      hosting_lifecycle_remind: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          ends_at: string;
+          request_id: string;
+          venue_id: string;
+        }[];
+      };
       hosting_provision_trial: {
         Args: {
           p_outdoor_placeholder: string;
@@ -1576,6 +1613,7 @@ export type Database = {
           venue_id: string;
         }[];
       };
+      hosting_queue_next: { Args: Record<PropertyKey, never>; Returns: string };
       hosting_request_create: {
         Args: { p_ip: string; p_request: Json; p_token_hash: string };
         Returns: string;
