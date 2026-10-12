@@ -11,7 +11,7 @@ export interface InviteUserInput {
 }
 
 export interface UsersRepository {
-  /** Mengundang pengguna lewat Edge Function `admin-users` (hanya Super Admin). */
+  /** Mengundang pengguna lewat Edge Function `admin-users` (Super Admin, atau Admin venue ke venue-nya). */
   invite(input: InviteUserInput): Promise<void>;
 }
 

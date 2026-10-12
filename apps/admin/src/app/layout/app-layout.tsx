@@ -20,7 +20,7 @@ export function AppLayout({ profile }: { profile: Profile }) {
         collapsed ? 'grid-cols-[56px_minmax(0,1fr)]' : 'grid-cols-[240px_minmax(0,1fr)]',
       )}
     >
-      <Sidebar role={profile.role} />
+      <Sidebar user={profile} />
       <header className="flex h-14 min-w-0 items-center justify-between gap-4 border-line border-b bg-surface px-4">
         <VenuePicker />
         <AccountMenu profile={profile} />
