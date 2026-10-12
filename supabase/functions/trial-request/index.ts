@@ -7,10 +7,9 @@
 // sekali pakai). Blokir, duplikat, dan kapasitas diputuskan saat tautan diklik (`trial-verify`),
 // sehingga balasan di sini tidak membocorkan apakah sebuah email pernah trial.
 //
-// Rahasia lingkungan (tidak di repo):
-//   TRIAL_SMTP_HOST, TRIAL_SMTP_PORT, TRIAL_SMTP_USERNAME, TRIAL_SMTP_PASSWORD, TRIAL_SMTP_FROM,
-//   TRIAL_VERIFY_URL (halaman hasil verifikasi di landing, bawaan
-//   https://panduarah.my.id/trial/verifikasi), TRIAL_ALLOWED_ORIGIN (bawaan *).
+// Rahasia lingkungan (tidak di repo): SMTP trial (`_shared/trial-mail.ts`), TRIAL_VERIFY_URL
+// (halaman hasil verifikasi di landing, bawaan https://panduarah.my.id/trial/verifikasi),
+// TRIAL_ALLOWED_ORIGIN (bawaan *).
 
 import {
   checkHostedTrialRequest,
@@ -19,20 +18,14 @@ import {
   type HostedTrialRequestInput,
 } from '../../../packages/domain/src/trial-request.ts';
 import { serviceHeaders, url } from '../_shared/auth.ts';
-import {
-  EMAIL_LOGO,
-  emailHtml,
-  emailText,
-  escapeHtml,
-  VENDOR_EMAIL,
-} from '../_shared/email-layout.ts';
-import { type SmtpConfig, sendMail } from '../_shared/smtp.ts';
+import { EMAIL_LOGO, emailHtml, emailText, VENDOR_EMAIL } from '../_shared/email-layout.ts';
+import { sendMail } from '../_shared/smtp.ts';
 import { newToken, sha256Hex } from '../_shared/token.ts';
+import { button, paragraph, trialEnv, trialSmtpConfig } from '../_shared/trial-mail.ts';
 
-const env = (name: string) => Deno.env.get(name)?.trim() ?? '';
-const verifyUrl = env('TRIAL_VERIFY_URL') || 'https://panduarah.my.id/trial/verifikasi';
+const verifyUrl = trialEnv('TRIAL_VERIFY_URL') || 'https://panduarah.my.id/trial/verifikasi';
 const corsHeaders = {
-  'Access-Control-Allow-Origin': env('TRIAL_ALLOWED_ORIGIN') || '*',
+  'Access-Control-Allow-Origin': trialEnv('TRIAL_ALLOWED_ORIGIN') || '*',
   'Access-Control-Allow-Headers': 'content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
@@ -52,19 +45,6 @@ function logError(message: string) {
   console.error(`trial-request: ${message}`);
 }
 
-function smtpConfig(): SmtpConfig | null {
-  const host = env('TRIAL_SMTP_HOST');
-  const from = env('TRIAL_SMTP_FROM');
-  if (!host || !from) return null;
-  return {
-    host,
-    port: Number(env('TRIAL_SMTP_PORT') || 587),
-    username: env('TRIAL_SMTP_USERNAME') || null,
-    password: env('TRIAL_SMTP_PASSWORD') || null,
-    from,
-  };
-}
-
 /** Email verifikasi dalam bahasa yang dipilih di landing page. */
 function verificationMail(input: HostedTrialRequestInput, link: string) {
   const en = input.language === 'en';
@@ -78,7 +58,7 @@ function verificationMail(input: HostedTrialRequestInput, link: string) {
         `Halo ${input.name},`,
         `Klik tombol di bawah untuk memulai trial PanduArah ${HOSTED_TRIAL_DAYS} hari untuk ${input.institution}. Ruang kerja Anda (Admin dan Visitor) siap dalam satu menit.`,
       ];
-  const button = en ? 'Start trial' : 'Mulai trial';
+  const action = en ? 'Start trial' : 'Mulai trial';
   const after = en
     ? [
         'This link is valid for 24 hours and can be used once. If you did not request a trial, ignore this email.',
@@ -88,17 +68,12 @@ function verificationMail(input: HostedTrialRequestInput, link: string) {
         'Tautan berlaku 24 jam dan hanya bisa dipakai sekali. Bila Anda tidak meminta trial, abaikan email ini.',
         `Ada pertanyaan? Hubungi ${VENDOR_EMAIL}.`,
       ];
-  const paragraph = (line: string) => `<p style="margin:0 0 12px">${escapeHtml(line)}</p>`;
   return {
     to: input.email,
     subject,
-    text: emailText([...before, `${button}: ${link}`, ...after].join('\n\n')),
+    text: emailText([...before, `${action}: ${link}`, ...after].join('\n\n')),
     html: emailHtml(
-      [
-        ...before.map(paragraph),
-        `<p style="margin:20px 0"><a href="${escapeHtml(link)}" style="background:#0b6bcb;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:bold">${escapeHtml(button)}</a></p>`,
-        ...after.map(paragraph),
-      ].join(''),
+      [...before.map(paragraph), button(action, link), ...after.map(paragraph)].join(''),
     ),
     inline: [EMAIL_LOGO],
   };
@@ -138,7 +113,7 @@ Deno.serve(async (request) => {
   const check = checkHostedTrialRequest(input);
   if (!check.ok) return json(422, { code: 'invalid', problems: check.problems });
 
-  const config = smtpConfig();
+  const config = trialSmtpConfig();
   if (!config) {
     logError('TRIAL_SMTP_HOST/TRIAL_SMTP_FROM belum diatur');
     return json(503, { code: 'unavailable', message: 'Pengiriman email belum siap.' });

@@ -1562,6 +1562,47 @@ export type Database = {
         Returns: undefined;
       };
       delete_connector: { Args: { p_id: string }; Returns: undefined };
+      hosting_provision_trial: {
+        Args: {
+          p_outdoor_placeholder: string;
+          p_request_id: string;
+          p_rows: Json;
+          p_user_id: string;
+          p_venue: Json;
+        };
+        Returns: {
+          ends_at: string;
+          slug: string;
+          venue_id: string;
+        }[];
+      };
+      hosting_request_create: {
+        Args: { p_ip: string; p_request: Json; p_token_hash: string };
+        Returns: string;
+      };
+      hosting_request_get: {
+        Args: { p_request_id: string };
+        Returns: {
+          building_size: string;
+          building_type: string;
+          email: string;
+          id: string;
+          institution: string;
+          language: string;
+          name: string;
+          phone: string;
+          status: string;
+          title: string;
+        }[];
+      };
+      hosting_request_requeue: { Args: { p_request_id: string }; Returns: undefined };
+      hosting_request_verify: {
+        Args: { p_token_hash: string };
+        Returns: {
+          outcome: string;
+          request_id: string;
+        }[];
+      };
       import_locations: {
         Args: { p_location_type_id: string; p_rows: Json; p_venue_id: string };
         Returns: number;
