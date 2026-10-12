@@ -9,5 +9,6 @@ deploy/.env
 deploy/backups
 deploy/certs
 supabase/.temp
-# Fungsi khusus server vendor (form trial landing page, T-505), bukan bagian instalasi klien.
+# Fungsi khusus server vendor (trial ter-hosting, T-505/T-614), bukan bagian instalasi klien.
 supabase/functions/trial-request
+supabase/functions/trial-verify

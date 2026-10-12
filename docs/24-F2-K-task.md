@@ -249,3 +249,43 @@ T-614 dipecah dua: **a** permintaan + keputusan verifikasi, **b** provisioning r
         kantor dan per alamat untuk domain umum, blokir, antre saat penuh, requeue, service role saja.
   - [x] Integrasi `trial-request` (3): permintaan tersimpan dengan hash token, email verifikasi,
         validasi/honeypot/batas laju tetap.
+
+## T-614b · Provisioning ruang kerja trial
+
+- **Untuk:** FR-HT-02, FR-HT-06, NFR-HT-01, arch §3.5. **Bergantung pada:** T-614a.
+- **Keputusan bentuk:**
+  - Data contoh = venue demo **di database** (slug `demo-*`, T-613), bukan berkas templat
+    terpisah: satu sumber kebenaran dengan `/v/demo` dan landing. Konsekuensi: project ter-hosting
+    wajib menjalankan `db:seed-demo` (T-618).
+  - Ukuran contoh sengaja di bawah batas trial (2/3 lantai, 60/100 lokasi, 5/10 titik asal,
+    1/2 Info Point) agar pemohon bisa menambah datanya tanpa menghapus contoh lebih dulu.
+  - Publish pertama dijalankan **sebagai pemohon** (akun dibuat dengan password acak 256 bit yang
+    tak pernah dikirim, masuk sekali, publish, keluar). Guard publish tidak diberi jalur service
+    role — identitas `published_by` dan semua pemeriksaan tetap berlaku.
+- **Langkah:**
+  1. Domain (Deno, tidak diekspor dari index — seperti `trial-request`): `trialSample`,
+     `TRIAL_TEMPLATES` (jenis gedung → slug demo + `venue_type`), `slugFromName`; `venueRows` +
+     `withNewIds` (diekspor). Diuji terhadap ketujuh fixture demo: muat di batas, rujukan utuh,
+     lolos `validateVenue` tanpa Error.
+  2. Migrasi 0049: `hosting.insert_rows` (kolom dari kunci baris pertama, sisanya bawaan) dan
+     `public.hosting_provision_trial` — satu transaksi; tolak tanpa `hosting_mode` atau bila
+     permintaan tidak `active`/sudah punya ruang kerja; slug unik `-2`, `-3`, …; Area Luar penanda
+     diganti Area Luar venue baru; tipe "Lokasi" bawaan diganti tipe dari contoh; `trials` ditulis
+     sebelum data contoh sehingga trigger kuota menegakkan batas trial.
+  3. Edge Function `trial-verify` (`index.ts`, `provision.ts`, `mails.ts`; SMTP bersama di
+     `_shared/trial-mail.ts`): keputusan → email antrean/vendor, atau provisioning → email
+     "Trial siap" (tautan buat password via `generate_link` recovery ke `TRIAL_ADMIN_URL/reset-password`,
+     Admin, Visitor `TRIAL_VISITOR_URL/v/<slug>`, tanggal berakhir) + email vendor. Gagal → akun
+     dihapus, `hosting_request_requeue`, pemohon menerima email antrean, vendor diberi tahu.
+  4. `config.toml`: `[functions.trial-verify] verify_jwt = false`; `TRIAL_ADMIN_URL`,
+     `TRIAL_VISITOR_URL` lokal. `.dockerignore`: `trial-verify` tidak ikut image klien.
+- **Untuk T-618:** izinkan `https://admin.panduarah.my.id/**` di Auth → URL Configuration
+  (redirect tautan password); rahasia `TRIAL_*`; `db:seed-demo` di project ter-hosting.
+- **Selesai jika:**
+  - [x] pgTAP `hosting_provision` (14): penjaga mode hosting dan status, isi ruang kerja, Area
+        Luar, sekali per permintaan, slug unik, batas trial membatalkan seluruh transaksi.
+  - [x] Integrasi `trial-verify` (3): ruang kerja + publish + penunjuk slug + email + vendor,
+        token sekali pakai, antre saat penuh, token asal ditolak; lulus di DB bersih (venue
+        templat uji) maupun dengan venue demo sungguhan.
+  - [x] Ke-8 jenis gedung diprovisikan dari venue demo sungguhan: 2 lantai, ≤ 60 lokasi,
+        publish pertama sukses, ±1–2 detik.
