@@ -55,8 +55,11 @@ describe('benchmark', () => {
     const graph = buildGraph(source, { floors: [{ id: 'f1', level: 0 }] });
     const from = { kind: 'node' as const, nodeId: 'n0-0' };
     const to = { kind: 'node' as const, nodeId: 'n99-99' };
+    // Biasanya ±3 ms; di runner CI yang menjalankan semua paket paralel, 5 putaran pernah semuanya
+    // > 50 ms (60 ms, 2026-10-12). Waktu terbaik dari 20 putaran tetap menangkap regresi algoritme
+    // (lambat di setiap putaran) tanpa melonggarkan kriteria T-201.
     let best = Number.POSITIVE_INFINITY;
-    for (let run = 0; run < 5; run++) {
+    for (let run = 0; run < 20; run++) {
       const started = performance.now();
       const result = findRoute(graph, from, to);
       best = Math.min(best, performance.now() - started);
