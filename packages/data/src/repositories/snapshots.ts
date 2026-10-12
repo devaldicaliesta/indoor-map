@@ -43,6 +43,8 @@ export interface SnapshotsRepository {
 
 /** Kode `DataError` saat layanan Visitor dihentikan karena lisensi. */
 export const SERVICE_INACTIVE = 'service_inactive';
+/** Kode `DataError` saat masa trial ter-hosting venue berakhir (T-615). */
+export const TRIAL_ENDED = 'trial_ended';
 
 export function createSnapshotsRepository(db: Db): SnapshotsRepository {
   const latestUrl = (venueId: VenueId) =>
@@ -77,6 +79,13 @@ export function createSnapshotsRepository(db: Db): SnapshotsRepository {
         throw new DataError('forbidden', {
           code: SERVICE_INACTIVE,
           message: 'Layanan peta tidak aktif.',
+        });
+      }
+      // Trial ter-hosting berakhir (hari ke-17): siklus hidup menulis penanda ini (T-615).
+      if (typeof body === 'object' && body !== null && 'trialEnded' in body) {
+        throw new DataError('forbidden', {
+          code: TRIAL_ENDED,
+          message: 'Masa trial peta ini sudah berakhir.',
         });
       }
       try {

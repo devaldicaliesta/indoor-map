@@ -52,7 +52,9 @@
     "loadFailedDescription": "Check your internet connection, then try again.",
     "retry": "Try again",
     "serviceInactiveTitle": "Map service unavailable",
-    "serviceInactiveDescription": "This venue’s digital map is currently unavailable. Ask the nearest staff member for directions."
+    "serviceInactiveDescription": "This venue’s digital map is currently unavailable. Ask the nearest staff member for directions.",
+    "trialEndedTitle": "This map's trial has ended",
+    "trialEndedDescription": "This venue's digital map came from a PanduArah trial that has finished. Ask the nearest staff member for directions."
   },
   "infoPoint": {
     "notFoundTitle": "Info Point not found",

@@ -317,3 +317,18 @@ T-615 dipecah dua: **a** server (jadwal, email, Storage, antrean), **b** tampila
         menolak yang belum jatuh tempo, akun dan venue hilang tetapi leads tetap, antrean
         menghormati kapasitas, jadwal terdaftar.
   - [x] Integrasi `trial-hosting` (7): alur penuh dengan email nyata di Mailpit.
+
+## T-615b · Tampilan trial (banner, "Trial berakhir")
+
+- **Untuk:** FR-HT-08 (banner), FR-HT-09 (Admin dan Visitor terkunci). **Bergantung pada:** T-615a.
+- **Langkah:**
+  1. Domain `hosted-trial.ts`; data `repositories/trial.ts` (+ uji unit); `TRIAL_ENDED` di
+     repositori snapshot.
+  2. Admin `features/trial/hosted-trial.tsx`: `useHostedTrial(enabled)` (hanya `all_venues=false`,
+     dibaca ulang tiap jam), `HostedTrialNotice`, `HostedTrialEnded`; dipasang di `AppLayout`.
+  3. Visitor: `markerReason` + `useUnavailableText` (kunci terjemahan literal, sesuai uji i18n)
+     di `/v/…` dan Info Point; `venue.trialEnded*` id/en.
+- **Selesai jika:**
+  - [x] E2E Admin: banner "Trial — sisa 10 hari", lalu "Trial berakhir" setelah `trial-lifecycle`
+        sungguhan mengunci. E2E Visitor: "Masa trial peta ini sudah berakhir".
+  - [x] `pnpm check` hijau (termasuk uji i18n Visitor).

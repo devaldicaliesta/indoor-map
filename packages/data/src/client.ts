@@ -49,6 +49,7 @@ import {
   createSystemSettingsRepository,
   type SystemSettingsRepository,
 } from './repositories/system-settings';
+import { createTrialRepository, type TrialRepository } from './repositories/trial';
 import { createUsersRepository, type UsersRepository } from './repositories/users';
 import { createVenuesRepository, type VenuesRepository } from './repositories/venues';
 import type { Db } from './supabase';
@@ -88,6 +89,7 @@ export interface DataClient {
   publications: PublicationsRepository;
   snapshots: SnapshotsRepository;
   systemSettings: SystemSettingsRepository;
+  trial: TrialRepository;
   users: UsersRepository;
   venues: VenuesRepository;
 }
@@ -123,6 +125,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     profiles,
     publications: createPublicationsRepository(db),
     snapshots: createSnapshotsRepository(db),
+    trial: createTrialRepository(db),
     systemSettings: createSystemSettingsRepository(db),
     users: createUsersRepository(db),
     venues: createVenuesRepository(db),
