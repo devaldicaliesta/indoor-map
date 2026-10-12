@@ -226,9 +226,15 @@ custom domain** — Cloudflare membuat CNAME-nya.
      locked_at = now() - interval '8 days'
    where request_id = (select id from hosting.trial_requests where email = '<email uji>');
    ```
-   lalu panggil `https://<ref>.supabase.co/functions/v1/trial-lifecycle` (POST) — venue, berkas,
-   dan akunnya dihapus; permintaannya tetap sebagai lead berstatus `deleted`. Agar email itu bisa
-   dipakai menguji lagi: `delete from hosting.trial_requests where email = '<email uji>';`
+   lalu jalankan siklus hidup — paling mudah tombol **Hapus** di dasbor vendor, atau dari SQL
+   Editor `select app.request_trial_lifecycle();` (pg_cron memakai fungsi yang sama). Venue,
+   berkas, dan akunnya dihapus; permintaannya tetap sebagai lead berstatus `deleted`. Agar email
+   itu bisa dipakai menguji lagi: `delete from hosting.trial_requests where email = '<email uji>';`
+
+   Memanggil URL `…/functions/v1/trial-lifecycle` langsung ditolak 401 kecuali membawa header
+   `x-trial-lifecycle-secret` berisi rahasia Vault `trial_lifecycle_secret` (dibuat otomatis oleh
+   migrasi 0054; `select decrypted_secret from vault.decrypted_secrets where name =
+   'trial_lifecycle_secret';`) atau sesi staf vendor berverifikasi dua langkah.
 
 ## Operasional
 

@@ -42,8 +42,13 @@ export function createHostedTrial(venueId: string, endsInDays: number): HostedTr
 export async function endHostedTrial(venueId: string) {
   sql(`update hosting.trials set ends_at = now() - interval '1 minute'
        where venue_id = '${venueId}'`);
+  // Pemanggil sah seperti pg_cron: rahasia Vault (migrasi 0054).
+  const secret = sql(
+    `select decrypted_secret from vault.decrypted_secrets where name = 'trial_lifecycle_secret'`,
+  );
   const response = await fetch(`${env.supabaseUrl}/functions/v1/trial-lifecycle`, {
     method: 'POST',
+    headers: { 'x-trial-lifecycle-secret': secret },
   });
   if (!response.ok) throw new Error(`trial-lifecycle: ${response.status} ${await response.text()}`);
 }

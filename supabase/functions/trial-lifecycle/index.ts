@@ -2,14 +2,15 @@
 // migrasi 0050) hanya di project ter-hosting. KHUSUS SERVER VENDOR — tidak ikut paket klien.
 //
 // Apa yang jatuh tempo diputuskan SQL; di sini hanya bagian di luar database: email, Storage, dan
-// pembuatan ruang kerja untuk antrean. Semua langkah idempoten, jadi panggilan dari luar (tanpa
-// JWT) hanya mengerjakan apa yang memang sudah jatuh tempo.
+// pembuatan ruang kerja untuk antrean. Semua langkah idempoten. Pemanggil sah hanya pg_cron
+// (rahasia Vault, migrasi 0054) dan dasbor vendor (sesi staf vendor berverifikasi dua langkah);
+// `verify_jwt` tetap mati karena pg_cron tidak punya JWT.
 //   hari 14  email pengingat
 //   hari 17  email "Trial berakhir" + vendor; `latest.json` diganti penanda `trialEnded`
 //   hari 24  berkas Storage dihapus, lalu venue dan akunnya (`hosting_lifecycle_purge`)
 //   kapan pun ada slot: permintaan antre tertua dibuatkan ruang kerja
 //   12 bulan: isian form trial yang sudah selesai dilupakan (kebijakan privasi landing, T-616)
-import { CORS_HEADERS, reply, serviceHeaders, url } from '../_shared/auth.ts';
+import { CORS_HEADERS, callerHeaders, reply, serviceHeaders, url } from '../_shared/auth.ts';
 import { putSnapshotFile, REVALIDATE } from '../_shared/snapshot-files.ts';
 import { activate, adminUrl, getRequest, logError, rpc, send } from '../trial-verify/activate.ts';
 import { endedMail, reminderMail, vendorMail } from '../trial-verify/mails.ts';
@@ -40,11 +41,32 @@ async function deleteFiles(venueId: string) {
   }
 }
 
+/**
+ * pg_cron membawa rahasia Vault; dasbor vendor membawa JWT staf vendor `aal2` — aturan yang sama
+ * dengan RPC `vendor_*` (0053), diperiksa dengan identitas pemanggil sendiri.
+ */
+async function authorized(request: Request): Promise<boolean> {
+  const secret = request.headers.get('x-trial-lifecycle-secret');
+  if (secret)
+    return (await rpc<boolean>('hosting_lifecycle_authorized', { p_secret: secret })) === true;
+  const authorization = request.headers.get('Authorization');
+  if (!authorization) return false;
+  const response = await fetch(`${url}/rest/v1/rpc/vendor_access`, {
+    method: 'POST',
+    headers: callerHeaders(authorization),
+    body: '{}',
+  });
+  return response.ok && (await response.json()) === 'ok';
+}
+
 Deno.serve(async (request) => {
   // pg_cron dan dasbor vendor memanggil dengan POST. Preflight CORS dasbor dan GET dari luar
   // (mis. crawler) tidak boleh ikut menjalankan satu putaran penuh.
   if (request.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
   if (request.method !== 'POST') return reply(405, { message: 'Metode tidak didukung.' });
+  if (!(await authorized(request).catch(() => false))) {
+    return reply(401, { code: 'forbidden', message: 'Pemanggil tidak berwenang.' });
+  }
   const done = { reminded: 0, locked: 0, deleted: 0, activated: 0, forgotten: 0, failed: 0 };
   const attempt = async (what: string, step: () => Promise<void>) => {
     try {

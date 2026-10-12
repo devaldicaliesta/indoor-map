@@ -47,8 +47,15 @@ const verify = async (token: string) =>
     })
   ).json()) as { outcome: string; visitorUrl?: string; adminUrl?: string };
 
+/** Rahasia Vault yang dikirim pg_cron (migrasi 0054); panggilan tanpa rahasia ditolak. */
+const lifecycleSecret = () =>
+  sql(`select decrypted_secret from vault.decrypted_secrets where name = 'trial_lifecycle_secret'`);
+
+const callLifecycle = (headers: Record<string, string> = {}) =>
+  fetch(`${url}/functions/v1/trial-lifecycle`, { method: 'POST', headers });
+
 const lifecycle = async () =>
-  (await (await fetch(`${url}/functions/v1/trial-lifecycle`, { method: 'POST' })).json()) as {
+  (await (await callLifecycle({ 'x-trial-lifecycle-secret': lifecycleSecret() })).json()) as {
     reminded: number;
     locked: number;
     deleted: number;
@@ -99,6 +106,20 @@ describe.runIf(url && serviceKey && mailpit)(
          delete from hosting.trial_requests where email like '%${suffix}%';
          delete from app.server_settings where key in ('hosting_mode', 'trial_capacity');`);
       if (templateCreated) sql(`delete from public.venues where id = '${templateCreated}'`);
+    });
+
+    it('siklus hidup menolak pemanggil tanpa rahasia pg_cron atau sesi staf vendor', async () => {
+      for (const headers of [
+        {},
+        { 'x-trial-lifecycle-secret': 'tebakan' },
+        { Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY ?? ''}` },
+      ]) {
+        const response = await callLifecycle(headers);
+        expect(response.status, JSON.stringify(Object.keys(headers))).toBe(401);
+      }
+      // Preflight CORS dasbor vendor dijawab tanpa menjalankan putaran.
+      const preflight = await fetch(`${url}/functions/v1/trial-lifecycle`, { method: 'OPTIONS' });
+      expect(await preflight.text()).toBe('ok');
     });
 
     it('ruang kerja dibuat dari venue demo, diterbitkan, dan pemohon menerima tautan', async () => {
