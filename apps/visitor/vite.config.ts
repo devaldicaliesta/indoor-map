@@ -51,9 +51,11 @@ export default defineConfig({
             // Snapshot venue: selalu ditanyakan ke server lebih dulu agar versi terbaru terpakai;
             // bila tidak berubah server membalas 304 (ETag) sehingga isinya diambil dari cache
             // browser. Saat server tidak terjangkau atau lambat, versi tersimpan yang dipakai.
+            // Penunjuk slug (`slugs/{slug}.json`) diperlakukan sama agar `/v/<slug>` juga terbuka
+            // tanpa jaringan.
             urlPattern: ({ url }) =>
               url.pathname.includes('/storage/v1/object/public/snapshots/') &&
-              url.pathname.endsWith('/latest.json'),
+              (url.pathname.endsWith('/latest.json') || url.pathname.includes('/snapshots/slugs/')),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'snapshots',

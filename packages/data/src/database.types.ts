@@ -1498,6 +1498,7 @@ export type Database = {
           id: string;
           logo_path: string | null;
           name: string;
+          slug: string | null;
           timezone: string;
           updated_at: string;
           venue_type: Database['public']['Enums']['venue_type'];
@@ -1510,6 +1511,7 @@ export type Database = {
           id?: string;
           logo_path?: string | null;
           name: string;
+          slug?: string | null;
           timezone?: string;
           updated_at?: string;
           venue_type?: Database['public']['Enums']['venue_type'];
@@ -1522,6 +1524,7 @@ export type Database = {
           id?: string;
           logo_path?: string | null;
           name?: string;
+          slug?: string | null;
           timezone?: string;
           updated_at?: string;
           venue_type?: Database['public']['Enums']['venue_type'];

@@ -1,6 +1,7 @@
 import type { Point } from './geometry';
 import type { BuildingId, VenueId } from './ids';
 import { isValidTimezone } from './system-settings';
+import type { VenueSlug } from './venue-slug';
 
 /** Ringkasan venue untuk pemilih venue. */
 export interface VenueSummary {
@@ -26,6 +27,8 @@ export interface Venue extends VenueSummary {
   timezone: string;
   venueType: VenueType;
   defaultBuildingId: BuildingId | null;
+  /** Alamat pendek Visitor `/v/<slug>` (T-613); diisi provisioning trial atau vendor. */
+  slug: VenueSlug | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -36,13 +36,17 @@ const centerOf = (source: SnapshotSource): [number, number] => {
   return [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
 };
 
-/** Venue demo: tipe, alamat fiktif, logo (`scripts/demo-logos.mjs`), dan warna merek. */
+/**
+ * Venue demo: tipe, alamat fiktif, logo (`scripts/demo-logos.mjs`), warna merek, dan alamat pendek
+ * Visitor (`/v/<slug>`, T-613). `/v/demo` = rumah sakit, sama dengan peta demo di landing.
+ */
 const VENUES = [
   {
     make: mallVenue,
     type: 'shopping_center',
     address: 'Jl. Sentosa Raya No. 1, Jakarta Pusat',
     logo: 'mall',
+    slug: 'demo-mal',
     color: '#7b61c9',
   },
   {
@@ -50,6 +54,7 @@ const VENUES = [
     type: 'hospital',
     address: 'Jl. Harapan Sehat No. 12, Jakarta Selatan',
     logo: 'hospital',
+    slug: 'demo',
     color: '#c8321e',
   },
   {
@@ -57,6 +62,7 @@ const VENUES = [
     type: 'campus',
     address: 'Jl. Cendekia Raya No. 5, Depok',
     logo: 'campus',
+    slug: 'demo-kampus',
     color: '#0f4a91',
   },
   {
@@ -64,6 +70,7 @@ const VENUES = [
     type: 'office',
     address: 'Jl. Sinergi Raya Kav. 21, Jakarta Selatan',
     logo: 'office',
+    slug: 'demo-kantor',
     color: '#1f6f8b',
   },
   {
@@ -71,6 +78,7 @@ const VENUES = [
     type: 'airport_station',
     address: 'Jl. Bandara Nusantara, Tangerang',
     logo: 'airport',
+    slug: 'demo-bandara',
     color: '#0b7a75',
   },
   {
@@ -78,6 +86,7 @@ const VENUES = [
     type: 'factory_warehouse',
     address: 'Kawasan Industri Prima Blok C-7, Bekasi',
     logo: 'factory',
+    slug: 'demo-pabrik',
     color: '#b45f06',
   },
   {
@@ -85,6 +94,7 @@ const VENUES = [
     type: 'custom',
     address: 'Stadion Demo Gemilang, Jl. Pintu Satu, Jakarta Pusat',
     logo: 'concert',
+    slug: 'demo-konser',
     color: '#e11d48',
   },
 ] as const;
@@ -101,7 +111,7 @@ it.runIf(url && anonKey && password)('seed venue demo', { timeout: 900_000 }, as
       publicVisitorUrl: process.env.E2E_VISITOR_URL ?? 'http://localhost:5174',
     });
   }
-  for (const { make, type, address, logo, color } of VENUES) {
+  for (const { make, type, address, logo, slug, color } of VENUES) {
     const fixture = make();
     const name = fixture.venue.name;
     // Lewat repository agar berkas logo venue lama ikut terhapus.
@@ -110,8 +120,9 @@ it.runIf(url && anonKey && password)('seed venue demo', { timeout: 900_000 }, as
     for (const venue of old.data) await data.venues.remove(venue.id as VenueId);
     const { venueId, source } = await insertVenue(db, name, fixture, centerOf(fixture));
     const id = venueId as VenueId;
-    // Tipe venue biasanya dipilih dari template saat dibuat; di sini langsung diisi.
-    const meta = await db.from('venues').update({ venue_type: type, address }).eq('id', id);
+    // Tipe venue biasanya dipilih dari template saat dibuat; di sini langsung diisi. Slug diisi
+    // sebelum publish agar penunjuk `slugs/{slug}.json` ikut ditulis.
+    const meta = await db.from('venues').update({ venue_type: type, address, slug }).eq('id', id);
     if (meta.error) throw new Error(meta.error.message);
     await data.venues.uploadLogo(id, logoFile(logo));
     await data.displaySettings.update(id, {
