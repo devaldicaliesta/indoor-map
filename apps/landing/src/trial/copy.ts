@@ -10,7 +10,7 @@ const id = {
     points: [
       'Admin: gambar peta, kelola lokasi, publish',
       'Visitor dengan alamat sendiri, langsung bisa dibuka dari HP',
-      '3D dan Info Point aktif; 1 gedung, 3 lantai, 100 lokasi',
+      'Berisi salinan peta demo sesuai jenis gedung; 3D dan Info Point aktif; sampai 4 gedung, 8 lantai, 250 lokasi',
     ],
     labels: {
       name: 'Nama lengkap',
@@ -94,7 +94,7 @@ const en: TrialCopy = {
     points: [
       'Admin: draw the map, manage locations, publish',
       'Visitor at its own address, ready to open on a phone',
-      '3D and Info Point included; 1 building, 3 floors, 100 locations',
+      'Starts with a copy of the demo map for your building type; 3D and Info Point included; up to 4 buildings, 8 floors, 250 locations',
     ],
     labels: {
       name: 'Full name',

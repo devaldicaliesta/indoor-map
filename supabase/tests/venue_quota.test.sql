@@ -24,9 +24,12 @@ insert into public.profiles (user_id, full_name, email, role, all_venues) values
 insert into public.venue_members (venue_id, user_id) values
   ('db000000-0000-4000-8000-0000000000aa', 'ac000000-0000-4000-8000-000000000001');
 
--- Satu gedung di A, dua di B: pembeda antara hitungan per venue dan hitungan global.
+-- Empat gedung di A (= batas trial, 0052), dua di B: pembeda hitungan per venue dan global.
 insert into public.buildings (venue_id, name, code) values
   ('db000000-0000-4000-8000-0000000000aa', 'Gedung A1', 'A1'),
+  ('db000000-0000-4000-8000-0000000000aa', 'Gedung A2', 'A2'),
+  ('db000000-0000-4000-8000-0000000000aa', 'Gedung A3', 'A3'),
+  ('db000000-0000-4000-8000-0000000000aa', 'Gedung A4', 'A4'),
   ('db000000-0000-4000-8000-0000000000bb', 'Gedung B1', 'B1'),
   ('db000000-0000-4000-8000-0000000000bb', 'Gedung B2', 'B2');
 
@@ -68,20 +71,20 @@ select ok(
 
 select is(
   app.quota_limit('locations', 'db000000-0000-4000-8000-0000000000aa'),
-  100, 'Batas lokasi venue trial = 100');
+  250, 'Batas lokasi venue trial = 250');
 select is(
   app.quota_limit('locations', 'db000000-0000-4000-8000-0000000000bb'),
   null::integer, 'Batas lokasi venue non-trial tetap dari lisensi server');
 select is(
   app.quota_limit('buildings', 'db000000-0000-4000-8000-0000000000aa'),
-  1, 'Batas gedung venue trial = 1');
+  4, 'Batas gedung venue trial = 4');
 
 -- ---------------------------------------------------------------------
 -- Pemakaian dihitung per venue, bukan global
 -- ---------------------------------------------------------------------
 select is(
   app.quota_used('buildings', 'db000000-0000-4000-8000-0000000000aa'),
-  1, 'Pemakaian gedung venue A dihitung sendiri');
+  4, 'Pemakaian gedung venue A dihitung sendiri');
 select is(
   app.quota_used('buildings', 'db000000-0000-4000-8000-0000000000bb'),
   2, 'Pemakaian gedung venue B dihitung sendiri');
@@ -98,12 +101,12 @@ select pg_temp.as_user('ac000000-0000-4000-8000-000000000001');
 
 select throws_ok(
   $$ insert into public.buildings (venue_id, name, code)
-     values ('db000000-0000-4000-8000-0000000000aa', 'Gedung A2', 'A2') $$,
-  'IM422', null, 'Gedung kedua di venue trial ditolak');
+     values ('db000000-0000-4000-8000-0000000000aa', 'Gedung A5', 'A5') $$,
+  'IM422', null, 'Gedung kelima di venue trial ditolak');
 select throws_like(
   $$ insert into public.buildings (venue_id, name, code)
-     values ('db000000-0000-4000-8000-0000000000aa', 'Gedung A2', 'A2') $$,
-  '%Batas trial tercapai: gedung 1/1%',
+     values ('db000000-0000-4000-8000-0000000000aa', 'Gedung A5', 'A5') $$,
+  '%Batas trial tercapai: gedung 4/4%',
   'Pesan memakai "Batas trial tercapai" walau lisensi server bukan paket trial');
 
 select pg_temp.as_user('ac000000-0000-4000-8000-0000000000c1');
@@ -158,10 +161,10 @@ select is(
   'Cakupan kuota pengguna trial adalah venue keanggotaannya');
 select is(
   (select quota from public.license_usage() where kind = 'locations'),
-  100, 'license_usage pengguna trial memakai batas trial');
+  250, 'license_usage pengguna trial memakai batas trial');
 select is(
   (select used from public.license_usage() where kind = 'buildings'),
-  1, 'license_usage pengguna trial memakai pemakaian venue-nya');
+  4, 'license_usage pengguna trial memakai pemakaian venue-nya');
 
 select pg_temp.as_user('ac000000-0000-4000-8000-0000000000c1');
 select is(

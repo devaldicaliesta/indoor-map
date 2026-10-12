@@ -114,8 +114,8 @@ select is(
 select throws_ok(
   $$ select pg_temp.provision(pg_temp.request('sari@rsuji3.co.id'),
        'b1000000-0000-4000-8000-000000000003', 'c1000000-0000-4000-8000-0000000000cc',
-       pg_temp.rows('c1000000-0000-4000-8000-0000000000cc', 2)) $$,
-  'IM422', null, 'Data contoh melebihi batas trial (2 gedung) ditolak');
+       pg_temp.rows('c1000000-0000-4000-8000-0000000000cc', 5)) $$,
+  'IM422', null, 'Data contoh melebihi batas trial (5 gedung, batas 4) ditolak');
 select is(
   (select count(*)::int from public.venues where id = 'c1000000-0000-4000-8000-0000000000cc'),
   0, 'Satu transaksi: tidak ada venue setengah jadi');

@@ -257,8 +257,9 @@ T-614 dipecah dua: **a** permintaan + keputusan verifikasi, **b** provisioning r
   - Data contoh = venue demo **di database** (slug `demo-*`, T-613), bukan berkas templat
     terpisah: satu sumber kebenaran dengan `/v/demo` dan landing. Konsekuensi: project ter-hosting
     wajib menjalankan `db:seed-demo` (T-618).
-  - Ukuran contoh sengaja di bawah batas trial (2/3 lantai, 60/100 lokasi, 5/10 titik asal,
-    1/2 Info Point) agar pemohon bisa menambah datanya tanpa menghapus contoh lebih dulu.
+  - Ukuran contoh: **salinan utuh** venue demo (keputusan pemilik 2026-10-12, migrasi 0052);
+    batas trial dinaikkan ke 4 gedung, 8 lantai, 250 lokasi, 3 Info Point agar demo terbesar
+    muat dan pemohon masih bisa menambah datanya. Semula cuplikan 2 lantai / 60 lokasi.
   - Publish pertama dijalankan **sebagai pemohon** (akun dibuat dengan password acak 256 bit yang
     tak pernah dikirim, masuk sekali, publish, keluar). Guard publish tidak diberi jalur service
     role — identitas `published_by` dan semua pemeriksaan tetap berlaku.
