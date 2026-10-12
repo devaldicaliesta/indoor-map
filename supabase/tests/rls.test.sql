@@ -34,8 +34,11 @@ select throws_ok(
   null,
   'anon tidak bisa mengubah spatial_ref_sys'
 );
+-- Dibatasi ke venue uji ini: data demo (`db:seed-demo`) juga punya penutupan yang sedang
+-- berlaku, dan uji ini soal jendela waktu, bukan soal jumlah penutupan di seluruh database.
 select results_eq(
-  'select reason from public.closures order by reason',
+  $$ select reason from public.closures
+     where venue_id = 'b0000000-0000-4000-8000-000000000001' order by reason $$,
   array['berlaku'],
   'anon hanya membaca penutupan yang sedang berlaku'
 );
