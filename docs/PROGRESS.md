@@ -216,9 +216,11 @@ Keputusan pemilik 2026-10-09: trial otomatis di Supabase Free + Cloudflare Pages
 
 Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … (status: menunggu jawaban)`
 
-- [2026-10-12] T-615a — `trial-lifecycle` tetap bisa dipanggil POST tanpa autentikasi (sengaja: idempoten, dipanggil pg_cron tanpa JWT), sehingga siapa pun bisa memicu putaran berulang dan menghabiskan kuota Edge Function/Storage paket Free. Opsi: A) rahasia bersama — pg_cron mengirim header dari Vault, dasbor vendor memakai JWT `aal2`, panggilan lain ditolak 401; B) biarkan, andalkan idempotensi. Rekomendasi: A (butuh migrasi `app.request_trial_lifecycle`, rahasia fungsi baru, dan pembaruan tes integrasi `trial-hosting`). (status: menunggu jawaban)
+(Tidak ada pertanyaan terbuka.)
 
 ## Catatan keputusan
+
+- [2026-10-12] T-615a — **`trial-lifecycle` hanya untuk pemanggil sah** (pemilik memilih opsi A). Migrasi 0054: rahasia acak 256 bit `trial_lifecycle_secret` dibuat di Vault oleh migrasi itu sendiri (tidak ada di repo, tanpa langkah manual); `app.request_trial_lifecycle` (pg_cron) mengirimnya di header `x-trial-lifecycle-secret` dan melewati panggilan bila rahasia hilang; `public.hosting_lifecycle_authorized` (service role saja, membandingkan hash) dipakai Edge Function. Dasbor vendor tetap bisa memicu putaran dengan JWT staf vendor `aal2` (`vendor_access() = 'ok'`, aturan 0053). Pemanggil lain 401; preflight CORS dijawab tanpa putaran. `verify_jwt` tetap mati (pg_cron tanpa JWT). pgTAP `hosting_lifecycle_secret` (11), integrasi `trial-hosting` (+1: tanpa rahasia/rahasia salah/kunci anon → 401), E2E T-615 dan T-617 lulus; pgTAP 1260/1260, integrasi 101/101. Urutan deploy hosting: migrasi dulu, baru fungsi (fungsi lama mengabaikan header; fungsi baru tanpa migrasi menolak pg_cron).
 
 - [2026-10-12] T-505 — **Font landing diganti Figtree** (keputusan pemilik: font yang sama dengan mappedin.com; menimpa "font Mappedin tidak ditiru" khusus landing, `05-desain-ui.md` diperbarui). Figtree OFL-1.1, 400/700 latin + latin-ext (±35 KB), di-host di `apps/landing/src/fonts/` — sengaja tidak di `@indoor/ui` agar tidak ikut precache Visitor. Admin (IBM Plex Sans), Visitor/Info Point dan label peta (Atkinson Hyperlegible) tidak berubah.
 
