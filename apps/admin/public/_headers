@@ -1,0 +1,8 @@
+# Cloudflare Pages (hosting): Admin tidak boleh dibingkai situs lain, agar tombol publish, hapus,
+# atau undang pengguna tidak bisa diklik lewat halaman jebakan (clickjacking, TC-SEC-57).
+# Visitor sengaja tidak memakai aturan ini: embed iframe adalah fitur (T-556).
+/*
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

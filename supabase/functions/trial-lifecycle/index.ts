@@ -9,7 +9,7 @@
 //   hari 24  berkas Storage dihapus, lalu venue dan akunnya (`hosting_lifecycle_purge`)
 //   kapan pun ada slot: permintaan antre tertua dibuatkan ruang kerja
 //   12 bulan: isian form trial yang sudah selesai dilupakan (kebijakan privasi landing, T-616)
-import { reply, serviceHeaders, url } from '../_shared/auth.ts';
+import { CORS_HEADERS, reply, serviceHeaders, url } from '../_shared/auth.ts';
 import { putSnapshotFile, REVALIDATE } from '../_shared/snapshot-files.ts';
 import { activate, adminUrl, getRequest, logError, rpc, send } from '../trial-verify/activate.ts';
 import { endedMail, reminderMail, vendorMail } from '../trial-verify/mails.ts';
@@ -40,7 +40,11 @@ async function deleteFiles(venueId: string) {
   }
 }
 
-Deno.serve(async () => {
+Deno.serve(async (request) => {
+  // pg_cron dan dasbor vendor memanggil dengan POST. Preflight CORS dasbor dan GET dari luar
+  // (mis. crawler) tidak boleh ikut menjalankan satu putaran penuh.
+  if (request.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
+  if (request.method !== 'POST') return reply(405, { message: 'Metode tidak didukung.' });
   const done = { reminded: 0, locked: 0, deleted: 0, activated: 0, forgotten: 0, failed: 0 };
   const attempt = async (what: string, step: () => Promise<void>) => {
     try {
