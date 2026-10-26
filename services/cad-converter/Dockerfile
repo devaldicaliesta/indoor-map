@@ -3,6 +3,8 @@ WORKDIR /srv
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
+COPY notices.py /tmp/notices.py
+RUN python /tmp/notices.py > /srv/THIRD-PARTY-NOTICES.txt && rm /tmp/notices.py
 RUN useradd --system --no-create-home converter
 USER converter
 ENV PORT=8090

@@ -9,7 +9,7 @@ BACKUP_DIR="$DEPLOY_DIR/backups"
 RELEASES_DIR="$DEPLOY_DIR/releases"
 # Isi arsip rilis selain rahasia dan data: diganti saat upgrade, disimpan untuk rollback.
 RELEASE_FILES=(compose.yml lib.sh install.sh upgrade.sh rollback.sh backup.sh restore.sh migrate.sh
-  README.md release.env dev-hook-secret.sha256 db migrations)
+  README.md SUMBER-TERBUKA.md release.env dev-hook-secret.sha256 db migrations licenses)
 
 say() { printf '\033[1m==>\033[0m %s\n' "$*"; }
 die() { printf '\033[31mGAGAL:\033[0m %s\n' "$*" >&2; exit 1; }
