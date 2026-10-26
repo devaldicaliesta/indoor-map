@@ -1,7 +1,9 @@
 # T-313 · Konversi denah CAD — bukti E2E
 
-Spec: `e2e/tests/admin/cad-floor-plan.spec.ts` (project `admin`, butuh `services/cad-converter`
-berjalan dan `VITE_CAD_CONVERTER_URL`). Hasil: **lulus** (Supabase lokal, 2026-10-02). Berkas
+Spec: `e2e/tests/license/cad-floor-plan.spec.ts` (sejak T-514 di project `license`, karena spec
+memasang lisensi dev berfitur `cad_import` lalu memulihkannya; butuh `services/cad-converter`
+berjalan dan `VITE_CAD_CONVERTER_URL`). Hasil: **lulus** (Supabase lokal, 2026-10-02; ulang
+2026-10-26 di T-514). Berkas
 contoh: `e2e/files/denah-contoh.dxf` (40 × 20 m, milimeter, layer DINDING/PINTU/TEKS/FURNITUR/GRID).
 
 | Gambar | Langkah |

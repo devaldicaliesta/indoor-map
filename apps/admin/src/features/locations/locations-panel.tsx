@@ -1,7 +1,6 @@
 import {
   type BuildingId,
   BuildingIdSchema,
-  can,
   type FeatureId,
   FeatureIdSchema,
   type Location,
@@ -21,7 +20,7 @@ import {
 import { TriangleAlertIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { Can, useRole } from '../../app/auth/can';
+import { Can, useCan, useRole } from '../../app/auth/can';
 import { useTableState } from '../../hooks/use-table-state';
 import { ImportDialog } from '../import/import-dialog';
 import { QuotaNotice, useQuotaBlock } from '../license/quota-notice';
@@ -104,8 +103,8 @@ function useSelectedBuilding(): BuildingId | null {
 }
 
 export function LocationsPanel({ venueId }: { venueId: VenueId }) {
-  const role = useRole();
-  const canEdit = role !== null && can(role, 'location.edit');
+  const _role = useRole();
+  const canEdit = useCan('location.edit');
   const categories = useCategories(venueId);
   const types = useLocationTypes(venueId);
   const units = useVenueUnits(venueId);

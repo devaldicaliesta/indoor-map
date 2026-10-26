@@ -1,6 +1,4 @@
 import {
-  type AppRole,
-  can,
   DEFAULT_INSTRUCTION_TEMPLATES,
   INSTRUCTION_ACTIONS,
   type InstructionAction,
@@ -20,7 +18,7 @@ import {
   toast,
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
-import { useRole } from '../../../app/auth/can';
+import { useCan } from '../../../app/auth/can';
 import { useTableState } from '../../../hooks/use-table-state';
 import { FormNotice } from '../../auth/auth-layout';
 import {
@@ -88,16 +86,8 @@ function TextField({
   );
 }
 
-function InstructionsForm({
-  venueId,
-  templates,
-  role,
-}: {
-  venueId: VenueId;
-  templates: Templates;
-  role: AppRole | null;
-}) {
-  const canEdit = role !== null && can(role, 'settings.edit');
+function InstructionsForm({ venueId, templates }: { venueId: VenueId; templates: Templates }) {
+  const canEdit = useCan('settings.edit');
   const [values, setValues] = useState<Templates>(templates);
   const table = useTableState({ filters: FILTERS });
   const save = useSaveInstructionTemplates(venueId);
@@ -245,10 +235,7 @@ function InstructionsForm({
 
 export function InstructionsPanel({ venueId }: { venueId: VenueId }) {
   const templates = useInstructionTemplates(venueId);
-  const role = useRole();
   if (templates.isPending) return <Skeleton className="h-96 w-full" />;
   if (templates.error) return <p className="text-danger">{templates.error.message}</p>;
-  return (
-    <InstructionsForm key={venueId} venueId={venueId} templates={templates.data} role={role} />
-  );
+  return <InstructionsForm key={venueId} venueId={venueId} templates={templates.data} />;
 }

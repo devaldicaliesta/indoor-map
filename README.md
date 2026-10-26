@@ -29,26 +29,26 @@
 
 ## 📊 Dashboard status
 
-> Ringkasan dari [`docs/PROGRESS.md`](docs/PROGRESS.md), per **9 Oktober 2026**. Rincian setiap task ada di sana.
+> Ringkasan dari [`docs/PROGRESS.md`](docs/PROGRESS.md), per **26 Oktober 2026**. Rincian setiap task ada di sana.
 
 | | |
 | --- | --- |
 | 🚀 **Rilis aktif** | F2.1 Siap jual |
-| ⏭️ **Task berikutnya** | E2E T-504 (lisensi trial), lalu T-511 (distribusi image Docker) |
-| 🧪 **Fitur baru direncanakan** | F2-K Trial ter-hosting otomatis, branch `feature/trial-hosting` |
+| ⏭️ **Task berikutnya** | T-521 (panduan Windows lewat VM Ubuntu) |
+| 🧪 **Menunggu review** | T-511 (distribusi image Docker jadi), T-512 (Visitor tanpa WebGL), T-514 (perbaikan lisensi dan audit R4) |
 
 | Rilis | Isi | Progres | Task |
 | --- | --- | --- | --- |
-| **R0** Fondasi | Monorepo, skema, auth, layout | `████████████████████` 100% | 13 · 🟡 review |
-| **R1** Inti peta | Editor peta multi-gedung, jelajah Visitor | `████████████████████` 100% | 20 · 🟡 review |
-| **R2** Navigasi | Graf rute, konektor, rute aksesibel, QR | `████████████████████` 100% | 17 · 🟡 review |
-| **R3** Operasional | Template, import, publish berversi | `████████████████████` 100% | 14 · 🟡 review |
-| **V** Visitor komersial | Tampilan Visitor bergaya peta indoor | `████████████████████` 100% | 8 · 🟡 review |
-| **R4** Komersial | Lisensi, kuota, Info Point, paket instalasi | `████████████████████` 100% | 13 · 🟡 review |
-| **F2** Fase 2 | Siap jual, keamanan, fitur pembeda | `██░░░░░░░░░░░░░░░░░░` 8% | 60 · 🟡 4 · 🔵 1 · ⚪ 55 |
-| **F2-K** Trial hosting | Trial otomatis di Supabase + Cloudflare | `░░░░░░░░░░░░░░░░░░░░` 0% | 8 · ⚪ 8 |
+| **R0** Fondasi | Monorepo, skema, auth, layout | `████████████████████` 100% | 13 · ✅ |
+| **R1** Inti peta | Editor peta multi-gedung, jelajah Visitor | `████████████████████` 100% | 20 · ✅ |
+| **R2** Navigasi | Graf rute, konektor, rute aksesibel, QR | `████████████████████` 100% | 17 · ✅ |
+| **R3** Operasional | Template, import, publish berversi | `████████████████████` 100% | 14 · ✅ |
+| **V** Visitor komersial | Tampilan Visitor bergaya peta indoor | `████████████████████` 100% | 8 · ✅ |
+| **R4** Komersial | Lisensi, kuota, Info Point, paket instalasi | `████████████████████` 100% | 13 · ✅ |
+| **F2** Fase 2 | Siap jual, keamanan, fitur pembeda | `███░░░░░░░░░░░░░░░░░` 13% | 60 · ✅ 5 · 🟡 3 · ⬜ 38 · ⚪ 14 |
+| **F2-K** Trial hosting | Trial otomatis di Supabase + Cloudflare | `████████████████████` 100% | 14 · ✅ |
 
-**Keterangan status:** ✅ selesai · 🟡 review (sudah dibangun, menunggu review pemilik) · 🔵 dikerjakan · ⚪ menunggu · 🔴 diblokir
+**Keterangan status:** ✅ selesai · 🟡 review (sudah dibangun, menunggu review pemilik) · 🔵 dikerjakan · ⬜ siap (dependensi selesai) · ⚪ menunggu · 🔴 diblokir
 
 Progres menghitung task yang sudah dibangun (`review` atau `selesai`).
 
@@ -150,11 +150,11 @@ pnpm test:e2e          # Playwright
 ## 📁 Struktur
 
 ```
-apps/        admin · visitor · landing
+apps/        admin · visitor · landing · vendor
 packages/    domain · routing · map-core · data · ui
 supabase/    migrations (SQL) · functions (Edge Functions) · tests (pgTAP)
 services/    cad-converter (Python)
-deploy/      paket instalasi on-premise (Docker Compose)
+deploy/      paket instalasi on-premise: build rilis vendor (image Docker jadi) dan skrip pasang di klien
 e2e/         test Playwright + bukti screenshot per task
 docs/        playbook, spesifikasi, PRD, progress
 ```
@@ -168,7 +168,7 @@ docs/        playbook, spesifikasi, PRD, progress
 | [`docs/01-produk.md`](docs/01-produk.md) | Produk, pengguna, istilah, role |
 | [`docs/03-arsitektur.md`](docs/03-arsitektur.md) | Arsitektur dan aturan paket |
 | [`docs/23-trial-hosting.md`](docs/23-trial-hosting.md) | PRD dan arsitektur trial ter-hosting |
-| [`deploy/README.md`](deploy/README.md) | Instalasi on-premise |
+| [`deploy/README.md`](deploy/README.md) | Rilis vendor (image Docker jadi) dan instalasi on-premise dari arsip |
 | [`CLAUDE.md`](CLAUDE.md) | Aturan kerja untuk agen AI |
 
 Dengan Claude Code, satu task dikerjakan dengan `/kerjakan-task T-xxx`.

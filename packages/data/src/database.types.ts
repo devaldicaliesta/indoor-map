@@ -1562,6 +1562,7 @@ export type Database = {
         Returns: undefined;
       };
       delete_connector: { Args: { p_id: string }; Returns: undefined };
+      hosting_lifecycle_authorized: { Args: { p_secret: string }; Returns: boolean };
       hosting_lifecycle_expired: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -1672,6 +1673,7 @@ export type Database = {
       license_import_check: { Args: { p_rows: number }; Returns: undefined };
       license_install: {
         Args: {
+          p_actor_id?: string;
           p_license_id: string;
           p_payload: Json;
           p_signature: string;

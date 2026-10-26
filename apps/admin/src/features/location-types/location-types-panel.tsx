@@ -1,9 +1,9 @@
-import { can, type FieldDefinition, type LocationType, type VenueId } from '@indoor/domain';
+import type { FieldDefinition, LocationType, VenueId } from '@indoor/domain';
 import { Button, cn, EmptyState, Skeleton } from '@indoor/ui';
 import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { useRole } from '../../app/auth/can';
+import { useCan } from '../../app/auth/can';
 import { CategoriesPanel } from '../locations/categories-panel';
 import { useLocationTypes } from '../locations/queries';
 import { FieldDialog } from './field-dialog';
@@ -19,8 +19,7 @@ type Open =
 
 /** Lokasi → Tipe lokasi: daftar tipe, lalu field dan kategori tipe yang dipilih. */
 export function LocationTypesPanel({ venueId }: { venueId: VenueId }) {
-  const role = useRole();
-  const canEdit = role !== null && can(role, 'location.edit');
+  const canEdit = useCan('location.edit');
   const types = useLocationTypes(venueId);
   // Tipe terpilih di URL bersama cari/filter tabel field dan kategorinya; ganti tipe
   // mengosongkan keduanya karena kata kunci dan filter itu milik tipe sebelumnya.
