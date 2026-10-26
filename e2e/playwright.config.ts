@@ -15,12 +15,15 @@ const appServers = [
   {
     command: 'pnpm --filter @indoor/admin dev',
     url: env.adminUrl,
+    // Tur halaman (T-599) tidak mulai sendiri di spec lain; spec tur menyalakannya per perangkat.
+    env: { VITE_TOUR_AUTOSTART: 'off' },
     reuseExistingServer: !CI,
     timeout: 120_000,
   },
   {
     command: 'pnpm --filter @indoor/visitor dev',
     url: env.visitorUrl,
+    env: { VITE_TOUR_AUTOSTART: 'off' },
     reuseExistingServer: !CI,
     timeout: 120_000,
   },

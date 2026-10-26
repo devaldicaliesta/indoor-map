@@ -36,3 +36,20 @@ export {
   primaryTextCheck,
   routeLineCheck,
 } from './theme/apply-branding';
+export type { TourEnd, TourLabels } from './tour/run-tour';
+export {
+  resolveTourSteps,
+  type TourDefinition,
+  type TourSide,
+  type TourStep,
+  tourKey,
+  tourSelector,
+} from './tour/steps';
+export { TourButton } from './tour/tour-button';
+export {
+  AUTO_TOUR_STORAGE_KEY,
+  autoToursEnabled,
+  type TourSeenStore,
+  type UseTourOptions,
+  useTour,
+} from './tour/use-tour';

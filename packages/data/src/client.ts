@@ -50,6 +50,7 @@ import {
   createSystemSettingsRepository,
   type SystemSettingsRepository,
 } from './repositories/system-settings';
+import { createTourProgressRepository, type TourProgressRepository } from './repositories/tours';
 import { createTrialRepository, type TrialRepository } from './repositories/trial';
 import { createUsersRepository, type UsersRepository } from './repositories/users';
 import { createVendorRepository, type VendorRepository } from './repositories/vendor';
@@ -93,6 +94,8 @@ export interface DataClient {
   publications: PublicationsRepository;
   snapshots: SnapshotsRepository;
   systemSettings: SystemSettingsRepository;
+  /** Tur panduan Admin yang sudah dilihat pengguna ini. */
+  tours: TourProgressRepository;
   trial: TrialRepository;
   users: UsersRepository;
   /** Dasbor vendor trial ter-hosting; hanya staf vendor ber-aal2 yang dilayani server. */
@@ -134,6 +137,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     snapshots: createSnapshotsRepository(db),
     trial: createTrialRepository(db),
     systemSettings: createSystemSettingsRepository(db),
+    tours: createTourProgressRepository(db),
     users: createUsersRepository(db),
     vendor: createVendorRepository(db),
     venues: createVenuesRepository(db),

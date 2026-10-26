@@ -8,6 +8,7 @@ export function LanguagePicker({ className }: { className?: string }) {
   const { t, i18n } = useTranslation();
   return (
     <fieldset
+      data-tour="visitor-language"
       aria-label={t('language.label')}
       className={cn('m-0 flex min-w-0 rounded-sm border border-line bg-surface p-0', className)}
     >

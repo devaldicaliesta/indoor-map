@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { Navigate } from 'react-router';
 import { useCurrentProfile } from './auth/current-profile';
 import { MODULE_NAV } from './navigation';
+import { type AdminTour, AdminTourButton } from './tour';
 import { useSelectedVenue } from './venue-store';
 
 /** Menolak modul yang tidak boleh dibuka role ini; server tetap menegakkan lewat RLS. */
@@ -41,11 +42,14 @@ export function ModulePage({
   module,
   access,
   actions,
+  tour,
   children,
 }: {
   module: AdminModule;
   access: ModuleAccess;
   actions?: ReactNode;
+  /** Tur halaman: mulai sendiri pertama kali, diulang lewat tombol "Tur halaman". */
+  tour?: AdminTour;
   children: ReactNode;
 }) {
   const { venue } = useSelectedVenue();
@@ -57,7 +61,12 @@ export function ModulePage({
           <span className="text-ink-muted">{venue.name}</span>
         ) : null}
         {access === 'read' ? <Badge>Mode baca</Badge> : null}
-        {actions ? <div className="ml-auto flex gap-2">{actions}</div> : null}
+        {actions || tour ? (
+          <div className="ml-auto flex gap-2">
+            {tour ? <AdminTourButton tour={tour} /> : null}
+            {actions}
+          </div>
+        ) : null}
       </div>
       {children}
     </div>
