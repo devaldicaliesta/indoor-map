@@ -49,8 +49,10 @@ Skrip ini:
    ditolak, karena kunci privatnya ada di repo. Repo sendiri tetap memakai kunci DEV untuk test;
 3. membangun image `panduarah/web`, `panduarah/functions`, dan `panduarah/cad-converter` bertag
    versi, lalu memeriksa bahwa image `functions` memakai kunci vendor;
-4. menyusun paket klien dan menolaknya bila memuat kode sumber (`apps/`, `packages/`, …), kunci
-   lisensi, `.env`, `build:` di compose, atau pemanggilan `git`/`pnpm`;
+4. menyusun paket klien: mengambil pemberitahuan lisensi pihak ketiga dari setiap image
+   (`licenses/`) dan daftar paket OS per image untuk penawaran kode sumber GPL
+   (`SUMBER-TERBUKA.md`), lalu menolak paket bila memuat kode sumber (`apps/`, `packages/`, …),
+   kunci lisensi, `.env`, `build:` di compose, atau pemanggilan `git`/`pnpm`;
 5. membuat `deploy/out/panduarah-<versi>.tar.gz` beserta `.sha256`.
 
 Isi arsip:
@@ -62,12 +64,18 @@ panduarah-<versi>/
   migrations/*.sql     migrasi database (SQL)
   db/                  roles.sql, pg_hba.conf
   release.env          APP_VERSION, IMAGE_PREFIX, commit
+  SUMBER-TERBUKA.md    komponen sumber terbuka, termasuk GPL, dan penawaran kode sumbernya
+  licenses/            pemberitahuan pihak ketiga per app/image dan daftar paket OS per image
   dev-hook-secret.sha256
   images.tar           (dengan --save)
   README.md
 ```
 
 Kirim arsip dan berkas `.sha256` ke klien.
+
+Image yang dikirim memuat komponen GPL (PostGIS, paket OS Alpine/Debian; lihat
+`SUMBER-TERBUKA.md`). Vendor wajib bisa memenuhi penawaran kode sumber di dokumen itu selama
+tiga tahun per rilis, jadi daftar `licenses/os-packages/` setiap rilis ikut diarsipkan vendor.
 
 ## Bagian 2 · Server klien
 

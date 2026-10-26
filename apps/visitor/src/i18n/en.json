@@ -76,7 +76,8 @@
     "description": "This map is updated whenever the building manager publishes a new version.",
     "version": "Map version",
     "publishedAt": "Published",
-    "poweredBy": "Powered by {{tagline}}"
+    "poweredBy": "Powered by {{tagline}}",
+    "openSource": "Open-source licenses"
   },
   "explore": {
     "chips": "Categories and facilities",

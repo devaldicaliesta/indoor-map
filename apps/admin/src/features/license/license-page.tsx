@@ -206,6 +206,28 @@ function UsageTable({ usage, trial }: { usage: QuotaUsage[]; trial: boolean }) {
   );
 }
 
+/** Lisensi komponen sumber terbuka di dalam Admin; berkasnya dibuat saat build. */
+function OpenSourceNotice() {
+  return (
+    <section aria-labelledby="open-source" className="grid max-w-3xl gap-1">
+      <h2 id="open-source" className="font-bold">
+        Komponen sumber terbuka
+      </h2>
+      <p className="text-ink-muted text-sm">
+        PanduArah memakai komponen sumber terbuka dengan lisensinya masing-masing.{' '}
+        <a
+          href="/third-party-notices.txt"
+          target="_blank"
+          rel="noopener"
+          className="font-bold text-ink underline underline-offset-4"
+        >
+          Lihat pemberitahuan pihak ketiga
+        </a>
+      </p>
+    </section>
+  );
+}
+
 /** Batas per tindakan: tidak punya pemakaian berjalan, diperiksa setiap unggahan dan impor. */
 function ActionLimits({ limits }: { limits: LicenseLimits }) {
   return (
@@ -256,6 +278,7 @@ function LicenseContent() {
       ) : null}
       <UsageTable usage={usage.data} trial={isTrialLicense(details.data.license)} />
       {limits.data ? <ActionLimits limits={limits.data} /> : null}
+      <OpenSourceNotice />
     </div>
   );
 }

@@ -152,6 +152,7 @@ const id = {
     tagline: 'Indoor Navigation',
     contact: 'Kontak',
     privacy: 'Kebijakan privasi',
+    openSource: 'Lisensi sumber terbuka',
     rights: 'Hak cipta dilindungi.',
   },
   privacy: {
@@ -348,6 +349,7 @@ const en: Copy = {
     tagline: 'Indoor Navigation',
     contact: 'Contact',
     privacy: 'Privacy policy',
+    openSource: 'Open-source licenses',
     rights: 'All rights reserved.',
   },
   privacy: {

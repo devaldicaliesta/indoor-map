@@ -1,3 +1,4 @@
+import { thirdPartyNotices, UI_FONT_NOTICES } from '@indoor/third-party-notices';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -6,7 +7,15 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   // .env.local dibaca dari root repo agar satu file dipakai semua app.
   envDir: '../..',
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    thirdPartyNotices({
+      product: 'PanduArah dasbor vendor',
+      include: ['tailwindcss'],
+      extra: [...UI_FONT_NOTICES],
+    }),
+  ],
   server: { port: 5176, strictPort: true },
   preview: { port: 4176, strictPort: true },
   build: {

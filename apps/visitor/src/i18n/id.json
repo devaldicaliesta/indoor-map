@@ -76,7 +76,8 @@
     "description": "Peta ini diperbarui setiap kali pengelola gedung menerbitkan versi baru.",
     "version": "Versi peta",
     "publishedAt": "Diterbitkan",
-    "poweredBy": "Didukung oleh {{tagline}}"
+    "poweredBy": "Didukung oleh {{tagline}}",
+    "openSource": "Lisensi komponen sumber terbuka"
   },
   "explore": {
     "chips": "Kategori dan fasilitas",
