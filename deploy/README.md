@@ -18,6 +18,8 @@ Satu server menjalankan seluruh platform PanduArah lewat Docker Compose:
 Realtime, Studio, Kong, dan analitik Supabase tidak dipasang karena tidak dipakai aplikasi.
 Peran Kong (routing dan CORS) diambil Caddy.
 
+Server Windows: lihat Bagian 3 (VM Ubuntu di Hyper-V atau VMware).
+
 Klien menerima **image Docker jadi**, bukan kode sumber. Image `web`, `functions`, dan
 `cad-converter` dibangun vendor dengan kunci publik lisensi vendor di dalamnya, sehingga kunci
 itu tidak bisa diganti lalu di-build ulang di server klien.
@@ -49,8 +51,10 @@ Skrip ini:
    ditolak, karena kunci privatnya ada di repo. Repo sendiri tetap memakai kunci DEV untuk test;
 3. membangun image `panduarah/web`, `panduarah/functions`, dan `panduarah/cad-converter` bertag
    versi, lalu memeriksa bahwa image `functions` memakai kunci vendor;
-4. menyusun paket klien dan menolaknya bila memuat kode sumber (`apps/`, `packages/`, …), kunci
-   lisensi, `.env`, `build:` di compose, atau pemanggilan `git`/`pnpm`;
+4. menyusun paket klien: mengambil pemberitahuan lisensi pihak ketiga dari setiap image
+   (`licenses/`) dan daftar paket OS per image untuk penawaran kode sumber GPL
+   (`SUMBER-TERBUKA.md`), lalu menolak paket bila memuat kode sumber (`apps/`, `packages/`, …),
+   kunci lisensi, `.env`, `build:` di compose, atau pemanggilan `git`/`pnpm`;
 5. membuat `deploy/out/panduarah-<versi>.tar.gz` beserta `.sha256`.
 
 Isi arsip:
@@ -62,12 +66,18 @@ panduarah-<versi>/
   migrations/*.sql     migrasi database (SQL)
   db/                  roles.sql, pg_hba.conf
   release.env          APP_VERSION, IMAGE_PREFIX, commit
+  SUMBER-TERBUKA.md    komponen sumber terbuka, termasuk GPL, dan penawaran kode sumbernya
+  licenses/            pemberitahuan pihak ketiga per app/image dan daftar paket OS per image
   dev-hook-secret.sha256
   images.tar           (dengan --save)
   README.md
 ```
 
 Kirim arsip dan berkas `.sha256` ke klien.
+
+Image yang dikirim memuat komponen GPL (PostGIS, paket OS Alpine/Debian; lihat
+`SUMBER-TERBUKA.md`). Vendor wajib bisa memenuhi penawaran kode sumber di dokumen itu selama
+tiga tahun per rilis, jadi daftar `licenses/os-packages/` setiap rilis ikut diarsipkan vendor.
 
 ## Bagian 2 · Server klien
 
@@ -238,3 +248,200 @@ docker compose --env-file .env ps                 # status
 docker compose --env-file .env logs -f functions
 docker compose --env-file .env restart web
 ```
+
+## Bagian 3 · Server Windows (lewat VM Ubuntu)
+
+Paket instalasi berjalan di Linux. Di server Windows, PanduArah dipasang di dalam **VM Ubuntu
+Server** (Hyper-V atau VMware), lalu langkah Bagian 2 dijalankan di VM itu tanpa perubahan.
+Dukungan Windows Server tanpa VM menyusul (T-523).
+
+### Kebutuhan host
+
+- Windows Server 2019/2022/2025, atau Windows 10/11 Pro/Enterprise (Windows Home tidak punya
+  Hyper-V)
+- Virtualisasi CPU (Intel VT-x/AMD-V) aktif di BIOS/UEFI
+- Sisa sumber daya untuk VM: **4 vCPU, 8 GB RAM, disk 80 GB** (40 GB data ditambah ruang backup;
+  spesifikasi minimum di Bagian 2 berlaku untuk VM)
+- ISO Ubuntu Server 24.04 LTS (`ubuntu-24.04-live-server-amd64.iso`)
+
+### A. Membuat VM di Hyper-V
+
+1. Pasang Hyper-V (PowerShell sebagai Administrator, host akan restart):
+
+   ```powershell
+   # Windows Server
+   Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart
+   # Windows 10/11 Pro/Enterprise
+   Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+   ```
+
+2. Buat switch jaringan. Pilih **satu** cara di bagian [Jaringan VM](#c-jaringan-vm); contoh di
+   sini memakai bridge (switch External) ke adapter jaringan kantor:
+
+   ```powershell
+   Get-NetAdapter                       # catat nama adapter LAN, mis. "Ethernet"
+   New-VMSwitch -Name "PanduArah-LAN" -NetAdapterName "Ethernet" -AllowManagementOS $true
+   ```
+
+3. Buat VM generasi 2:
+
+   ```powershell
+   $vm = "PanduArah"
+   New-VM -Name $vm -Generation 2 -MemoryStartupBytes 8GB -SwitchName "PanduArah-LAN" `
+     -NewVHDPath "D:\Hyper-V\$vm.vhdx" -NewVHDSizeBytes 80GB
+   Set-VMProcessor $vm -Count 4
+   # Memori tetap: Postgres tidak boleh kehilangan RAM karena memori dinamis.
+   Set-VMMemory $vm -DynamicMemoryEnabled $false
+   # Secure Boot untuk Linux memakai templat CA UEFI Microsoft.
+   Set-VMFirmware $vm -SecureBootTemplate MicrosoftUEFICertificateAuthority
+   Add-VMDvdDrive $vm -Path "D:\iso\ubuntu-24.04-live-server-amd64.iso"
+   Set-VMFirmware $vm -FirstBootDevice (Get-VMDvdDrive $vm)
+   # Menyala sendiri 60 detik setelah host menyala; dimatikan rapi saat host shutdown.
+   Set-VM $vm -AutomaticStartAction Start -AutomaticStartDelay 60 `
+     -AutomaticStopAction ShutDown -CheckpointType Production
+   Start-VM $vm
+   vmconnect localhost $vm
+   ```
+
+4. Lanjutkan ke [Memasang Ubuntu di VM](#b-memasang-ubuntu-di-vm).
+
+### A2. Membuat VM di VMware
+
+**VMware ESXi / vSphere:** buat VM baru dengan Guest OS *Ubuntu Linux (64-bit)*, 4 vCPU, 8 GB RAM
+(*Reserve all guest memory*), disk 80 GB, adapter jaringan ke port group LAN kantor, dan ISO
+Ubuntu di CD/DVD. Aktifkan **Autostart** di host (*Manage → System → Autostart*) dan masukkan VM
+ini ke daftar dengan jeda mulai 60 detik.
+
+**VMware Workstation Pro** (host Windows): buat VM dengan setelan yang sama dan jaringan
+**Bridged**. Agar menyala saat host reboot, jadikan VM *Shared VM* lalu atur *Configure Auto
+Start VMs* dari menu *Library*.
+
+Di VM VMware, pastikan `open-vm-tools` terpasang (`sudo apt install open-vm-tools`) agar shutdown
+dari host berjalan rapi.
+
+### B. Memasang Ubuntu di VM
+
+1. Pasang Ubuntu Server 24.04 dengan pilihan bawaan, centang **Install OpenSSH server**, dan
+   **jangan** pilih snap Docker di layar *Featured server snaps* (Docker dipasang di langkah
+   instalasi Bagian 2).
+2. Beri VM **alamat IP tetap**: reservasi DHCP di router kantor, atau di VM lewat
+   `/etc/netplan/*.yaml`. Alamat ini yang dituju DNS domain Admin/Visitor/API.
+3. Setelah masuk ke VM:
+
+   ```sh
+   sudo apt update && sudo apt full-upgrade -y
+   # Instalasi bawaan memakai LVM dan sering hanya memakai sebagian disk: pakai seluruhnya.
+   sudo lvextend -r -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+   df -h /                         # ±75 GB tersedia untuk disk 80 GB
+   timedatectl                     # "System clock synchronized: yes"; lisensi menolak jam mundur
+   sudo systemctl enable --now ssh
+   # Hyper-V saja: checkpoint Production dan backup host yang konsisten di dalam VM.
+   sudo apt install -y linux-cloud-tools-virtual
+   ```
+
+4. Ikuti **Bagian 2 · Instalasi** di VM. Installer Docker (`get.docker.com`) sudah membuat
+   Docker menyala otomatis saat boot, dan semua layanan memakai `restart: unless-stopped`,
+   sehingga PanduArah ikut hidup setiap VM menyala.
+
+### C. Jaringan VM
+
+Pilih salah satu:
+
+**Bridge (disarankan).** VM mendapat IP sendiri di jaringan kantor (switch External di Hyper-V,
+*Bridged* di VMware). DNS domain Admin, Visitor, dan API diarahkan ke IP VM. Lalu lintas ke VM
+tidak melewati Windows Firewall host, jadi cukup buka port di Ubuntu:
+
+```sh
+sudo ufw allow OpenSSH
+sudo ufw allow 80,443/tcp
+sudo ufw enable
+```
+
+**NAT dengan port forwarding.** Dipakai bila jaringan kantor hanya mengizinkan IP host. VM
+berada di jaringan internal, dan host meneruskan port 80/443 ke VM. DNS diarahkan ke **IP host**.
+Contoh Hyper-V (VM memakai IP tetap `192.168.100.10`, gateway `192.168.100.1`):
+
+```powershell
+New-VMSwitch -Name "PanduArah-NAT" -SwitchType Internal
+New-NetIPAddress -IPAddress 192.168.100.1 -PrefixLength 24 -InterfaceAlias "vEthernet (PanduArah-NAT)"
+New-NetNat -Name PanduArahNAT -InternalIPInterfaceAddressPrefix 192.168.100.0/24
+foreach ($port in 80, 443) {
+  Add-NetNatStaticMapping -NatName PanduArahNAT -Protocol TCP -ExternalIPAddress 0.0.0.0 `
+    -ExternalPort $port -InternalIPAddress 192.168.100.10 -InternalPort $port
+}
+Connect-VMNetworkAdapter -VMName PanduArah -SwitchName "PanduArah-NAT"
+```
+
+Di VMware Workstation: *Edit → Virtual Network Editor → VMnet8 (NAT) → NAT Settings → Add*
+untuk port 80 dan 443 ke IP VM.
+
+**Firewall Windows (mode NAT).** Buka port 80/443 di host untuk jaringan kantor:
+
+```powershell
+New-NetFirewallRule -DisplayName "PanduArah HTTP/HTTPS" -Direction Inbound -Protocol TCP `
+  -LocalPort 80,443 -Action Allow -Profile Domain,Private
+```
+
+Port 80/443 host tidak boleh dipakai program lain, misalnya IIS. Periksa dengan
+`Get-NetTCPConnection -LocalPort 80,443 -State Listen`. Bila IIS terpasang dan tidak dipakai,
+matikan dengan `Stop-Service W3SVC; Set-Service W3SVC -StartupType Disabled`.
+
+**HTTPS di jaringan kantor.** Mode `auto` (Let's Encrypt) hanya berjalan bila domain bisa
+dijangkau dari internet di port 80. Di jaringan internal pakai `files` (sertifikat dari CA kantor)
+atau `internal`. Pada `internal`, sebarkan sertifikat root Caddy ke PC dan HP kantor (misalnya
+lewat Group Policy), karena tanpa itu service worker Visitor ditolak browser.
+
+### D. Menyala otomatis setelah host reboot
+
+- Hyper-V: `Get-VM PanduArah | Select Name, AutomaticStartAction, AutomaticStartDelay` harus
+  menunjukkan `Start`. VM yang tidak cukup RAM saat host menyala gagal start; cek *Hyper-V
+  Manager → Event Viewer → Hyper-V-Worker*.
+- VMware: cek daftar Autostart (ESXi) atau *Configure Auto Start VMs* (Workstation).
+- Di VM: `systemctl is-enabled docker` harus `enabled`.
+
+Uji sekali setelah instalasi: restart host, tunggu 3–5 menit, lalu buka Visitor dari PC lain di
+jaringan kantor.
+
+### E. Backup
+
+Dua lapis, keduanya perlu:
+
+1. **Backup aplikasi** (`backup.sh`, harian 02.30, Bagian 2). Ini yang dipakai untuk memulihkan
+   data, termasuk ke server lain. Salin folder `/opt/panduarah/backups` keluar VM setiap hari,
+   misalnya ke share Windows/NAS:
+
+   ```sh
+   sudo apt install -y cifs-utils
+   sudo mkdir -p /mnt/backup-panduarah
+   # /etc/fstab (kredensial di /root/.smb-panduarah berizin 600):
+   # //nas-kantor/backup/panduarah /mnt/backup-panduarah cifs credentials=/root/.smb-panduarah,uid=0,gid=0,file_mode=0600,dir_mode=0700 0 0
+   sudo mount -a
+   # Setelah backup harian (cron root):
+   # 0 4 * * * rsync -a --delete /opt/panduarah/backups/ /mnt/backup-panduarah/
+   ```
+
+   Folder backup berisi salinan `.env` (rahasia), jadi share tujuan hanya boleh dibaca TI.
+
+2. **Backup VM** untuk memulihkan seluruh server dengan cepat (OS, Docker, image):
+   - Windows Server Backup: `wbadmin start backup -backupTarget:E: -hyperv:PanduArah -quiet`,
+     dijadwalkan lewat Task Scheduler, atau
+   - `Export-VM -Name PanduArah -Path E:\VM-Export` (bisa saat VM menyala), atau
+   - fitur backup VM dari perangkat lunak backup kantor (Veeam, vSphere, dan sejenisnya).
+
+   Setelah memulihkan VM dari backup lama, data database ikut kembali ke saat backup VM itu.
+   Bila butuh data lebih baru, pulihkan backup aplikasi terbaru dengan `restore.sh`.
+
+Uji pemulihan minimal sekali sebelum go-live.
+
+### F. Pemecahan masalah
+
+| Gejala | Periksa |
+| --- | --- |
+| Visitor tidak terbuka dari PC lain | IP VM (`ip -4 addr`), DNS domain mengarah ke IP yang benar (bridge: IP VM; NAT: IP host), `sudo ufw status`, aturan firewall Windows dan pemetaan NAT (`Get-NetNatStaticMapping`) pada mode NAT |
+| Port 80/443 host sudah dipakai (mode NAT) | `Get-NetTCPConnection -LocalPort 80,443 -State Listen`, lalu matikan IIS atau program lain |
+| Browser memperingatkan sertifikat / Visitor tidak bisa dipasang sebagai aplikasi | Mode `internal`: sertifikat root Caddy belum dipasang di perangkat; mode `files`: rantai sertifikat `cert.pem` tidak lengkap |
+| VM tidak menyala setelah host restart | `AutomaticStartAction` (Hyper-V) atau daftar Autostart (VMware); RAM host cukup untuk 8 GB tetap |
+| Layanan mati setelah VM restart | `systemctl status docker`; `docker compose --env-file .env ps` di `/opt/panduarah`; `sudo /opt/panduarah/install.sh` aman dijalankan ulang |
+| Aktivasi lisensi ditolak karena jam | `timedatectl`; di Hyper-V aktifkan *Integration Services → Time synchronization*, atau NTP kantor di `/etc/systemd/timesyncd.conf` |
+| Disk VM penuh | `df -h`; perbesar disk (`Resize-VHD -Path D:\Hyper-V\PanduArah.vhdx -SizeBytes 120GB` saat VM mati), lalu di VM (LVM bawaan, cek `lsblk`): `sudo growpart /dev/sda 3 && sudo pvresize /dev/sda3 && sudo lvextend -r -l +100%FREE /dev/ubuntu-vg/ubuntu-lv` |
+| ISO Ubuntu tidak mau boot di Hyper-V generasi 2 | Templat Secure Boot harus `MicrosoftUEFICertificateAuthority` |

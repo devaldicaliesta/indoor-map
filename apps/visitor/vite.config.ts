@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module';
+import { thirdPartyNotices, UI_FONT_NOTICES } from '@indoor/third-party-notices';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -15,6 +17,20 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    thirdPartyNotices({
+      product: 'PanduArah Visitor',
+      include: ['tailwindcss'],
+      extra: [
+        ...UI_FONT_NOTICES,
+        // Runtime service worker (workbox-core, -precaching, -routing, -strategies, -expiration)
+        // dibangun terpisah oleh vite-plugin-pwa; lisensinya sama dengan workbox-window.
+        {
+          name: 'Workbox (service worker)',
+          license: 'MIT',
+          file: createRequire(import.meta.url).resolve('workbox-window/LICENSE'),
+        },
+      ],
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/apple-touch-icon.png', 'icons/favicon.svg'],

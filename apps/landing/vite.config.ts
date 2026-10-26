@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+import { thirdPartyNotices, UI_FONT_NOTICES } from '@indoor/third-party-notices';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -10,7 +11,22 @@ export default defineConfig({
   envDir: '../..',
   // MapLibre 6 memuat web worker dari file terpisah; pre-bundle Vite merusak URL-nya.
   optimizeDeps: { exclude: ['maplibre-gl'] },
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    thirdPartyNotices({
+      product: 'PanduArah landing',
+      include: ['tailwindcss'],
+      extra: [
+        ...UI_FONT_NOTICES,
+        {
+          name: 'Figtree (font)',
+          license: 'OFL-1.1',
+          file: resolve(import.meta.dirname, 'src/fonts/LICENSE-figtree.txt'),
+        },
+      ],
+    }),
+  ],
   server: { port: 5175, strictPort: true },
   preview: { port: 4175, strictPort: true },
   build: {

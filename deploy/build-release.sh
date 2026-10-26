@@ -94,7 +94,7 @@ assemble_package() {
   say "Menyusun paket klien $pkg"
   rm -rf "$pkg" "$pkg.tar.gz" "$pkg.tar.gz.sha256"
   mkdir -p "$pkg/db" "$pkg/migrations"
-  cp "$src/deploy/"{compose.yml,lib.sh,install.sh,upgrade.sh,rollback.sh,backup.sh,restore.sh,migrate.sh,README.md} "$pkg/"
+  cp "$src/deploy/"{compose.yml,lib.sh,install.sh,upgrade.sh,rollback.sh,backup.sh,restore.sh,migrate.sh,README.md,SUMBER-TERBUKA.md} "$pkg/"
   cp "$src/deploy/db/"{roles.sql,pg_hba.conf} "$pkg/db/"
   cp "$src/supabase/migrations/"*.sql "$pkg/migrations/"
   printf 'APP_VERSION=%s\nIMAGE_PREFIX=%s\nCOMMIT=%s\n' "$version" "$prefix" "$commit" >"$pkg/release.env"
@@ -106,6 +106,39 @@ assemble_package() {
 package_images() {
   APP_VERSION=$version IMAGE_PREFIX=$prefix docker compose --project-directory "$pkg" -f "$pkg/compose.yml" \
     --env-file /dev/null --profile tools config --images 2>/dev/null | sort -u
+}
+
+# Lisensi pihak ketiga diambil dari image itu sendiri, sehingga sama persis dengan isinya.
+copy_from_image() {
+  local image=$1 path=$2 target=$3 cid
+  cid=$(docker create "$image")
+  docker cp "$cid:$path" "$target"
+  docker rm "$cid" >/dev/null
+}
+
+# Daftar paket OS dan komponen per image, untuk penawaran kode sumber GPL (SUMBER-TERBUKA.md).
+os_packages() {
+  docker run --rm --entrypoint sh "$1" -c '
+    . /etc/os-release 2>/dev/null && echo "# $PRETTY_NAME"
+    { apk info -v 2>/dev/null || dpkg-query -W -f "\${Package} \${Version}\n" 2>/dev/null; } | sort
+    if [ -d /nix/store ]; then
+      echo "# Komponen Nix (/nix/store)"
+      ls /nix/store | grep -v "\.drv$" | sed "s/^[a-z0-9]*-//" | sort -u
+    fi' 2>/dev/null || echo "# Image tanpa shell dan paket OS (biner statis); sumber: lihat SUMBER-TERBUKA.md"
+}
+
+collect_licenses() {
+  local dir="$pkg/licenses" image
+  say "Mengumpulkan lisensi pihak ketiga"
+  mkdir -p "$dir/os-packages"
+  copy_from_image "$prefix/web:$version" /opt/panduarah/www/admin/third-party-notices.txt "$dir/admin.txt"
+  copy_from_image "$prefix/web:$version" /opt/panduarah/www/visitor/third-party-notices.txt "$dir/visitor.txt"
+  copy_from_image "$prefix/functions:$version" /srv/packages/domain/THIRD-PARTY-NOTICES.txt "$dir/functions.txt"
+  copy_from_image "$prefix/cad-converter:$version" /srv/THIRD-PARTY-NOTICES.txt "$dir/cad-converter.txt"
+  while read -r image; do
+    docker image inspect "$image" >/dev/null 2>&1 || docker pull -q "$image" >/dev/null
+    os_packages "$image" >"$dir/os-packages/$(printf '%s' "$image" | tr '/:' '__').txt"
+  done < <(package_images)
 }
 
 save_images() {
@@ -152,6 +185,7 @@ main() {
   build_images
   assert_image_key
   assemble_package
+  collect_licenses
   check_package
   if [ -n "$registry" ]; then push_images; fi
   if $save; then save_images; fi
