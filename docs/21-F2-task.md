@@ -275,9 +275,9 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 - **File:** `deploy/**`
 - **Verifikasi:** TC-HRD-01 s.d. 03; bukti `e2e/evidence/T-511/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
-  - [ ] Instalasi dari arsip rilis di mesin bersih tanpa internet berhasil
-  - [ ] Paket klien tidak memuat `apps/`, `packages/`, maupun kunci lisensi publik yang bisa diganti
-  - [ ] Upgrade dan rollback tetap berjalan seperti T-411
+  - [x] Instalasi dari arsip rilis di mesin bersih tanpa internet berhasil
+  - [x] Paket klien tidak memuat `apps/`, `packages/`, maupun kunci lisensi publik yang bisa diganti
+  - [x] Upgrade dan rollback tetap berjalan seperti T-411
 
 ### T-512 · Visitor tanpa WebGL
 

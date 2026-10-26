@@ -11,7 +11,7 @@ di `results/`; ringkasan dan analisisnya di `docs/laporan-performa.md`.
 
    ```sh
    export PERF_API_URL=https://api.<domain>   PERF_ADMIN_URL=https://admin.<domain>
-   export PERF_VISITOR_URL=https://<domain>   PERF_ANON_KEY=<ANON_KEY dari deploy/.env>
+   export PERF_VISITOR_URL=https://<domain>   PERF_ANON_KEY=<ANON_KEY dari .env folder instalasi>
    export PERF_EMAIL=<super admin>            PERF_PASSWORD=<password>
    # Instalasi dengan TLS_MODE=internal: NODE_TLS_REJECT_UNAUTHORIZED=0
    ```
