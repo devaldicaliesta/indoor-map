@@ -23,7 +23,10 @@ e2e/test-results
 # Paket instalasi: rahasia, backup, dan sertifikat klien hanya ada di server
 deploy/backups
 deploy/certs
+deploy/releases
 deploy/ca/*.crt
+# Hasil deploy/build-release.sh (paket klien dan arsip image)
+deploy/out
 
 # Python (services/cad-converter)
 __pycache__/

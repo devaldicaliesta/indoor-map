@@ -1,10 +1,15 @@
-# Fungsi bersama skrip deploy/. Di-source, bukan dijalankan.
-# shellcheck shell=bash
+# Fungsi bersama skrip paket instalasi. Di-source, bukan dijalankan.
+# Di server klien semua skrip ada di folder instalasi (mis. /opt/panduarah) bersama compose.yml,
+# migrations/, dan release.env dari arsip rilis; di repo, folder ini adalah deploy/.
+# shellcheck shell=bash disable=SC2034
 
 DEPLOY_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-REPO_DIR=$(dirname "$DEPLOY_DIR")
 ENV_FILE="$DEPLOY_DIR/.env"
 BACKUP_DIR="$DEPLOY_DIR/backups"
+RELEASES_DIR="$DEPLOY_DIR/releases"
+# Isi arsip rilis selain rahasia dan data: diganti saat upgrade, disimpan untuk rollback.
+RELEASE_FILES=(compose.yml lib.sh install.sh upgrade.sh rollback.sh backup.sh restore.sh migrate.sh
+  README.md release.env dev-hook-secret.sha256 db migrations)
 
 say() { printf '\033[1m==>\033[0m %s\n' "$*"; }
 die() { printf '\033[31mGAGAL:\033[0m %s\n' "$*" >&2; exit 1; }
@@ -12,7 +17,7 @@ die() { printf '\033[31mGAGAL:\033[0m %s\n' "$*" >&2; exit 1; }
 dc() { docker compose --project-directory "$DEPLOY_DIR" -f "$DEPLOY_DIR/compose.yml" --env-file "$ENV_FILE" "$@"; }
 
 load_env() {
-  [ -f "$ENV_FILE" ] || die "deploy/.env belum ada. Jalankan deploy/install.sh lebih dulu."
+  [ -f "$ENV_FILE" ] || die ".env belum ada di $DEPLOY_DIR. Jalankan install.sh lebih dulu."
   set -a
   # shellcheck disable=SC1090
   . "$ENV_FILE"
@@ -28,23 +33,62 @@ set_env() {
   fi
 }
 
-current_version() { git -C "$REPO_DIR" rev-parse --short=12 HEAD; }
+# Versi dan nama image dari release.env di folder rilis (dibuat build-release.sh).
+release_value() {
+  local dir=$1 key=$2
+  sed -n "s/^$key=//p" "$dir/release.env" 2>/dev/null
+}
 
-# Build rilis wajib memakai kunci publik lisensi vendor, bukan kunci dev yang privatnya ada di repo.
-assert_release_license_key() {
-  local file="$REPO_DIR/packages/domain/src/license.publicKey.ts" dev value
-  dev=$(sed -n "s/^export const LICENSE_DEV_PUBLIC_KEY = '\(.*\)';/\1/p" "$file")
-  value=$(sed -n "s/^export const LICENSE_PUBLIC_KEY = \(.*\);/\1/p" "$file")
-  if [ -z "$value" ] || [ "$value" = "LICENSE_DEV_PUBLIC_KEY" ] || [ "$value" = "'$dev'" ]; then
-    die "Build ini memakai kunci lisensi DEV. Paket rilis wajib memakai kunci publik vendor (license-cli keygen) di packages/domain/src/license.publicKey.ts."
+release_version() {
+  local version
+  version=$(release_value "${1:-$DEPLOY_DIR}" APP_VERSION)
+  [ -n "$version" ] || die "release.env tidak ada di ${1:-$DEPLOY_DIR}: ini bukan folder paket rilis."
+  printf '%s' "$version"
+}
+
+# Image paket rilis dari arsip (images.tar, instalasi tanpa internet) atau dari registry vendor.
+fetch_images() {
+  local dir=$1
+  if [ -f "$dir/images.tar" ]; then
+    say "Memuat image dari images.tar"
+    docker load -q -i "$dir/images.tar" >/dev/null
+  else
+    say "Mengunduh image dari registry"
+    docker compose --project-directory "$dir" -f "$dir/compose.yml" --env-file "$ENV_FILE" pull -q
   fi
 }
 
-migration_count() { find "$REPO_DIR/supabase/migrations" -maxdepth 1 -name '*.sql' | wc -l; }
+# Setiap image compose sudah ada di mesin ini, jadi `up` tidak perlu mengunduh apa pun.
+images_present() {
+  local dir=${1:-$DEPLOY_DIR} image missing=()
+  while read -r image; do
+    docker image inspect "$image" >/dev/null 2>&1 || missing+=("$image")
+  done < <(docker compose --project-directory "$dir" -f "$dir/compose.yml" --env-file "$ENV_FILE" \
+    --profile tools config --images)
+  [ ${#missing[@]} -eq 0 ] || { printf 'Image belum ada: %s\n' "${missing[*]}" >&2; return 1; }
+}
+
+# Mengganti berkas rilis di folder instalasi tanpa menyentuh .env, backups/, certs/, releases/.
+# Berkas diganti lewat mv (inode baru), sehingga skrip yang sedang berjalan tidak ikut berubah.
+install_release_files() {
+  local from=$1 to=$2 item
+  mkdir -p "$to"
+  for item in "${RELEASE_FILES[@]}"; do
+    [ -e "$from/$item" ] || continue
+    rm -rf "$to/.$item.new"
+    cp -a "$from/$item" "$to/.$item.new"
+    rm -rf "$to/$item.old"
+    [ -e "$to/$item" ] && mv "$to/$item" "$to/$item.old"
+    mv "$to/.$item.new" "$to/$item"
+    rm -rf "$to/$item.old"
+  done
+}
+
+migration_count() { find "$DEPLOY_DIR/migrations" -maxdepth 1 -name '*.sql' | wc -l; }
 
 psql_db() { dc exec -T db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -X -At "$@"; }
 
-# Semua layanan menjawab lewat gateway internal dan semua migrasi di checkout ini sudah diterapkan.
+# Semua layanan menjawab lewat gateway internal dan semua migrasi rilis ini sudah diterapkan.
 health_check() {
   local tries=${1:-60} i
   for ((i = 1; i <= tries; i++)); do

@@ -1,0 +1,39 @@
+$ tar -tzf panduarah-1.0.0.tar.gz
+panduarah-1.0.0/
+panduarah-1.0.0/compose.yml
+panduarah-1.0.0/release.env
+panduarah-1.0.0/README.md
+panduarah-1.0.0/upgrade.sh
+panduarah-1.0.0/restore.sh
+panduarah-1.0.0/migrations/
+panduarah-1.0.0/images.tar
+panduarah-1.0.0/lib.sh
+panduarah-1.0.0/migrate.sh
+panduarah-1.0.0/backup.sh
+panduarah-1.0.0/dev-hook-secret.sha256
+panduarah-1.0.0/db/
+panduarah-1.0.0/db/pg_hba.conf
+panduarah-1.0.0/db/roles.sql
+panduarah-1.0.0/rollback.sh
+panduarah-1.0.0/install.sh
+  (+ 54 migrasi SQL)
+
+$ cat release.env
+APP_VERSION=1.0.0
+IMAGE_PREFIX=panduarah
+COMMIT=9ab83658224a
+
+$ tar -tzf … | grep -cE "/(apps|packages|supabase|services|tools|node_modules)/"
+0
+$ grep -rIlE "LICENSE_(DEV_)?PUBLIC_KEY|PRIVATE KEY|BMshNVa3|2G5HKC" panduarah-1.0.0 --exclude=images.tar
+(kosong, exit 1)
+$ grep -c "build:" compose.yml
+0
+$ docker load: daftar image di images.tar
+  docker.io/panduarah/cad-converter:1.0.0
+  docker.io/panduarah/functions:1.0.0
+  docker.io/panduarah/web:1.0.0
+  docker.io/postgrest/postgrest:v16.3
+  docker.io/supabase/gotrue:v2.197.0
+  docker.io/supabase/postgres:17.6.1.171
+  docker.io/supabase/storage-api:v1.77.0
