@@ -231,3 +231,4 @@ export {
   roundGeometry,
   translateGeometry,
 } from './transform';
+export { detectWebGL, supportsWebGL, type WebGLProbeCanvas } from './webgl';

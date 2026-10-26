@@ -35,7 +35,9 @@
     "people": "Ilustrasi orang di peta (bukan data pengunjung nyata)",
     "building": "Gedung",
     "floorHasResults": "ada hasil",
-    "canvas": "Peta lantai. Tombol panah menggeser peta, + dan − memperbesar atau memperkecil."
+    "canvas": "Peta lantai. Tombol panah menggeser peta, + dan − memperbesar atau memperkecil.",
+    "unsupportedTitle": "Perangkat ini tidak mendukung peta",
+    "unsupportedDescription": "Pencarian, info tempat, dan langkah rute tetap bisa dipakai di panel."
   },
   "sheet": {
     "handle": "Ubah tinggi panel",
@@ -121,7 +123,8 @@
     "chooseTitle": "Anda sedang di mana?",
     "chooseHint": "Cari tempat Anda berada, buka, lalu pilih “Saya di sini”. Atau ketuk posisi Anda di peta.",
     "tapMap": "Ketuk di peta",
-    "tapHint": "Ketuk posisi Anda di peta."
+    "tapHint": "Ketuk posisi Anda di peta.",
+    "chooseHintNoMap": "Cari tempat Anda berada, buka, lalu pilih “Saya di sini”."
   },
   "route": {
     "title": "Rute",
