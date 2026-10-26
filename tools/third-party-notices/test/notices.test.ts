@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -103,5 +103,25 @@ describe('collectNotices dan renderNotices', () => {
     const names = noticesOf(packageRootsIn(nm)).map((n) => n.name);
     expect(names).toEqual(['@acme/alpha', 'bare', 'inner', 'mit-tanpa-berkas', 'zeta']);
     expect(packageRootsIn(join(dir, 'tidak-ada'))).toEqual([]);
+  });
+
+  it('tata letak pnpm: symlink dan dependensi di dalam .pnpm ikut terbaca', () => {
+    const deployed = join(dir, 'deploy', 'node_modules');
+    const store = join(deployed, '.pnpm');
+    fakePackage(
+      join(store, 'zod@4.0.0', 'node_modules', 'zod'),
+      { name: 'zod', version: '4.0.0', license: 'MIT' },
+      {},
+    );
+    fakePackage(
+      join(store, 'dep@1.0.0', 'node_modules', 'dep'),
+      { name: 'dep', version: '1.0.0', license: 'ISC' },
+      {},
+    );
+    symlinkSync(join(store, 'zod@4.0.0', 'node_modules', 'zod'), join(deployed, 'zod'), 'dir');
+    expect(noticesOf(packageRootsIn(deployed)).map((n) => `${n.name}@${n.version}`)).toEqual([
+      'dep@1.0.0',
+      'zod@4.0.0',
+    ]);
   });
 });

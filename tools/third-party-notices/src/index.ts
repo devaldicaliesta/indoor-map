@@ -100,8 +100,15 @@ export function readNotice(root: string): Notice {
 export function packageRootsIn(nodeModules: string): string[] {
   if (!existsSync(nodeModules)) return [];
   const roots: string[] = [];
+  // Tata letak pnpm: paket di node_modules berupa symlink ke `.pnpm/<paket>/node_modules/…`,
+  // dan dependensinya hanya terlihat di dalam `.pnpm`.
+  const store = join(nodeModules, '.pnpm');
+  if (existsSync(store)) {
+    for (const dir of readdirSync(store))
+      roots.push(...packageRootsIn(join(store, dir, 'node_modules')));
+  }
   for (const entry of readdirSync(nodeModules, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+    if (!(entry.isDirectory() || entry.isSymbolicLink()) || entry.name.startsWith('.')) continue;
     const dirs = entry.name.startsWith('@')
       ? readdirSync(join(nodeModules, entry.name)).map((name) => join(entry.name, name))
       : [entry.name];
