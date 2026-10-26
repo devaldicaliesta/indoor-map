@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** F2.1 Siap jual (R0–R4 selesai)
-**Task berikutnya:** T-521 Panduan Windows lewat VM Ubuntu
+**Task berikutnya:** T-599 Tur panduan di setiap halaman (driver.js)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -139,7 +139,7 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-512 | Visitor tanpa WebGL | — | review | map-core `supportsWebGL()` (WebGL2, karena MapLibre 6 hanya memakai WebGL2; diperiksa sekali per halaman, konteks uji dilepas; `detectWebGL` 4 test). Visitor: `VenueMap` menampilkan `MapUnavailable` ("Perangkat ini tidak mendukung peta", ID/EN) di area peta; `createMap` yang tetap gagal ditangkap lalu berganti ke pesan yang sama (`markMapFailed`). Cari, profil, panel rute, mode langkah, dan QR "Lanjutkan di HP" tidak bergantung pada peta. Tanpa peta pilihan "Ketuk di peta" disembunyikan dan petunjuk asal memakai kalimat tanpa peta (`origin.chooseHintNoMap`). Info Point: pesan yang sama versi layar besar (judul 32 px). Proyek Playwright `visitor-nowebgl` (`--disable-webgl --disable-3d-apis`), E2E 3/3 lulus; suite `visitor` tetap lulus (T-216 dan T-306 sempat gagal karena beban 2 worker, lulus saat diulang berurutan). Bukti `e2e/evidence/T-512/` |
 | T-513 | Performa kunjungan ulang + uji perangkat nyata | — | siap | |
 | T-514 | Perbaikan lisensi dan audit R4 | — | review | (1) `cad-floor-plan.spec.ts` dipindah ke project `license` (serial) dan memasang lisensi dev berfitur `cad_import` lalu memulihkan lisensi semula. (2) `cad-converter` memeriksa sesi lalu RPC `license_features()` atas nama pemanggil: tanpa `cad_import` → 403 `feature_locked` (klien `data.cadConverter` memetakannya ke `forbidden`). (3) Masa tenggang: domain `licenseAllows(action, licenseActive)` mengunci 8 aksi tulis konten yang juga ditolak server; Admin `useCan` menggantikan `can(role, …)` langsung di 13 tempat, dan `<Can>` menampilkan tombol nonaktif di dalam `fieldset` berketerangan "Masa tenggang lisensi: Admin hanya-baca." (4) Migrasi 0055: `license_install(…, p_actor_id)` mencatat Super Admin aktif yang memasang (lainnya ditolak `IM403`); `license-activate` meneruskan pemanggilnya. Diuji: pgTAP 7, unit (domain, data, cad-converter 18), E2E 4/4. Bukti `e2e/evidence/T-514/` |
-| T-521 | Panduan Windows lewat VM Ubuntu | — | siap | |
+| T-521 | Panduan Windows lewat VM Ubuntu | — | review | `deploy/README.md` Bagian 3: kebutuhan host, VM Hyper-V (PowerShell lengkap: switch, VM gen 2 4 vCPU/8 GB memori tetap/80 GB, Secure Boot templat UEFI CA, autostart/stop) dan VMware (ESXi Autostart, Workstation Shared VM), pemasangan Ubuntu 24.04 (IP tetap, `lvextend` LVM, NTP, `linux-cloud-tools-virtual`), jaringan bridge + `ufw` atau NAT Hyper-V/VMware + firewall Windows + konflik IIS, HTTPS di jaringan kantor, menyala otomatis setelah reboot, backup dua lapis (backup aplikasi ke share CIFS + backup VM `wbadmin`/`Export-VM`), tabel pemecahan masalah. **Belum diuji**: TC-INS-01 butuh host Windows/Hyper-V; daftar periksa untuk pemilik di `e2e/evidence/T-521/README.md` |
 | T-522 | Database PostgreSQL milik klien | T-511 | menunggu | |
 | T-523 | Windows Server langsung | T-521, T-511 | menunggu | |
 | T-531 | Hak akses granular | — | siap | |
