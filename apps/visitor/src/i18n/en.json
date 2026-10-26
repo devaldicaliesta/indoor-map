@@ -185,5 +185,40 @@
   },
   "preview": {
     "badge": "Draft preview · not published"
+  },
+  "tour": {
+    "next": "Next",
+    "previous": "Back",
+    "done": "Done",
+    "skip": "Skip",
+    "progress": "{{current}} of {{total}}",
+    "button": "How to use the map",
+    "infoPointButton": "How to use",
+    "venue": {
+      "introTitle": "Welcome",
+      "introBody": "This map helps you find places and routes in {{name}}. This short tour shows you how.",
+      "searchTitle": "Search places",
+      "searchBody": "Type a place name, room code, or service. Small typos are still found.",
+      "chipsTitle": "Categories and facilities",
+      "chipsBody": "Pick a category or a facility such as toilets to see every place of that kind. A–Z lists every place.",
+      "floorsTitle": "Change floor",
+      "floorsBody": "Pick the floor you want to see. Floors with search results are marked.",
+      "controlsTitle": "Map controls",
+      "controlsBody": "Zoom in or out, face north, switch between 2D and 3D, or go back to the starting view.",
+      "placeTitle": "Place card and route",
+      "placeBody": "Tap a place on the map or in the results to open its card. Directions to here shows step-by-step directions, and Share sends a link to someone else.",
+      "languageTitle": "Language",
+      "languageBody": "Switch between Indonesian and English at any time.",
+      "infoTitle": "Map info",
+      "infoBody": "The map version is here, along with a button to replay this tour."
+    },
+    "infoPoint": {
+      "introTitle": "How to use this screen",
+      "introBody": "Search for a place, see the route from where you stand, then take the route with you on your phone.",
+      "searchTitle": "Search places",
+      "searchBody": "Tap the search box and type on the on-screen keyboard.",
+      "routeTitle": "Route and continue on your phone",
+      "routeBody": "Open a place and choose Directions to here. Scan the Continue on your phone QR code to take the same route to your phone."
+    }
   }
 }

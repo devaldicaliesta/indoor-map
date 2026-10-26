@@ -24,6 +24,7 @@ import { VenueMap } from '../features/map/venue-map';
 import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
 import { DetailBackBar, ExplorePanel } from '../features/search/explore-panel';
 import { VenueSearch } from '../features/search/venue-search';
+import { useExplorerTour } from '../features/venue/use-explorer-tour';
 import { useVenueBranding } from '../features/venue/use-venue-branding';
 import { VenueInfo } from '../features/venue/venue-info';
 import { applyVenueLanguage, showLanguage } from '../i18n';
@@ -130,22 +131,26 @@ export function useVisitLanguage(link: DeepLink | null, defaultLanguage: Languag
 export function SnapshotExplorer({
   snapshot,
   link,
+  autoTour = true,
 }: {
   snapshot: Snapshot;
   link: DeepLink | null;
+  /** Pratinjau Admin mematikan tur otomatis. */
+  autoTour?: boolean;
 }) {
   const route = useRouteSnapshot(snapshot);
   return (
     <ExploreProvider snapshot={snapshot} route={route} link={link}>
-      <VenueExplorer snapshot={snapshot} />
+      <VenueExplorer snapshot={snapshot} autoTour={autoTour} />
     </ExploreProvider>
   );
 }
 
 /** Peta dengan pencarian, chip, daftar, dan detail; semuanya dari snapshot di perangkat. */
-function VenueExplorer({ snapshot }: { snapshot: Snapshot }) {
+function VenueExplorer({ snapshot, autoTour }: { snapshot: Snapshot; autoTour: boolean }) {
   const { t } = useTranslation();
   const brand = useVenueBranding(snapshot);
+  const tour = useExplorerTour(brand.name, autoTour);
   useLiveClosures(snapshot);
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const sheetSnap = useExploreStore((s) => s.sheetSnap);
@@ -155,7 +160,12 @@ function VenueExplorer({ snapshot }: { snapshot: Snapshot }) {
     <VisitorShell
       title={brand.name}
       logoUrl={brand.logoUrl}
-      actions={<VenueInfo snapshot={snapshot} />}
+      actions={
+        <>
+          {tour.infoPointButton}
+          <VenueInfo snapshot={snapshot} onTour={tour.start} />
+        </>
+      }
       map={<VenueMap snapshot={snapshot} />}
       search={
         // Di HP kolom cari terlalu sempit untuk nama venue; logo yang menandai venue.

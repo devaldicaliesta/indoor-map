@@ -48,7 +48,7 @@ export function ExploreChips({ scroll = false }: { scroll?: boolean }) {
   const toggleList = useExploreStore((s) => s.toggleList);
 
   return (
-    <nav aria-label={t('explore.chips')} className="min-w-0">
+    <nav aria-label={t('explore.chips')} className="min-w-0" data-tour="visitor-chips">
       <ul
         className={cn(
           'flex gap-2',

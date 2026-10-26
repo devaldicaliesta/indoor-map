@@ -73,6 +73,7 @@ export {
   TRIAL_ENDED,
 } from './repositories/snapshots';
 export type { SystemSettingsRepository } from './repositories/system-settings';
+export type { TourProgressRepository } from './repositories/tours';
 export type { TrialRepository } from './repositories/trial';
 export type { InviteUserInput, UsersRepository } from './repositories/users';
 export type {

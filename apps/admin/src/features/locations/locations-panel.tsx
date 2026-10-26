@@ -222,12 +222,17 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
         onRetry={() => void result.refetch()}
         actions={
           <Can action="location.edit">
-            <Button disabled={!types.data?.length} onClick={() => setImporting(true)}>
+            <Button
+              data-tour="locations-import"
+              disabled={!types.data?.length}
+              onClick={() => setImporting(true)}
+            >
               Import
             </Button>
             <QuotaNotice message={locationQuota} />
             <Button
               variant="primary"
+              data-tour="locations-add"
               disabled={!types.data?.length || locationQuota !== null}
               onClick={() => setOpen({ kind: 'form', location: null, unitId: null })}
             >

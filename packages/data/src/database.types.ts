@@ -1456,6 +1456,32 @@ export type Database = {
         };
         Relationships: [];
       };
+      tour_progress: {
+        Row: {
+          seen_at: string;
+          tour_key: string;
+          user_id: string;
+        };
+        Insert: {
+          seen_at?: string;
+          tour_key: string;
+          user_id?: string;
+        };
+        Update: {
+          seen_at?: string;
+          tour_key?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'tour_progress_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
       venue_members: {
         Row: {
           created_at: string;

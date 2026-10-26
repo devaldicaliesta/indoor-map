@@ -123,7 +123,8 @@ export function TableToolbar({
   });
   return (
     <div className="grid gap-2">
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Sasaran tur halaman (T-599): cari, filter, dan aksi tabel dalam satu baris. */}
+      <div className="flex flex-wrap items-center gap-2" data-tour="table-toolbar">
         {search ? (
           <SearchBox
             table={table}

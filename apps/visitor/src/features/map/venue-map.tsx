@@ -300,7 +300,10 @@ function VenueMapCanvas({ snapshot }: { snapshot: Snapshot }) {
         className="pointer-events-none absolute right-3 flex flex-col items-end justify-between gap-3"
         style={{ top: inset.top, bottom: inset.bottom }}
       >
-        <div className="pointer-events-auto min-h-0 overflow-y-auto rounded-sm">
+        <div
+          className="pointer-events-auto min-h-0 overflow-y-auto rounded-sm"
+          data-tour="visitor-floors"
+        >
           {floors.length > 1 ? (
             <FloorSwitcher
               floors={floors}
@@ -312,20 +315,21 @@ function VenueMapCanvas({ snapshot }: { snapshot: Snapshot }) {
             />
           ) : null}
         </div>
-        <MapControls
-          className="pointer-events-auto shrink-0"
-          labels={controlLabels}
-          bearing={bearing}
-          mode={mode}
-          onModeChange={setMode}
-          allow3d={allows3d(snapshot)}
-          onZoomIn={() => map?.zoomIn()}
-          onZoomOut={() => map?.zoomOut()}
-          onResetNorth={() => map?.easeTo({ bearing: 0 })}
-          onResetView={resetView}
-          people={people}
-          onPeopleChange={setPeople}
-        />
+        <div className="pointer-events-auto shrink-0" data-tour="visitor-map-controls">
+          <MapControls
+            labels={controlLabels}
+            bearing={bearing}
+            mode={mode}
+            onModeChange={setMode}
+            allow3d={allows3d(snapshot)}
+            onZoomIn={() => map?.zoomIn()}
+            onZoomOut={() => map?.zoomOut()}
+            onResetNorth={() => map?.easeTo({ bearing: 0 })}
+            onResetView={resetView}
+            people={people}
+            onPeopleChange={setPeople}
+          />
+        </div>
       </div>
     </div>
   );

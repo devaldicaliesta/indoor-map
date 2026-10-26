@@ -5,6 +5,7 @@ import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
 import { LocationTypesPanel } from '../location-types/location-types-panel';
 import { LocationsPanel } from './locations-panel';
+import { LOCATIONS_TOUR } from './tour';
 
 function LocationsModule({ venueId }: { venueId: VenueId }) {
   const [params, setParams] = useSearchParams();
@@ -13,7 +14,7 @@ function LocationsModule({ venueId }: { venueId: VenueId }) {
   const tab = requested === 'types' || requested === 'categories' ? 'types' : 'locations';
   return (
     <Tabs value={tab} onValueChange={(value) => setParams(value === 'types' ? { tab: value } : {})}>
-      <TabsList>
+      <TabsList data-tour="locations-tabs">
         <TabsTrigger value="locations">Lokasi</TabsTrigger>
         <TabsTrigger value="types">Tipe lokasi</TabsTrigger>
       </TabsList>
@@ -32,7 +33,7 @@ export function LocationsPage() {
   return (
     <ModuleRoute module="locations">
       {(access) => (
-        <ModulePage module="locations" access={access}>
+        <ModulePage module="locations" access={access} tour={LOCATIONS_TOUR}>
           {venue ? (
             <LocationsModule key={venue.id} venueId={venue.id} />
           ) : (
