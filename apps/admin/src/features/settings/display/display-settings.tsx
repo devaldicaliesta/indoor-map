@@ -1,9 +1,7 @@
 import {
-  type AppRole,
   type CameraView,
   COLOR_KINDS,
   type ColorKind,
-  can,
   type DisplaySettings,
   HEIGHT_KINDS,
   type HeightKind,
@@ -14,7 +12,7 @@ import {
 import { DEFAULT_HEIGHTS, defaultKindColor, type MapDisplay } from '@indoor/map-core';
 import { Button, cn, Input, Label, Skeleton, toast } from '@indoor/ui';
 import { type FormEvent, useMemo, useState } from 'react';
-import { useRole } from '../../../app/auth/can';
+import { useCan } from '../../../app/auth/can';
 import { FormNotice } from '../../auth/auth-layout';
 import { FEATURE_KIND_LABELS } from '../../editor/labels';
 import { useFeature } from '../../license/queries';
@@ -126,16 +124,8 @@ function ColorRow({
   );
 }
 
-function DisplayForm({
-  venueId,
-  settings,
-  role,
-}: {
-  venueId: VenueId;
-  settings: DisplaySettings;
-  role: AppRole | null;
-}) {
-  const canEdit = role !== null && can(role, 'settings.edit');
+function DisplayForm({ venueId, settings }: { venueId: VenueId; settings: DisplaySettings }) {
+  const canEdit = useCan('settings.edit');
   const [values, setValues] = useState<DisplayFormValues>(() => toFormValues(settings));
   const allow3d = useFeature('3d');
   const [errors, setErrors] = useState<DisplayFormErrors>({});
@@ -284,8 +274,7 @@ function DisplayForm({
 
 export function DisplaySettingsPanel({ venueId }: { venueId: VenueId }) {
   const settings = useDisplaySettings(venueId);
-  const role = useRole();
   if (settings.isPending) return <Skeleton className="h-96 w-full" />;
   if (settings.error) return <p className="text-danger">{settings.error.message}</p>;
-  return <DisplayForm key={venueId} venueId={venueId} settings={settings.data} role={role} />;
+  return <DisplayForm key={venueId} venueId={venueId} settings={settings.data} />;
 }

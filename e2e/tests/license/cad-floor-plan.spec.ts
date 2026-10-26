@@ -1,13 +1,42 @@
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { APIRequestContext } from '@playwright/test';
+import { ACCOUNTS } from '../../accounts';
+import { env } from '../../env';
 import { expect, test } from '../../fixtures';
 import { AdminShell } from '../../pages/admin-shell';
+import { currentLicenseId, devLicenseFile, restoreLicense } from '../../support/license';
 
 const shot = (name: string) => `evidence/T-313/${name}.png`;
 // Denah 40 × 20 m dalam milimeter: layer DINDING, PINTU, TEKS, FURNITUR, GRID.
 const DXF = fileURLToPath(new URL('../../files/denah-contoh.dxf', import.meta.url));
+const cadUrl = (process.env.VITE_CAD_CONVERTER_URL ?? '').replace(/\/+$/, '');
+
+/** Token sesi Super Admin seed, seperti yang dikirim Admin ke cad-converter. */
+async function superAdminToken(request: APIRequestContext): Promise<string> {
+  const response = await request.post(`${env.supabaseUrl}/auth/v1/token?grant_type=password`, {
+    headers: { apikey: env.anonKey },
+    data: { email: ACCOUNTS.super_admin.email, password: env.password },
+  });
+  expect(response.ok()).toBe(true);
+  return ((await response.json()) as { access_token: string }).access_token;
+}
+
+// Lisensi seed tidak memuat `cad_import` (fitur berbayar), jadi spec memasang lisensi dev yang
+// memuatnya lalu memulihkan lisensi semula; proyek `license` menjalankannya serial.
+test.describe.configure({ mode: 'serial' });
 
 test.describe('Denah dari DXF', () => {
-  test.skip(!process.env.VITE_CAD_CONVERTER_URL, 'Layanan cad-converter belum diatur');
+  test.skip(!cadUrl, 'Layanan cad-converter belum diatur');
+  let original = '';
+
+  test.beforeAll(() => {
+    original = currentLicenseId();
+  });
+
+  test.afterAll(() => {
+    restoreLicense(original);
+  });
 
   test('DWG ditolak dengan arahan; DXF dipilih layernya, diunggah, lalu ditempatkan', async ({
     page,
@@ -16,6 +45,9 @@ test.describe('Denah dari DXF', () => {
     superAdmin,
   }) => {
     const { venue, building, floor } = testVenue;
+    await superAdmin.license.activateManual(
+      await devLicenseFile({ features: ['3d', 'info_point', 'cad_import'] }),
+    );
     await loginAs('admin');
     await new AdminShell(page).selectVenue(venue.name);
     await page.goto('/venues');
@@ -70,5 +102,27 @@ test.describe('Denah dari DXF', () => {
     });
     await expect(page.getByLabel('Lebar')).toHaveValue('40');
     await page.screenshot({ path: shot('05-georeferensi') });
+  });
+
+  test('TC-HRD-08 tanpa cad_import: layanan menolak DXF yang dikirim langsung (403)', async ({
+    request,
+  }) => {
+    restoreLicense(original);
+    const token = await superAdminToken(request);
+    const dxf = readFileSync(DXF);
+    for (const path of ['/inspect', '/render?layer=DINDING']) {
+      const response = await request.post(`${cadUrl}${path}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: dxf,
+      });
+      expect(response.status()).toBe(403);
+      expect(await response.json()).toMatchObject({ code: 'feature_locked' });
+    }
+    // Sesi palsu tetap 401: pemeriksaan sesi dilakukan sebelum fitur.
+    const forged = await request.post(`${cadUrl}/inspect`, {
+      headers: { Authorization: 'Bearer palsu' },
+      data: dxf,
+    });
+    expect(forged.status()).toBe(401);
   });
 });

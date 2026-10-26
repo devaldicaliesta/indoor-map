@@ -34,6 +34,8 @@ export interface CadConverterRepository {
 const STATUS_KINDS: Record<number, 'invalid' | 'forbidden'> = {
   400: 'invalid',
   401: 'forbidden',
+  // Lisensi instalasi tanpa fitur `cad_import`: layanan menolak walau UI terlewati.
+  403: 'forbidden',
   413: 'invalid',
   415: 'invalid',
   422: 'invalid',

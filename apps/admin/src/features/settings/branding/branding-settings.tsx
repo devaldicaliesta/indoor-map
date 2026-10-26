@@ -1,14 +1,7 @@
-import {
-  type AppRole,
-  type Branding,
-  can,
-  checkImageFile,
-  type Venue,
-  type VenueId,
-} from '@indoor/domain';
+import { type Branding, checkImageFile, type Venue, type VenueId } from '@indoor/domain';
 import { BRAND_DEFAULTS, Button, Input, Skeleton, toast } from '@indoor/ui';
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
-import { useRole } from '../../../app/auth/can';
+import { useCan } from '../../../app/auth/can';
 import { Field } from '../../../app/components/field';
 import { data } from '../../../app/data-client';
 import { FormNotice } from '../../auth/auth-layout';
@@ -106,16 +99,8 @@ function LogoField({
   );
 }
 
-function BrandingForm({
-  venue,
-  branding,
-  role,
-}: {
-  venue: Venue;
-  branding: Branding;
-  role: AppRole | null;
-}) {
-  const canEdit = role !== null && can(role, 'settings.edit');
+function BrandingForm({ venue, branding }: { venue: Venue; branding: Branding }) {
+  const canEdit = useCan('settings.edit');
   const [values, setValues] = useState<BrandingFormValues>(() => toBrandingFormValues(branding));
   const [errors, setErrors] = useState<BrandingFormErrors>({});
   const [logo, setLogo] = useState<LogoDraft>({ kind: 'keep' });
@@ -225,13 +210,10 @@ function BrandingForm({
 export function BrandingPanel({ venueId }: { venueId: VenueId }) {
   const settings = useDisplaySettings(venueId);
   const venue = useVenueDetail(venueId);
-  const role = useRole();
   if (settings.isPending || venue.isPending) return <Skeleton className="h-96 w-full" />;
   if (settings.error || venue.error) {
     return <p className="text-danger">{(settings.error ?? venue.error)?.message}</p>;
   }
   if (!settings.data || !venue.data) return null;
-  return (
-    <BrandingForm key={venueId} venue={venue.data} branding={settings.data.branding} role={role} />
-  );
+  return <BrandingForm key={venueId} venue={venue.data} branding={settings.data.branding} />;
 }

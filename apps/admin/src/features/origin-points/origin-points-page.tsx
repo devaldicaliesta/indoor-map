@@ -1,4 +1,4 @@
-import { can, type OriginPoint, originPointUrl, type VenueSummary } from '@indoor/domain';
+import { type OriginPoint, originPointUrl, type VenueSummary } from '@indoor/domain';
 import {
   Button,
   type DataColumn,
@@ -19,7 +19,7 @@ import {
 } from '@indoor/ui';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { useRole } from '../../app/auth/can';
+import { useCan } from '../../app/auth/can';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
 import { useTableState } from '../../hooks/use-table-state';
@@ -51,8 +51,8 @@ function NoPublicUrl({ superAdmin }: { superAdmin: boolean }) {
 }
 
 function Origins({ venue }: { venue: VenueSummary }) {
-  const role = useRole();
-  const canEdit = role !== null && can(role, 'origin_point.edit');
+  const canEdit = useCan('origin_point.edit');
+  const superAdmin = useCan('settings.system');
   const points = useOriginPoints(venue.id);
   const places = useVenueFloors(venue.id).data;
   const publicUrl = usePublicVisitorUrl();
@@ -159,9 +159,7 @@ function Origins({ venue }: { venue: VenueSummary }) {
 
   return (
     <div className="grid gap-4">
-      {publicUrl.isPending || url ? null : (
-        <NoPublicUrl superAdmin={role !== null && can(role, 'settings.system')} />
-      )}
+      {publicUrl.isPending || url ? null : <NoPublicUrl superAdmin={superAdmin} />}
       <DataTable
         label="Titik asal"
         columns={columns}

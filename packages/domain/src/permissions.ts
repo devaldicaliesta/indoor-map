@@ -92,6 +92,28 @@ export function can(role: AppRole, action: AdminAction): boolean {
   return ACTION_ROLES[action].includes(role);
 }
 
+/**
+ * Aksi yang mengubah konten venue. Server menolaknya selama lisensi tidak berlaku, termasuk
+ * masa tenggang (`app.can_edit`, `can_manage`, `can_manage_closures` mensyaratkan
+ * `app.license_active`). Validasi, pengguna, pengaturan sistem, dan lisensi tetap terbuka agar
+ * perpanjangan bisa dipasang.
+ */
+const LICENSE_GATED_ACTIONS: ReadonlySet<AdminAction> = new Set<AdminAction>([
+  'venue.edit',
+  'map.edit',
+  'location.edit',
+  'closure.manage',
+  'origin_point.edit',
+  'publish.publish',
+  'publish.rollback',
+  'settings.edit',
+]);
+
+/** `false` bila aksi ini dikunci karena lisensi tidak berlaku (Admin hanya-baca). */
+export function licenseAllows(action: AdminAction, licenseActive: boolean): boolean {
+  return licenseActive || !LICENSE_GATED_ACTIONS.has(action);
+}
+
 /** Yang menentukan akses pengguna: role dan apakah ia menjangkau semua venue (T-611a). */
 export type AdminUser = Pick<Profile, 'role' | 'allVenues'>;
 
