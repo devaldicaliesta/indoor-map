@@ -20,22 +20,51 @@ from app.converter import ConversionError, inspect_dxf, render_svg
 # Sama dengan batas berkas denah di Admin dan bucket Storage.
 MAX_BYTES = 50 * 1024 * 1024
 
-TokenCheck = Callable[[str], bool]
+# Hasil pemeriksaan token: "ok", "unauthorized" (sesi tidak sah), atau "forbidden" (lisensi
+# instalasi tidak memuat fitur impor CAD).
+TokenCheck = Callable[[str], str]
+
+CAD_FEATURE = "cad_import"
 
 
-def supabase_session_check(url: str, anon_key: str) -> TokenCheck:
-    """Token harus sesi Supabase yang masih berlaku; layanan ini tidak menyentuh data."""
+def supabase_access_check(url: str, anon_key: str) -> TokenCheck:
+    """Token harus sesi Supabase yang masih berlaku, dan lisensi instalasi memuat `cad_import`.
 
-    def check(token: str) -> bool:
-        request = urllib.request.Request(
-            f"{url.rstrip('/')}/auth/v1/user",
-            headers={"Authorization": f"Bearer {token}", "apikey": anon_key},
-        )
+    Fitur dibaca lewat RPC `license_features()` atas nama pemanggil, jadi kunci di UI Admin tidak
+    bisa dilewati dengan memanggil layanan ini langsung. Layanan tetap tidak menyimpan data.
+    """
+    base = url.rstrip("/")
+    headers = {"Authorization": "", "apikey": anon_key}
+
+    def call(request: urllib.request.Request) -> tuple[int, bytes]:
         try:
             with urllib.request.urlopen(request, timeout=5) as response:
-                return response.status == 200
+                return response.status, response.read()
+        except urllib.error.HTTPError as error:
+            return error.code, b""
         except (urllib.error.URLError, TimeoutError):
-            return False
+            return 0, b""
+
+    def check(token: str) -> str:
+        auth = {**headers, "Authorization": f"Bearer {token}"}
+        status, _ = call(urllib.request.Request(f"{base}/auth/v1/user", headers=auth))
+        if status != 200:
+            return "unauthorized"
+        status, body = call(
+            urllib.request.Request(
+                f"{base}/rest/v1/rpc/license_features",
+                data=b"{}",
+                method="POST",
+                headers={**auth, "Content-Type": "application/json"},
+            )
+        )
+        if status in (401, 403):
+            return "unauthorized"
+        try:
+            features = json.loads(body) if status == 200 else []
+        except ValueError:
+            features = []
+        return "ok" if isinstance(features, list) and CAD_FEATURE in features else "forbidden"
 
     return check
 
@@ -83,8 +112,16 @@ def make_handler(allowed_origins: set[str], check_token: TokenCheck | None):
             if check_token is not None:
                 auth = self.headers.get("Authorization", "")
                 token = auth.removeprefix("Bearer ").strip()
-                if not token or not check_token(token):
+                access = check_token(token) if token else "unauthorized"
+                if access == "unauthorized":
                     self._fail(401, "unauthorized", "Sesi tidak berlaku. Masuk lagi.")
+                    return
+                if access != "ok":
+                    self._fail(
+                        403,
+                        "feature_locked",
+                        "Impor denah CAD (DXF) tidak termasuk paket lisensi ini.",
+                    )
                     return
             length = int(self.headers.get("Content-Length") or 0)
             if length <= 0:
@@ -114,7 +151,7 @@ def main() -> None:
     origins = {o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "").split(",") if o.strip()}
     url = os.environ.get("SUPABASE_URL")
     anon = os.environ.get("SUPABASE_ANON_KEY")
-    check = supabase_session_check(url, anon) if url and anon else None
+    check = supabase_access_check(url, anon) if url and anon else None
     if check is None and os.environ.get("ALLOW_ANONYMOUS") != "1":
         raise SystemExit("SUPABASE_URL dan SUPABASE_ANON_KEY wajib diisi (atau ALLOW_ANONYMOUS=1).")
     port = int(os.environ.get("PORT", "8090"))

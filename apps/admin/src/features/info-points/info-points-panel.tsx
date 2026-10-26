@@ -1,5 +1,4 @@
 import {
-  can,
   type InfoPoint,
   infoPointUrl,
   lockedFeatureMessage,
@@ -21,7 +20,7 @@ import {
   toast,
 } from '@indoor/ui';
 import { useState } from 'react';
-import { useRole } from '../../app/auth/can';
+import { useCan } from '../../app/auth/can';
 import { useTableState } from '../../hooks/use-table-state';
 import { FormNotice } from '../auth/auth-layout';
 import { floorLabel } from '../closures/closure-model';
@@ -49,8 +48,7 @@ const MODE_FILTER: FilterDef = {
 };
 
 export function InfoPointsPanel({ venue }: { venue: VenueSummary }) {
-  const role = useRole();
-  const canEdit = role !== null && can(role, 'origin_point.edit');
+  const canEdit = useCan('origin_point.edit');
   const points = useInfoPoints(venue.id);
   const places = useVenueFloors(venue.id).data;
   const publicUrl = usePublicVisitorUrl();
