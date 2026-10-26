@@ -28,7 +28,7 @@ export function SearchField({
 }) {
   const { t } = useTranslation();
   return (
-    <search className={cn('relative block', className)}>
+    <search className={cn('relative block', className)} data-tour="visitor-search">
       <SearchIcon
         aria-hidden="true"
         strokeWidth={1.75}

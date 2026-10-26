@@ -32,7 +32,10 @@ export function TablePagination({
   const sizeLabel = useId();
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+    <div
+      className="flex flex-wrap items-center justify-between gap-3 text-sm"
+      data-tour="table-pagination"
+    >
       <div className="flex items-center gap-2">
         <span id={sizeLabel} className="text-ink-muted">
           Baris per halaman
