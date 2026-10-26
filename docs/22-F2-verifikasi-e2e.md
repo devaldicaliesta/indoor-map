@@ -60,8 +60,10 @@ paling sesuai.
    masuk PR task yang sama. Commit memakai nama task (`T-5xx: …`), bukan `T-307a`.
 2. **Urutan lapisan:** unit (U), pgTAP (D), dan integrasi (I) task itu hijau dulu, baru E2E (E).
    Langkah manual (M) dicatat di README bukti.
-3. **Tur panduan (driver.js) mati di E2E.** Fixture menandai semua tur sudah dilihat untuk akun dan
-   perangkat uji. Hanya spec T-599 yang menyalakannya.
+3. **Tur panduan (driver.js) tidak mulai sendiri di E2E.** Server dev yang dijalankan Playwright
+   memakai `VITE_TOUR_AUTOSTART=off` (berlaku juga untuk `browser.newPage()` di spec). Hanya spec
+   T-599 yang menyalakannya per perangkat lewat `localStorage['indoor.tour.auto'] = 'on'`
+   (`e2e/support/tour.ts`). Bila memakai server dev sendiri, isi variabel itu di `.env.local`.
 4. **Perubahan tampilan bersama** (judul PanduArah di T-501, `DataTable` di T-503) diikuti dengan
    memperbarui Page Object di `e2e/pages/`. Test lama tidak dilemahkan atau dihapus.
 5. **Lisensi dipulihkan.** Spec yang memasang lisensi trial atau lisensi dengan fitur tertentu
@@ -93,7 +95,8 @@ Format: task · judul — **fokus cek** · test case → folder bukti. Level `M`
 - [x] T-514 · Perbaikan lisensi dan audit R4 — `cad-floor-plan` lulus, 403 tanpa `cad_import`, tombol masa tenggang, pelaku audit · TC-HRD-07 s.d. 10 → `e2e/evidence/T-514/`
 - [ ] T-521 · Windows lewat VM Ubuntu — ikuti panduan di Hyper-V (M) · TC-INS-01 → `e2e/evidence/T-521/`
 - [ ] T-596 · Bantuan pengguna — artikel per menu, buka offline, tur lintas halaman · TC-OPS-16 → `e2e/evidence/T-596/`
-- [ ] T-599 · Tur panduan (driver.js) — tur per halaman Admin, Visitor, Info Point; lewati, ulang, role, lazy load · TC-TUR-01 s.d. 11, TC-SEC-73 → `e2e/evidence/T-599/`
+- [x] T-599a · Tur panduan, fondasi — tur Lokasi (Admin, per role), peta venue (Visitor EN), Info Point; lewati, ulang, lintas perangkat, keyboard, kontras, lazy load · TC-TUR-01 s.d. 09, TC-SEC-73 → `e2e/evidence/T-599/`
+- [ ] T-599b · Tur panduan, semua halaman — tur setiap menu Admin dan beranda Visitor, Editor Peta saat menggambar, test registri · TC-TUR-10, 11 → `e2e/evidence/T-599/`
 - [ ] T-601 · UU PDP — export dan hapus data akun, retensi, pemberitahuan privasi · TC-KOM-01, 02, 08 → `e2e/evidence/T-601/`
 - [ ] T-602 · Dokumen legal — EULA wajib disetujui saat aktivasi pertama · TC-KOM-03 → `e2e/evidence/T-602/`
 - [ ] T-605 · Demo penjualan — reset satu perintah, venue per industri bisa dipublish dan dirutekan (M) · TC-KOM-06 → `e2e/evidence/T-605/`
