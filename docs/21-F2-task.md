@@ -1066,6 +1066,18 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 
 ### T-599 · Tur panduan di setiap halaman (driver.js)
 
+> **Dipecah (2026-10-26)** karena terlalu besar untuk satu sesi:
+> - **T-599a · Fondasi tur:** modul `packages/ui/src/tour` (driver.js lazy, tema token, keyboard,
+>   `resolveTourSteps`), status tur Admin di server (migrasi `tour_progress`, RLS pemilik) dan
+>   Visitor di `localStorage`, tur Lokasi (Admin), tur peta venue (Visitor), tur "Cara pakai" Info
+>   Point, pengaturan E2E, test TC-TUR-01 s.d. 09 dan TC-SEC-73.
+> - **T-599b · Tur semua halaman:** tur Aktivasi, Venue (tab Gedung, sheet Lantai), Georeferensi,
+>   Editor Peta (tidak mulai sendiri saat ada gambar belum selesai, TC-TUR-10), Penutupan, Titik
+>   Asal dan Info Point, Publish, Pengaturan, Pengguna, Lisensi, beranda Visitor, dan test registri
+>   TC-TUR-11. Bergantung pada T-599a.
+>
+> Kriteria "Selesai jika" di bawah berlaku untuk gabungan keduanya.
+
 - **Untuk:** `20-F2-fase-2.md` §2.14
 - **Bergantung pada:** T-501 (nama produk di teks tur), T-503 (tur menunjuk cari, filter, dan
   pagination tabel)
