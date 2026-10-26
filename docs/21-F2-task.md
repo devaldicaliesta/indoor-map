@@ -291,8 +291,8 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
   4. Test: E2E dengan WebGL dimatikan (`--disable-webgl` di Chromium).
 - **Verifikasi:** TC-HRD-04; bukti `e2e/evidence/T-512/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
-  - [ ] Tanpa WebGL, cari "Radiologi" dan rute dari titik asal tetap menampilkan langkah
-  - [ ] Tidak ada layar "Terjadi kesalahan"
+  - [x] Tanpa WebGL, cari "Radiologi" dan rute dari titik asal tetap menampilkan langkah
+  - [x] Tidak ada layar "Terjadi kesalahan"
 
 ### T-513 · Performa kunjungan ulang dan uji perangkat nyata
 
