@@ -47,6 +47,8 @@ import {
 import { useExploreMap } from './explore-map';
 import { categoryIconSpecs, facilityIconSpecs } from './facility-icons';
 import { LABEL_FONT } from './label-font';
+import { markMapFailed, useMapAvailable } from './map-support';
+import { MapUnavailable } from './map-unavailable';
 import { useCrowdMap } from './use-crowd-map';
 
 /** Isi pastel dan tepi per unit dari warna kategori lokasinya (dihitung sekali per snapshot). */
@@ -112,11 +114,16 @@ function startCamera(snapshot: Snapshot, view: MapView, mode: SnapshotDisplayMod
 const PICKER_PX = 44;
 const CONTROLS_PX = 44;
 
+/** Peta venue, atau pesan pengganti di perangkat tanpa WebGL (panel cari dan rute tetap jalan). */
+export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
+  return useMapAvailable() ? <VenueMapCanvas snapshot={snapshot} /> : <MapUnavailable />;
+}
+
 /**
  * Peta venue dari snapshot: gedung dan lantai default, kamera awal, 2D/3D bila lisensi
  * membukanya, serta nama lokasi dan ikon fasilitas yang saling menyembunyikan saat bertumpuk.
  */
-export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
+function VenueMapCanvas({ snapshot }: { snapshot: Snapshot }) {
   const { t } = useTranslation();
   // Di HP kontrol tidak boleh tertutup kolom cari di atas dan bottom sheet di bawah.
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
@@ -186,14 +193,21 @@ export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
       colors: snapshot.venue.display.colors,
     };
     const camera = firstCamera.current;
-    const instance = createMap(container, {
-      center: camera?.kind === 'view' ? camera.center : [0, 0],
-      zoom: camera?.kind === 'view' ? camera.zoom : 1,
-      bearing: camera?.kind === 'view' ? camera.bearing : 0,
-      mode: initialViewMode(snapshot),
-      display,
-      labelFont: LABEL_FONT,
-    });
+    let instance: MapInstance;
+    try {
+      instance = createMap(container, {
+        center: camera?.kind === 'view' ? camera.center : [0, 0],
+        zoom: camera?.kind === 'view' ? camera.zoom : 1,
+        bearing: camera?.kind === 'view' ? camera.bearing : 0,
+        mode: initialViewMode(snapshot),
+        display,
+        labelFont: LABEL_FONT,
+      });
+    } catch {
+      // Konteks WebGL2 ditolak walau pemeriksaan awal lolos (GPU di daftar blokir, memori habis).
+      markMapFailed();
+      return;
+    }
     instance.on('rotate', () => setBearing(instance.getBearing()));
     // Status kamera untuk test E2E; ditulis langsung ke elemen agar tidak memicu render.
     container.dataset.camera = 'idle';

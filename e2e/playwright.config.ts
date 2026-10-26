@@ -96,6 +96,19 @@ export default defineConfig({
       },
     },
     {
+      // Perangkat tanpa WebGL (PC Info Point dengan GPU lama, T-512): Visitor tanpa peta.
+      name: 'visitor-nowebgl',
+      testMatch: 'visitor-nowebgl/**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: env.visitorUrl,
+        viewport: { width: 360, height: 740 },
+        isMobile: true,
+        hasTouch: true,
+        launchOptions: { args: ['--disable-webgl', '--disable-3d-apis'] },
+      },
+    },
+    {
       // Dasbor vendor trial ter-hosting (T-617): desktop, dipakai staf vendor.
       name: 'vendor',
       testMatch: 'vendor/**/*.spec.ts',
@@ -127,7 +140,7 @@ export default defineConfig({
       // satu berkas pada satu waktu (vendor-stub memakai port 8091).
       name: 'license',
       testMatch: 'license/**/*.spec.ts',
-      dependencies: ['admin', 'visitor'],
+      dependencies: ['admin', 'visitor', 'visitor-nowebgl'],
       fullyParallel: false,
       workers: 1,
       use: {
