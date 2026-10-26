@@ -326,9 +326,9 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
      `license-activate` sehingga log mencatat nama Super Admin.
 - **Verifikasi:** TC-HRD-07 s.d. 10; bukti `e2e/evidence/T-514/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
-  - [ ] `cad-floor-plan.spec.ts` lulus
-  - [ ] Konversi DXF ditolak server tanpa `cad_import`
-  - [ ] Log audit aktivasi menyebut nama Super Admin
+  - [x] `cad-floor-plan.spec.ts` lulus
+  - [x] Konversi DXF ditolak server tanpa `cad_import`
+  - [x] Log audit aktivasi menyebut nama Super Admin
 
 ---
 

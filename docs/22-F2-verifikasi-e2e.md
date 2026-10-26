@@ -90,7 +90,7 @@ Format: task · judul — **fokus cek** · test case → folder bukti. Level `M`
 - [x] T-505 · Landing page dan form trial — ID/EN, HP dan desktop, kirim form ke Mailpit, validasi, spam · TC-LND-01 s.d. 08 → `e2e/evidence/T-505/`
 - [x] T-511 · Image Docker jadi — pasang dari arsip tanpa internet, isi paket, upgrade dan rollback (M) · TC-HRD-01 s.d. 03 → `e2e/evidence/T-511/`
 - [x] T-512 · Visitor tanpa WebGL — pesan, cari dan rute tetap jalan, Info Point · TC-HRD-04 → `e2e/evidence/T-512/`
-- [ ] T-514 · Perbaikan lisensi dan audit R4 — `cad-floor-plan` lulus, 403 tanpa `cad_import`, tombol masa tenggang, pelaku audit · TC-HRD-07 s.d. 10 → `e2e/evidence/T-514/`
+- [x] T-514 · Perbaikan lisensi dan audit R4 — `cad-floor-plan` lulus, 403 tanpa `cad_import`, tombol masa tenggang, pelaku audit · TC-HRD-07 s.d. 10 → `e2e/evidence/T-514/`
 - [ ] T-521 · Windows lewat VM Ubuntu — ikuti panduan di Hyper-V (M) · TC-INS-01 → `e2e/evidence/T-521/`
 - [ ] T-596 · Bantuan pengguna — artikel per menu, buka offline, tur lintas halaman · TC-OPS-16 → `e2e/evidence/T-596/`
 - [ ] T-599 · Tur panduan (driver.js) — tur per halaman Admin, Visitor, Info Point; lewati, ulang, role, lazy load · TC-TUR-01 s.d. 11, TC-SEC-73 → `e2e/evidence/T-599/`
