@@ -195,5 +195,5 @@ Format: task · judul — **fokus cek** → folder bukti.
 ### Sudah diuji saat dikerjakan (2026-10-02)
 
 - [x] T-307 · Validasi publish lengkap — temuan Error/Peringatan, publish ditolak bila ada Error, klik temuan membuka lantai dan menyorot fitur → `e2e/evidence/T-307/` (2026-10-03)
-- [x] T-313 · Konversi denah CAD — DWG ditolak, DXF: pilih layer, pratinjau, unggah, skala awal → `e2e/evidence/T-313/` (`tests/admin/cad-floor-plan.spec.ts`)
+- [x] T-313 · Konversi denah CAD — DWG ditolak, DXF: pilih layer, pratinjau, unggah, skala awal → `e2e/evidence/T-313/` (`tests/license/cad-floor-plan.spec.ts`, dipindah di T-514)
 - [x] T-410 · Branding Visitor — simpan/ubah/hapus logo, nama, warna; validasi; Editor baca saja; tampil di Visitor setelah publish → `e2e/evidence/T-410/` (`tests/admin/branding.spec.ts`)
