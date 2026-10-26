@@ -18,8 +18,11 @@ ENV VITE_SUPABASE_URL=__PANDUARAH_API_URL__ \
 RUN pnpm --filter @indoor/admin --filter @indoor/visitor build \
   && grep -rlq __PANDUARAH_API_URL__ apps/admin/dist \
   && grep -rlq __PANDUARAH_ANON_KEY__ apps/visitor/dist
-# Paket domain mandiri (dengan node_modules nyata) untuk import relatif Edge Function.
-RUN pnpm --filter @indoor/domain deploy --legacy --prod /out/domain
+# Paket domain mandiri (dengan node_modules nyata) untuk import relatif Edge Function, beserta
+# pemberitahuan lisensi paket yang ikut di dalamnya.
+RUN pnpm --filter @indoor/domain deploy --legacy --prod /out/domain \
+  && node --experimental-strip-types tools/third-party-notices/src/cli.ts \
+    'PanduArah Edge Function (paket domain)' /out/domain/node_modules > /out/domain/THIRD-PARTY-NOTICES.txt
 
 FROM caddy:2.10-alpine AS web
 COPY --from=build /repo/apps/admin/dist /opt/panduarah/www/admin
@@ -43,6 +46,8 @@ RUN cat /etc/ssl/certs/ca-certificates.crt /tmp/ca/*.crt > /tmp/build-ca.pem 2>/
 COPY services/cad-converter/requirements.txt .
 RUN PIP_CERT=/tmp/build-ca.pem pip install --no-cache-dir -r requirements.txt && rm -rf /tmp/ca /tmp/build-ca.pem
 COPY services/cad-converter/app ./app
+COPY services/cad-converter/notices.py /tmp/notices.py
+RUN python /tmp/notices.py > /srv/THIRD-PARTY-NOTICES.txt && rm /tmp/notices.py
 RUN useradd --system --no-create-home converter
 USER converter
 ENV PORT=8090

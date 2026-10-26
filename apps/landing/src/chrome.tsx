@@ -108,6 +108,9 @@ export function SiteFooter() {
           <a href={privacyPage(language)} className="underline">
             {copy.footer.privacy}
           </a>
+          <a href="/third-party-notices.txt" className="underline">
+            {copy.footer.openSource}
+          </a>
         </div>
       </div>
     </footer>

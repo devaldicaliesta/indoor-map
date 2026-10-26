@@ -59,6 +59,14 @@ export function VenueInfo({ snapshot, className }: { snapshot: Snapshot; classNa
           <BrandSymbol label="" className="h-5" />
           {t('info.poweredBy', { tagline: PRODUCT_TAGLINE })}
         </p>
+        <a
+          href="/third-party-notices.txt"
+          target="_blank"
+          rel="noopener"
+          className="text-ink-muted text-sm underline underline-offset-4"
+        >
+          {t('info.openSource')}
+        </a>
       </DialogContent>
     </Dialog>
   );

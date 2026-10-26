@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@indoor/third-party-notices": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
