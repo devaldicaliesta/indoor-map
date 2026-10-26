@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Backup database (pg_basebackup, tanpa menghentikan layanan) + Storage + deploy/.env ke
-# deploy/backups/<waktu>/. Backup lebih tua dari 14 hari dihapus. Mencetak path backup.
+# Backup database (pg_basebackup, tanpa menghentikan layanan) + Storage + .env ke
+# backups/<waktu>/. Backup lebih tua dari 14 hari dihapus. Mencetak path backup.
 set -euo pipefail
 . "$(dirname "$0")/lib.sh"
 load_env

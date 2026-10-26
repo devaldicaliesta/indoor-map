@@ -1,5 +1,7 @@
-# Paket instalasi on-premise. Semua nilai dari deploy/.env yang dibuat install.sh.
+# Paket instalasi on-premise. Semua nilai dari .env yang dibuat install.sh.
 # Hanya komponen Supabase yang dipakai aplikasi: Postgres, Auth, PostgREST, Storage, Edge Runtime.
+# Image aplikasi (web, functions, cad) dibangun vendor (build-release.sh); server klien hanya
+# memuat atau menarik image versi APP_VERSION, tidak pernah build dari kode sumber.
 name: indoor-map
 
 services:
@@ -104,15 +106,7 @@ services:
       retries: 30
 
   functions:
-    build:
-      context: ..
-      dockerfile: deploy/Dockerfile
-      target: functions
-      args: &build-args
-        VITE_SUPABASE_URL: https://${API_DOMAIN}
-        VITE_SUPABASE_ANON_KEY: ${ANON_KEY}
-        VITE_CAD_CONVERTER_URL: https://${API_DOMAIN}/cad
-    image: indoor-map/functions:${APP_VERSION:-local}
+    image: ${IMAGE_PREFIX:-panduarah}/functions:${APP_VERSION:?APP_VERSION belum diisi di .env}
     restart: unless-stopped
     networks:
       default:
@@ -129,11 +123,7 @@ services:
       LICENSE_VENDOR_URL: ${LICENSE_VENDOR_URL:-}
 
   cad:
-    build:
-      context: ..
-      dockerfile: deploy/Dockerfile
-      target: cad
-    image: indoor-map/cad-converter:${APP_VERSION:-local}
+    image: ${IMAGE_PREFIX:-panduarah}/cad-converter:${APP_VERSION:?APP_VERSION belum diisi di .env}
     restart: unless-stopped
     environment:
       ALLOWED_ORIGINS: https://${ADMIN_DOMAIN}
@@ -141,12 +131,7 @@ services:
       SUPABASE_ANON_KEY: ${ANON_KEY}
 
   web:
-    build:
-      context: ..
-      dockerfile: deploy/Dockerfile
-      target: web
-      args: *build-args
-    image: indoor-map/web:${APP_VERSION:-local}
+    image: ${IMAGE_PREFIX:-panduarah}/web:${APP_VERSION:?APP_VERSION belum diisi di .env}
     restart: unless-stopped
     depends_on:
       - auth
@@ -160,6 +145,8 @@ services:
     environment:
       API_DOMAIN: ${API_DOMAIN}
       ADMIN_DOMAIN: ${ADMIN_DOMAIN}
+      PANDUARAH_API_URL: https://${API_DOMAIN}
+      PANDUARAH_ANON_KEY: ${ANON_KEY}
       VISITOR_DOMAIN: ${VISITOR_DOMAIN}
       TLS_DIRECTIVE: ${TLS_DIRECTIVE}
     volumes:
@@ -184,7 +171,7 @@ services:
       FUNCTIONS_URL: http://functions:9000
     volumes:
       - ./migrate.sh:/deploy/migrate.sh:ro
-      - ${MIGRATIONS_DIR:-../supabase/migrations}:/migrations:ro
+      - ./migrations:/migrations:ro
 
 volumes:
   db-data:

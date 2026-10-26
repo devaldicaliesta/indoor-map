@@ -1,5 +1,6 @@
-# Image paket instalasi. Target `web`: Caddy (HTTPS + gateway) dengan build statis Admin dan
-# Visitor. Target `functions`: Edge Runtime berisi Edge Function dan paket domain yang diimpornya.
+# Image rilis, dibangun vendor lewat deploy/build-release.sh (bukan di server klien). Target
+# `web`: Caddy (HTTPS + gateway) dengan build statis Admin dan Visitor. Target `functions`: Edge
+# Runtime berisi Edge Function dan paket domain yang diimpornya. Target `cad`: cad-converter.
 FROM node:22-slim AS build
 WORKDIR /repo
 RUN corepack enable
@@ -9,18 +10,24 @@ RUN cat deploy/ca/*.crt > /build-ca.pem 2>/dev/null || : > /build-ca.pem
 ENV NODE_EXTRA_CA_CERTS=/build-ca.pem
 # Skrip install tidak dibutuhkan untuk build (satu-satunya, CLI supabase, tidak dipakai di sini).
 RUN pnpm install --frozen-lockfile --ignore-scripts
-ARG VITE_SUPABASE_URL
-ARG VITE_SUPABASE_ANON_KEY
-ARG VITE_CAD_CONVERTER_URL
-RUN test -n "$VITE_SUPABASE_URL" && test -n "$VITE_SUPABASE_ANON_KEY" \
-  && pnpm --filter @indoor/admin --filter @indoor/visitor build
+# Alamat API dan kunci anon baru diketahui di server klien (install.sh membangkitkannya), jadi
+# build memakai penanda yang diganti web-entrypoint.sh saat container mulai.
+ENV VITE_SUPABASE_URL=__PANDUARAH_API_URL__ \
+    VITE_SUPABASE_ANON_KEY=__PANDUARAH_ANON_KEY__ \
+    VITE_CAD_CONVERTER_URL=__PANDUARAH_API_URL__/cad
+RUN pnpm --filter @indoor/admin --filter @indoor/visitor build \
+  && grep -rlq __PANDUARAH_API_URL__ apps/admin/dist \
+  && grep -rlq __PANDUARAH_ANON_KEY__ apps/visitor/dist
 # Paket domain mandiri (dengan node_modules nyata) untuk import relatif Edge Function.
 RUN pnpm --filter @indoor/domain deploy --legacy --prod /out/domain
 
 FROM caddy:2.10-alpine AS web
-COPY --from=build /repo/apps/admin/dist /srv/admin
-COPY --from=build /repo/apps/visitor/dist /srv/visitor
+COPY --from=build /repo/apps/admin/dist /opt/panduarah/www/admin
+COPY --from=build /repo/apps/visitor/dist /opt/panduarah/www/visitor
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
+COPY deploy/web-entrypoint.sh /usr/local/bin/web-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/web-entrypoint.sh"]
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 
 FROM supabase/edge-runtime:v1.76.2 AS functions
 COPY --from=build /out/domain /srv/packages/domain
