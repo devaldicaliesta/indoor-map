@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** F2.1 Siap jual (R0–R4 selesai)
-**Task berikutnya:** T-599 Tur panduan di setiap halaman (driver.js)
+**Task berikutnya:** T-601 Kepatuhan UU PDP (T-599b menunggu T-599a di-merge)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -179,10 +179,11 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-593 | API dan webhook integrasi | — | siap | |
 | T-594 | Export GeoJSON dan IMDF | — | siap | |
 | T-595 | Vendor Portal minimal | T-504, T-505 | siap | Bagian lisensi on-premise ditunda (2026-10-09); dasbor trial hosting dipisah ke T-617 |
-| T-596 | Bantuan dan dokumentasi pengguna | T-599 | menunggu | |
+| T-596 | Bantuan dan dokumentasi pengguna | T-599b | menunggu | |
 | T-597 | Monitoring server di Admin | T-411 | siap | |
 | T-598 | Notifikasi email operasional | T-591 (ringkasan saja) | menunggu | Jenis lain tidak menunggu T-591 |
-| T-599 | Tur panduan di setiap halaman (driver.js) | T-501, T-503 | siap | driver.js (MIT, gratis), keputusan 2026-10-06 |
+| T-599a | Tur panduan: fondasi, Lokasi, Visitor, Info Point | T-501, T-503 | review | `packages/ui/src/tour`: `resolveTourSteps` (membuang langkah tanpa izin role/lisensi dan sasaran tak terlihat), `useTour`, `TourButton`, `runTour` (driver.js 1.9.0 MIT dimuat `import()` saat tur dimulai; tema CSS dari token disuntik bersama chunk; Lanjut/Kembali/Selesai/Lewati, indikator langkah, panah/Esc, focus trap Tab, tanpa animasi saat reduced motion). Admin: migrasi 0056 `tour_progress` (RLS hanya pemilik, tanpa delete, kunci `id@versi`), `data.tours`, `useAdminTour`/`ModulePage tour` + tombol "Tur halaman", tur Lokasi berbeda per role; `data-tour` di toolbar dan pagination `DataTable`. Visitor: status per perangkat di `localStorage` dengan cadangan memori, tur peta venue (sheet dibuka sesuai langkah, i18n `tour.*` ID/EN) mulai sendiri sekali, diulang dari dialog info; Info Point tur "Cara pakai" hanya lewat tombol dan tertutup saat idle; pratinjau Admin tanpa tur otomatis. Chunk tur dikecualikan dari precache service worker (runtime cache saat dipakai). E2E 5/5 (Admin 2, Visitor/Info Point 3) stabil 2 run; pgTAP 10; integrasi 2; unit ui 5, Visitor 3. Bukti `e2e/evidence/T-599/` |
+| T-599b | Tur panduan: semua halaman dan test registri | T-599a | menunggu | Sisa tur Admin (Aktivasi, Venue, Georeferensi, Editor Peta, Penutupan, Titik Asal/Info Point, Publish, Pengaturan, Pengguna, Lisensi), beranda Visitor, TC-TUR-10, TC-TUR-11 |
 | T-601 | Kepatuhan UU PDP | — | siap | |
 | T-602 | Dokumen legal penjualan | — | siap | |
 | T-603 | Uji keamanan + pentest | — | siap | |
@@ -219,6 +220,8 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 (Tidak ada pertanyaan terbuka.)
 
 ## Catatan keputusan
+
+- [2026-10-26] T-599 — **Dipecah menjadi T-599a (fondasi + Lokasi + Visitor + Info Point) dan T-599b (tur semua halaman + test registri).** Dependency baru **driver.js 1.9.0** (MIT; 1.10.x baru berumur seminggu): 7,5 kB gzip JS; bersama tema CSS kita menjadi chunk `run-tour-*.js` ±9 kB gzip yang hanya dimuat saat tur dimulai dan dikecualikan dari precache service worker Visitor (runtime cache saat dipakai; offline sebelum pernah dipakai = tur tidak tampil tanpa galat). CSS bawaan driver.js tidak dipakai: aturan struktural ditulis ulang dengan token dan disuntikkan bersama chunk (ukuran huruf/tombol mengikuti permukaan Admin/Visitor/Info Point). Ditambahkan focus trap sendiri (trap bawaan driver.js ikut memasukkan elemen yang disorot sehingga Tab lari ke halaman). Status Admin di tabel `tour_progress` (bukan konten venue: tidak terkunci lisensi, tidak masuk matriks role T-312, diuji pgTAP sendiri); tur yang dilewati dihitung "sudah dilihat". E2E: alih-alih menandai tur sudah dilihat di seed (tidak mencakup akun undangan dan perangkat Visitor di 29 pemanggilan `browser.newPage/newContext`), server dev Playwright memakai `VITE_TOUR_AUTOSTART=off` dan spec tur menyalakannya per perangkat dengan `localStorage['indoor.tour.auto']='on'`. Tombol tur Visitor ada di dialog info ("Cara pakai peta") agar header HP 360 px tidak bertambah; Info Point punya tombol "Cara pakai" di header. Pratinjau Admin (`/preview`) tidak memulai tur.
 
 - [2026-10-26] Lisensi pihak ketiga (persetujuan pemilik, lanjutan T-511) — Pemeriksaan lisensi: semua pustaka npm yang ter-bundle dan paket Python cad-converter permisif (MIT/ISC/BSD/Apache/OFL); tidak ada AGPL/SSPL/BUSL/non-komersial di bagian yang dikirim. Dua kewajiban yang sebelumnya belum dipenuhi kini otomatis: (1) `third-party-notices.txt` dibuat saat build oleh `tools/third-party-notices` (plugin Vite tanpa dependency baru, dari modul yang benar-benar ter-bundle + font OFL + CSS Tailwind + runtime Workbox; CLI untuk image functions) dan `services/cad-converter/notices.py`; ditautkan dari halaman Lisensi Admin, dialog info Visitor, dan footer landing. (2) Image yang dikirim lewat `images.tar` memuat komponen GPL (PostGIS GPL-2.0+, pgRouting dan SFCGAL/CGAL yang tidak dipakai, paket OS Alpine/Debian seperti BusyBox dan bash) sebagai program terpisah yang tidak diubah, jadi kode PanduArah tidak tunduk GPL; `build-release.sh` kini menyertakan `licenses/` (pemberitahuan per image + daftar paket OS per image) dan `SUMBER-TERBUKA.md` berisi penawaran tertulis kode sumber tiga tahun ke panduarahid@gmail.com. Vendor perlu mengarsipkan `licenses/os-packages/` setiap rilis. Untuk T-549 (model AI) yang diperiksa adalah lisensi bobot model: hindari bobot AGPL (mis. Ultralytics YOLO) atau non-komersial. Tinjauan hukum akhir di T-602.
 

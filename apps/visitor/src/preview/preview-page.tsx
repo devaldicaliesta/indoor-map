@@ -44,7 +44,12 @@ export function PreviewPage() {
         {t('preview.badge')}
       </p>
       {snapshot ? (
-        <SnapshotExplorer key={snapshot.venue.id} snapshot={snapshot} link={link} />
+        <SnapshotExplorer
+          key={snapshot.venue.id}
+          snapshot={snapshot}
+          link={link}
+          autoTour={false}
+        />
       ) : (
         <VisitorShell>
           <div className="grid gap-2" aria-busy="true">

@@ -185,5 +185,40 @@
   },
   "preview": {
     "badge": "Preview draft · belum dipublish"
+  },
+  "tour": {
+    "next": "Lanjut",
+    "previous": "Kembali",
+    "done": "Selesai",
+    "skip": "Lewati",
+    "progress": "{{current}} dari {{total}}",
+    "button": "Cara pakai peta",
+    "infoPointButton": "Cara pakai",
+    "venue": {
+      "introTitle": "Selamat datang",
+      "introBody": "Peta ini membantu Anda menemukan tempat dan rute di {{name}}. Tur singkat ini menunjukkan caranya.",
+      "searchTitle": "Cari tempat",
+      "searchBody": "Ketik nama tempat, kode ruang, atau layanan. Salah ketik kecil tetap ditemukan.",
+      "chipsTitle": "Kategori dan fasilitas",
+      "chipsBody": "Pilih kategori atau fasilitas seperti toilet untuk melihat semua tempat sejenis. A–Z berisi daftar semua tempat.",
+      "floorsTitle": "Ganti lantai",
+      "floorsBody": "Pilih lantai yang ingin dilihat. Lantai yang berisi hasil pencarian diberi tanda.",
+      "controlsTitle": "Kendali peta",
+      "controlsBody": "Perbesar, perkecil, arahkan ke utara, ganti tampilan 2D/3D, atau kembali ke tampilan awal.",
+      "placeTitle": "Kartu tempat dan rute",
+      "placeBody": "Ketuk tempat di peta atau hasil cari untuk membuka kartunya. Rute ke sini menampilkan langkah demi langkah, dan Bagikan mengirim tautan ke orang lain.",
+      "languageTitle": "Bahasa",
+      "languageBody": "Ganti bahasa antara Indonesia dan Inggris kapan saja.",
+      "infoTitle": "Info peta",
+      "infoBody": "Versi peta ada di sini, beserta tombol untuk mengulang tur ini."
+    },
+    "infoPoint": {
+      "introTitle": "Cara pakai layar ini",
+      "introBody": "Cari tempat, lihat rutenya dari posisi Anda di depan layar ini, lalu bawa rutenya ke HP.",
+      "searchTitle": "Cari tempat",
+      "searchBody": "Ketuk kolom cari lalu ketik dengan keyboard di layar.",
+      "routeTitle": "Rute dan lanjutkan di HP",
+      "routeBody": "Buka tempat lalu pilih Rute ke sini. Pindai QR Lanjutkan di HP untuk membawa rute yang sama ke ponsel Anda."
+    }
   }
 }

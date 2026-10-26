@@ -59,13 +59,19 @@ export default defineConfig({
       workbox: {
         // Aset app (termasuk font) di-precache: cache-first.
         globPatterns: ['**/*.{js,css,html,woff2,png,svg}'],
-        // IBM Plex Sans hanya untuk Admin; Visitor memakai Atkinson Hyperlegible.
-        globIgnores: ['**/ibm-plex-sans-*'],
+        // IBM Plex Sans hanya untuk Admin; Visitor memakai Atkinson Hyperlegible. Chunk tur
+        // (driver.js) baru diunduh saat tur dimulai, lalu di-cache lewat runtimeCaching di bawah.
+        globIgnores: ['**/ibm-plex-sans-*', '**/run-tour-*.js'],
         // Bundel utama (MapLibre + app) ±2,1 MB melewati batas bawaan workbox 2 MiB; tanpa
         // precache Visitor tidak terbuka saat offline (NFR-REL-03), jadi batasnya dinaikkan.
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: '/index.html',
         runtimeCaching: [
+          {
+            urlPattern: ({ url }) => /\/assets\/run-tour-[^/]+\.js$/.test(url.pathname),
+            handler: 'CacheFirst',
+            options: { cacheName: 'tour', expiration: { maxEntries: 4 } },
+          },
           {
             // Snapshot venue: selalu ditanyakan ke server lebih dulu agar versi terbaru terpakai;
             // bila tidak berubah server membalas 304 (ETag) sehingga isinya diambil dari cache

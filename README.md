@@ -34,8 +34,8 @@
 | | |
 | --- | --- |
 | 🚀 **Rilis aktif** | F2.1 Siap jual |
-| ⏭️ **Task berikutnya** | T-599 (tur panduan driver.js) |
-| 🧪 **Menunggu review** | T-511 (distribusi image Docker jadi), T-512 (Visitor tanpa WebGL), T-514 (perbaikan lisensi dan audit R4), T-521 (panduan Windows; uji manual Hyper-V belum) |
+| ⏭️ **Task berikutnya** | T-601 (kepatuhan UU PDP) |
+| 🧪 **Menunggu review** | T-511 (distribusi image Docker jadi), T-512 (Visitor tanpa WebGL), T-514 (perbaikan lisensi dan audit R4), T-521 (panduan Windows; uji manual Hyper-V belum), T-599a (tur panduan: fondasi, Lokasi, Visitor, Info Point) |
 
 | Rilis | Isi | Progres | Task |
 | --- | --- | --- | --- |
@@ -45,7 +45,7 @@
 | **R3** Operasional | Template, import, publish berversi | `████████████████████` 100% | 14 · ✅ |
 | **V** Visitor komersial | Tampilan Visitor bergaya peta indoor | `████████████████████` 100% | 8 · ✅ |
 | **R4** Komersial | Lisensi, kuota, Info Point, paket instalasi | `████████████████████` 100% | 13 · ✅ |
-| **F2** Fase 2 | Siap jual, keamanan, fitur pembeda | `███░░░░░░░░░░░░░░░░░` 15% | 60 · ✅ 5 · 🟡 4 · ⬜ 37 · ⚪ 14 |
+| **F2** Fase 2 | Siap jual, keamanan, fitur pembeda | `███░░░░░░░░░░░░░░░░░` 16% | 61 · ✅ 5 · 🟡 5 · ⬜ 36 · ⚪ 15 |
 | **F2-K** Trial hosting | Trial otomatis di Supabase + Cloudflare | `████████████████████` 100% | 14 · ✅ |
 
 **Keterangan status:** ✅ selesai · 🟡 review (sudah dibangun, menunggu review pemilik) · 🔵 dikerjakan · ⬜ siap (dependensi selesai) · ⚪ menunggu · 🔴 diblokir
