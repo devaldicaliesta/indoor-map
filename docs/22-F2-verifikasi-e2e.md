@@ -49,7 +49,7 @@ T-591, T-597, dan T-598.
 | `visitor` (ada) | Visitor HP 360 × 740, Info Point potret 1080 × 1920 dibuka di halaman tambahan | `e2e/tests/visitor/f2/T-5xx-slug.spec.ts` |
 | `license` (ada, serial) | Spec yang mengubah lisensi instalasi: trial, fitur paket (`events`, `cad_import`) | `e2e/tests/license/f2/T-5xx-slug.spec.ts` |
 | `landing` (baru) | Landing page HP 360 × 740 dan desktop 1280 × 800 | `e2e/tests/landing/T-505-slug.spec.ts` |
-| `visitor-nowebgl` (baru) | Chromium dengan `--disable-webgl --disable-3d-apis` | `e2e/tests/visitor-nowebgl/T-512-slug.spec.ts` |
+| `visitor-nowebgl` (ada sejak T-512) | Chromium dengan `--disable-webgl --disable-3d-apis`, HP 360 × 740; Info Point dibuka di halaman tambahan | `e2e/tests/visitor-nowebgl/T-512-no-webgl.spec.ts` |
 
 Spec alur gabungan per rilis memakai nama `F2.x-alur-gabungan.spec.ts` di folder proyek yang
 paling sesuai.
@@ -89,8 +89,8 @@ Format: task · judul — **fokus cek** · test case → folder bukti. Level `M`
 - [ ] T-504 · Lisensi trial — trial otomatis dan per permintaan, trial kedua ditolak, setiap batas trial, tenggang, upgrade ke berbayar · TC-TRL-01 s.d. 14, TC-SEC-80 → `e2e/evidence/T-504/`
 - [x] T-505 · Landing page dan form trial — ID/EN, HP dan desktop, kirim form ke Mailpit, validasi, spam · TC-LND-01 s.d. 08 → `e2e/evidence/T-505/`
 - [x] T-511 · Image Docker jadi — pasang dari arsip tanpa internet, isi paket, upgrade dan rollback (M) · TC-HRD-01 s.d. 03 → `e2e/evidence/T-511/`
-- [ ] T-512 · Visitor tanpa WebGL — pesan, cari dan rute tetap jalan, Info Point · TC-HRD-04 → `e2e/evidence/T-512/`
-- [ ] T-514 · Perbaikan lisensi dan audit R4 — `cad-floor-plan` lulus, 403 tanpa `cad_import`, tombol masa tenggang, pelaku audit · TC-HRD-07 s.d. 10 → `e2e/evidence/T-514/`
+- [x] T-512 · Visitor tanpa WebGL — pesan, cari dan rute tetap jalan, Info Point · TC-HRD-04 → `e2e/evidence/T-512/`
+- [x] T-514 · Perbaikan lisensi dan audit R4 — `cad-floor-plan` lulus, 403 tanpa `cad_import`, tombol masa tenggang, pelaku audit · TC-HRD-07 s.d. 10 → `e2e/evidence/T-514/`
 - [ ] T-521 · Windows lewat VM Ubuntu — ikuti panduan di Hyper-V (M) · TC-INS-01 → `e2e/evidence/T-521/`
 - [ ] T-596 · Bantuan pengguna — artikel per menu, buka offline, tur lintas halaman · TC-OPS-16 → `e2e/evidence/T-596/`
 - [ ] T-599 · Tur panduan (driver.js) — tur per halaman Admin, Visitor, Info Point; lewati, ulang, role, lazy load · TC-TUR-01 s.d. 11, TC-SEC-73 → `e2e/evidence/T-599/`

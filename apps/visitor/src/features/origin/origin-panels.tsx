@@ -2,6 +2,7 @@ import { Button } from '@indoor/ui';
 import { MapPinIcon, NavigationIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useInfoPointMode } from '../../infopoint/info-point-mode';
+import { useMapAvailable } from '../map/map-support';
 import { useExplore, useExploreStore } from '../search/explore-context';
 import { originView } from './origin-model';
 
@@ -26,15 +27,21 @@ export function OriginChooser() {
   const { t } = useTranslation();
   const tapOrigin = useExploreStore((s) => s.tapOrigin);
   const cancelOrigin = useExploreStore((s) => s.cancelOrigin);
+  // Tanpa peta, titik asal hanya bisa dipilih dari daftar ("Saya di sini") atau QR.
+  const mapAvailable = useMapAvailable();
   return (
     <section className="grid gap-2 rounded-sm border border-line p-3" aria-live="polite">
       <h2 className="font-bold">{t('origin.chooseTitle')}</h2>
-      <p className="text-ink-muted text-sm">{t('origin.chooseHint')}</p>
+      <p className="text-ink-muted text-sm">
+        {mapAvailable ? t('origin.chooseHint') : t('origin.chooseHintNoMap')}
+      </p>
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" onClick={tapOrigin}>
-          <MapPinIcon aria-hidden="true" strokeWidth={1.75} />
-          {t('origin.tapMap')}
-        </Button>
+        {mapAvailable ? (
+          <Button size="sm" onClick={tapOrigin}>
+            <MapPinIcon aria-hidden="true" strokeWidth={1.75} />
+            {t('origin.tapMap')}
+          </Button>
+        ) : null}
         <Button size="sm" variant="ghost" onClick={cancelOrigin}>
           {t('origin.cancel')}
         </Button>

@@ -1,6 +1,5 @@
 import {
   type Building,
-  can,
   type Floor,
   type FloorId,
   FloorIdSchema,
@@ -12,7 +11,7 @@ import { EmptyState, Skeleton } from '@indoor/ui';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { useRole } from '../../app/auth/can';
+import { useCan } from '../../app/auth/can';
 import { useCurrentProfile } from '../../app/auth/current-profile';
 import { data } from '../../app/data-client';
 import { ModuleRoute } from '../../app/module-route';
@@ -254,7 +253,9 @@ function Editor({
 
 export function EditorPage() {
   const { venue } = useSelectedVenue();
-  const role = useRole();
+  const canEditMap = useCan('map.edit');
+  const canManageClosures = useCan('closure.manage');
+  const canTakeOverLock = useCan('user.manage');
   const profile = useCurrentProfile().data;
   return (
     <ModuleRoute module="map_editor">
@@ -263,9 +264,9 @@ export function EditorPage() {
           <Editor
             key={venue.id}
             venueId={venue.id}
-            canEditMap={role !== null && can(role, 'map.edit')}
-            canManageClosures={role !== null && can(role, 'closure.manage')}
-            canTakeOverLock={role !== null && can(role, 'user.manage')}
+            canEditMap={canEditMap}
+            canManageClosures={canManageClosures}
+            canTakeOverLock={canTakeOverLock}
             userId={profile?.userId ?? null}
           />
         ) : (

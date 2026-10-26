@@ -106,7 +106,13 @@ function trialRequest(input: Record<string, unknown>) {
   return { name, institution, email };
 }
 
-async function install(file: unknown, source: 'online' | 'manual', instanceId: string) {
+/** `actorId`: Super Admin yang memasang, untuk log audit; kosong pada instalasi baru. */
+async function install(
+  file: unknown,
+  source: 'online' | 'manual',
+  instanceId: string,
+  actorId: string | null,
+) {
   const key = await importLicensePublicKey(LICENSE_PUBLIC_KEY);
   const result = await verifyLicense(file, key, instanceId, new Date());
   if (!result.valid) throw new ActivationError(422, 'invalid', REJECTIONS[result.reason]);
@@ -118,6 +124,7 @@ async function install(file: unknown, source: 'online' | 'manual', instanceId: s
       p_payload: result.license,
       p_signature: (file as { signature: string }).signature,
       p_source: source,
+      p_actor_id: actorId,
     }),
   });
   if (!response.ok) {
@@ -185,9 +192,10 @@ async function createFirstAdmin(input: Record<string, unknown>) {
 
 async function handle(request: Request, input: Record<string, unknown>) {
   const current = await status();
+  const actor = await activeSuperAdmin(request);
   // Instalasi baru (belum ada Super Admin) boleh diaktifkan tanpa login; setelah itu hanya
   // Super Admin yang boleh memasang lisensi baru.
-  if (!current.needs_admin && !(await activeSuperAdmin(request))) {
+  if (!current.needs_admin && !actor) {
     throw new ActivationError(403, 'forbidden', 'Hanya Super Admin yang bisa memasang lisensi.');
   }
 
@@ -209,15 +217,17 @@ async function handle(request: Request, input: Record<string, unknown>) {
       licenseKey: key,
       instanceId: current.instance_id,
     });
-    return { license: await install(file, 'online', current.instance_id) };
+    return { license: await install(file, 'online', current.instance_id, actor?.id ?? null) };
   }
   if (input.mode === 'trial') {
     const request = trialRequest(input);
     const file = await fromVendor('/v1/trial', { ...request, instanceId: current.instance_id });
-    return { license: await install(file, 'online', current.instance_id) };
+    return { license: await install(file, 'online', current.instance_id, actor?.id ?? null) };
   }
   if (input.mode === 'manual') {
-    return { license: await install(input.license, 'manual', current.instance_id) };
+    return {
+      license: await install(input.license, 'manual', current.instance_id, actor?.id ?? null),
+    };
   }
   throw new ActivationError(400, 'invalid', 'Mode aktivasi tidak dikenal.');
 }

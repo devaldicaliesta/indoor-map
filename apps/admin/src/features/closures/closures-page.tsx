@@ -1,7 +1,6 @@
 import {
   type Closure,
   type ClosureStatus,
-  can,
   closureStatus,
   closureTarget,
   type VenueSummary,
@@ -19,7 +18,7 @@ import {
   toast,
 } from '@indoor/ui';
 import { useState } from 'react';
-import { useRole } from '../../app/auth/can';
+import { useCan } from '../../app/auth/can';
 import { inVenueTime } from '../../app/format';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
@@ -58,8 +57,7 @@ const FILTERS: FilterDef[] = [
 ];
 
 function Closures({ venue }: { venue: VenueSummary }) {
-  const role = useRole();
-  const canManage = role !== null && can(role, 'closure.manage');
+  const canManage = useCan('closure.manage');
   const network = useClosureNetwork(venue.id);
   const timezone = useVenueTimezone(venue.id);
   const { setEndsAt, remove } = useClosureMutations(venue.id);

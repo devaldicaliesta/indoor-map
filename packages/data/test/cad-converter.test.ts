@@ -62,4 +62,17 @@ describe('klien konversi CAD', () => {
     }) as typeof fetch);
     await expect(down.inspect(dxf)).rejects.toMatchObject({ kind: 'network' });
   });
+
+  it('lisensi tanpa cad_import: 403 dari layanan menjadi galat izin dengan pesan layanan', async () => {
+    const { fetcher } = stub(403, {
+      code: 'feature_locked',
+      message: 'Impor denah CAD (DXF) tidak termasuk paket lisensi ini.',
+    });
+    const cad = createCadConverterRepository(session, 'http://cad.local', fetcher);
+    await expect(cad.render(dxf, ['DINDING'])).rejects.toMatchObject({
+      kind: 'forbidden',
+      code: 'feature_locked',
+      message: 'Impor denah CAD (DXF) tidak termasuk paket lisensi ini.',
+    });
+  });
 });

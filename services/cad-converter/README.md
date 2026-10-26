@@ -17,14 +17,20 @@ permintaan, tidak disimpan, dan layanan tidak menyentuh database.
 | `POST` | `/render?layer=A&layer=B&maxPx=4000` | DXF | `{ svg, widthPx, heightPx, extents }` |
 | `GET` | `/health` | – | `{ ok: true }` |
 
-Setiap `POST` wajib membawa `Authorization: Bearer <token sesi Supabase>`; token diperiksa ke
-`SUPABASE_URL/auth/v1/user`. Maksimal 50 MB.
+Setiap `POST` wajib membawa `Authorization: Bearer <token sesi Supabase>`. Layanan memeriksa:
+
+1. sesi ke `SUPABASE_URL/auth/v1/user` — tidak sah: **401** `unauthorized`;
+2. fitur lisensi lewat RPC `SUPABASE_URL/rest/v1/rpc/license_features` atas nama pemanggil —
+   tanpa `cad_import`: **403** `feature_locked` (T-514). Kunci di UI Admin tidak bisa dilewati
+   dengan memanggil layanan ini langsung.
+
+Maksimal 50 MB.
 
 ## Konfigurasi
 
 | Variabel | Isi |
 | --- | --- |
-| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Untuk memeriksa sesi pengguna Admin |
+| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Untuk memeriksa sesi pengguna Admin dan fitur lisensi `cad_import` |
 | `ALLOWED_ORIGINS` | Origin Admin, dipisah koma (CORS) |
 | `PORT` | Bawaan `8090` |
 | `ALLOW_ANONYMOUS=1` | Hanya untuk pengembangan: tanpa pemeriksaan sesi |
@@ -40,3 +46,7 @@ SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_ANON_KEY=… ALLOWED_ORIGINS=http:/
   python -m app.server
 python -m unittest discover -s tests -t .
 ```
+
+Lisensi dev dari seed tidak memuat `cad_import`, jadi konversi lokal membalas 403 sampai lisensi
+berfitur itu dipasang (E2E `tests/license/cad-floor-plan.spec.ts` memasangnya lewat
+`devLicenseFile({ features })` lalu memulihkan lisensi semula).

@@ -6,6 +6,7 @@ import {
   can,
   canInviteUsers,
   invitableRoles,
+  licenseAllows,
   moduleAccess,
   moduleAccessFor,
   visibleModules,
@@ -120,6 +121,37 @@ describe('akses per venue (trial ter-hosting)', () => {
     for (const role of ['editor', 'operator', 'viewer'] as const) {
       expect(moduleAccessFor({ role, allVenues: false }, 'users')).toBeNull();
       expect(canInviteUsers({ role, allVenues: false })).toBe(false);
+    }
+  });
+});
+
+describe('licenseAllows (masa tenggang: Admin hanya-baca)', () => {
+  it('lisensi berlaku: semua aksi dibuka', () => {
+    for (const action of ADMIN_ACTIONS) expect(licenseAllows(action, true)).toBe(true);
+  });
+
+  it('lisensi tidak berlaku: aksi tulis konten dikunci, sama dengan yang ditolak server', () => {
+    const locked = ADMIN_ACTIONS.filter((action) => !licenseAllows(action, false));
+    expect(locked).toEqual([
+      'venue.edit',
+      'map.edit',
+      'location.edit',
+      'closure.manage',
+      'origin_point.edit',
+      'publish.publish',
+      'publish.rollback',
+      'settings.edit',
+    ]);
+  });
+
+  it('validasi, pengguna, pengaturan sistem, dan lisensi tetap terbuka untuk memasang perpanjangan', () => {
+    for (const action of [
+      'publish.validate',
+      'user.manage',
+      'settings.system',
+      'license.manage',
+    ] as const) {
+      expect(licenseAllows(action, false)).toBe(true);
     }
   });
 });

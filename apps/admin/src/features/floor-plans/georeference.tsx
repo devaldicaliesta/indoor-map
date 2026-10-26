@@ -1,11 +1,11 @@
-import { can, type FloorId, FloorIdSchema, type Point, type VenueId } from '@indoor/domain';
+import { type FloorId, FloorIdSchema, type Point, type VenueId } from '@indoor/domain';
 import { type Placement, placementCorners } from '@indoor/map-core';
 import { Badge, Button, EmptyState, Skeleton, toast } from '@indoor/ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { useRole } from '../../app/auth/can';
+import { useCan } from '../../app/auth/can';
 import { data } from '../../app/data-client';
 import { ModuleRoute } from '../../app/module-route';
 import { ReferenceFloorPicker } from '../editor/reference-layer';
@@ -174,15 +174,12 @@ function GeoreferenceScreen({ floorId, canEdit }: { floorId: FloorId; canEdit: b
 
 export function GeoreferencePage() {
   const parsed = FloorIdSchema.safeParse(useParams().floorId);
-  const role = useRole();
+  const canEdit = useCan('venue.edit');
   return (
     <ModuleRoute module="venues">
       {() =>
         parsed.success ? (
-          <GeoreferenceScreen
-            floorId={parsed.data}
-            canEdit={role !== null && can(role, 'venue.edit')}
-          />
+          <GeoreferenceScreen floorId={parsed.data} canEdit={canEdit} />
         ) : (
           <div className="p-6">
             <EmptyState title="Lantai tidak ditemukan" description="Tautan tidak valid." />

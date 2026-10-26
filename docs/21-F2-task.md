@@ -291,8 +291,8 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
   4. Test: E2E dengan WebGL dimatikan (`--disable-webgl` di Chromium).
 - **Verifikasi:** TC-HRD-04; bukti `e2e/evidence/T-512/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
-  - [ ] Tanpa WebGL, cari "Radiologi" dan rute dari titik asal tetap menampilkan langkah
-  - [ ] Tidak ada layar "Terjadi kesalahan"
+  - [x] Tanpa WebGL, cari "Radiologi" dan rute dari titik asal tetap menampilkan langkah
+  - [x] Tidak ada layar "Terjadi kesalahan"
 
 ### T-513 · Performa kunjungan ulang dan uji perangkat nyata
 
@@ -326,9 +326,9 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
      `license-activate` sehingga log mencatat nama Super Admin.
 - **Verifikasi:** TC-HRD-07 s.d. 10; bukti `e2e/evidence/T-514/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
-  - [ ] `cad-floor-plan.spec.ts` lulus
-  - [ ] Konversi DXF ditolak server tanpa `cad_import`
-  - [ ] Log audit aktivasi menyebut nama Super Admin
+  - [x] `cad-floor-plan.spec.ts` lulus
+  - [x] Konversi DXF ditolak server tanpa `cad_import`
+  - [x] Log audit aktivasi menyebut nama Super Admin
 
 ---
 
