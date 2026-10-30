@@ -174,11 +174,11 @@ pnpm test:e2e           # Playwright main flows (needs the local Supabase and pn
 
 ## Deployment
 
-**PanduArah is published on Cloudflare Pages (the four web apps) and Supabase (database, auth, storage, Edge Functions). It is not deployed on Google Cloud**, so this submission has no Cloud Run or Firebase App Distribution link. The live URLs are in the table at the top.
+**PanduArah is published on Cloudflare Pages (the web apps) and Supabase (database, auth, storage, Edge Functions). It is not deployed on Google Cloud**, so this submission has no Cloud Run or Firebase App Distribution link. The live URLs are in the table at the top.
 
 | Part | Where it runs |
 | --- | --- |
-| Landing, Visitor, Admin, vendor dashboard | Cloudflare Pages, built from the `production` branch (`pnpm --filter @indoor/<app> build`) |
+| Landing, Visitor, Admin | Cloudflare Pages, built from the `production` branch (`pnpm --filter @indoor/<app> build`) |
 | Database, auth, storage, Edge Functions | Supabase (Postgres + PostGIS), Singapore region |
 | Cost | Rp 0 per month on the free tiers |
 
