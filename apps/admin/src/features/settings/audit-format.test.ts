@@ -35,6 +35,22 @@ describe('describeAuditDetails', () => {
     expect(describeAuditDetails(deactivated)).toBe('Renée Ümmü (renee@contoh.id)');
   });
 
+  it('export dan hapus data akun: akun terhapus disebut lewat role, tanpa nama', () => {
+    expect(describeAuditDetails({ ...event('user_data_exported', {}), target })).toBe(
+      'Renée Ümmü (renee@contoh.id)',
+    );
+    expect(describeAuditDetails(event('user_data_exported', {}))).toBe('Pengguna terhapus');
+    expect(describeAuditDetails(event('user_data_deleted', { role: 'editor' }))).toBe(
+      'Pengguna terhapus (Editor)',
+    );
+  });
+
+  it('pembersihan log audit menyebut jumlah dan masa simpan', () => {
+    expect(describeAuditDetails(event('audit_purged', { deleted: 12, retention_days: 365 }))).toBe(
+      '12 peristiwa lebih tua dari 365 hari',
+    );
+  });
+
   it('publish menyebut nomor versi dan venue', () => {
     expect(describeAuditDetails(event('publish', { version: 4, venue: 'RS Harapan' }))).toBe(
       'Versi 4 · RS Harapan',
