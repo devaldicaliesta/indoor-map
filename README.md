@@ -2,11 +2,11 @@
   <img src="packages/ui/src/brand/panduarah-logo.svg" alt="PanduArah" width="260">
 </p>
 
-<h3 align="center">Indoor maps and turn-by-turn navigation for every kind of building</h3>
+<h3 align="center">Peta dalam gedung dan navigasi langkah demi langkah untuk semua jenis gedung</h3>
 
 <p align="center">
-  Hospitals, campuses, offices, airports, factories and shopping malls: build the map once,
-  publish it, and visitors find their way from any phone, with no app to install and no beacons to buy.
+  Rumah sakit, kampus, perkantoran, bandara, pabrik, dan pusat perbelanjaan: buat petanya sekali,
+  terbitkan, dan pengunjung menemukan jalannya dari ponsel apa pun, tanpa aplikasi yang harus dipasang dan tanpa beacon yang harus dibeli.
 </p>
 
 <p align="center">
@@ -18,59 +18,59 @@
   <img alt="Cloudflare Pages" src="https://img.shields.io/badge/Cloudflare-Pages-F38020?logo=cloudflare&logoColor=white">
 </p>
 
-> 🇮🇩 Dokumentasi asli dalam Bahasa Indonesia: [`README.id.md`](README.id.md) · playbook lengkap di [`docs/`](docs/00-README.md).
+> 🇬🇧 English copy: [`README.en.md`](README.en.md) · playbook lengkap di [`docs/`](docs/00-README.md).
 
-## Submission links
+## Tautan submission
 
 | | |
 | --- | --- |
-| 🌐 **Live demo (Visitor, no login)** | https://app.panduarah.my.id/v/demo |
-| ☁️ **Hosting** | Cloudflare Pages (frontends) + Supabase (backend). **Not deployed on Google Cloud**, see [Deployment](#deployment) |
-| 🏠 Product site and free trial | https://panduarah.my.id |
-| 🛠️ Admin (map editor) | https://admin.panduarah.my.id (request a free 17-day workspace on the product site) |
-| 🎬 Demo video (≤ 3 min) | `REPLACE-WITH-VIDEO-URL` |
-| 🎞️ Pitch deck | `REPLACE-WITH-DECK-URL` |
-| 🎥 Backup video: architecture and roadmap (≤ 15 min) | `REPLACE-WITH-VIDEO-URL` |
+| 🌐 **Demo langsung (Visitor, tanpa login)** | https://app.panduarah.my.id/v/demo |
+| ☁️ **Hosting** | Cloudflare Pages (frontend) + Supabase (backend). **Tidak di-deploy di Google Cloud**, lihat [Deployment](#deployment) |
+| 🏠 Situs produk dan trial gratis | https://panduarah.my.id |
+| 🛠️ Admin (editor peta) | https://admin.panduarah.my.id (minta ruang kerja gratis 17 hari lewat situs produk) |
+| 🎬 Demo video (≤ 3 menit) | `GANTI-DENGAN-URL-VIDEO-DEMO` |
+| 🎞️ Pitch deck | `GANTI-DENGAN-URL-PITCH-DECK` |
+| 🎥 Backup video: arsitektur dan roadmap (≤ 15 menit) | `GANTI-DENGAN-URL-VIDEO-BACKUP` |
 
-### 60-second tour for judges
+### Tur 60 detik untuk juri
 
-1. Open the live demo. It is **RS Demo Harapan**, a fictional 4-floor hospital (154 locations).
-2. Search **"Radiologi"**, open it, tap **Route here**, and choose **Pendaftaran** as your starting point.
-3. Follow the steps: the route crosses floors by lift or stairs. Switch on **wheelchair-accessible route**, then try **2D / 3D** and the **ID / EN** language toggle.
-4. Other demo venues: `/v/demo-mal` (mall), `/v/demo-kampus` (campus), `/v/demo-kantor` (office tower), `/v/demo-bandara` (airport), `/v/demo-pabrik` (factory), `/v/demo-konser` (stadium).
+1. Buka demo langsung. Isinya **RS Demo Harapan**, rumah sakit fiktif 4 lantai dengan 154 lokasi.
+2. Cari **"Radiologi"**, buka, ketuk **Rute ke sini**, lalu pilih **Pendaftaran** sebagai titik awal.
+3. Ikuti langkahnya: rute melintasi lantai lewat lift atau tangga. Aktifkan **rute aksesibel (kursi roda)**, lalu coba **2D / 3D** dan tombol bahasa **ID / EN**.
+4. Venue demo lain: `/v/demo-mal` (mal), `/v/demo-kampus` (kampus), `/v/demo-kantor` (menara perkantoran), `/v/demo-bandara` (bandara), `/v/demo-pabrik` (pabrik), `/v/demo-konser` (stadion).
 
-## The problem
+## Masalah
 
-GPS stops working the moment you walk through the door. Patients miss appointments in sprawling hospitals, students and visitors wander campuses, passengers rush through terminals, and front-desk staff answer "where is…?" all day. Existing indoor-positioning products depend on beacons and native SDKs, which makes them expensive and slow to roll out.
+GPS berhenti bekerja begitu kita melangkah masuk gedung. Pasien terlambat ke janji temu di rumah sakit yang luas, mahasiswa dan tamu berkeliling di kampus, penumpang terburu-buru di terminal, dan petugas meja depan menjawab "di mana ya…?" sepanjang hari. Produk positioning dalam gedung yang ada bergantung pada beacon dan SDK native, sehingga mahal dan lambat dipasang.
 
-## The solution
+## Solusi
 
-**PanduArah** is a complete platform, not just a map viewer:
+**PanduArah** adalah platform lengkap, bukan sekadar penampil peta:
 
-- **Admin:** a web editor where a building manager draws floors, rooms, corridors, lifts and stairs on top of an uploaded floor plan (PNG, JPG, PDF or DXF), links rooms to searchable locations, and publishes a versioned snapshot with one click.
-- **Visitor:** a PWA opened from a QR code or link. Search, see the place in 2D or 3D, get step-by-step directions across floors and buildings, with live temporary closures taken into account.
-- **Info Point:** the same Visitor app in kiosk mode on a touch screen in the lobby, with a fixed "You are here".
+- **Admin:** editor web tempat pengelola gedung menggambar lantai, ruangan, koridor, lift, dan tangga di atas denah yang diunggah (PNG, JPG, PDF, atau DXF), menautkan ruangan ke lokasi yang bisa dicari, lalu menerbitkan snapshot berversi dengan satu klik.
+- **Visitor:** PWA yang dibuka dari kode QR atau tautan. Cari, lihat tempatnya dalam 2D atau 3D, dan dapatkan petunjuk langkah demi langkah lintas lantai dan gedung, dengan penutupan sementara yang langsung diperhitungkan.
+- **Info Point:** aplikasi Visitor yang sama dalam mode kios di layar sentuh lobi, dengan penanda "Anda di sini" yang tetap.
 
-"You are here" comes from a **QR code at a known point**, a kiosk, or a manual pick, so there is no hardware to install.
+Posisi "Anda di sini" berasal dari **kode QR di titik yang diketahui**, kios, atau pilihan manual, jadi tidak ada perangkat keras yang harus dipasang.
 
-### Features
+### Fitur
 
-| Area | What it does |
+| Area | Kemampuan |
 | --- | --- |
-| Map editor | Multi-venue, multi-building, multi-floor; polygon / line / point drawing with snapping, undo / redo, georeferenced floor plans, DXF import (layer picker), validation with visible findings |
-| Routing | A\* on a per-floor graph; lifts, escalators (directional), stairs and building doors; wheelchair-accessible mode; routes recalculated around closures; ID / EN turn-by-turn text from editable templates |
-| Operations | Industry templates (hospital, campus, office, airport, factory, mall), CSV / Excel import, aliases, opening hours, location status, versioned publish with diff and rollback, edit locks per floor |
-| Visitor | Offline-capable PWA, search with typo tolerance, categories and A-Z directory, share deep links, 2D / 3D, animated route, mini people in the crowd layer, venue branding |
-| Governance | 5 roles enforced by Postgres Row Level Security, audit log, license and quota system, EULA acceptance, personal-data export / deletion |
-| Trial hosting | Prospects request a 17-day workspace; an Edge Function provisions an isolated venue, Admin account and Visitor link automatically |
+| Editor peta | Multi-venue, multi-gedung, multi-lantai; menggambar poligon / garis / titik dengan snapping, undo / redo, denah tergeoreferensi, impor DXF (pilih layer), validasi dengan temuan yang terlihat |
+| Routing | A\* pada graf per lantai; lift, eskalator (berarah), tangga, dan pintu gedung; mode rute aksesibel; rute dihitung ulang menghindari penutupan; teks petunjuk ID / EN dari template yang bisa diubah |
+| Operasional | Template industri (rumah sakit, kampus, perkantoran, bandara, pabrik, mal), impor CSV / Excel, alias, jam operasional, status lokasi, publish berversi dengan diff dan rollback, kunci edit per lantai |
+| Visitor | PWA yang bisa dipakai offline, pencarian toleran salah ketik, kategori dan direktori A-Z, tautan bagikan, 2D / 3D, rute beranimasi, orang mini di lapisan keramaian, branding venue |
+| Tata kelola | 5 role yang ditegakkan oleh Row Level Security Postgres, log audit, sistem lisensi dan kuota, persetujuan EULA, ekspor dan hapus data pribadi |
+| Trial hosting | Calon klien meminta ruang kerja 17 hari; Edge Function menyiapkan venue terisolasi, akun Admin, dan tautan Visitor secara otomatis |
 
-### Screens
+### Tampilan
 
-| Route across floors | Map editor | Kiosk (Info Point) | Phone |
+| Rute lintas lantai | Editor peta | Kios (Info Point) | Ponsel |
 | --- | --- | --- | --- |
 | <img src="e2e/evidence/demo-data/v08-rute-rumah-sakit-pendaftaran-ke-radiologi.png" width="240"> | <img src="e2e/evidence/demo-data/a09-admin-editor-menara.png" width="240"> | <img src="e2e/evidence/demo-data/k01-info-point-bandara.png" width="120"> | <img src="e2e/evidence/demo-data/m01-hp-mal.png" width="120"> |
 
-## Architecture
+## Arsitektur
 
 ```mermaid
 flowchart LR
@@ -80,66 +80,66 @@ flowchart LR
         L[🌐 Landing]
     end
 
-    subgraph Pkg["Shared packages (pnpm + Turborepo)"]
+    subgraph Pkg["Paket bersama (pnpm + Turborepo)"]
         UI[ui]
         MC[map-core<br/>MapLibre GL]
-        D[data<br/>only door to Supabase]
-        R[routing<br/>graph + A*]
-        DM[domain<br/>types + zod + rules]
+        D[data<br/>satu-satunya pintu ke Supabase]
+        R[routing<br/>graf + A*]
+        DM[domain<br/>tipe + zod + aturan]
     end
 
     subgraph SB["Supabase"]
         PG[(Postgres + PostGIS<br/>Row Level Security)]
-        ST[Storage<br/>published snapshots]
-        EF[Edge Functions<br/>publish, license, trial]
+        ST[Storage<br/>snapshot yang diterbitkan]
+        EF[Edge Functions<br/>publish, lisensi, trial]
     end
 
     A --> UI & MC & D & R
     V --> UI & MC & R
-    V -- reads snapshot JSON --> ST
+    V -- membaca snapshot JSON --> ST
     D --> PG & EF
     MC & D & R --> DM
     EF --> ST
 ```
 
-Design decisions that matter:
+Keputusan desain yang penting:
 
-- **Visitors read a published snapshot, not the database.** One versioned JSON file (plus a separate graph file) is cached by the service worker. Search and routing run **on the phone**, so the server stays cheap and the app keeps working offline.
-- **Pure logic is separate from UI.** `packages/domain` and `packages/routing` have no React, Supabase or MapLibre dependency, so the same code validates in the editor, publishes in an Edge Function and routes on the phone.
-- **Authorization lives in the database.** Every policy goes through `app.*` wrapper functions and Row Level Security. Hiding a button is never the access control.
-- **Portable data.** One data package talks to Supabase; GeoJSON in WGS84 everywhere; no vendor-specific data model.
+- **Visitor membaca snapshot yang sudah diterbitkan, bukan query ke database.** Satu berkas JSON berversi (ditambah berkas graf terpisah) di-cache oleh service worker, dan satu-satunya bacaan langsung adalah daftar penutupan aktif yang kecil. Pencarian dan routing berjalan **di ponsel**, sehingga server tetap ringan dan aplikasi tetap berjalan tanpa internet.
+- **Logika murni dipisah dari UI.** `packages/domain` dan `packages/routing` tidak bergantung pada React, Supabase, atau MapLibre, sehingga kode yang sama memvalidasi di editor, menerbitkan di Edge Function, dan menghitung rute di ponsel.
+- **Otorisasi ada di database.** Setiap policy melewati fungsi pembungkus `app.*` dan Row Level Security. Menyembunyikan tombol tidak pernah menjadi kontrol akses.
+- **Data portabel.** Satu paket data berbicara dengan Supabase; GeoJSON WGS84 di mana-mana; tanpa model data khusus satu vendor.
 
-### Measured results
+### Hasil ukur
 
-From [`docs/laporan-performa.md`](docs/laporan-performa.md) (on-premise package in Docker; mid-range phone emulation, CPU throttled 4×):
+Dari [`docs/laporan-performa.md`](docs/laporan-performa.md) (paket on-premise di Docker; emulasi ponsel kelas menengah, CPU diperlambat 4×):
 
-| Check | Result | Target |
+| Pengujian | Hasil | Target |
 | --- | --- | --- |
-| Farthest route on a 10-floor, 2,000-feature venue (tap to steps) | **206 ms** | ≤ 500 ms |
-| Routing benchmark, 20,000-edge graph | 3.3 ms | |
-| Publish a venue | **5.8 s** | ≤ 60 s |
-| First load on 4G | 3.1 s (was 4.9 s) | ≤ 3 s, 0.1 s short |
-| Load test: 200 visitors + 20 admins | **0 of 9,440 requests failed**, p95 API 12 ms | |
-| Accessibility (axe, WCAG 2.x A/AA) | **0 violations on 15 pages** | |
-| Browsers | Chromium, WebKit, Pixel 7, iPhone 13 pass; Firefox not verified (no WebGL in the test container) | |
+| Rute terjauh di venue 10 lantai dan 2.000 fitur (ketuk sampai langkah) | **206 ms** | ≤ 500 ms |
+| Benchmark routing, graf 20.000 edge | 3,3 ms | |
+| Publish satu venue | **5,8 dtk** | ≤ 60 dtk |
+| Muat awal di 4G | 3,1 dtk (sebelumnya 4,9) | ≤ 3 dtk, meleset 0,1 dtk |
+| Uji beban: 200 pengunjung + 20 admin | **0 dari 9.440 permintaan gagal**, p95 API 12 ms | |
+| Aksesibilitas (axe, WCAG 2.x A/AA) | **0 pelanggaran di 15 halaman** | |
+| Browser | Chromium, WebKit, Pixel 7, iPhone 13 lulus; Firefox belum terverifikasi (tanpa WebGL di kontainer uji) | |
 
-Quality gates in the repo: 206 Vitest files, 43 pgTAP files for RLS and SQL functions, 101 Playwright specs, about 60 SQL migrations, 11 Edge Functions, and a CI workflow plus a Security workflow (`pnpm audit`, `pip-audit`, gitleaks, Trivy).
+Gerbang kualitas di repo: 206 berkas Vitest, 43 berkas pgTAP untuk RLS dan fungsi SQL, 101 spec Playwright, sekitar 60 migrasi SQL, 11 Edge Function, serta workflow CI dan workflow Security (`pnpm audit`, `pip-audit`, gitleaks, Trivy).
 
-## Tech stack
+## Stack teknologi
 
-| Layer | Technology |
+| Lapisan | Teknologi |
 | --- | --- |
 | Monorepo | pnpm workspace, Turborepo |
 | Frontend | React 19, Vite, TypeScript (strict), Tailwind + shadcn/ui, React Router, TanStack Query, Zustand, i18next |
-| Map | MapLibre GL JS (no internet basemap), terra-draw editor, `fill-extrusion` for 3D |
+| Peta | MapLibre GL JS (tanpa basemap internet), editor terra-draw, `fill-extrusion` untuk 3D |
 | Backend | Supabase: Postgres + PostGIS, Auth, Storage, Edge Functions (Deno) |
-| Services | `services/cad-converter` (Python, DXF to per-layer images) |
-| Quality | Vitest, pgTAP, Playwright, Biome |
-| Hosting | Cloudflare Pages (static frontends) + Supabase (backend); optional on-premise Docker package |
+| Layanan | `services/cad-converter` (Python, DXF menjadi gambar per layer) |
+| Kualitas | Vitest, pgTAP, Playwright, Biome |
+| Hosting | Cloudflare Pages (frontend statis) + Supabase (backend); paket Docker on-premise opsional |
 
-## Getting started (local)
+## Memulai (lokal)
 
-Prerequisites: **Node 22** (see `.nvmrc`), **pnpm 10.33** (`corepack enable`), **Docker** (for the local Supabase stack).
+Prasyarat: **Node 22** (lihat `.nvmrc`), **pnpm 10.33** (`corepack enable`), **Docker** (untuk Supabase lokal).
 
 ```bash
 git clone https://github.com/devaldicaliesta/indoor-map.git
@@ -148,76 +148,76 @@ corepack enable
 pnpm install
 
 cp .env.example .env.local
-#   set SEED_ADMIN_PASSWORD (min. 8 characters) in .env.local
+#   isi SEED_ADMIN_PASSWORD (minimal 8 karakter) di .env.local
 
-pnpm exec supabase start      # prints the local API URL and keys
-#   put the anon / publishable key into VITE_SUPABASE_ANON_KEY in .env.local
+pnpm exec supabase start      # menampilkan URL API lokal dan kunci
+#   salin kunci anon / publishable ke VITE_SUPABASE_ANON_KEY di .env.local
 
-pnpm db:reset                 # applies all migrations + seed, creates admin@local.test
-pnpm db:seed-demo             # optional, ~20 s: seven rich demo venues, routes, closures
+pnpm db:reset                 # terapkan semua migrasi + seed, buat admin@local.test
+pnpm db:seed-demo             # opsional, ±20 dtk: tujuh venue demo lengkap, rute, penutupan
 
 pnpm dev                      # Admin http://localhost:5173 · Visitor http://localhost:5174
 pnpm dev:landing              # Landing http://localhost:5175
 ```
 
-- Sign in to Admin as `admin@local.test` with the `SEED_ADMIN_PASSWORD` you chose. Other seeded roles: `pengelola@`, `editor@`, `operator@`, `viewer@local.test`, same password.
-- Open the Visitor at `http://localhost:5174/v/demo` (after `db:seed-demo`).
-- The Admin interface is in Indonesian; the Visitor and Info Point are Indonesian and English.
+- Masuk ke Admin sebagai `admin@local.test` dengan `SEED_ADMIN_PASSWORD` yang Anda pilih. Role seed lain: `pengelola@`, `editor@`, `operator@`, `viewer@local.test`, password sama.
+- Buka Visitor di `http://localhost:5174/v/demo` (setelah `db:seed-demo`).
+- Antarmuka Admin berbahasa Indonesia; Visitor dan Info Point tersedia dalam bahasa Indonesia dan Inggris.
 
-### Tests
+### Pengujian
 
 ```bash
-pnpm check              # typecheck + lint + unit tests (must be green before any PR)
-pnpm test:integration   # repository and RLS tests against the local Supabase
-pnpm test:e2e           # Playwright main flows (needs the local Supabase and pnpm db:reset)
+pnpm check              # typecheck + lint + test unit (wajib hijau sebelum PR)
+pnpm test:integration   # test repository dan RLS terhadap Supabase lokal
+pnpm test:e2e           # alur utama Playwright (butuh Supabase lokal dan pnpm db:reset)
 ```
 
 ## Deployment
 
-**PanduArah is published on Cloudflare Pages (the web apps) and Supabase (database, auth, storage, Edge Functions). It is not deployed on Google Cloud**, so this submission has no Cloud Run or Firebase App Distribution link. The live URLs are in the table at the top.
+**PanduArah dipublikasikan di Cloudflare Pages (aplikasi web) dan Supabase (database, auth, storage, Edge Function). Proyek ini tidak di-deploy di Google Cloud**, jadi submission ini tidak memiliki tautan Cloud Run maupun Firebase App Distribution. URL live ada di tabel paling atas.
 
-| Part | Where it runs |
+| Bagian | Dijalankan di |
 | --- | --- |
-| Landing, Visitor, Admin | Cloudflare Pages, built from the `production` branch (`pnpm --filter @indoor/<app> build`) |
-| Database, auth, storage, Edge Functions | Supabase (Postgres + PostGIS), Singapore region |
-| Cost | Rp 0 per month on the free tiers |
+| Landing, Visitor, Admin | Cloudflare Pages, dibangun dari branch `production` (`pnpm --filter @indoor/<app> build`) |
+| Database, auth, storage, Edge Function | Supabase (Postgres + PostGIS), region Singapura |
+| Biaya | Rp 0 per bulan di paket gratis |
 
-Step-by-step runbook: [`deploy/hosting/README.md`](deploy/hosting/README.md) and [`deploy/hosting/cloudflare-pages.md`](deploy/hosting/cloudflare-pages.md).
+Panduan langkah demi langkah: [`deploy/hosting/README.md`](deploy/hosting/README.md) dan [`deploy/hosting/cloudflare-pages.md`](deploy/hosting/cloudflare-pages.md).
 
 ### Mobile
 
-The Visitor is an installable **PWA** ("Add to Home Screen" on Android and iOS), so there is no native app and nothing to distribute through an app-distribution service.
+Visitor adalah **PWA** yang bisa dipasang ("Tambahkan ke layar utama" di Android dan iOS), jadi tidak ada aplikasi native dan tidak ada yang perlu didistribusikan lewat layanan distribusi aplikasi.
 
-### On-premise package
+### Paket on-premise
 
-Enterprise clients can instead run the whole stack on their own server with Docker Compose ([`deploy/README.md`](deploy/README.md)): HTTPS gateway, Postgres + PostGIS, Auth, Storage, Edge Runtime, CAD converter, nightly backups, upgrade and rollback scripts, signed-license activation.
+Klien enterprise dapat menjalankan seluruh sistem di server sendiri dengan Docker Compose ([`deploy/README.md`](deploy/README.md)): gateway HTTPS, Postgres + PostGIS, Auth, Storage, Edge Runtime, konverter CAD, backup harian, skrip upgrade dan rollback, serta aktivasi lisensi bertanda tangan.
 
-## Project structure
+## Struktur proyek
 
 ```
-apps/        admin · visitor (+ Info Point at /ip/:code) · landing · vendor
+apps/        admin · visitor (+ Info Point di /ip/:code) · landing · vendor
 packages/    domain · routing · map-core · data · ui
-supabase/    migrations (plain SQL) · functions (Edge Functions) · tests (pgTAP)
+supabase/    migrations (SQL) · functions (Edge Function) · tests (pgTAP)
 services/    cad-converter (Python)
-deploy/      hosting (Cloudflare Pages + Supabase) · on-premise package
-e2e/         Playwright flows and screenshot evidence per task
-docs/        product, architecture, data model, specs, progress, performance report
+deploy/      hosting (Cloudflare Pages + Supabase) · paket on-premise
+e2e/         alur Playwright dan bukti tangkapan layar per task
+docs/        produk, arsitektur, model data, spesifikasi, progres, laporan performa
 ```
 
 ## Roadmap
 
-Detailed plan: [`docs/20-F2-fase-2.md`](docs/20-F2-fase-2.md) and [`docs/PROGRESS.md`](docs/PROGRESS.md).
+Rencana rinci: [`docs/20-F2-fase-2.md`](docs/20-F2-fase-2.md) dan [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
-| Horizon | Focus |
+| Horizon | Fokus |
 | --- | --- |
-| **Now** | Admin 2FA (TOTP, in progress) then SSO; visitor-without-WebGL fallback; pen-test and fixes; real-device performance run |
-| **Next** | Landmark-based directions and walking-time estimates; nearest facility and multi-stop routes; scheduled publish; printable maps and "You are here" boards; multi-language content; usage analytics; GeoJSON / IMDF export; API and webhooks |
-| **Later** | 3D object library and GLB models; automatic floor-plan scanning from images; Info Point device management and a Windows shell; events and promotions; PostgreSQL on the client's own database; Windows Server install |
+| **Sekarang** | 2FA Admin (TOTP, sedang dikerjakan) lalu SSO; cadangan untuk browser tanpa WebGL; uji penetrasi dan perbaikannya; uji performa di perangkat nyata |
+| **Berikutnya** | Petunjuk berbasis landmark dan estimasi waktu jalan; fasilitas terdekat dan rute multi-tujuan; publish terjadwal; peta cetak dan papan "Anda di sini"; konten multi-bahasa; analitik penggunaan; ekspor GeoJSON / IMDF; API dan webhook |
+| **Nanti** | Pustaka objek 3D dan model GLB; pemindaian denah otomatis dari gambar; manajemen perangkat Info Point dan shell Windows; event dan promosi; PostgreSQL milik klien; instalasi Windows Server |
 
-## How it was built
+## Cara pembuatan
 
-Built by [Devaldi Caliesta](https://github.com/devaldicaliesta). Work is organised as numbered tasks in `docs/` with written acceptance criteria, each verified by tests and screenshots under `e2e/evidence/`. AI coding assistance (Claude Code) was used under the rules in [`CLAUDE.md`](CLAUDE.md); every change goes through the same `pnpm check` gate.
+Dibangun oleh [Devaldi Caliesta](https://github.com/devaldicaliesta). Pekerjaan diatur sebagai task bernomor di `docs/` dengan kriteria penerimaan tertulis, masing-masing diverifikasi lewat test dan tangkapan layar di `e2e/evidence/`. Bantuan AI (Claude Code) dipakai dengan aturan di [`CLAUDE.md`](CLAUDE.md); setiap perubahan melewati gerbang `pnpm check` yang sama.
 
-## License
+## Lisensi
 
-© 2026 Devaldi Caliesta. All rights reserved. The source is shared for evaluation of this submission. Third-party open-source notices: [`deploy/SUMBER-TERBUKA.md`](deploy/SUMBER-TERBUKA.md) and the notices generated into each app build.
+© 2026 Devaldi Caliesta. Hak cipta dilindungi. Kode sumber dibagikan untuk penilaian submission ini. Pemberitahuan lisensi pihak ketiga: [`deploy/SUMBER-TERBUKA.md`](deploy/SUMBER-TERBUKA.md) dan berkas pemberitahuan yang dihasilkan di setiap build aplikasi.
