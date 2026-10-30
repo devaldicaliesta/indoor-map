@@ -12,6 +12,7 @@ const base: SystemFormValues = {
   smtpFrom: 'Peta RS Harapan <noreply@rs-harapan.id>',
   basemapTileUrl: '',
   basemapAttribution: '',
+  auditRetentionDays: '365',
 };
 
 describe('validate', () => {
@@ -50,6 +51,7 @@ describe('toPatch', () => {
       smtpFrom: 'Peta RS Harapan <noreply@rs-harapan.id>',
       basemapTileUrl: null,
       basemapAttribution: null,
+      auditRetentionDays: 365,
     });
   });
 });
@@ -70,5 +72,13 @@ describe('peta dasar', () => {
         basemapAttribution: '© OpenStreetMap contributors',
       }),
     ).toEqual({});
+  });
+
+  it('masa simpan log audit 30–3650 hari', () => {
+    expect(validate({ ...base, auditRetentionDays: '30' })).toEqual({});
+    expect(validate({ ...base, auditRetentionDays: '7' }).auditRetentionDays).toContain('30–3650');
+    expect(validate({ ...base, auditRetentionDays: '' }).auditRetentionDays).toContain('365');
+    expect(validate({ ...base, auditRetentionDays: '90,5' }).auditRetentionDays).toBeDefined();
+    expect(toPatch({ ...base, auditRetentionDays: ' 90 ' }).auditRetentionDays).toBe(90);
   });
 });

@@ -1,6 +1,8 @@
 import {
+  AUDIT_RETENTION_DAYS,
   checkBasemapTileUrl,
   checkPublicVisitorUrl,
+  isValidAuditRetentionDays,
   isValidPort,
   isValidTimezone,
   type LanguageCode,
@@ -19,6 +21,7 @@ export interface SystemFormValues {
   smtpFrom: string;
   basemapTileUrl: string;
   basemapAttribution: string;
+  auditRetentionDays: string;
 }
 
 export type SystemFormErrors = Partial<Record<keyof SystemFormValues, string>>;
@@ -35,6 +38,7 @@ export function toFormValues(settings: SystemSettings): SystemFormValues {
     smtpFrom: settings.smtpFrom ?? '',
     basemapTileUrl: settings.basemapTileUrl ?? '',
     basemapAttribution: settings.basemapAttribution ?? '',
+    auditRetentionDays: settings.auditRetentionDays.toString(),
   };
 }
 
@@ -75,6 +79,9 @@ export function validate(values: SystemFormValues): SystemFormErrors {
     errors.basemapAttribution =
       'Tulis atribusi penyedia tile, misalnya © OpenStreetMap contributors.';
   }
+  if (!isValidAuditRetentionDays(Number(values.auditRetentionDays.trim() || Number.NaN))) {
+    errors.auditRetentionDays = `Isi angka ${AUDIT_RETENTION_DAYS.min}–${AUDIT_RETENTION_DAYS.max} hari, misalnya 365 untuk satu tahun.`;
+  }
   return errors;
 }
 
@@ -91,5 +98,6 @@ export function toPatch(values: SystemFormValues): SystemSettingsPatch {
     smtpFrom: orNull(values.smtpFrom),
     basemapTileUrl: orNull(values.basemapTileUrl),
     basemapAttribution: orNull(values.basemapAttribution),
+    auditRetentionDays: Number(values.auditRetentionDays.trim()),
   };
 }

@@ -29,3 +29,23 @@ export function useInviteUser() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: usersKey }),
   });
 }
+
+export function useExportUserData() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: UserId) => data.users.exportData(userId),
+    // Export tercatat di log audit.
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['audit'] }),
+  });
+}
+
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: UserId) => data.users.remove(userId),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: usersKey });
+      await queryClient.invalidateQueries({ queryKey: ['audit'] });
+    },
+  });
+}
