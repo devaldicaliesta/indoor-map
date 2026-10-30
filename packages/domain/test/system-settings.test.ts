@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AUDIT_RETENTION_DAYS,
   checkBasemapTileUrl,
   checkPublicVisitorUrl,
   escapeAttribution,
+  isValidAuditRetentionDays,
   isValidPort,
   isValidTimezone,
 } from '../src';
@@ -63,5 +65,17 @@ describe('atribusi peta dasar', () => {
     expect(escapeAttribution('<img src=x onerror=alert(1)>')).toBe(
       '&#60;img src=x onerror=alert(1)&#62;',
     );
+  });
+});
+
+describe('isValidAuditRetentionDays', () => {
+  it('bilangan bulat 30–3650 hari, bawaan satu tahun', () => {
+    expect(AUDIT_RETENTION_DAYS.default).toBe(365);
+    expect(isValidAuditRetentionDays(30)).toBe(true);
+    expect(isValidAuditRetentionDays(3650)).toBe(true);
+    expect(isValidAuditRetentionDays(29)).toBe(false);
+    expect(isValidAuditRetentionDays(3651)).toBe(false);
+    expect(isValidAuditRetentionDays(90.5)).toBe(false);
+    expect(isValidAuditRetentionDays(Number.NaN)).toBe(false);
   });
 });

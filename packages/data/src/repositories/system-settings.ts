@@ -5,7 +5,7 @@ import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
 
 const COLUMNS =
-  'public_visitor_url, smtp_host, smtp_port, smtp_username, smtp_from, default_timezone, default_language, basemap_tile_url, basemap_attribution, updated_at';
+  'public_visitor_url, smtp_host, smtp_port, smtp_username, smtp_from, default_timezone, default_language, basemap_tile_url, basemap_attribution, audit_retention_days, updated_at';
 
 export type SystemSettingsRow = Omit<Tables<'system_settings'>, 'id'>;
 
@@ -20,6 +20,7 @@ export function mapSystemSettingsRow(row: SystemSettingsRow): SystemSettings {
     defaultLanguage: LanguageCodeSchema.parse(row.default_language),
     basemapTileUrl: row.basemap_tile_url,
     basemapAttribution: row.basemap_attribution,
+    auditRetentionDays: row.audit_retention_days,
     updatedAt: row.updated_at,
   };
 }
@@ -37,6 +38,8 @@ export function toSystemSettingsUpdate(
   if (patch.defaultLanguage !== undefined) update.default_language = patch.defaultLanguage;
   if (patch.basemapTileUrl !== undefined) update.basemap_tile_url = patch.basemapTileUrl;
   if (patch.basemapAttribution !== undefined) update.basemap_attribution = patch.basemapAttribution;
+  if (patch.auditRetentionDays !== undefined)
+    update.audit_retention_days = patch.auditRetentionDays;
   return update;
 }
 

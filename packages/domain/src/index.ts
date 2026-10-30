@@ -62,6 +62,7 @@ export * from './table-access';
 export * from './templates';
 export * from './unit-colors';
 export * from './units';
+export * from './user-data';
 export * from './validation/geometry';
 export * from './validation/publish';
 export * from './vendor-dashboard';
