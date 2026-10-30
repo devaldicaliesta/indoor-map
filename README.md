@@ -15,7 +15,7 @@
   <img alt="React" src="https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white">
   <img alt="MapLibre" src="https://img.shields.io/badge/MapLibre_GL-6-396CB2">
   <img alt="Supabase" src="https://img.shields.io/badge/Supabase-Postgres_+_PostGIS-3FCF8E?logo=supabase&logoColor=white">
-  <img alt="Cloud Run" src="https://img.shields.io/badge/Google_Cloud-Run-4285F4?logo=googlecloud&logoColor=white">
+  <img alt="Cloudflare Pages" src="https://img.shields.io/badge/Cloudflare-Pages-F38020?logo=cloudflare&logoColor=white">
 </p>
 
 > 🇮🇩 Dokumentasi asli dalam Bahasa Indonesia: [`README.id.md`](README.id.md) · playbook lengkap di [`docs/`](docs/00-README.md).
@@ -25,7 +25,7 @@
 | | |
 | --- | --- |
 | 🌐 **Live demo (Visitor, no login)** | https://app.panduarah.my.id/v/demo |
-| ☁️ **Google Cloud Run deployment** | `https://REPLACE-WITH-YOUR-CLOUD-RUN-URL/v/demo` (deploy in 1 command: [Cloud Run](#deploy-to-google-cloud-run)) |
+| ☁️ **Hosting** | Cloudflare Pages (frontends) + Supabase (backend). **Not deployed on Google Cloud**, see [Deployment](#deployment) |
 | 🏠 Product site and free trial | https://panduarah.my.id |
 | 🛠️ Admin (map editor) | https://admin.panduarah.my.id (request a free 17-day workspace on the product site) |
 | 🎬 Demo video (≤ 3 min) | `REPLACE-WITH-VIDEO-URL` |
@@ -135,7 +135,7 @@ Quality gates in the repo: 206 Vitest files, 43 pgTAP files for RLS and SQL func
 | Backend | Supabase: Postgres + PostGIS, Auth, Storage, Edge Functions (Deno) |
 | Services | `services/cad-converter` (Python, DXF to per-layer images) |
 | Quality | Vitest, pgTAP, Playwright, Biome |
-| Hosting | Cloudflare Pages + Supabase (current production), Google Cloud Run (static frontends) |
+| Hosting | Cloudflare Pages (static frontends) + Supabase (backend); optional on-premise Docker package |
 
 ## Getting started (local)
 
@@ -174,32 +174,19 @@ pnpm test:e2e           # Playwright main flows (needs the local Supabase and pn
 
 ## Deployment
 
-### Current production: Cloudflare Pages + Supabase
+**PanduArah is published on Cloudflare Pages (the four web apps) and Supabase (database, auth, storage, Edge Functions). It is not deployed on Google Cloud**, so this submission has no Cloud Run or Firebase App Distribution link. The live URLs are in the table at the top.
 
-Step-by-step runbook: [`deploy/hosting/README.md`](deploy/hosting/README.md) and [`deploy/hosting/cloudflare-pages.md`](deploy/hosting/cloudflare-pages.md). Free-tier cost is Rp 0 per month.
+| Part | Where it runs |
+| --- | --- |
+| Landing, Visitor, Admin, vendor dashboard | Cloudflare Pages, built from the `production` branch (`pnpm --filter @indoor/<app> build`) |
+| Database, auth, storage, Edge Functions | Supabase (Postgres + PostGIS), Singapore region |
+| Cost | Rp 0 per month on the free tiers |
 
-### Deploy to Google Cloud Run
-
-The static frontends (Visitor, Admin, Landing, Vendor dashboard) ship as a small nginx container. **Cloud Run serves the web apps; the backend (database, auth, storage, Edge Functions) stays on Supabase**, which is set up once with [`deploy/hosting/README.md`](deploy/hosting/README.md) steps 1-4.
-
-```bash
-gcloud auth login
-gcloud config set project <your-project-id>        # billing must be enabled
-
-export SUPABASE_URL=https://<ref>.supabase.co
-export SUPABASE_ANON_KEY=sb_publishable_xxx        # publishable key: safe to ship in the browser
-
-deploy/cloud-run/deploy.sh                          # Visitor → service "panduarah-visitor"
-APP=admin SERVICE=panduarah-admin deploy/cloud-run/deploy.sh   # optional: Admin
-```
-
-The script enables the required APIs, creates an Artifact Registry repository, builds the image with Cloud Build (`deploy/cloud-run/Dockerfile`), and deploys it to region `asia-southeast2` (override with `REGION`). It prints the live URL when done; the demo venue is at `<url>/v/demo`. For Admin on Cloud Run, also add the service URL under Supabase → Authentication → URL Configuration.
-
-Build and Dockerfile details: the image compiles the chosen app with `pnpm --filter @indoor/<app> build`, bakes the public `VITE_*` values into the bundle, and serves it with SPA fallback, long-lived caching for hashed assets and `no-cache` for `sw.js` / `index.html` so PWA updates are picked up.
+Step-by-step runbook: [`deploy/hosting/README.md`](deploy/hosting/README.md) and [`deploy/hosting/cloudflare-pages.md`](deploy/hosting/cloudflare-pages.md).
 
 ### Mobile
 
-The Visitor is an installable **PWA** ("Add to Home Screen" on Android and iOS), so it ships through Cloud Run with no store or app-distribution step. There is no native app in this project.
+The Visitor is an installable **PWA** ("Add to Home Screen" on Android and iOS), so there is no native app and nothing to distribute through an app-distribution service.
 
 ### On-premise package
 
@@ -212,7 +199,7 @@ apps/        admin · visitor (+ Info Point at /ip/:code) · landing · vendor
 packages/    domain · routing · map-core · data · ui
 supabase/    migrations (plain SQL) · functions (Edge Functions) · tests (pgTAP)
 services/    cad-converter (Python)
-deploy/      cloud-run (this submission) · hosting (Cloudflare + Supabase) · on-premise package
+deploy/      hosting (Cloudflare Pages + Supabase) · on-premise package
 e2e/         Playwright flows and screenshot evidence per task
 docs/        product, architecture, data model, specs, progress, performance report
 ```
