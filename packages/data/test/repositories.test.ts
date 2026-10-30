@@ -55,6 +55,7 @@ describe('pengaturan sistem', () => {
     default_language: 'id' as const,
     basemap_tile_url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     basemap_attribution: '© OpenStreetMap contributors',
+    audit_retention_days: 365,
     updated_at: '2026-09-29T08:00:00+00:00',
   };
 
@@ -69,14 +70,22 @@ describe('pengaturan sistem', () => {
       defaultLanguage: 'id',
       basemapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
       basemapAttribution: '© OpenStreetMap contributors',
+      auditRetentionDays: 365,
       updatedAt: '2026-09-29T08:00:00+00:00',
     });
   });
 
   it('patch memakai nama kolom database dan boleh mengosongkan nilai', () => {
-    expect(toSystemSettingsUpdate({ publicVisitorUrl: null, defaultLanguage: 'en' })).toEqual({
+    expect(
+      toSystemSettingsUpdate({
+        publicVisitorUrl: null,
+        defaultLanguage: 'en',
+        auditRetentionDays: 90,
+      }),
+    ).toEqual({
       public_visitor_url: null,
       default_language: 'en',
+      audit_retention_days: 90,
     });
   });
 });

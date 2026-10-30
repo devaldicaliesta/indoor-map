@@ -97,7 +97,7 @@ Format: task · judul — **fokus cek** · test case → folder bukti. Level `M`
 - [ ] T-596 · Bantuan pengguna — artikel per menu, buka offline, tur lintas halaman · TC-OPS-16 → `e2e/evidence/T-596/`
 - [x] T-599a · Tur panduan, fondasi — tur Lokasi (Admin, per role), peta venue (Visitor EN), Info Point; lewati, ulang, lintas perangkat, keyboard, kontras, lazy load · TC-TUR-01 s.d. 09, TC-SEC-73 → `e2e/evidence/T-599/`
 - [ ] T-599b · Tur panduan, semua halaman — tur setiap menu Admin dan beranda Visitor, Editor Peta saat menggambar, test registri · TC-TUR-10, 11 → `e2e/evidence/T-599/`
-- [ ] T-601 · UU PDP — export dan hapus data akun, retensi, pemberitahuan privasi · TC-KOM-01, 02, 08 → `e2e/evidence/T-601/`
+- [ ] T-601 · UU PDP — export dan hapus data akun, retensi, pemberitahuan privasi · TC-KOM-01, 02, 08 → `e2e/evidence/T-601/` (T-601a: TC-KOM-01, 02 bagian audit; T-601b: TC-KOM-08, 02 bagian analitik)
 - [ ] T-602 · Dokumen legal — EULA wajib disetujui saat aktivasi pertama · TC-KOM-03 → `e2e/evidence/T-602/`
 - [ ] T-605 · Demo penjualan — reset satu perintah, venue per industri bisa dipublish dan dirutekan (M) · TC-KOM-06 → `e2e/evidence/T-605/`
 

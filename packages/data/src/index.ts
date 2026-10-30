@@ -75,7 +75,7 @@ export {
 export type { SystemSettingsRepository } from './repositories/system-settings';
 export type { TourProgressRepository } from './repositories/tours';
 export type { TrialRepository } from './repositories/trial';
-export type { InviteUserInput, UsersRepository } from './repositories/users';
+export type { InviteUserInput, UserDataExport, UsersRepository } from './repositories/users';
 export type {
   BlockEntry,
   LifecycleRun,

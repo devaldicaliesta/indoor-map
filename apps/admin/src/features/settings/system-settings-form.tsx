@@ -196,6 +196,20 @@ function Form({ settings, passwordIsSet }: { settings: SystemSettings; passwordI
         </div>
       </Section>
 
+      <Section
+        title="Privasi data"
+        description="Log audit (masuk, perubahan role, publish, export dan hapus data akun) disimpan selama masa ini, lalu dihapus otomatis setiap malam. Sesuaikan dengan kebijakan retensi instansi Anda."
+      >
+        <Field
+          id="auditRetentionDays"
+          label="Masa simpan log audit (hari)"
+          hint="30–3650 hari. Bawaan 365 hari."
+          error={errors.auditRetentionDays}
+        >
+          <Input {...input('auditRetentionDays')} inputMode="numeric" className="font-mono" />
+        </Field>
+      </Section>
+
       <div className="flex items-center gap-2 border-line border-t pt-4">
         <Button type="submit" variant="primary" disabled={save.isPending}>
           {save.isPending ? 'Menyimpan…' : 'Simpan pengaturan'}

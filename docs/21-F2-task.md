@@ -1157,6 +1157,16 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 
 ### T-601 · Kepatuhan UU PDP
 
+> **Dipecah (2026-10-30)** karena analitik (T-591) belum ada:
+> - **T-601a · Dokumen dan data akun:** `docs/legal/` (inventaris data pribadi, kebijakan
+>   privasi Visitor dan landing, prosedur insiden, template DPA), export dan hapus data akun dari
+>   Admin (tercatat di audit), retensi log audit yang bisa diatur dan ditegakkan server (pg_cron).
+>   Test TC-KOM-01 dan bagian log audit TC-KOM-02.
+> - **T-601b · Analitik:** pemberitahuan privasi di Visitor saat analitik aktif (TC-KOM-08) dan
+>   retensi data analitik (bagian analitik TC-KOM-02). Bergantung pada T-591 dan T-601a.
+>
+> Kriteria "Selesai jika" di bawah berlaku untuk gabungan keduanya.
+
 - **Untuk:** `20-F2-fase-2.md` §2.13
 - **Bergantung pada:** —
 - **Langkah:**
