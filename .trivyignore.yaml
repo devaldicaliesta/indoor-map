@@ -4,11 +4,12 @@
 # ditinjau ulang. Daftar dan riwayatnya juga dicatat di docs/keamanan/README.md.
 vulnerabilities:
   # Biner Caddy 2.11.6 (image `web`) dibangun upstream dengan go-jose 4.1.5, x/net 0.59.0, dan
-  # Go 1.26.8. Caddy 2.11.7 masih membawa versi yang sama. Gateway hanya melayani berkas statis
-  # dan reverse proxy di jaringan klien; ACME/ECH tidak dipakai (sertifikat dari klien).
+  # Go 1.26.8. Caddy 2.11.7 masih membawa versi yang sama. Gateway melayani berkas statis dan
+  # reverse proxy ke layanan internal lewat http. Satu-satunya koneksi keluar Caddy adalah ACME ke
+  # Let's Encrypt, hanya bila klien memilih sertifikat otomatis (TLS_DIRECTIVE = email).
   - id: CVE-2026-116587
     purls: ['pkg:golang/github.com/go-jose/go-jose/v4']
-    statement: go-jose DoS lewat kunci RSA; Caddy tidak memakai ACME di paket klien
+    statement: go-jose DoS lewat kunci RSA buatan penyerang; hanya terjangkau lewat ACME ke CA tepercaya (Let's Encrypt), opsional
     expired_at: 2026-11-30
   - id: CVE-2026-78669
     statement: DoS HTTP/2 di x/net dan stdlib Go 1.26.8; menunggu Caddy yang dibangun dengan Go >= 1.26.9
@@ -23,5 +24,5 @@ vulnerabilities:
     expired_at: 2026-11-30
   - id: CVE-2026-111943
     purls: ['pkg:golang/stdlib']
-    statement: crypto/x509 Go 1.26.8; Caddy tidak memverifikasi rantai sertifikat upstream (proxy ke layanan internal lewat http)
+    statement: crypto/x509 Go 1.26.8; verifikasi rantai sertifikat hanya terjadi pada koneksi ACME opsional ke Let's Encrypt, proxy internal lewat http
     expired_at: 2026-11-30
