@@ -24,7 +24,9 @@ RUN pnpm --filter @indoor/domain deploy --legacy --prod /out/domain \
   && node --experimental-strip-types tools/third-party-notices/src/cli.ts \
     'PanduArah Edge Function (paket domain)' /out/domain/node_modules > /out/domain/THIRD-PARTY-NOTICES.txt
 
-FROM caddy:2.10-alpine AS web
+FROM caddy:2.11.6-alpine AS web
+# Pembaruan keamanan paket Alpine di atas image dasar; dipindai Trivy di CI (T-603).
+RUN apk upgrade --no-cache
 COPY --from=build /repo/apps/admin/dist /opt/panduarah/www/admin
 COPY --from=build /repo/apps/visitor/dist /opt/panduarah/www/visitor
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
@@ -33,6 +35,11 @@ ENTRYPOINT ["/usr/local/bin/web-entrypoint.sh"]
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 
 FROM supabase/edge-runtime:v1.76.2 AS functions
+# Pembaruan keamanan paket Debian di atas image dasar (T-603). Error-Mode=any: build gagal bila
+# repositori tidak terjangkau, alih-alih diam-diam memakai indeks lama tanpa pembaruan.
+RUN apt-get update -o APT::Update::Error-Mode=any \
+  && apt-get upgrade -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
 COPY --from=build /out/domain /srv/packages/domain
 COPY supabase/functions /srv/supabase/functions
 COPY deploy/functions/main /srv/main

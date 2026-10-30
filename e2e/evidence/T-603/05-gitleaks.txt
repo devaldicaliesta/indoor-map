@@ -1,0 +1,5 @@
+$ gitleaks git . --redact   # seluruh riwayat yang ada di checkout
+INF 106 commits scanned.
+INF scanned ~8246737 bytes (8.25 MB) in 6.13s
+INF no leaks found
+exit code: 0

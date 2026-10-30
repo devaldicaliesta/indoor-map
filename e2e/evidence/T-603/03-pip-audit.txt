@@ -1,0 +1,12 @@
+$ pip-audit --requirement services/cad-converter/requirements.txt   # sebelum (pillow==12.3.0)
+pillow 12.3.0  CVE-2026-112892     13.0.0
+pillow 12.3.0  CVE-2026-112393     13.0.0
+pillow 12.3.0  CVE-2026-96638      13.0.0
+pillow 12.3.0  CVE-2026-96640      13.0.0
+pillow 12.3.0  CVE-2026-96778      13.0.0
+pillow 12.3.0  GHSA-78g4-xqwv-q3g8 13.0.0
+exit code: 1
+
+$ pip-audit --requirement services/cad-converter/requirements.txt   # sesudah (pillow==13.0.0)
+No known vulnerabilities found
+exit code: 0
