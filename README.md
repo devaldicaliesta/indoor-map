@@ -19,7 +19,7 @@
   <img alt="Cloudflare Pages" src="https://img.shields.io/badge/Cloudflare-Pages-F38020?logo=cloudflare&logoColor=white">
 </p>
 
-> 🇬🇧 English copy: [`README.en.md`](README.en.md) · Playbook lengkap ada di [`docs/`](docs/00-README.md).
+> Playbook lengkap ada di [`docs/`](docs/00-README.md).
 
 ## Tautan submission
 
