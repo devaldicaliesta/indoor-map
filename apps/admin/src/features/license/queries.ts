@@ -36,11 +36,22 @@ function useRefreshStatus() {
   return () => queryClient.invalidateQueries({ queryKey: licenseStatusKey });
 }
 
+/** Versi EULA terakhir yang disetujui instalasi ini; bisa dibaca sebelum login. */
+export function useEulaStatus() {
+  return useQuery({ queryKey: ['license', 'eula'], queryFn: () => data.license.eulaStatus() });
+}
+
+/** `eulaVersion`: versi EULA yang baru disetujui di halaman aktivasi, bila diminta. */
+interface WithEula {
+  eulaVersion?: string | undefined;
+}
+
 export function useActivateOnline() {
-  const refresh = useRefreshStatus();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (licenseKey: string) => data.license.activateOnline(licenseKey),
-    onSuccess: refresh,
+    mutationFn: ({ licenseKey, eulaVersion }: WithEula & { licenseKey: string }) =>
+      data.license.activateOnline(licenseKey, eulaVersion),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['license'] }),
   });
 }
 
@@ -48,16 +59,18 @@ export function useActivateOnline() {
 export function useStartTrial() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: TrialRequest) => data.license.startTrial(input),
+    mutationFn: ({ eulaVersion, ...input }: WithEula & TrialRequest) =>
+      data.license.startTrial(input, eulaVersion),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['license'] }),
   });
 }
 
 export function useActivateManual() {
-  const refresh = useRefreshStatus();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (license: unknown) => data.license.activateManual(license),
-    onSuccess: refresh,
+    mutationFn: ({ license, eulaVersion }: WithEula & { license: unknown }) =>
+      data.license.activateManual(license, eulaVersion),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['license'] }),
   });
 }
 

@@ -45,6 +45,14 @@ describe('describeAuditDetails', () => {
     );
   });
 
+  it('persetujuan EULA menyebut versi, pemegang lisensi, dan lisensinya', () => {
+    expect(
+      describeAuditDetails(
+        event('eula_accepted', { version: '2026-10-30', licensee: 'RS Uji', license_id: 'LIC-1' }),
+      ),
+    ).toBe('Versi 2026-10-30 · RS Uji · LIC-1');
+  });
+
   it('pembersihan log audit menyebut jumlah dan masa simpan', () => {
     expect(describeAuditDetails(event('audit_purged', { deleted: 12, retention_days: 365 }))).toBe(
       '12 peristiwa lebih tua dari 365 hari',

@@ -1,0 +1,66 @@
+name: Security
+
+# Pemindaian kerentanan (T-603). Gagal bila ada temuan tinggi/kritis yang belum ditangani.
+# "Ditangani" = diperbarui, atau dikecualikan dengan alasan dan tanggal kedaluwarsa di
+# `.trivyignore.yaml` / `auditConfig` di pnpm-workspace.yaml (proses: docs/keamanan/README.md).
+# Jadwal mingguan menangkap CVE baru pada kode yang tidak berubah.
+on:
+  pull_request:
+  push:
+    branches: [main, develop, production]
+  schedule:
+    - cron: '23 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependencies:
+    name: Dependency (pnpm audit, pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      # Semua dependency, termasuk dev: alat build dan dev server ikut berjalan di mesin vendor.
+      - run: pnpm audit --audit-level high
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install pip-audit==2.10.1
+      # pip-audit tidak punya tingkat keparahan: setiap kerentanan yang diketahui menggagalkan CI.
+      - run: pip-audit --requirement services/cad-converter/requirements.txt
+
+  secrets:
+    name: Rahasia di riwayat git (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - run: >
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.28.0
+          git /repo --redact --no-banner --exit-code 1
+
+  images:
+    name: Image paket instalasi (Trivy)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [web, functions, cad]
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -f deploy/Dockerfile --target ${{ matrix.target }} -t panduarah/${{ matrix.target }}:ci .
+      - run: >
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src:ro"
+          aquasec/trivy:0.67.2 image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed
+          --ignorefile /src/.trivyignore.yaml --exit-code 1 --no-progress
+          panduarah/${{ matrix.target }}:ci

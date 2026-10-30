@@ -117,7 +117,7 @@ Format: task · judul — **fokus cek** · test case → folder bukti. Level `M`
 - [ ] T-595 · Vendor Portal — setujui trial dari landing, lisensi lolos aktivasi, kunci privat tidak di database · TC-OPS-14, 15 → `e2e/evidence/T-595/`
 - [ ] T-597 · Monitoring server — backup gagal 2×, disk, sertifikat → peringatan halaman dan email · TC-OPS-17, TC-SEC-76 → `e2e/evidence/T-597/`
 - [ ] T-598 · Notifikasi email — preferensi per jenis, berhenti berlangganan, pengingat lisensi · TC-OPS-18, 19 → `e2e/evidence/T-598/`
-- [ ] T-603 · Uji keamanan — CI gagal pada kerentanan tinggi, laporan pentest (M) · TC-KOM-04 → `e2e/evidence/T-603/`
+- [ ] T-603 · Uji keamanan — CI gagal pada kerentanan tinggi, laporan pentest (M) · TC-KOM-04 → `e2e/evidence/T-603/` (T-603a: TC-KOM-04; T-603b: laporan pentest)
 - [ ] T-604 · Proses rilis — rilis percobaan dari tag sampai arsip dan changelog (M) · TC-KOM-05 → `e2e/evidence/T-604/`
 - [ ] T-607 · Uji beban dan kapasitas — skenario k6 normal, puncak, lonjakan, ketahanan, titik batas, kelebihan beban; panduan ukuran server (M) · TC-LOAD-01 s.d. 17 → `e2e/evidence/T-607/`
 - [ ] T-606 · Materi pelatihan — modul, video, lembar ringkas per peran (M) · TC-KOM-07 → `e2e/evidence/T-606/`
