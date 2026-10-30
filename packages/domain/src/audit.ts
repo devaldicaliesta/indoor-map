@@ -17,6 +17,7 @@ export const AUDIT_ACTIONS = [
   'user_data_exported',
   'user_data_deleted',
   'audit_purged',
+  'eula_accepted',
 ] as const;
 export const AuditActionSchema = z.enum(AUDIT_ACTIONS);
 export type AuditAction = z.infer<typeof AuditActionSchema>;

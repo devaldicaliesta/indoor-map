@@ -5,6 +5,8 @@ create extension if not exists pgtap with schema extensions;
 select plan(26);
 
 delete from public.audit_events;
+-- Mulai dari bawaan, terlepas dari isi database lokal.
+update public.system_settings set audit_retention_days = 365;
 
 insert into auth.users (id, email, last_sign_in_at) values
   ('d6010000-0000-4000-8000-000000000001', 'sa@pdp.test', now()),

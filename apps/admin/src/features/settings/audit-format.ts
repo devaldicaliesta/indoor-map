@@ -14,6 +14,7 @@ export const AUDIT_LABELS: Record<AuditAction, string> = {
   user_data_exported: 'Data akun diekspor',
   user_data_deleted: 'Akun dihapus',
   audit_purged: 'Log audit dibersihkan',
+  eula_accepted: 'EULA disetujui',
 };
 
 const FAILURE_REASONS: Record<string, string> = {
@@ -66,6 +67,14 @@ function describeDetails(event: AuditEvent): string {
     case 'user_data_deleted':
       // Profilnya sudah tidak ada, jadi sasaran ditampilkan lewat role yang dicatat.
       return `Pengguna terhapus (${roleLabel(details.role)})`;
+    case 'eula_accepted':
+      return [
+        typeof details.version === 'string' ? `Versi ${details.version}` : '',
+        typeof details.licensee === 'string' ? details.licensee : '',
+        typeof details.license_id === 'string' ? details.license_id : '',
+      ]
+        .filter(Boolean)
+        .join(' · ');
     case 'audit_purged':
       return typeof details.deleted === 'number' && typeof details.retention_days === 'number'
         ? `${details.deleted} peristiwa lebih tua dari ${details.retention_days} hari`

@@ -404,6 +404,44 @@ export type Database = {
           },
         ];
       };
+      eula_acceptances: {
+        Row: {
+          accepted_at: string;
+          accepted_by: string | null;
+          id: number;
+          instance_id: string;
+          license_id: string;
+          licensee: string;
+          version: string;
+        };
+        Insert: {
+          accepted_at?: string;
+          accepted_by?: string | null;
+          id?: never;
+          instance_id: string;
+          license_id: string;
+          licensee: string;
+          version: string;
+        };
+        Update: {
+          accepted_at?: string;
+          accepted_by?: string | null;
+          id?: never;
+          instance_id?: string;
+          license_id?: string;
+          licensee?: string;
+          version?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'eula_acceptances_accepted_by_fkey';
+            columns: ['accepted_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
       facility_types: {
         Row: {
           created_at: string;
@@ -1591,6 +1629,7 @@ export type Database = {
         Returns: undefined;
       };
       delete_connector: { Args: { p_id: string }; Returns: undefined };
+      eula_status: { Args: Record<PropertyKey, never>; Returns: string };
       hosting_lifecycle_authorized: { Args: { p_secret: string }; Returns: boolean };
       hosting_lifecycle_expired: {
         Args: Record<PropertyKey, never>;
@@ -1703,6 +1742,7 @@ export type Database = {
       license_install: {
         Args: {
           p_actor_id?: string;
+          p_eula_version?: string;
           p_license_id: string;
           p_payload: Json;
           p_signature: string;
