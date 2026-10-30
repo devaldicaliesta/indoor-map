@@ -29,13 +29,14 @@
 
 ## 📊 Dashboard status
 
-> Ringkasan dari [`docs/PROGRESS.md`](docs/PROGRESS.md), per **26 Oktober 2026**. Rincian setiap task ada di sana.
+> Ringkasan dari [`docs/PROGRESS.md`](docs/PROGRESS.md), per **30 Oktober 2026**. Rincian setiap task ada di sana.
 
 | | |
 | --- | --- |
 | 🚀 **Rilis aktif** | F2.1 Siap jual |
-| ⏭️ **Task berikutnya** | T-601 (kepatuhan UU PDP) |
-| 🧪 **Menunggu review** | T-511 (distribusi image Docker jadi), T-512 (Visitor tanpa WebGL), T-514 (perbaikan lisensi dan audit R4), T-521 (panduan Windows; uji manual Hyper-V belum), T-599a (tur panduan: fondasi, Lokasi, Visitor, Info Point) |
+| 🔵 **Sedang dikerjakan** | T-592a (2FA TOTP Admin), branch `feature/2fa-admin` |
+| ⏭️ **Task berikutnya** | T-592b (SSO Admin, setelah T-592a selesai) |
+| 🧪 **Menunggu review** | T-511 (distribusi image Docker jadi), T-512 (Visitor tanpa WebGL), T-514 (perbaikan lisensi dan audit R4), T-521 (panduan Windows), T-599a (tur panduan), T-601a (kepatuhan UU PDP), T-602 (dokumen legal penjualan), T-603a (uji keamanan dan ASVS L2) |
 
 | Rilis | Isi | Progres | Task |
 | --- | --- | --- | --- |
@@ -45,7 +46,7 @@
 | **R3** Operasional | Template, import, publish berversi | `████████████████████` 100% | 14 · ✅ |
 | **V** Visitor komersial | Tampilan Visitor bergaya peta indoor | `████████████████████` 100% | 8 · ✅ |
 | **R4** Komersial | Lisensi, kuota, Info Point, paket instalasi | `████████████████████` 100% | 13 · ✅ |
-| **F2** Fase 2 | Siap jual, keamanan, fitur pembeda | `███░░░░░░░░░░░░░░░░░` 16% | 61 · ✅ 5 · 🟡 5 · ⬜ 36 · ⚪ 15 |
+| **F2** Fase 2 | Siap jual, keamanan, fitur pembeda | `████░░░░░░░░░░░░░░░░` 20% | 64 · ✅ 5 · 🟡 8 · 🔵 1 · ⬜ 32 · ⚪ 18 |
 | **F2-K** Trial hosting | Trial otomatis di Supabase + Cloudflare | `████████████████████` 100% | 14 · ✅ |
 
 **Keterangan status:** ✅ selesai · 🟡 review (sudah dibangun, menunggu review pemilik) · 🔵 dikerjakan · ⬜ siap (dependensi selesai) · ⚪ menunggu · 🔴 diblokir
@@ -104,11 +105,11 @@ gitGraph
     commit id: "kode stabil"
     branch develop
     commit id: "task harian"
-    branch feature/trial-hosting
-    commit id: "T-611"
-    commit id: "T-612"
+    branch feature/2fa-admin
+    commit id: "T-592a"
+    commit id: "T-592a lanjut"
     checkout develop
-    merge feature/trial-hosting id: "PR fitur"
+    merge feature/2fa-admin id: "PR fitur"
     checkout main
     merge develop id: "PR rilis"
     branch production
@@ -120,7 +121,7 @@ gitGraph
 | 🟢 `production` | Versi yang live di Cloudflare Pages | Merge dari `main` saat rilis |
 | 🔵 `main` | Kode stabil, CI hijau | PR dari `develop` |
 | 🟣 `develop` | Pengembangan harian | Push langsung atau PR dari `feature/*` |
-| 🟠 `feature/<nama>` | Fitur besar, mis. `feature/trial-hosting` | Push langsung, dihapus setelah digabung |
+| 🟠 `feature/<nama>` | Fitur besar, mis. `feature/2fa-admin` | Push langsung, dihapus setelah digabung |
 
 Aturan lengkap: [`docs/07-aturan-branch.md`](docs/07-aturan-branch.md).
 
@@ -143,6 +144,7 @@ supabase start         # butuh Docker
 pnpm db:reset          # seed + Super Admin admin@local.test
 pnpm dev               # Admin :5173, Visitor :5174
 pnpm dev:landing       # Landing :5175
+pnpm dev:vendor        # Dasbor vendor :5176
 pnpm check             # typecheck + lint + test (wajib hijau sebelum PR)
 pnpm test:e2e          # Playwright
 ```
