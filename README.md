@@ -2,11 +2,12 @@
   <img src="packages/ui/src/brand/panduarah-logo.svg" alt="PanduArah" width="260">
 </p>
 
-<h3 align="center">Peta dalam gedung dan navigasi langkah demi langkah untuk semua jenis gedung</h3>
+<h3 align="center">Tersesat di dalam gedung? Pindai kodenya, lalu ikuti petanya.</h3>
 
 <p align="center">
-  Rumah sakit, kampus, perkantoran, bandara, pabrik, dan pusat perbelanjaan: buat petanya sekali,
-  terbitkan, dan pengunjung menemukan jalannya dari ponsel apa pun, tanpa aplikasi yang harus dipasang dan tanpa beacon yang harus dibeli.
+  PanduArah mengubah denah gedung menjadi peta dan petunjuk arah langkah demi langkah di ponsel pengunjung.<br>
+  Untuk rumah sakit, kampus, perkantoran, bandara, pabrik, dan pusat perbelanjaan.<br>
+  <b>Tanpa beacon yang harus dibeli. Tanpa aplikasi yang harus diunduh.</b>
 </p>
 
 <p align="center">
@@ -18,51 +19,54 @@
   <img alt="Cloudflare Pages" src="https://img.shields.io/badge/Cloudflare-Pages-F38020?logo=cloudflare&logoColor=white">
 </p>
 
-> 🇬🇧 English copy: [`README.en.md`](README.en.md) · playbook lengkap di [`docs/`](docs/00-README.md).
+> 🇬🇧 English copy: [`README.en.md`](README.en.md) · Playbook lengkap ada di [`docs/`](docs/00-README.md).
 
 ## Tautan submission
 
 | | |
 | --- | --- |
-| 🌐 **Demo langsung (Visitor, tanpa login)** | https://app.panduarah.my.id/v/demo |
-| ☁️ **Hosting** | Cloudflare Pages (frontend) + Supabase (backend). **Tidak di-deploy di Google Cloud**, lihat [Deployment](#deployment) |
-| 🏠 Situs produk dan trial gratis | https://panduarah.my.id |
-| 🛠️ Admin (editor peta) | https://admin.panduarah.my.id (minta ruang kerja gratis 17 hari lewat situs produk) |
-| 🎬 Demo video (≤ 3 menit) | `GANTI-DENGAN-URL-VIDEO-DEMO` |
+| 🌐 **Coba langsung** (Visitor, tanpa login) | https://app.panduarah.my.id/v/demo |
+| ☁️ **Dihosting di** | Cloudflare Pages (frontend) + Supabase (backend). **Bukan Google Cloud**; alasannya ada di bagian [Deployment](#deployment) |
+| 🏠 Situs produk dan trial gratis 17 hari | https://panduarah.my.id |
+| 🛠️ Admin (editor peta) | https://admin.panduarah.my.id (butuh akun; minta ruang kerja gratis lewat situs produk) |
+| 🎬 Video demo (di bawah 3 menit) | `GANTI-DENGAN-URL-VIDEO-DEMO` |
 | 🎞️ Pitch deck | `GANTI-DENGAN-URL-PITCH-DECK` |
-| 🎥 Backup video: arsitektur dan roadmap (≤ 15 menit) | `GANTI-DENGAN-URL-VIDEO-BACKUP` |
+| 🎥 Video tur teknis: arsitektur, kode, dan roadmap (±10 menit) | `GANTI-DENGAN-URL-VIDEO-BACKUP` |
 
-### Tur 60 detik untuk juri
+### Coba dalam 60 detik
 
-1. Buka demo langsung. Isinya **RS Demo Harapan**, rumah sakit fiktif 4 lantai dengan 154 lokasi.
-2. Cari **"Radiologi"**, buka, ketuk **Rute ke sini**, lalu pilih **Pendaftaran** sebagai titik awal.
-3. Ikuti langkahnya: rute melintasi lantai lewat lift atau tangga. Aktifkan **rute aksesibel (kursi roda)**, lalu coba **2D / 3D** dan tombol bahasa **ID / EN**.
-4. Venue demo lain: `/v/demo-mal` (mal), `/v/demo-kampus` (kampus), `/v/demo-kantor` (menara perkantoran), `/v/demo-bandara` (bandara), `/v/demo-pabrik` (pabrik), `/v/demo-konser` (stadion).
+1. Buka demo langsung. Anda masuk ke **RS Demo Harapan**, rumah sakit fiktif empat lantai dengan 154 lokasi.
+2. Ketik **“Radiologi”**, buka hasilnya, ketuk **Rute ke sini**, lalu pilih **Pendaftaran** sebagai titik awal.
+3. Ikuti langkah-langkahnya. Rute berpindah lantai lewat lift atau tangga, dan petanya ikut berpindah.
+4. Centang **Rute aksesibel (kursi roda)** dan lihat jalurnya berubah. Lalu coba **2D / 3D** dan tombol bahasa **ID / EN**.
+5. Mau gedung lain? Ganti alamatnya menjadi `/v/demo-mal`, `/v/demo-kampus`, `/v/demo-kantor`, `/v/demo-bandara`, `/v/demo-pabrik`, atau `/v/demo-konser` (stadion).
 
-## Masalah
+## Masalahnya
 
-GPS berhenti bekerja begitu kita melangkah masuk gedung. Pasien terlambat ke janji temu di rumah sakit yang luas, mahasiswa dan tamu berkeliling di kampus, penumpang terburu-buru di terminal, dan petugas meja depan menjawab "di mana ya…?" sepanjang hari. Produk positioning dalam gedung yang ada bergantung pada beacon dan SDK native, sehingga mahal dan lambat dipasang.
+Titik biru di ponsel Anda menghilang tepat di pintu masuk. GPS tidak bekerja di dalam gedung, dan sisanya diserahkan kepada papan petunjuk dan satpam. Pasien terlambat ke janji temu di rumah sakit yang luas. Mahasiswa dan tamu berputar-putar di kampus. Penumpang berlari di terminal. Petugas meja depan menjawab “di mana ya…?” sepanjang hari.
 
-## Solusi
+Banyak solusi navigasi dalam gedung bertumpu pada beacon dan SDK native: perangkat keras yang harus dibeli dan dipasang, aplikasi yang harus diunduh, dan biaya yang sudah membengkak sebelum satu pengunjung pun terbantu.
 
-**PanduArah** adalah platform lengkap, bukan sekadar penampil peta:
+## Jawabannya
 
-- **Admin:** editor web tempat pengelola gedung menggambar lantai, ruangan, koridor, lift, dan tangga di atas denah yang diunggah (PNG, JPG, PDF, atau DXF), menautkan ruangan ke lokasi yang bisa dicari, lalu menerbitkan snapshot berversi dengan satu klik.
-- **Visitor:** PWA yang dibuka dari kode QR atau tautan. Cari, lihat tempatnya dalam 2D atau 3D, dan dapatkan petunjuk langkah demi langkah lintas lantai dan gedung, dengan penutupan sementara yang langsung diperhitungkan.
-- **Info Point:** aplikasi Visitor yang sama dalam mode kios di layar sentuh lobi, dengan penanda "Anda di sini" yang tetap.
+**PanduArah** menutup seluruh alurnya, dari menggambar peta sampai mengantar pengunjung ke tujuan, lewat tiga aplikasi:
 
-Posisi "Anda di sini" berasal dari **kode QR di titik yang diketahui**, kios, atau pilihan manual, jadi tidak ada perangkat keras yang harus dipasang.
+- **Admin**: editor web untuk pengelola gedung. Unggah denah (PNG, JPG, PDF, atau DXF), gambar lantai, ruangan, koridor, lift, dan tangga, tautkan tiap ruangan ke lokasi yang bisa dicari, lalu terbitkan peta berversi dengan satu klik.
+- **Visitor**: PWA yang dibuka dari kode QR atau tautan. Pengunjung mencari tujuan, melihatnya dalam 2D atau 3D, lalu mengikuti petunjuk lintas lantai dan lintas gedung. Penutupan sementara langsung ikut diperhitungkan.
+- **Info Point**: aplikasi Visitor yang sama dalam mode kios untuk layar sentuh di lobi, dengan penanda “Anda di sini” yang tetap.
 
-### Fitur
+Dari mana aplikasi tahu posisi Anda? Dari **kode QR di titik yang sudah diketahui**, dari kios, atau dari pilihan manual. Karena itu tidak ada perangkat keras yang perlu dipasang di gedung.
 
-| Area | Kemampuan |
+### Yang bisa dilakukan
+
+| Bagian | Isinya |
 | --- | --- |
-| Editor peta | Multi-venue, multi-gedung, multi-lantai; menggambar poligon / garis / titik dengan snapping, undo / redo, denah tergeoreferensi, impor DXF (pilih layer), validasi dengan temuan yang terlihat |
-| Routing | A\* pada graf per lantai; lift, eskalator (berarah), tangga, dan pintu gedung; mode rute aksesibel; rute dihitung ulang menghindari penutupan; teks petunjuk ID / EN dari template yang bisa diubah |
-| Operasional | Template industri (rumah sakit, kampus, perkantoran, bandara, pabrik, mal), impor CSV / Excel, alias, jam operasional, status lokasi, publish berversi dengan diff dan rollback, kunci edit per lantai |
-| Visitor | PWA yang bisa dipakai offline, pencarian toleran salah ketik, kategori dan direktori A-Z, tautan bagikan, 2D / 3D, rute beranimasi, orang mini di lapisan keramaian, branding venue |
-| Tata kelola | 5 role yang ditegakkan oleh Row Level Security Postgres, log audit, sistem lisensi dan kuota, persetujuan EULA, ekspor dan hapus data pribadi |
-| Trial hosting | Calon klien meminta ruang kerja 17 hari; Edge Function menyiapkan venue terisolasi, akun Admin, dan tautan Visitor secara otomatis |
+| Editor peta | Banyak venue, gedung, dan lantai. Gambar poligon, garis, dan titik dengan snapping, undo / redo, denah tergeoreferensi, dan impor DXF per layer. Kesalahan geometri terlihat langsung sebagai temuan validasi |
+| Routing | A\* pada graf per lantai, dengan lift, eskalator (berarah), tangga, dan pintu gedung. Ada mode rute aksesibel, rute otomatis memutar saat ada penutupan, dan teks petunjuk ID / EN dari template yang bisa diubah |
+| Operasional | Template per jenis gedung, impor CSV / Excel, alias pencarian, jam operasional, dan status lokasi. Publish berversi lengkap dengan diff dan rollback, serta kunci sunting per lantai agar dua orang tidak saling menimpa |
+| Visitor | PWA yang tetap jalan tanpa internet, pencarian yang memaafkan salah ketik, kategori dan direktori A-Z, tautan bagikan, 2D / 3D, rute beranimasi, dan branding per venue |
+| Tata kelola | Lima role yang ditegakkan Row Level Security Postgres, log audit, lisensi dan kuota, persetujuan EULA, serta ekspor dan hapus data pribadi |
+| Trial hosting | Calon klien meminta ruang kerja 17 hari. Edge Function menyiapkan venue terisolasi, akun Admin, dan tautan Visitor secara otomatis |
 
 ### Tampilan
 
@@ -70,7 +74,7 @@ Posisi "Anda di sini" berasal dari **kode QR di titik yang diketahui**, kios, at
 | --- | --- | --- | --- |
 | <img src="e2e/evidence/demo-data/v08-rute-rumah-sakit-pendaftaran-ke-radiologi.png" width="240"> | <img src="e2e/evidence/demo-data/a09-admin-editor-menara.png" width="240"> | <img src="e2e/evidence/demo-data/k01-info-point-bandara.png" width="120"> | <img src="e2e/evidence/demo-data/m01-hp-mal.png" width="120"> |
 
-## Arsitektur
+## Cara kerjanya
 
 ```mermaid
 flowchart LR
@@ -102,16 +106,16 @@ flowchart LR
     EF --> ST
 ```
 
-Keputusan desain yang penting:
+Empat keputusan yang membentuk sisanya:
 
-- **Visitor membaca snapshot yang sudah diterbitkan, bukan query ke database.** Satu berkas JSON berversi (ditambah berkas graf terpisah) di-cache oleh service worker, dan satu-satunya bacaan langsung adalah daftar penutupan aktif yang kecil. Pencarian dan routing berjalan **di ponsel**, sehingga server tetap ringan dan aplikasi tetap berjalan tanpa internet.
-- **Logika murni dipisah dari UI.** `packages/domain` dan `packages/routing` tidak bergantung pada React, Supabase, atau MapLibre, sehingga kode yang sama memvalidasi di editor, menerbitkan di Edge Function, dan menghitung rute di ponsel.
-- **Otorisasi ada di database.** Setiap policy melewati fungsi pembungkus `app.*` dan Row Level Security. Menyembunyikan tombol tidak pernah menjadi kontrol akses.
-- **Data portabel.** Satu paket data berbicara dengan Supabase; GeoJSON WGS84 di mana-mana; tanpa model data khusus satu vendor.
+- **Visitor membaca snapshot, bukan menembak database.** Peta diterbitkan sebagai satu berkas JSON berversi (graf jalan dipisah ke berkas sendiri) yang di-cache service worker. Satu-satunya bacaan langsung adalah daftar penutupan aktif yang kecil. Pencarian dan routing berjalan **di ponsel**, jadi server tetap ringan saat pengunjung ramai, dan aplikasi tetap hidup tanpa internet.
+- **Logika dipisah dari tampilan.** `packages/domain` dan `packages/routing` tidak mengenal React, Supabase, maupun MapLibre. Kode yang sama memvalidasi di editor, menerbitkan di Edge Function, dan menghitung rute di ponsel.
+- **Keamanan ada di database.** Setiap policy melewati fungsi `app.*` dan Row Level Security. Menyembunyikan tombol tidak pernah dianggap kontrol akses.
+- **Data bisa dipindah.** Hanya satu paket yang berbicara dengan Supabase. Geometri selalu GeoJSON WGS84, tanpa format yang terkunci pada satu vendor.
 
 ### Hasil ukur
 
-Dari [`docs/laporan-performa.md`](docs/laporan-performa.md) (paket on-premise di Docker; emulasi ponsel kelas menengah, CPU diperlambat 4×):
+Angka di bawah diukur, bukan ditebak, dan yang meleset dari target tetap dicantumkan. Sumbernya [`docs/laporan-performa.md`](docs/laporan-performa.md): paket on-premise di Docker, emulasi ponsel kelas menengah dengan CPU diperlambat 4×.
 
 | Pengujian | Hasil | Target |
 | --- | --- | --- |
@@ -123,7 +127,7 @@ Dari [`docs/laporan-performa.md`](docs/laporan-performa.md) (paket on-premise di
 | Aksesibilitas (axe, WCAG 2.x A/AA) | **0 pelanggaran di 15 halaman** | |
 | Browser | Chromium, WebKit, Pixel 7, iPhone 13 lulus; Firefox belum terverifikasi (tanpa WebGL di kontainer uji) | |
 
-Gerbang kualitas di repo: 206 berkas Vitest, 43 berkas pgTAP untuk RLS dan fungsi SQL, 101 spec Playwright, sekitar 60 migrasi SQL, 11 Edge Function, serta workflow CI dan workflow Security (`pnpm audit`, `pip-audit`, gitleaks, Trivy).
+Penjaga kualitas di repo: 206 berkas Vitest, 43 berkas pgTAP untuk RLS dan fungsi SQL, 101 spec Playwright, sekitar 60 migrasi SQL, dan 11 Edge Function. CI berjalan di setiap perubahan, ditambah workflow keamanan (`pnpm audit`, `pip-audit`, gitleaks, Trivy).
 
 ## Stack teknologi
 
@@ -174,7 +178,7 @@ pnpm test:e2e           # alur utama Playwright (butuh Supabase lokal dan pnpm d
 
 ## Deployment
 
-**PanduArah dipublikasikan di Cloudflare Pages (aplikasi web) dan Supabase (database, auth, storage, Edge Function). Proyek ini tidak di-deploy di Google Cloud**, jadi submission ini tidak memiliki tautan Cloud Run maupun Firebase App Distribution. URL live ada di tabel paling atas.
+**PanduArah berjalan di Cloudflare Pages (aplikasi web) dan Supabase (database, auth, storage, Edge Function). Proyek ini tidak memakai Google Cloud**, jadi submission ini tidak punya tautan Cloud Run maupun Firebase App Distribution. Alamat live ada di tabel paling atas.
 
 | Bagian | Dijalankan di |
 | --- | --- |
@@ -186,11 +190,11 @@ Panduan langkah demi langkah: [`deploy/hosting/README.md`](deploy/hosting/README
 
 ### Mobile
 
-Visitor adalah **PWA** yang bisa dipasang ("Tambahkan ke layar utama" di Android dan iOS), jadi tidak ada aplikasi native dan tidak ada yang perlu didistribusikan lewat layanan distribusi aplikasi.
+Visitor adalah **PWA**: buka tautannya, lalu “Tambahkan ke layar utama” di Android atau iOS bila perlu. Tidak ada aplikasi native, jadi tidak ada build yang harus dibagikan lewat layanan distribusi aplikasi.
 
 ### Paket on-premise
 
-Klien enterprise dapat menjalankan seluruh sistem di server sendiri dengan Docker Compose ([`deploy/README.md`](deploy/README.md)): gateway HTTPS, Postgres + PostGIS, Auth, Storage, Edge Runtime, konverter CAD, backup harian, skrip upgrade dan rollback, serta aktivasi lisensi bertanda tangan.
+Klien besar yang ingin datanya tetap di jaringan sendiri bisa menjalankan seluruh sistem di server sendiri dengan Docker Compose ([`deploy/README.md`](deploy/README.md)): gateway HTTPS, Postgres + PostGIS, Auth, Storage, Edge Runtime, konverter CAD, backup harian, skrip upgrade dan rollback, serta aktivasi lisensi bertanda tangan.
 
 ## Struktur proyek
 
@@ -214,9 +218,9 @@ Rencana rinci: [`docs/20-F2-fase-2.md`](docs/20-F2-fase-2.md) dan [`docs/PROGRES
 | **Berikutnya** | Petunjuk berbasis landmark dan estimasi waktu jalan; fasilitas terdekat dan rute multi-tujuan; publish terjadwal; peta cetak dan papan "Anda di sini"; konten multi-bahasa; analitik penggunaan; ekspor GeoJSON / IMDF; API dan webhook |
 | **Nanti** | Pustaka objek 3D dan model GLB; pemindaian denah otomatis dari gambar; manajemen perangkat Info Point dan shell Windows; event dan promosi; PostgreSQL milik klien; instalasi Windows Server |
 
-## Cara pembuatan
+## Dibuat oleh siapa, dan bagaimana
 
-Dibangun oleh [Devaldi Caliesta](https://github.com/devaldicaliesta). Pekerjaan diatur sebagai task bernomor di `docs/` dengan kriteria penerimaan tertulis, masing-masing diverifikasi lewat test dan tangkapan layar di `e2e/evidence/`. Bantuan AI (Claude Code) dipakai dengan aturan di [`CLAUDE.md`](CLAUDE.md); setiap perubahan melewati gerbang `pnpm check` yang sama.
+Dibangun oleh [Devaldi Caliesta](https://github.com/devaldicaliesta). Pekerjaan dipecah menjadi task bernomor di `docs/`, masing-masing dengan kriteria selesai yang tertulis dan dibuktikan lewat test serta tangkapan layar di `e2e/evidence/`. Claude Code dipakai sebagai asisten dengan aturan di [`CLAUDE.md`](CLAUDE.md), dan setiap perubahan tetap harus melewati gerbang `pnpm check` yang sama.
 
 ## Lisensi
 
