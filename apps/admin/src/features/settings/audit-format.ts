@@ -61,6 +61,8 @@ function describeDetails(event: AuditEvent): string {
     }
     case 'role_changed':
       return `${roleLabel(details.from)} → ${roleLabel(details.to)}`;
+    case 'user_data_exported':
+      return event.target ? '' : 'Pengguna terhapus';
     case 'user_data_deleted':
       // Profilnya sudah tidak ada, jadi sasaran ditampilkan lewat role yang dicatat.
       return `Pengguna terhapus (${roleLabel(details.role)})`;
