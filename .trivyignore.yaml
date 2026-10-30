@@ -1,0 +1,27 @@
+# Pengecualian pemindaian image Trivy (T-603, `.github/workflows/security.yml`).
+# Hanya untuk temuan yang belum punya perbaikan di image dasar resmi. Setiap entri wajib punya
+# alasan dan `expired_at` paling lama 30 hari: setelah tanggal itu CI merah lagi sampai entri
+# ditinjau ulang. Daftar dan riwayatnya juga dicatat di docs/keamanan/README.md.
+vulnerabilities:
+  # Biner Caddy 2.11.6 (image `web`) dibangun upstream dengan go-jose 4.1.5, x/net 0.59.0, dan
+  # Go 1.26.8. Caddy 2.11.7 masih membawa versi yang sama. Gateway hanya melayani berkas statis
+  # dan reverse proxy di jaringan klien; ACME/ECH tidak dipakai (sertifikat dari klien).
+  - id: CVE-2026-116587
+    purls: ['pkg:golang/github.com/go-jose/go-jose/v4']
+    statement: go-jose DoS lewat kunci RSA; Caddy tidak memakai ACME di paket klien
+    expired_at: 2026-11-30
+  - id: CVE-2026-78669
+    statement: DoS HTTP/2 di x/net dan stdlib Go 1.26.8; menunggu Caddy yang dibangun dengan Go >= 1.26.9
+    expired_at: 2026-11-30
+  - id: CVE-2026-78667
+    purls: ['pkg:golang/stdlib']
+    statement: DoS header Range di net/http Go 1.26.8; menunggu rilis Caddy berikutnya
+    expired_at: 2026-11-30
+  - id: CVE-2026-97031
+    purls: ['pkg:golang/stdlib']
+    statement: DoS ECH di crypto/tls Go 1.26.8; ECH tidak diaktifkan di Caddyfile
+    expired_at: 2026-11-30
+  - id: CVE-2026-111943
+    purls: ['pkg:golang/stdlib']
+    statement: crypto/x509 Go 1.26.8; Caddy tidak memverifikasi rantai sertifikat upstream (proxy ke layanan internal lewat http)
+    expired_at: 2026-11-30
