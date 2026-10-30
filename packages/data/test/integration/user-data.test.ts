@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { userDataExportFilename } from '@indoor/domain';
+import { UserIdSchema, userDataExportFilename } from '@indoor/domain';
 import { createClient } from '@supabase/supabase-js';
 import { afterAll, describe, expect, it } from 'vitest';
 import { createRepositories } from '../../src/client';
@@ -29,7 +29,7 @@ describe.runIf(url && anonKey && serviceKey)('data akun UU PDP (Supabase lokal)'
       password: PASSWORD,
       email_confirm: true,
     });
-    const id = created.data.user?.id ?? '';
+    const id = UserIdSchema.parse(created.data.user?.id);
     userIds.push(id);
     await service.from('profiles').insert({ user_id: id, full_name: name, email, role });
     return { id, email };
