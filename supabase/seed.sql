@@ -41,6 +41,12 @@ values (
   'manual'
 );
 
+-- Instalasi dev dianggap sudah menyetujui EULA versi berlaku (T-602), sehingga test yang
+-- memasang lisensi tidak perlu melewati persetujuan. Versi harus sama dengan `EULA_VERSION`
+-- (packages/domain/src/eula.ts); dijaga `packages/data/test/seed-eula.test.ts`.
+insert into public.eula_acceptances (version, license_id, licensee, instance_id)
+values ('2026-10-30', 'LIC-DEV-LOCAL', 'Pengembangan Lokal', '00000000-0000-4000-8000-0000000de701');
+
 -- ---------------------------------------------------------------------
 -- Pengguna lokal, satu per role, semuanya memakai SEED_ADMIN_PASSWORD:
 --   admin@local.test (Super Admin), pengelola@local.test (Admin),
