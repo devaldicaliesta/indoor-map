@@ -1,0 +1,53 @@
+# Build the image in Cloud Build, push it to Artifact Registry and deploy it to Cloud Run.
+# Run from the repository root (see deploy/cloud-run/deploy.sh, which fills the substitutions):
+#   gcloud builds submit --config deploy/cloud-run/cloudbuild.yaml --substitutions=_SUPABASE_URL=...,_SUPABASE_ANON_KEY=... .
+substitutions:
+  _APP: visitor
+  _SERVICE: panduarah-visitor
+  _REGION: asia-southeast2
+  _REPO: panduarah
+  _SUPABASE_URL: ""
+  _SUPABASE_ANON_KEY: ""
+  _VISITOR_URL: ""
+
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/cloud-run/Dockerfile
+      - --build-arg=APP=${_APP}
+      - --build-arg=VITE_SUPABASE_URL=${_SUPABASE_URL}
+      - --build-arg=VITE_SUPABASE_ANON_KEY=${_SUPABASE_ANON_KEY}
+      - --build-arg=VITE_VISITOR_URL=${_VISITOR_URL}
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$BUILD_ID
+      - .
+
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: [push, "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$BUILD_ID"]
+
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$BUILD_ID
+      - --region=${_REGION}
+      - --platform=managed
+      - --allow-unauthenticated
+      - --port=8080
+      - --memory=256Mi
+      - --cpu=1
+      - --min-instances=0
+      - --max-instances=5
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$BUILD_ID
+
+options:
+  logging: CLOUD_LOGGING_ONLY
