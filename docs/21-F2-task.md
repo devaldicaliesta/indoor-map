@@ -1207,6 +1207,16 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 
 ### T-603 · Uji keamanan
 
+> **Dipecah (2026-10-30)** karena pentest butuh pihak ketiga:
+> - **T-603a · Pemindaian dan tinjauan internal:** workflow Security di CI (pnpm audit,
+>   pip-audit, gitleaks, Trivy image), perbaikan temuan yang ada, `SECURITY.md`, daftar periksa
+>   ASVS L2 (`docs/keamanan/asvs-l2.md`), lingkup dan pelacakan pentest
+>   (`docs/keamanan/pentest.md`). TC-KOM-04.
+> - **T-603b · Pentest independen:** pelaksanaan oleh pihak ketiga yang ditunjuk pemilik,
+>   perbaikan temuan kritis/tinggi, uji ulang, dan pencatatan di `docs/keamanan/pentest.md`.
+>
+> Kriteria "Selesai jika" di bawah berlaku untuk gabungan keduanya.
+
 - **Untuk:** `20-F2-fase-2.md` §2.13
 - **Bergantung pada:** —
 - **Langkah:**
