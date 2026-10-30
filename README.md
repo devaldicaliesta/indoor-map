@@ -104,7 +104,7 @@ flowchart LR
 
 Design decisions that matter:
 
-- **Visitors read a published snapshot, not the database.** One versioned JSON file (plus a separate graph file) is cached by the service worker. Search and routing run **on the phone**, so the server stays cheap and the app keeps working offline.
+- **Visitors read a published snapshot instead of querying the database.** One versioned JSON file (plus a separate graph file) is cached by the service worker, and the only live read is a small list of active closures. Search and routing run **on the phone**, so the server stays cheap and the app keeps working offline.
 - **Pure logic is separate from UI.** `packages/domain` and `packages/routing` have no React, Supabase or MapLibre dependency, so the same code validates in the editor, publishes in an Edge Function and routes on the phone.
 - **Authorization lives in the database.** Every policy goes through `app.*` wrapper functions and Row Level Security. Hiding a button is never the access control.
 - **Portable data.** One data package talks to Supabase; GeoJSON in WGS84 everywhere; no vendor-specific data model.
