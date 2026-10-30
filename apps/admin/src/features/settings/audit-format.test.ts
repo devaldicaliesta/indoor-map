@@ -39,6 +39,7 @@ describe('describeAuditDetails', () => {
     expect(describeAuditDetails({ ...event('user_data_exported', {}), target })).toBe(
       'Renée Ümmü (renee@contoh.id)',
     );
+    expect(describeAuditDetails(event('user_data_exported', {}))).toBe('Pengguna terhapus');
     expect(describeAuditDetails(event('user_data_deleted', { role: 'editor' }))).toBe(
       'Pengguna terhapus (Editor)',
     );
