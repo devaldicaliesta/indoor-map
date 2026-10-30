@@ -34,3 +34,23 @@ Bila CI atau `pnpm check` merah: `/ecc-build-fix`. Untuk perubahan RLS, Storage,
 ## Pembaruan dari upstream (2026-10-02)
 
 Dibandingkan dengan `agents/` di WorldFlowAI/everything-claude-code: ditambahkan ke `security-reviewer` (OWASP Top 10 + CWE, CORS/CSRF, header, batas pemakaian, log dan pesan error aman, data di URL, audit riwayat git dan `pip-audit`, ringkasan risiko dan rekomendasi Blokir/Setuju), `code-reviewer` (ukuran fungsi dan sarang, sisa debug, TODO tanpa task, angka ajaib, N+1, bundle, kode tanpa test, contoh perbaikan), `build-error-resolver` (catatan kemajuan, diff minimal, daftar boleh/tidak, test Python). Bagian khusus keuangan/blockchain dan Next.js tidak diambil karena tidak relevan. `doc-updater` tidak diambil: dokumentasi diperbarui lewat `PROGRESS.md` dan file task.
+
+## Ponytail (2026-10-30)
+
+Skill gaya kerja dari [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)
+(commit `96608e0`, v5.3.3, lisensi MIT, © Dietrich Gebert; salinan lisensi di
+`.claude/skills/ponytail/LICENSE`), disalin tanpa perubahan atas permintaan pemilik:
+
+| Skill | Isi |
+| --- | --- |
+| `ponytail` | Perubahan terkecil yang tuntas: pakai ulang yang sudah ada di repo, tanpa abstraksi atau opsi yang tidak diminta, satu test kecil untuk logika berisiko; tidak pernah memangkas validasi, keamanan, penanganan kehilangan data, atau aksesibilitas. Level `lite`/`full` (bawaan)/`ultra` |
+| `ponytail-review` | Tinjauan perubahan: benar, aman, tahan beban nyata, teruji, cepat, ramping; membaca kode yang tersambung, bukan hanya diff |
+| `ponytail-audit` | Audit kualitas seluruh repo, temuan berperingkat |
+| `ponytail-debt` | Daftar komentar `shortcut:` sebagai catatan utang teknis |
+
+Yang sengaja tidak dibawa: **hook** plugin (Node.js di setiap prompt, status bar "band" yang tidak
+tampil di sesi cloud, pencatatan biaya ke `~/.config/ponytail/` dan webhook opsional), serta skill
+`ponytail-gain` dan `ponytail-help` (papan skor dan kartu bantuan). Bila berbeda dengan
+`CLAUDE.md` (misalnya bahasa teks UI, aturan test domain/routing, format commit), `CLAUDE.md`
+yang berlaku. Komentar `shortcut: <batas>, <kapan ditingkatkan>` tetap boleh, tetapi utang yang
+punya task ditulis dengan nomor task ("dibuat di T-xxx").
