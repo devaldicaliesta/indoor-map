@@ -2,11 +2,12 @@
   <img src="packages/ui/src/brand/panduarah-logo.svg" alt="PanduArah" width="260">
 </p>
 
-<h3 align="center">Indoor maps and turn-by-turn navigation for every kind of building</h3>
+<h3 align="center">Lost inside a building? Scan the code, then follow the map.</h3>
 
 <p align="center">
-  Hospitals, campuses, offices, airports, factories and shopping malls: build the map once,
-  publish it, and visitors find their way from any phone, with no app to install and no beacons to buy.
+  PanduArah turns a floor plan into a map with step-by-step directions on the visitor's own phone.<br>
+  For hospitals, campuses, offices, airports, factories and shopping malls.<br>
+  <b>No beacons to buy. No app to download.</b>
 </p>
 
 <p align="center">
@@ -24,34 +25,37 @@
 
 | | |
 | --- | --- |
-| 🌐 **Live demo (Visitor, no login)** | https://app.panduarah.my.id/v/demo |
-| ☁️ **Hosting** | Cloudflare Pages (frontends) + Supabase (backend). **Not deployed on Google Cloud**, see [Deployment](#deployment) |
+| 🌐 **Try it live** (Visitor, no login) | https://app.panduarah.my.id/v/demo |
+| ☁️ **Hosting** | Cloudflare Pages (frontends) + Supabase (backend). **Not Google Cloud**; the reasoning is in [Deployment](#deployment) |
 | 🏠 Product site and free trial | https://panduarah.my.id |
-| 🛠️ Admin (map editor) | https://admin.panduarah.my.id (request a free 17-day workspace on the product site) |
-| 🎬 Demo video (≤ 3 min) | `REPLACE-WITH-VIDEO-URL` |
+| 🛠️ Admin (map editor) | https://admin.panduarah.my.id (needs an account; request a free workspace on the product site) |
+| 🎬 Demo video (under 3 minutes) | `REPLACE-WITH-VIDEO-URL` |
 | 🎞️ Pitch deck | `REPLACE-WITH-DECK-URL` |
-| 🎥 Backup video: architecture and roadmap (≤ 15 min) | `REPLACE-WITH-VIDEO-URL` |
+| 🎥 Technical tour: architecture, code and roadmap (about 10 min) | `REPLACE-WITH-TOUR-VIDEO-URL` |
 
-### 60-second tour for judges
+### Try it in 60 seconds
 
-1. Open the live demo. It is **RS Demo Harapan**, a fictional 4-floor hospital (154 locations).
-2. Search **"Radiologi"**, open it, tap **Route here**, and choose **Pendaftaran** as your starting point.
-3. Follow the steps: the route crosses floors by lift or stairs. Switch on **wheelchair-accessible route**, then try **2D / 3D** and the **ID / EN** language toggle.
-4. Other demo venues: `/v/demo-mal` (mall), `/v/demo-kampus` (campus), `/v/demo-kantor` (office tower), `/v/demo-bandara` (airport), `/v/demo-pabrik` (factory), `/v/demo-konser` (stadium).
+1. Open the live demo. You land in **RS Demo Harapan**, a fictional four-floor hospital with 154 locations.
+2. Type **"Radiologi"**, open the result, tap **Route here**, and pick **Pendaftaran** as the starting point.
+3. Follow the steps. The route changes floors by lift or stairs, and the map follows.
+4. Tick **Wheelchair-accessible route** and watch the path change. Then try **2D / 3D** and the **ID / EN** toggle.
+5. Want another building? Change the address to `/v/demo-mal`, `/v/demo-kampus`, `/v/demo-kantor`, `/v/demo-bandara`, `/v/demo-pabrik`, or `/v/demo-konser` (stadium).
 
 ## The problem
 
-GPS stops working the moment you walk through the door. Patients miss appointments in sprawling hospitals, students and visitors wander campuses, passengers rush through terminals, and front-desk staff answer "where is…?" all day. Existing indoor-positioning products depend on beacons and native SDKs, which makes them expensive and slow to roll out.
+The blue dot on your phone disappears right at the front door. GPS does not work indoors, and the rest is left to signs and security guards. Patients are late for appointments in sprawling hospitals. Students and guests circle around campuses. Passengers run through terminals. Front-desk staff answer "where is…?" all day.
 
-## The solution
+Many indoor-navigation products rely on beacons and native SDKs: hardware to buy and install, an app to download, and a bill that has grown before a single visitor has been helped.
 
-**PanduArah** is a complete platform, not just a map viewer:
+## The answer
 
-- **Admin:** a web editor where a building manager draws floors, rooms, corridors, lifts and stairs on top of an uploaded floor plan (PNG, JPG, PDF or DXF), links rooms to searchable locations, and publishes a versioned snapshot with one click.
-- **Visitor:** a PWA opened from a QR code or link. Search, see the place in 2D or 3D, get step-by-step directions across floors and buildings, with live temporary closures taken into account.
-- **Info Point:** the same Visitor app in kiosk mode on a touch screen in the lobby, with a fixed "You are here".
+**PanduArah** covers the whole loop, from drawing the map to getting a visitor to the destination, in three apps:
 
-"You are here" comes from a **QR code at a known point**, a kiosk, or a manual pick, so there is no hardware to install.
+- **Admin:** a web editor for building managers. Upload a floor plan (PNG, JPG, PDF or DXF), draw floors, rooms, corridors, lifts and stairs, link each room to a searchable location, and publish a versioned map with one click.
+- **Visitor:** a PWA opened from a QR code or link. Visitors search for a destination, see it in 2D or 3D, and follow directions across floors and buildings. Temporary closures are taken into account right away.
+- **Info Point:** the same Visitor app in kiosk mode for the lobby touch screen, with a fixed "You are here".
+
+How does the app know where you are? From a **QR code at a known point**, a kiosk, or a manual pick. That is why there is no hardware to install in the building.
 
 ### Features
 
