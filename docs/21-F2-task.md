@@ -950,6 +950,15 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
 
 ### T-592 · Login Admin aman: 2FA dan SSO
 
+> **Dipecah (2026-10-30)** karena SSO butuh IdP uji dan LDAP tidak didukung bawaan GoTrue:
+> - **T-592a · 2FA TOTP:** aktifkan sendiri di Admin, wajib per role ditegakkan server
+>   (`app.user_role()` tanpa hak bila sesi belum `aal2`), tantangan kode saat masuk, kode cadangan,
+>   reset 2FA oleh Super Admin, semua tercatat di audit. TC-OPS-06, 07, TC-SEC-71 (reset 2FA).
+> - **T-592b · SSO:** OIDC/SAML (Google Workspace, Microsoft Entra ID) dan LDAP/AD untuk jaringan
+>   tertutup, pemetaan akun SSO ke role. TC-OPS-08, TC-SEC-71 (pemetaan SSO). Bergantung pada T-592a.
+>
+> Kriteria "Selesai jika" di bawah berlaku untuk gabungan keduanya.
+
 - **Untuk:** `20-F2-fase-2.md` §2.11
 - **Bergantung pada:** —
 - **Langkah:**

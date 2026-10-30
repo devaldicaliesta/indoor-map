@@ -175,7 +175,8 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-582 | Event & promosi di Visitor | T-581 | menunggu | |
 | T-583 | Playlist promosi di Info Point | T-582, T-408 | menunggu | |
 | T-591 | Analitik penggunaan | T-502 | siap | |
-| T-592 | 2FA dan SSO Admin | — | siap | |
+| T-592a | 2FA TOTP Admin | — | dikerjakan | |
+| T-592b | SSO Admin (OIDC/SAML, LDAP) | T-592a | menunggu | Butuh IdP uji |
 | T-593 | API dan webhook integrasi | — | siap | |
 | T-594 | Export GeoJSON dan IMDF | — | siap | |
 | T-595 | Vendor Portal minimal | T-504, T-505 | siap | Bagian lisensi on-premise ditunda (2026-10-09); dasbor trial hosting dipisah ke T-617 |
