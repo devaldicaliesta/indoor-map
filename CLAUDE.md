@@ -82,6 +82,8 @@ pnpm db:types         generate tipe TS dari skema ke packages/data
 
 Agent, command `/ecc-*`, dan skill di `.claude/` diadaptasi dari everything-claude-code (WorldFlowAI); isi dan alurnya di `.claude/WORLDFLOWAI.md`. Bila berbeda, aturan di file ini yang berlaku.
 
+Setiap task kode memakai skill `ponytail` level `full` (perubahan terkecil yang tuntas; validasi, keamanan, dan aksesibilitas tidak pernah dipangkas). Tinjau perubahan dengan `/ponytail-review` sebelum PR, di samping `/ecc-code-review` dan `/ecc-security-review` untuk area sensitif.
+
 ## Kapan berhenti dan bertanya
 
 - Task menuntut perubahan di luar file yang disebut dan dampaknya lebih dari satu paket.
