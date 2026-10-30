@@ -31,7 +31,7 @@
 | 🛠️ Admin (map editor) | https://admin.panduarah.my.id (needs an account; request a free workspace on the product site) |
 | 🎬 Demo video (under 3 minutes) | `REPLACE-WITH-VIDEO-URL` |
 | 🎞️ Pitch deck | `REPLACE-WITH-DECK-URL` |
-| 🎥 Technical tour: architecture, code and roadmap (about 10 min) | `REPLACE-WITH-TOUR-VIDEO-URL` |
+| 🎥 Technical tour: architecture, code and roadmap (about 9 min) | `REPLACE-WITH-TOUR-VIDEO-URL` |
 
 ### Try it in 60 seconds
 
