@@ -29,9 +29,9 @@
 | ☁️ **Dihosting di** | Cloudflare Pages (frontend) + Supabase (backend). **Bukan Google Cloud**; alasannya ada di bagian [Deployment](#deployment) |
 | 🏠 Situs produk dan trial gratis 17 hari | https://panduarah.my.id |
 | 🛠️ Admin (editor peta) | https://admin.panduarah.my.id (butuh akun; minta ruang kerja gratis lewat situs produk) |
-| 🎬 Video demo (di bawah 3 menit) | `GANTI-DENGAN-URL-VIDEO-DEMO` |
-| 🎞️ Pitch deck | `GANTI-DENGAN-URL-PITCH-DECK` |
-| 🎥 Video tur teknis: arsitektur, kode, dan roadmap (±9 menit) | `GANTI-DENGAN-URL-VIDEO-BACKUP` |
+| 🎬 Video demo (di bawah 3 menit) | https://youtu.be/pSLm7RZvioE |
+| 🎞️ Pitch deck | https://drive.google.com/drive/folders/1fAwisU3IpBYeNKnXQmyUKZD4KD9qyPXW?usp=sharing |
+| 🎥 Video tur teknis: arsitektur, kode, dan roadmap (±9 menit) | https://drive.google.com/file/d/1dddGov9Tze6_D4WmzuM0Ql6P9N-5iVlS/view?usp=sharing |
 
 ### Coba dalam 60 detik
 
