@@ -11,6 +11,9 @@ export const AUDIT_LABELS: Record<AuditAction, string> = {
   license_changed: 'Lisensi berubah',
   settings_changed: 'Pengaturan diubah',
   edit_lock_taken_over: 'Kunci edit diambil alih',
+  user_data_exported: 'Data akun diekspor',
+  user_data_deleted: 'Akun dihapus',
+  audit_purged: 'Log audit dibersihkan',
 };
 
 const FAILURE_REASONS: Record<string, string> = {
@@ -28,6 +31,9 @@ const SETTING_FIELDS: Record<string, string> = {
   smtp_username: 'username SMTP',
   smtp_from: 'pengirim',
   smtp_password: 'password SMTP',
+  basemap_tile_url: 'URL tile peta dasar',
+  basemap_attribution: 'atribusi peta dasar',
+  audit_retention_days: 'masa simpan log audit',
 };
 
 const LICENSE_SOURCES: Record<string, string> = {
@@ -55,6 +61,13 @@ function describeDetails(event: AuditEvent): string {
     }
     case 'role_changed':
       return `${roleLabel(details.from)} → ${roleLabel(details.to)}`;
+    case 'user_data_deleted':
+      // Profilnya sudah tidak ada, jadi sasaran ditampilkan lewat role yang dicatat.
+      return `Pengguna terhapus (${roleLabel(details.role)})`;
+    case 'audit_purged':
+      return typeof details.deleted === 'number' && typeof details.retention_days === 'number'
+        ? `${details.deleted} peristiwa lebih tua dari ${details.retention_days} hari`
+        : '';
     case 'publish':
     case 'rollback': {
       const version = typeof details.version === 'number' ? `Versi ${details.version}` : '';

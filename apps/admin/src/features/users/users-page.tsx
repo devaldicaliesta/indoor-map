@@ -15,6 +15,7 @@ import {
   StatusDot,
   toast,
 } from '@indoor/ui';
+import { useCan } from '../../app/auth/can';
 import { useCurrentProfile } from '../../app/auth/current-profile';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { ROLE_LABELS } from '../../app/navigation';
@@ -22,6 +23,7 @@ import { useTableState } from '../../hooks/use-table-state';
 import { InviteUserDialog } from './invite-user-dialog';
 import { useUpdateUser, useUsers } from './queries';
 import { RoleSelect } from './role-select';
+import { UserDataMenu } from './user-data-menu';
 
 function lockedUntilText(profile: Profile): string | null {
   if (!profile.lockedUntil || new Date(profile.lockedUntil) <= new Date()) return null;
@@ -75,6 +77,7 @@ function UsersTable({ access }: { access: ModuleAccess }) {
   const me = useCurrentProfile().data;
   const update = useUpdateUser();
   const table = useTableState({ filters: FILTERS });
+  const manageData = useCan('user.manage');
 
   function change(
     profile: Profile,
@@ -139,21 +142,26 @@ function UsersTable({ access }: { access: ModuleAccess }) {
       header: 'Aksi',
       className: 'text-right',
       cell: (profile) => (
-        <Button
-          size="sm"
-          variant={profile.isActive ? 'secondary' : 'ghost'}
-          onClick={() =>
-            change(
-              profile,
-              { isActive: !profile.isActive },
-              profile.isActive
-                ? `${profile.fullName} dinonaktifkan.`
-                : `${profile.fullName} diaktifkan kembali.`,
-            )
-          }
-        >
-          {profile.isActive ? 'Nonaktifkan' : 'Aktifkan'}
-        </Button>
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            size="sm"
+            variant={profile.isActive ? 'secondary' : 'ghost'}
+            onClick={() =>
+              change(
+                profile,
+                { isActive: !profile.isActive },
+                profile.isActive
+                  ? `${profile.fullName} dinonaktifkan.`
+                  : `${profile.fullName} diaktifkan kembali.`,
+              )
+            }
+          >
+            {profile.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+          </Button>
+          {manageData ? (
+            <UserDataMenu profile={profile} isSelf={profile.userId === me?.userId} />
+          ) : null}
+        </div>
       ),
     });
   }
