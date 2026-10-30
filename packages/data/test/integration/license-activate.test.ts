@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import type { Server } from 'node:http';
 import { fileURLToPath } from 'node:url';
+import { EULA_VERSION } from '@indoor/domain';
 import { type LicensePayload, licenseSigningBytes, toBase64 } from '@indoor/domain/license';
 import { createClient } from '@supabase/supabase-js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -179,6 +180,49 @@ describe.runIf(url && anonKey && serviceKey)('aktivasi lisensi', () => {
       })
       .catch((e: unknown) => e);
     expect((again as DataError).kind).toBe('forbidden');
+  });
+
+  it('TC-KOM-03: aktivasi pertama wajib menyetujui EULA; persetujuan tercatat di audit', async () => {
+    // Instalasi yang belum pernah menyetujui EULA (seed lokal menyetujuinya).
+    const saved = sql(`select coalesce(json_agg(e), '[]') from public.eula_acceptances e;`);
+    sql('delete from public.eula_acceptances;');
+    try {
+      expect(await superAdmin.license.eulaStatus()).toBeNull();
+      const refused = await superAdmin.license
+        .activateManual(await signedLicense(instanceId))
+        .catch((e: unknown) => e);
+      expect(refused).toBeInstanceOf(DataError);
+      expect((refused as DataError).kind).toBe('invalid');
+      expect((refused as DataError).message).toContain(`EULA) versi ${EULA_VERSION}`);
+      // Versi lama atau palsu tidak dianggap persetujuan versi berlaku.
+      const stale = await superAdmin.license
+        .activateManual(await signedLicense(instanceId), '2020-01-01')
+        .catch((e: unknown) => e);
+      expect((stale as DataError).kind).toBe('invalid');
+
+      const installed = await superAdmin.license.activateManual(
+        await signedLicense(instanceId, { client: 'RS EULA Integrasi' }),
+        EULA_VERSION,
+      );
+      expect(await createRepositories(newDb(anonKey)).license.eulaStatus()).toBe(EULA_VERSION);
+      const accepted = (await superAdmin.audit.listRecent('eula_accepted')).find(
+        (e) => e.details.license_id === installed.licenseId,
+      );
+      expect(accepted?.details).toEqual({
+        version: EULA_VERSION,
+        licensee: 'RS EULA Integrasi',
+        license_id: installed.licenseId,
+      });
+      expect(accepted?.actor).not.toBeNull();
+
+      // Sudah disetujui: lisensi berikutnya tidak meminta lagi dan tidak menambah catatan.
+      await superAdmin.license.activateManual(await signedLicense(instanceId));
+      expect(Number(sql('select count(*) from public.eula_acceptances;'))).toBe(1);
+    } finally {
+      sql(`delete from public.eula_acceptances;
+           insert into public.eula_acceptances overriding system value
+           select * from json_populate_recordset(null::public.eula_acceptances, '${saved}'::json);`);
+    }
   });
 
   it('instalasi baru: aktivasi tanpa login lalu Super Admin pertama dibuat sekali', async () => {

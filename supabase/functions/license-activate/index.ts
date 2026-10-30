@@ -3,10 +3,13 @@
 //   { mode: "manual", license }     → berkas lisensi yang diunggah
 //   { mode: "trial", name, institution, email } → trial otomatis dari server vendor (T-504)
 //   { mode: "first_admin", fullName, email, password }
+// Mode pemasangan lisensi membawa `eulaVersion` bila EULA versi berlaku belum pernah disetujui
+// instalasi ini; tanpa itu aktivasi ditolak (T-602). Persetujuan dicatat bersama lisensinya.
 // Berkas selalu diverifikasi di sini (tanda tangan vendor, instance, masa berlaku) sebelum
 // disimpan; SQL lalu mempercayai baris `licenses`. Kunci lisensi hanya diteruskan ke vendor
 // dan tidak pernah disimpan.
 
+import { EULA_VERSION, needsEulaAcceptance } from '../../../packages/domain/src/eula.ts';
 import { LICENSE_PUBLIC_KEY } from '../../../packages/domain/src/license.publicKey.ts';
 import {
   importLicensePublicKey,
@@ -60,6 +63,29 @@ async function status(): Promise<Status> {
   return row;
 }
 
+/**
+ * Versi EULA yang disetujui bersama pemasangan ini: `null` bila versi berlaku sudah pernah
+ * disetujui. Diperiksa sebelum menghubungi vendor agar trial tidak terpakai sia-sia.
+ */
+async function eulaToRecord(input: Record<string, unknown>): Promise<string | null> {
+  const response = await fetch(`${url}/rest/v1/rpc/eula_status`, {
+    method: 'POST',
+    headers: serviceHeaders,
+    body: '{}',
+  });
+  if (!response.ok) throw new ActivationError(502, 'unknown', 'Status EULA tidak terbaca.');
+  const accepted = (await response.json()) as string | null;
+  if (!needsEulaAcceptance(accepted)) return null;
+  if (input.eulaVersion !== EULA_VERSION) {
+    throw new ActivationError(
+      422,
+      'invalid',
+      `Setujui Perjanjian Lisensi Pengguna Akhir (EULA) versi ${EULA_VERSION} sebelum mengaktifkan.`,
+    );
+  }
+  return EULA_VERSION;
+}
+
 /** Berkas dari server vendor; kunci lisensi tidak disimpan di instalasi. */
 async function fromVendor(path: string, payload: Record<string, unknown>): Promise<unknown> {
   if (!vendorUrl) throw new ActivationError(503, 'unknown', 'Alamat server vendor belum diatur.');
@@ -106,12 +132,16 @@ function trialRequest(input: Record<string, unknown>) {
   return { name, institution, email };
 }
 
-/** `actorId`: Super Admin yang memasang, untuk log audit; kosong pada instalasi baru. */
+/**
+ * `actorId`: Super Admin yang memasang, untuk log audit; kosong pada instalasi baru.
+ * `eulaVersion`: versi EULA yang disetujui bersama pemasangan ini, bila ada.
+ */
 async function install(
   file: unknown,
   source: 'online' | 'manual',
   instanceId: string,
   actorId: string | null,
+  eulaVersion: string | null,
 ) {
   const key = await importLicensePublicKey(LICENSE_PUBLIC_KEY);
   const result = await verifyLicense(file, key, instanceId, new Date());
@@ -125,6 +155,7 @@ async function install(
       p_signature: (file as { signature: string }).signature,
       p_source: source,
       p_actor_id: actorId,
+      p_eula_version: eulaVersion,
     }),
   });
   if (!response.ok) {
@@ -209,24 +240,28 @@ async function handle(request: Request, input: Record<string, unknown>) {
     await createFirstAdmin(input);
     return { created: true };
   }
+  const actorId = actor?.id ?? null;
   if (input.mode === 'online') {
     const key = typeof input.licenseKey === 'string' ? input.licenseKey.trim() : '';
     if (!key || key.length > 200)
       throw new ActivationError(400, 'invalid', 'Kunci lisensi wajib diisi.');
+    const eula = await eulaToRecord(input);
     const file = await fromVendor('/v1/activate', {
       licenseKey: key,
       instanceId: current.instance_id,
     });
-    return { license: await install(file, 'online', current.instance_id, actor?.id ?? null) };
+    return { license: await install(file, 'online', current.instance_id, actorId, eula) };
   }
   if (input.mode === 'trial') {
     const request = trialRequest(input);
+    const eula = await eulaToRecord(input);
     const file = await fromVendor('/v1/trial', { ...request, instanceId: current.instance_id });
-    return { license: await install(file, 'online', current.instance_id, actor?.id ?? null) };
+    return { license: await install(file, 'online', current.instance_id, actorId, eula) };
   }
   if (input.mode === 'manual') {
+    const eula = await eulaToRecord(input);
     return {
-      license: await install(input.license, 'manual', current.instance_id, actor?.id ?? null),
+      license: await install(input.license, 'manual', current.instance_id, actorId, eula),
     };
   }
   throw new ActivationError(400, 'invalid', 'Mode aktivasi tidak dikenal.');

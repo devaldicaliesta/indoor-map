@@ -1,0 +1,16 @@
+$ pnpm audit --audit-level high   # commit 18768fe, sebelum T-603
+│ high                │ source-map-js allows event-loop denial of service      │
+│ Package             │ source-map-js                                          │
+│ Patched versions    │ >=1.2.2                                                │
+│ More info           │ https://github.com/advisories/GHSA-68fv-2mgg-jv7q      │
+│ high                │ launch-editor: `fs.existsSync()` existence check can   │
+│ Package             │ vite                                                   │
+│ Patched versions    │ >=8.3.3                                                │
+│ More info           │ https://github.com/advisories/GHSA-587h-7wmj-h5pm      │
+│ high                │ Zod can exhaust memory while validating oversized      │
+│ Package             │ zod                                                    │
+│ Patched versions    │ >=4.6.6                                                │
+│ More info           │ https://github.com/advisories/GHSA-mrhx-c7xc-m3w5      │
+16 vulnerabilities found
+Severity: 5 low | 8 moderate | 3 high
+exit code: 1

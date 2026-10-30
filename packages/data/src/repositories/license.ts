@@ -73,15 +73,24 @@ export interface FirstAdminInput {
 export interface LicenseRepository {
   /** Bisa dibaca sebelum login; dipakai untuk mengarahkan Admin ke halaman aktivasi. */
   status(): Promise<LicenseStatus>;
-  /** Kunci lisensi diteruskan ke server vendor; tidak disimpan di instalasi. */
-  activateOnline(licenseKey: string): Promise<ActivatedLicense>;
+  /**
+   * Versi EULA terakhir yang disetujui instalasi ini (`null` = belum pernah). Bisa dibaca
+   * sebelum login; dibandingkan dengan `EULA_VERSION` untuk menampilkan persetujuan.
+   */
+  eulaStatus(): Promise<string | null>;
+  /**
+   * Kunci lisensi diteruskan ke server vendor; tidak disimpan di instalasi.
+   * `eulaVersion` (semua mode pemasangan): versi EULA yang baru disetujui pengguna; wajib bila
+   * versi berlaku belum pernah disetujui, server menolak tanpa itu.
+   */
+  activateOnline(licenseKey: string, eulaVersion?: string): Promise<ActivatedLicense>;
   /**
    * Trial otomatis: instalasi meminta lisensi trial ke server vendor (online) lalu langsung
    * memasangnya. Vendor menolak trial kedua untuk instalasi, email, atau domain yang sama.
    */
-  startTrial(input: TrialRequest): Promise<ActivatedLicense>;
+  startTrial(input: TrialRequest, eulaVersion?: string): Promise<ActivatedLicense>;
   /** Berkas lisensi (JSON) dari vendor, diverifikasi server sebelum dipasang. */
-  activateManual(license: unknown): Promise<ActivatedLicense>;
+  activateManual(license: unknown, eulaVersion?: string): Promise<ActivatedLicense>;
   /** Hanya untuk instalasi baru yang sudah berlisensi dan belum punya Super Admin. */
   createFirstAdmin(input: FirstAdminInput): Promise<void>;
   /** Sejak kapan tidak ada check-in berhasil, bila sudah lebih dari 7 hari; selain itu `null`. */
@@ -133,21 +142,36 @@ export function createLicenseRepository(db: Db): LicenseRepository {
       };
     },
 
-    async activateOnline(licenseKey) {
+    async eulaStatus() {
+      const { data, error } = await db.rpc('eula_status');
+      if (error) throw toDataError(error);
+      return data || null;
+    },
+
+    async activateOnline(licenseKey, eulaVersion) {
       const { license } = await invoke<{ license: ActivatedLicense }>({
         mode: 'online',
         licenseKey,
+        eulaVersion,
       });
       return license;
     },
 
-    async startTrial(input) {
-      const { license } = await invoke<{ license: ActivatedLicense }>({ mode: 'trial', ...input });
+    async startTrial(input, eulaVersion) {
+      const { license } = await invoke<{ license: ActivatedLicense }>({
+        mode: 'trial',
+        ...input,
+        eulaVersion,
+      });
       return license;
     },
 
-    async activateManual(license) {
-      const result = await invoke<{ license: ActivatedLicense }>({ mode: 'manual', license });
+    async activateManual(license, eulaVersion) {
+      const result = await invoke<{ license: ActivatedLicense }>({
+        mode: 'manual',
+        license,
+        eulaVersion,
+      });
       return result.license;
     },
 

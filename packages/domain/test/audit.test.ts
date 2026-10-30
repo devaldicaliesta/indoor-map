@@ -16,6 +16,7 @@ describe('AUDIT_ACTIONS', () => {
       'user_data_exported',
       'user_data_deleted',
       'audit_purged',
+      'eula_accepted',
     ]);
   });
 
