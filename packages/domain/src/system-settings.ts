@@ -13,6 +13,8 @@ export interface SystemSettings {
   basemapTileUrl: string | null;
   /** Atribusi wajib penyedia tile, misalnya "© OpenStreetMap contributors". */
   basemapAttribution: string | null;
+  /** Masa simpan log audit dalam hari; peristiwa yang lebih tua dihapus server tiap hari. */
+  auditRetentionDays: number;
   updatedAt: string;
 }
 
@@ -67,3 +69,12 @@ export function isValidTimezone(timezone: string): boolean {
 
 /** Zona waktu Indonesia tampil lebih dulu di pilihan zona waktu. */
 export const PREFERRED_TIMEZONES = ['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'] as const;
+
+/** Batas masa simpan log audit; sama dengan CHECK di database (migrasi 0057). */
+export const AUDIT_RETENTION_DAYS = { min: 30, max: 3650, default: 365 } as const;
+
+export function isValidAuditRetentionDays(days: number): boolean {
+  return (
+    Number.isInteger(days) && days >= AUDIT_RETENTION_DAYS.min && days <= AUDIT_RETENTION_DAYS.max
+  );
+}

@@ -1416,6 +1416,7 @@ export type Database = {
       };
       system_settings: {
         Row: {
+          audit_retention_days: number;
           basemap_attribution: string | null;
           basemap_tile_url: string | null;
           default_language: Database['public']['Enums']['language_code'];
@@ -1429,6 +1430,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          audit_retention_days?: number;
           basemap_attribution?: string | null;
           basemap_tile_url?: string | null;
           default_language?: Database['public']['Enums']['language_code'];
@@ -1442,6 +1444,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          audit_retention_days?: number;
           basemap_attribution?: string | null;
           basemap_tile_url?: string | null;
           default_language?: Database['public']['Enums']['language_code'];
@@ -1920,6 +1923,8 @@ export type Database = {
           venue_id: string;
         }[];
       };
+      user_data_delete: { Args: { p_user_id: string }; Returns: undefined };
+      user_data_export: { Args: { p_user_id: string }; Returns: Json };
       user_invite_check: {
         Args: { p_role: Database['public']['Enums']['app_role'] };
         Returns: string;
