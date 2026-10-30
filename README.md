@@ -31,7 +31,7 @@
 | 🛠️ Admin (editor peta) | https://admin.panduarah.my.id (butuh akun; minta ruang kerja gratis lewat situs produk) |
 | 🎬 Video demo (di bawah 3 menit) | `GANTI-DENGAN-URL-VIDEO-DEMO` |
 | 🎞️ Pitch deck | `GANTI-DENGAN-URL-PITCH-DECK` |
-| 🎥 Video tur teknis: arsitektur, kode, dan roadmap (±10 menit) | `GANTI-DENGAN-URL-VIDEO-BACKUP` |
+| 🎥 Video tur teknis: arsitektur, kode, dan roadmap (±9 menit) | `GANTI-DENGAN-URL-VIDEO-BACKUP` |
 
 ### Coba dalam 60 detik
 
