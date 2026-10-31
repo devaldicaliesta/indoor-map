@@ -77,6 +77,7 @@ pnpm db:types         generate tipe TS dari skema ke packages/data
 - Komentar hanya untuk menjelaskan *mengapa*, bukan mengulang *apa*. Tanpa tag kebutuhan seperti `(FR-MAP-09)`; nomor task hanya untuk menunjuk pekerjaan lanjutan ("dibuat di T-119").
 - Teks UI Admin dalam Bahasa Indonesia. Teks Visitor lewat i18next (ID/EN), tidak di-hardcode.
 - Nama commit: `T-xxx: ringkasan singkat` (misalnya `T-201: A* dengan heuristik jarak`).
+- Author commit selalu pemilik repo: jalankan `git config user.name "devaldi caliesta"` dan `git config user.email "devaldicaliesta@gmail.com"` di repo sebelum commit pertama setiap sesi. Jangan menambahkan trailer `Co-Authored-By` atau `Claude-Session` untuk AI di commit maupun PR.
 
 ## Workflow AI
 
