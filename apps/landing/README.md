@@ -15,6 +15,7 @@ dan `public/sitemap.xml`; ubah semuanya bila domain berganti.
 pnpm dev:landing                           # http://localhost:5175
 pnpm --filter @indoor/landing build        # dist/ siap di-host statis (index.html, privasi/, trial/verifikasi/)
 node scripts/landing-motion.mjs            # render ulang video motion graphic (public/media/)
+node scripts/promo-motion.mjs --concept pengelola --size 1920x1080 --lang id   # video promosi (motion-promo/README.md)
 ```
 
 ## Trial otomatis (T-616)

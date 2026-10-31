@@ -31,3 +31,6 @@ deploy/out
 # Python (services/cad-converter)
 __pycache__/
 *.pyc
+
+# Hasil render video promosi (scripts/promo-motion.mjs)
+apps/landing/motion-promo/out/
