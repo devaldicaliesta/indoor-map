@@ -54,7 +54,9 @@ export function checkVenueInput(input: VenueInput): VenueInputProblem[] {
  * (misalnya "-6.1754, 106.8272"). Menghasilkan GeoJSON Point [lng, lat].
  */
 export function parseLatLng(text: string): Point | null {
-  const match = /^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)\s*$/.exec(text);
+  // Pemisah: koma/titik koma (boleh diapit spasi) atau spasi saja. Ditulis sebagai dua cabang
+  // agar spasi tidak bisa dicocokkan dengan banyak cara (backtracking / ReDoS).
+  const match = /^\s*(-?\d+(?:\.\d+)?)(?:\s*[,;]\s*|\s+)(-?\d+(?:\.\d+)?)\s*$/.exec(text);
   if (!match) return null;
   const lat = Number(match[1]);
   const lng = Number(match[2]);

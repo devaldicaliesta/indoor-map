@@ -10,6 +10,7 @@ import {
   VenueIdSchema,
 } from './ids';
 import { type LanguageCode, LanguageCodeSchema } from './language';
+import { trimTrailingSlashes } from './url.ts';
 
 /** Koordinat ditulis 7 desimal (≈ 1 cm), sama dengan presisi snapshot. */
 export const DEEP_LINK_COORDINATE_DECIMALS = 7;
@@ -109,7 +110,7 @@ export function encodeDeepLink(link: DeepLink): string {
 
 /** URL lengkap dari URL publik Visitor di Pengaturan Sistem (QR titik asal, bagikan). */
 export function deepLinkUrl(publicUrl: string, link: DeepLink): string {
-  return `${publicUrl.replace(/\/+$/, '')}${encodeDeepLink(link)}`;
+  return `${trimTrailingSlashes(publicUrl)}${encodeDeepLink(link)}`;
 }
 
 /** Nilai pertama tiap parameter; bagian yang persen-enkodenya rusak dilewati. */

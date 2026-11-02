@@ -29,7 +29,9 @@ export function displayFields(
   });
 }
 
-const HTTP_URL = /^https?:\/\/[^\s/?#]+[^\s]*$/i;
+// Satu karakter host lalu sisa tanpa spasi: bahasa yang sama dengan `[^\s/?#]+[^\s]*`,
+// tetapi tanpa dua kuantifier yang tumpang tindih (backtracking kuadratik / ReDoS).
+const HTTP_URL = /^https?:\/\/[^\s/?#][^\s]*$/i;
 
 /**
  * Isi field tautan yang aman dijadikan `href`: hanya http(s), sehingga nilai seperti

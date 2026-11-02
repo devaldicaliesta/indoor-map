@@ -73,6 +73,18 @@ class ServerTest(unittest.TestCase):
         with urllib.request.urlopen(request) as response:
             self.assertIsNone(response.headers["Access-Control-Allow-Origin"])
 
+    def test_wildcard_origin_is_not_reflected(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler({"*"}, None))
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        try:
+            base = f"http://127.0.0.1:{server.server_address[1]}"
+            request = urllib.request.Request(base + "/health", headers={"Origin": "http://lain"})
+            with urllib.request.urlopen(request) as response:
+                self.assertEqual(response.headers["Access-Control-Allow-Origin"], "*")
+        finally:
+            server.shutdown()
+            server.server_close()
+
 
 # Fitur lisensi per token, seperti yang dikembalikan RPC license_features() untuk sesi itu.
 FEATURES = {"lengkap": ["3d", "cad_import"], "dasar": ["3d"]}

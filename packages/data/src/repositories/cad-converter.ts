@@ -1,3 +1,4 @@
+import { trimTrailingSlashes } from '@indoor/domain';
 import { DataError } from '../errors';
 
 export interface CadLayer {
@@ -46,7 +47,7 @@ export function createCadConverterRepository(
   baseUrl: string | undefined,
   fetcher: typeof fetch = (...args) => fetch(...args),
 ): CadConverterRepository {
-  const base = baseUrl?.replace(/\/+$/, '');
+  const base = baseUrl === undefined ? undefined : trimTrailingSlashes(baseUrl);
 
   async function post<T>(path: string, file: Blob): Promise<T> {
     if (!base) {

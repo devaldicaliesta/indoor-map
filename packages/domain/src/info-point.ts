@@ -2,6 +2,7 @@ import type { DisplayMode } from './display-settings';
 import type { Position } from './geometry';
 import type { VenueId } from './ids';
 import type { LanguageCode } from './language';
+import { trimTrailingSlashes } from './url.ts';
 
 /** Info Point (tabel `info_points`): posisi layar sentuh dan pengaturan perangkatnya. */
 export interface InfoPoint {
@@ -54,6 +55,6 @@ export function checkInfoPointInput(
  * Point, T-408) memuat snapshot yang benar.
  */
 export function infoPointUrl(publicUrl: string, venueId: VenueId, code: string): string {
-  const base = publicUrl.replace(/\/+$/, '');
+  const base = trimTrailingSlashes(publicUrl);
   return `${base}/ip/${encodeURIComponent(code)}?venue=${encodeURIComponent(venueId)}`;
 }
