@@ -65,7 +65,7 @@ describe.runIf(url && anonKey && serviceKey && mailpit)(
       const verified = await fetch(link, { redirect: 'manual' });
       expect(verified.status).toBe(303);
       expect(verified.headers.get('location')).toMatch(
-        new RegExp(`^${REDIRECT.replace(/[.?]/g, '\\$&')}#access_token=`),
+        new RegExp(`^${REDIRECT.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}#access_token=`),
       );
     });
 

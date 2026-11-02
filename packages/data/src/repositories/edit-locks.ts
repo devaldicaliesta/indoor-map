@@ -1,4 +1,4 @@
-import type { EditLock } from '@indoor/domain';
+import { type EditLock, trimTrailingSlashes } from '@indoor/domain';
 import { toDataError } from '../errors';
 import type { Db } from '../supabase';
 
@@ -62,7 +62,7 @@ export function createEditLocksRepository(db: Db, endpoint?: Endpoint): EditLock
 
     releaseOnUnload(floorId) {
       if (!endpoint || !token) return;
-      void fetch(`${endpoint.url.replace(/\/+$/, '')}/rest/v1/rpc/release_edit_lock`, {
+      void fetch(`${trimTrailingSlashes(endpoint.url)}/rest/v1/rpc/release_edit_lock`, {
         method: 'POST',
         keepalive: true,
         headers: {
