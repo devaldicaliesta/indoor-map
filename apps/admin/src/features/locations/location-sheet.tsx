@@ -1,18 +1,14 @@
 import type { CategoryWithUsage } from '@indoor/data';
 import {
-  type CategoryId,
   checkLocationInput,
   checkOpeningHours,
-  customFieldInput,
   EMPTY_OPENING_HOURS,
   type FeatureId,
-  keepFieldsOf,
   LOCATION_DESCRIPTION_MAX,
   type Location,
   type LocationInputProblems,
   type LocationStatus,
   type LocationType,
-  type LocationTypeId,
   type OpeningHours,
   parseCustomFieldInputs,
   unitsLeftEmpty,
@@ -22,11 +18,6 @@ import {
 import {
   Button,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Sheet,
   SheetContent,
   SheetDescription,
@@ -40,7 +31,7 @@ import { Field } from '../../app/components/field';
 import { AliasField, useAliasDraft } from '../aliases/alias-field';
 import { FormNotice } from '../auth/auth-layout';
 import { CategoryChecklist } from './category-checklist';
-import { CustomFieldInputs, type FieldDraft } from './custom-field-inputs';
+import { CustomFieldInputs } from './custom-field-inputs';
 import { HoursEditor } from './hours-editor';
 import { codeMessage, NAME_MESSAGES } from './labels';
 import {
