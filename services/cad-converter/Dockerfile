@@ -1,4 +1,8 @@
 FROM python:3.12-slim
+# Pembaruan keamanan paket Debian di atas image dasar (lihat deploy/Dockerfile).
+RUN apt-get update -o APT::Update::Error-Mode=any \
+  && apt-get upgrade -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /srv
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

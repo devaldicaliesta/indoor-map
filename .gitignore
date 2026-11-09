@@ -34,3 +34,6 @@ __pycache__/
 
 # Hasil render video promosi (scripts/promo-motion.mjs)
 apps/landing/motion-promo/out/
+
+# Graf pengetahuan kode graphify (dibangun ulang otomatis oleh .claude/hooks/graphify-session.sh)
+graphify-out/

@@ -66,6 +66,7 @@ pakai `DOCKER_BUILD_FLAGS` di `deploy/build-release.sh`.
 | CVE-2026-78667 | Go 1.26.8 di Caddy | High | DoS header Range | 2026-11-30 |
 | CVE-2026-97031 | Go 1.26.8 di Caddy | High | DoS ECH; ECH tidak diaktifkan | 2026-11-30 |
 | CVE-2026-111943 | Go 1.26.8 di Caddy | High | crypto/x509; verifikasi rantai hanya pada ACME opsional | 2026-11-30 |
+| CVE-2026-78661 | x/net 0.59.0 di Caddy | High | DoS parser `x/net/html`; Caddyfile tidak memakai `templates`/`markdown`. Caddy 2.11.9 masih x/net 0.60.0, perbaikan di 0.62.0 | 2026-11-30 |
 
 Bila Caddy belum merilis versi dengan Go ≥ 1.26.10 sebelum tanggal kedaluwarsa, opsi
 berikutnya adalah membangun Caddy sendiri dengan `xcaddy` dan Go terbaru di `deploy/Dockerfile`.
@@ -80,3 +81,4 @@ berikutnya adalah membangun Caddy sendiri dengan `xcaddy` dan Go terbaru di `dep
 | 2026-10-30 | Pillow 12.3.0 di cad-converter: 30+ CVE decoder (use-after-free, OOB write, …) | Pillow 13.0.0 (18 test cad-converter lulus) |
 | 2026-10-30 | Image `web` `caddy:2.10-alpine`: 34 CVE OS + 61 CVE biner Go high/critical | `caddy:2.11.6-alpine` + `apk upgrade` |
 | 2026-10-30 | Image `functions` `edge-runtime:v1.76.2`: 14 CVE paket Debian high/critical (perl, pcre2, …) | `apt-get upgrade` saat build |
+| 2026-11-09 | Image `cad` `python:3.12-slim`: zlib1g CVE-2026-76844, CVE-2026-85091 (high) | `apt-get upgrade` saat build |
