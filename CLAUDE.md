@@ -96,10 +96,8 @@ Tulis pertanyaannya di PR atau di `docs/PROGRESS.md` bagian "Pertanyaan terbuka"
 
 ## graphify
 
-Graf pengetahuan kode di-commit di `graphify-out/graph.json` dan `graphify-out/GRAPH_REPORT.md` (murni AST lokal, tanpa API key). Hook SessionStart `.claude/hooks/graphify-session.sh` membangun ulang hanya bila kode berubah sejak `built_at_commit`. Pasang lokal: `uv tool install 'graphifyy[sql]==0.9.104'`.
+Graf pengetahuan kode di-commit di `graphify-out/` dan diperbarui otomatis oleh CI (`.github/workflows/graphify.yml`) setiap push ke `main`, jadi grafnya mencerminkan `main`, bukan perubahan di branch kerja. CLI terpasang otomatis di sesi cloud; lokal: `uv tool install 'graphifyy[sql]==0.9.104'`.
 
-- Jalankan `graphify query "<pertanyaan>"` sebelum grep, pencarian, atau membaca file sumber untuk pertanyaan tentang kode, dan sertakan aturan ini di setiap prompt subagent yang menjelajah kode. Baca file mentah hanya untuk baris yang sudah ditunjuk graf.
-- `graphify explain "<konsep>"` untuk satu simbol/konsep, `graphify path "<A>" "<B>"` untuk hubungan, `graphify affected "<X>"` untuk dampak perubahan.
-- `graphify-out/GRAPH_REPORT.md` hanya untuk tinjauan arsitektur luas.
-- Setelah mengubah kode, jalankan `graphify update .` lalu commit `graphify-out/` bersama perubahan itu. Diff `graph.json` besar dan disembunyikan (`-diff`); itu wajar, jangan dibaca atau dianggap churn.
-- Bila `graph.json` konflik saat merge, jangan diselesaikan manual: ambil salah satu sisi lalu jalankan `graphify update .`.
+- Untuk pertanyaan tentang kode, jalankan `graphify query "<simbol, file, atau konsep>"` sebelum grep atau membaca file, lalu baca hanya baris yang ditunjuk. Sertakan aturan ini di prompt subagent yang menjelajah kode.
+- Untuk fokus yang lebih sempit: `graphify explain "<simbol>"`, `graphify path "<A>" "<B>"`, `graphify affected "<X>"`.
+- Jangan membaca `graph.json` langsung dan jangan meng-commit `graphify-out/`; CI yang memperbaruinya. `GRAPH_REPORT.md` hanya untuk tinjauan arsitektur luas.
