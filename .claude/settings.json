@@ -1,4 +1,7 @@
 {
+  "permissions": {
+    "deny": ["Read(./graphify-out/graph.json)", "Read(./pnpm-lock.yaml)", "Read(./e2e/evidence/**)"]
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -24,21 +27,11 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash|Grep",
+        "matcher": "Grep",
         "hooks": [
           {
             "type": "command",
             "command": "command -v graphify >/dev/null 2>&1 && graphify hook-guard search || true",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Read|Glob",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "command -v graphify >/dev/null 2>&1 && graphify hook-guard read || true",
             "timeout": 10
           }
         ]

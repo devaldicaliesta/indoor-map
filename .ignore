@@ -1,0 +1,4 @@
+# Dilewati Grep/Glob Claude Code (ripgrep): file besar hasil generate yang memboroskan token.
+graphify-out/graph.json
+pnpm-lock.yaml
+e2e/evidence/

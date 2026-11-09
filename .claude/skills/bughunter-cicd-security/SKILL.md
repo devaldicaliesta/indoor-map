@@ -1,6 +1,6 @@
 ---
 name: bughunter-cicd-security
-description: CI/CD pipeline security hunting — GitHub Actions workflow injection, secret exfiltration, self-hosted runner poisoning, dependency confusion, OIDC token theft, and supply chain attacks. Covers sisakulint scanning, manual workflow analysis, and chaining CI/CD bugs into critical findings. Use when a target has public repos, GitHub Actions, CircleCI, Jenkins, or GitLab CI.
+description: Keamanan pipeline GitHub Actions: injeksi workflow, kebocoran secret, dependency confusion, token OIDC, supply chain. Pakai saat mengubah atau meninjau .github/workflows.
 ---
 
 # CI/CD SECURITY — Pipeline Attack Surface
