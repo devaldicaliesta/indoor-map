@@ -28,6 +28,9 @@ jobs:
         with:
           python-version: '3.13'
       - run: pip install 'graphifyy[sql]==0.9.104'
+      # Bangun dari nol: build inkremental di atas graph.json ter-commit tidak deterministik
+      # (komunitas dan sebagian edge berubah walau kode sama), sehingga selalu memicu commit.
+      - run: rm -rf graphify-out
       - run: graphify extract . --code-only && graphify cluster-only . --no-label --no-viz
       - name: Commit bila isi graf berubah
         run: |
