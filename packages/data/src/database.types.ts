@@ -1207,6 +1207,35 @@ export type Database = {
           },
         ];
       };
+      notification_preferences: {
+        Row: {
+          enabled: boolean;
+          kind: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          enabled: boolean;
+          kind: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          enabled?: boolean;
+          kind?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_preferences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
       opening_hours: {
         Row: {
           closes_at: string | null;
@@ -1797,6 +1826,7 @@ export type Database = {
           satisfied: boolean;
         }[];
       };
+      notification_unsubscribe: { Args: { p_apply: boolean; p_token: string }; Returns: string };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {

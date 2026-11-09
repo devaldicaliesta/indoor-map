@@ -45,12 +45,14 @@ aktivitas (ditangani langkah 7).
      --db-url 'postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres'
    ```
    Migrasi memasang semuanya: tabel, RLS, bucket Storage, `pg_cron`, `pg_net`, skema `hosting`,
-   dan jadwal `license-checkin`, `license-service`, `trial-lifecycle`.
+   dan jadwal `license-checkin`, `license-service`, `trial-lifecycle`, `license-reminders`.
 3. Tandai project ini sebagai server ter-hosting (SQL Editor):
    ```sql
    insert into app.server_settings (key, value) values
      ('hosting_mode', 'true'),
-     ('functions_url', 'https://<ref>.supabase.co/functions/v1')
+     ('functions_url', 'https://<ref>.supabase.co/functions/v1'),
+     -- tautan berhenti berlangganan di email notifikasi
+     ('admin_url', 'https://admin.panduarah.my.id')
    on conflict (key) do update set value = excluded.value;
    -- opsional, bawaan 15: ('trial_capacity', '15')
    ```

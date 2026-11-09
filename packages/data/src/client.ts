@@ -37,6 +37,10 @@ import { createLocationsRepository, type LocationsRepository } from './repositor
 import { createMfaRepository, type MfaRepository } from './repositories/mfa';
 import { createNavGraphRepository, type NavGraphRepository } from './repositories/nav-graph';
 import {
+  createNotificationsRepository,
+  type NotificationsRepository,
+} from './repositories/notifications';
+import {
   createOriginPointsRepository,
   type OriginPointsRepository,
 } from './repositories/origin-points';
@@ -93,6 +97,8 @@ export interface DataClient {
   /** Verifikasi dua langkah Supabase Auth (TOTP); dasbor vendor dan Admin. */
   mfa: MfaRepository;
   navGraph: NavGraphRepository;
+  /** Preferensi notifikasi email dan berhenti langganan (T-598). */
+  notifications: NotificationsRepository;
   originPoints: OriginPointsRepository;
   profiles: ProfilesRepository;
   publications: PublicationsRepository;
@@ -137,6 +143,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     locationTypes: createLocationTypesRepository(db),
     mfa: createMfaRepository(db),
     navGraph: createNavGraphRepository(db),
+    notifications: createNotificationsRepository(db),
     originPoints: createOriginPointsRepository(db),
     profiles,
     publications: createPublicationsRepository(db),

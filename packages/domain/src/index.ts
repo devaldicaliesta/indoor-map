@@ -46,6 +46,7 @@ export * from './map-view';
 export * from './mfa';
 export * from './names';
 export * from './nav-graph';
+export * from './notifications';
 export * from './origin-point';
 export * from './permissions';
 export * from './preview-message';

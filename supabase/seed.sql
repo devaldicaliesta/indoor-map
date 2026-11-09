@@ -167,3 +167,5 @@ set smtp_host = 'supabase_inbucket_indoor-map',
 -- ---------------------------------------------------------------------
 insert into app.server_settings (key, value)
 values ('functions_url', 'http://supabase_kong_indoor-map:8000/functions/v1');
+-- Alamat Admin untuk tautan berhenti berlangganan di email notifikasi (T-598).
+insert into app.server_settings (key, value) values ('admin_url', 'http://127.0.0.1:5173');

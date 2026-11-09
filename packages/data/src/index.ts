@@ -58,6 +58,7 @@ export type {
 } from './repositories/locations';
 export type { MfaRepository, MfaStatus, TotpEnrollment } from './repositories/mfa';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
+export type { NotificationsRepository } from './repositories/notifications';
 export type { OriginPointsRepository } from './repositories/origin-points';
 export type { ProfilesRepository } from './repositories/profiles';
 export type {

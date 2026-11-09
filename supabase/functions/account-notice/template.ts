@@ -20,13 +20,34 @@ const str = (value: unknown, fallback: string) =>
 /** Satu titik di akhir kalimat, walau pesan dari server sudah diakhiri tanda baca. */
 const sentence = (value: string) => (/[.!?]$/.test(value) ? value : `${value}.`);
 
-function dateText(value: unknown): string | null {
+function dateText(value: unknown, timeZone = 'Asia/Jakarta'): string | null {
   const time = typeof value === 'string' ? Date.parse(value) : Number.NaN;
   if (Number.isNaN(time)) return null;
-  return new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' }).format(
-    time,
-  );
+  return new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeZone }).format(time);
 }
+
+/** Tanggal dan jam dalam zona waktu venue beserta singkatannya, mis. "9 Nov 2026, 14.30 WITA". */
+function dateTimeText(value: unknown, timeZone: unknown): string | null {
+  const time = typeof value === 'string' ? Date.parse(value) : Number.NaN;
+  if (Number.isNaN(time)) return null;
+  const zone = typeof timeZone === 'string' && timeZone ? timeZone : 'Asia/Jakarta';
+  try {
+    // dateStyle/timeStyle tidak boleh digabung dengan timeZoneName (RangeError).
+    return new Intl.DateTimeFormat('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: zone,
+      timeZoneName: 'short',
+    }).format(time);
+  } catch {
+    return dateText(value);
+  }
+}
+
+const OPERATIONAL_FOOTER = 'Atur email yang Anda terima di Admin: menu akun → Notifikasi email.';
 
 function content(kind: string, fullName: string, details: NoticeDetails) {
   const greeting = `Halo ${fullName},`;
@@ -79,9 +100,57 @@ function content(kind: string, fullName: string, details: NoticeDetails) {
         ],
       };
     }
+    case 'license_reminder': {
+      const days = Number(details.days_left) || 0;
+      const until = dateText(details.valid_until);
+      return {
+        subject: `Lisensi ${PRODUCT} berakhir dalam ${days} hari`,
+        paragraphs: [
+          greeting,
+          `Lisensi ${PRODUCT}${typeof details.licensee === 'string' ? ` untuk ${details.licensee}` : ''} berakhir dalam ${days} hari${until ? `, pada ${until}` : ''}.`,
+          'Setelah berakhir ada masa tenggang 14 hari: Admin hanya bisa dibaca, Visitor tetap berjalan. Sesudahnya peta untuk pengunjung berhenti tampil.',
+          `Hubungi vendor untuk perpanjangan, lalu pasang lisensi baru di Admin → Lisensi.`,
+        ],
+      };
+    }
+    case 'publish': {
+      const venue = str(details.venue, 'venue');
+      const actor = str(details.actor, 'pengguna lain');
+      const at = dateTimeText(details.at, details.timezone);
+      const action =
+        details.origin === 'rollback'
+          ? `dikembalikan ke isi versi ${Number(details.source_version) || '?'} (sebagai versi ${Number(details.version) || '?'})`
+          : `diterbitkan sebagai versi ${Number(details.version) || '?'}`;
+      return {
+        subject: `Peta ${venue} ${details.origin === 'rollback' ? 'dikembalikan' : 'diterbitkan'}`,
+        paragraphs: [
+          greeting,
+          `Peta ${venue} ${action} oleh ${actor}${at ? ` pada ${at}` : ''}. Pengunjung melihat versi ini saat membuka peta berikutnya.`,
+        ],
+      };
+    }
+    case 'closure_created': {
+      const venue = str(details.venue, 'venue');
+      const starts = dateTimeText(details.starts_at, details.timezone);
+      const ends = dateTimeText(details.ends_at, details.timezone);
+      return {
+        subject: `Penutupan baru di ${venue}`,
+        paragraphs: [
+          greeting,
+          `${str(details.actor, 'Pengguna lain')} menambahkan penutupan sementara di ${venue}: ${sentence(str(details.reason, 'tanpa alasan'))}`,
+          `Berlaku ${starts ? `mulai ${starts}` : 'sekarang'}${ends ? ` sampai ${ends}` : ' sampai diakhiri'}. Rute di Visitor menghindarinya selama berlaku.`,
+        ],
+      };
+    }
     default:
       throw new Error(`Jenis pemberitahuan tidak dikenal: ${kind}`);
   }
+}
+
+/** Tautan berhenti berlangganan yang dibuat database; hanya http(s). */
+function unsubscribeUrl(details: NoticeDetails): string | null {
+  const url = details.unsubscribe_url;
+  return typeof url === 'string' && /^https?:\/\/\S+$/.test(url) ? url : null;
 }
 
 export function renderAccountNotice(
@@ -90,10 +159,19 @@ export function renderAccountNotice(
   details: NoticeDetails = {},
 ): NoticeEmail {
   const { subject, paragraphs } = content(kind, fullName, details);
+  const unsubscribe = unsubscribeUrl(details);
+  const html = paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`);
+  const text = [...paragraphs];
+  if (unsubscribe) {
+    text.push(`${OPERATIONAL_FOOTER}\nBerhenti menerima email jenis ini: ${unsubscribe}`);
+    html.push(
+      `<p style="color:#545b64;font-size:13px">${escapeHtml(OPERATIONAL_FOOTER)} <a href="${escapeHtml(unsubscribe)}" style="color:#545b64">Berhenti menerima email jenis ini</a>.</p>`,
+    );
+  }
   return {
     subject,
-    text: emailText(paragraphs.join('\n\n')),
-    html: emailHtml(paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join('')),
+    text: emailText(text.join('\n\n')),
+    html: emailHtml(html.join('')),
     inline: [EMAIL_LOGO],
   };
 }
