@@ -49,13 +49,15 @@ test.describe('T-004 Supabase lokal dan skema inti', () => {
         "select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace where p.prosecdef and n.nspname in ('public','app') and not exists (select 1 from unnest(coalesce(p.proconfig,'{}')) c where c like 'search_path=%')",
       ).length === 0,
     );
-    // license_status sengaja terbuka untuk anon (T-402a): halaman aktivasi membacanya sebelum
-    // login untuk mengarahkan instalasi tanpa lisensi; isinya hanya keadaan dan instance_id.
+    // Sengaja terbuka untuk anon: license_status (T-402a) dan eula_status (T-602) dibaca halaman
+    // aktivasi sebelum login, isinya hanya keadaan lisensi/EULA; notification_unsubscribe (T-598)
+    // dipanggil dari tautan email tanpa login dan hanya mematikan satu jenis email milik pemegang
+    // token acak 192 bit.
     record(
       'TC-SEC-45b',
-      'tidak ada fungsi public (RPC) yang bisa dipanggil anon selain license_status',
+      'tidak ada fungsi public (RPC) yang bisa dipanggil anon selain yang disengaja',
       sql(
-        "select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where n.nspname='public' and p.prokind='f' and r.rolname not in ('supabase_admin') and has_function_privilege('anon', p.oid, 'execute') and p.proname not like 'st\\_%' and p.proname not like '\\_%' and p.proname <> 'license_status'",
+        "select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_roles r on r.oid=p.proowner where n.nspname='public' and p.prokind='f' and r.rolname not in ('supabase_admin') and has_function_privilege('anon', p.oid, 'execute') and p.proname not like 'st\\_%' and p.proname not like '\\_%' and p.proname not in ('license_status', 'eula_status', 'notification_unsubscribe')",
       ).length === 0,
     );
     record(
