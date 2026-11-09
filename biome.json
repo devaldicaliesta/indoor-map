@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!e2e/evidence/**/*.html"]
+    "includes": ["**", "!e2e/evidence/**/*.html", "!.claude/skills"]
   },
   "formatter": {
     "enabled": true,
