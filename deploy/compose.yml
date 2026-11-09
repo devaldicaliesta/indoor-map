@@ -172,6 +172,7 @@ services:
       PGPASSWORD: ${POSTGRES_PASSWORD}
       PGDATABASE: postgres
       FUNCTIONS_URL: http://functions:9000
+      ADMIN_URL: https://${ADMIN_DOMAIN}
     volumes:
       - ./migrate.sh:/deploy/migrate.sh:ro
       - ./migrations:/migrations:ro

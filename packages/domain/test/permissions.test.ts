@@ -25,10 +25,11 @@ describe('visibleModules', () => {
     );
   });
 
-  it('Pengguna dan Lisensi hanya untuk Super Admin', () => {
+  it('Pengguna, Lisensi, dan Kesehatan sistem hanya untuk Super Admin', () => {
     for (const role of APP_ROLES.filter((r) => r !== 'super_admin')) {
       expect(moduleAccess(role, 'users')).toBeNull();
       expect(moduleAccess(role, 'license')).toBeNull();
+      expect(moduleAccess(role, 'system_health')).toBeNull();
     }
   });
 
@@ -39,10 +40,10 @@ describe('visibleModules', () => {
     ]);
   });
 
-  it('Viewer membuka semua kecuali Pengguna dan Lisensi, tanpa hak ubah', () => {
+  it('Viewer membuka semua kecuali modul instalasi, tanpa hak ubah', () => {
     const modules = visibleModules('viewer');
     expect(modules.map((m) => m.module)).toEqual(
-      ADMIN_MODULES.filter((m) => m !== 'users' && m !== 'license'),
+      ADMIN_MODULES.filter((m) => m !== 'users' && m !== 'license' && m !== 'system_health'),
     );
     expect(modules.every((m) => m.access === 'read')).toBe(true);
   });
@@ -99,8 +100,9 @@ describe('akses per venue (trial ter-hosting)', () => {
     expect(canInviteUsers(venueAdmin)).toBe(true);
   });
 
-  it('Admin venue tetap tidak melihat Lisensi', () => {
+  it('Admin venue tetap tidak melihat Lisensi dan Kesehatan sistem', () => {
     expect(moduleAccessFor(venueAdmin, 'license')).toBeNull();
+    expect(moduleAccessFor(venueAdmin, 'system_health')).toBeNull();
     expect(visibleModulesFor(venueAdmin).map(({ module }) => module)).not.toContain('license');
   });
 

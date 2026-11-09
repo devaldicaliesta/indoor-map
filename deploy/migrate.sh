@@ -30,8 +30,9 @@ for file in /migrations/*.sql; do
 done
 echo "$applied migrasi baru diterapkan"
 
-# Alamat Edge Function dari dalam database (pemberitahuan akun terkunci, check-in lisensi).
-psql_q -v url="$FUNCTIONS_URL" <<'SQL'
-insert into app.server_settings (key, value) values ('functions_url', :'url')
+# Alamat Edge Function dari dalam database (pemberitahuan akun terkunci, check-in lisensi) dan
+# alamat Admin untuk tautan berhenti berlangganan di email notifikasi.
+psql_q -v url="$FUNCTIONS_URL" -v admin="$ADMIN_URL" <<'SQL'
+insert into app.server_settings (key, value) values ('functions_url', :'url'), ('admin_url', :'admin')
 on conflict (key) do update set value = excluded.value;
 SQL

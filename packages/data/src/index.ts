@@ -58,6 +58,7 @@ export type {
 } from './repositories/locations';
 export type { MfaRepository, MfaStatus, TotpEnrollment } from './repositories/mfa';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
+export type { NotificationsRepository } from './repositories/notifications';
 export type { OriginPointsRepository } from './repositories/origin-points';
 export type { ProfilesRepository } from './repositories/profiles';
 export type {
@@ -72,6 +73,7 @@ export {
   type SnapshotsRepository,
   TRIAL_ENDED,
 } from './repositories/snapshots';
+export type { SystemHealthRepository } from './repositories/system-health';
 export type { SystemSettingsRepository } from './repositories/system-settings';
 export type { TourProgressRepository } from './repositories/tours';
 export type { TrialRepository } from './repositories/trial';

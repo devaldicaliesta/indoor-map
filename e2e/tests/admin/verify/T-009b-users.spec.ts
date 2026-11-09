@@ -53,7 +53,7 @@ test.describe('T-009b Halaman Pengguna', () => {
     const row = page.getByRole('row').filter({ hasText: email });
     await expect(row).toBeVisible();
     await capture(page, '03-diundang');
-    const mail = await waitForMail(email);
+    const mail = await waitForMail(email, 1, 'Undangan Admin');
     expect(mail.subject).toBe('Undangan Admin PanduArah');
 
     // Database: profil tersimpan dengan role yang dipilih.

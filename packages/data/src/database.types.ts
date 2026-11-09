@@ -26,6 +26,7 @@ export type Database = {
       account_notices: {
         Row: {
           created_at: string;
+          details: NonNullable<Json>;
           id: string;
           kind: string;
           sent_at: string | null;
@@ -33,6 +34,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          details?: NonNullable<Json>;
           id?: string;
           kind: string;
           sent_at?: string | null;
@@ -40,6 +42,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          details?: NonNullable<Json>;
           id?: string;
           kind?: string;
           sent_at?: string | null;
@@ -1204,6 +1207,35 @@ export type Database = {
           },
         ];
       };
+      notification_preferences: {
+        Row: {
+          enabled: boolean;
+          kind: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          enabled: boolean;
+          kind: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          enabled?: boolean;
+          kind?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_preferences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
       opening_hours: {
         Row: {
           closes_at: string | null;
@@ -1794,6 +1826,7 @@ export type Database = {
           satisfied: boolean;
         }[];
       };
+      notification_unsubscribe: { Args: { p_apply: boolean; p_token: string }; Returns: string };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {
@@ -1970,6 +2003,7 @@ export type Database = {
       set_smtp_password: { Args: { p_password: string }; Returns: undefined };
       smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
       smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };
+      system_health: { Args: Record<PropertyKey, never>; Returns: Json };
       take_over_edit_lock: { Args: { p_floor_id: string }; Returns: undefined };
       trial_status: {
         Args: Record<PropertyKey, never>;

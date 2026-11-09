@@ -62,7 +62,7 @@ Isi arsip:
 ```
 panduarah-<versi>/
   compose.yml          hanya image:, tanpa build:
-  install.sh  upgrade.sh  rollback.sh  backup.sh  restore.sh  migrate.sh  lib.sh
+  install.sh  upgrade.sh  rollback.sh  backup.sh  restore.sh  migrate.sh  health-report.sh  lib.sh
   migrations/*.sql     migrasi database (SQL)
   db/                  roles.sql, pg_hba.conf
   release.env          APP_VERSION, IMAGE_PREFIX, commit
@@ -149,7 +149,7 @@ HTTPS, pilih salah satu saat instalasi:
    - memuat image dari `images.tar` (lalu menghapus arsip image itu) atau menarik image versi
      paket dari registry;
    - menjalankan layanan dan migrasi, lalu mengisi alamat Edge Function untuk database;
-   - menjadwalkan backup harian.
+   - menjadwalkan backup harian dan laporan Kesehatan sistem tiap 15 menit.
 
    Untuk otomasi tanpa terminal, isi variabel lingkungan `ADMIN_DOMAIN`, `VISITOR_DOMAIN`,
    `API_DOMAIN`, `TLS_MODE` (`auto`/`files`/`internal`), `ACME_EMAIL` (untuk `auto`), dan
@@ -184,6 +184,32 @@ disk eksternal) sesuai kebijakan TI klien. Backup manual kapan saja:
 ```sh
 sudo /opt/panduarah/backup.sh
 ```
+
+### Kesehatan sistem
+
+`health-report.sh` berjalan tiap 15 menit lewat `/etc/cron.d/indoor-map-health` dan menulis ke
+database: status setiap layanan, versi aplikasi, ruang disk (direktori data Docker dan folder
+instalasi), serta tanggal berakhir sertifikat HTTPS yang disajikan untuk domain Admin.
+`backup.sh` mencatat hasil setiap backup (berhasil, atau langkah yang gagal). Super Admin
+melihat semuanya di Admin → **Kesehatan sistem**, bersama check-in lisensi terakhir.
+
+Setiap Super Admin aktif menerima email (SMTP Pengaturan → Sistem) sekali per kejadian bila:
+
+- backup gagal 2 kali berturut-turut;
+- disk terpakai lebih dari 85%;
+- sertifikat HTTPS berakhir kurang dari 14 hari lagi.
+
+Kejadian yang sudah pulih (backup berhasil, disk dikosongkan, sertifikat diperbarui) ditutup
+otomatis; kejadian berikutnya memicu email lagi. Bila halaman menyebut laporan terakhir lebih
+dari 30 menit lalu, periksa cron dan `backups/health-report.log`. Laporan manual:
+
+```sh
+sudo /opt/panduarah/health-report.sh
+```
+
+Instalasi yang diperbarui dari versi sebelum Kesehatan sistem ada memasang jadwalnya sekali
+dengan `sudo /opt/panduarah/health-report.sh --pasang-jadwal` (pembaruan berikutnya
+memasangnya sendiri).
 
 ### Pemulihan
 
