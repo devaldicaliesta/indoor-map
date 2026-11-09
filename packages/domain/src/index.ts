@@ -59,6 +59,7 @@ export * from './snapshot-schema';
 export * from './snapshot-search';
 export type * from './snapshot-source';
 export * from './snapshot-split';
+export * from './system-health';
 export * from './system-settings';
 export * from './table-access';
 export * from './templates';

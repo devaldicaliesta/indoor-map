@@ -47,6 +47,10 @@ import {
 } from './repositories/publications';
 import { createSnapshotsRepository, type SnapshotsRepository } from './repositories/snapshots';
 import {
+  createSystemHealthRepository,
+  type SystemHealthRepository,
+} from './repositories/system-health';
+import {
   createSystemSettingsRepository,
   type SystemSettingsRepository,
 } from './repositories/system-settings';
@@ -86,13 +90,15 @@ export interface DataClient {
   instructionTemplates: InstructionTemplatesRepository;
   locations: LocationsRepository;
   locationTypes: LocationTypesRepository;
-  /** Verifikasi dua langkah Supabase Auth (TOTP); dipakai dasbor vendor. */
+  /** Verifikasi dua langkah Supabase Auth (TOTP); dasbor vendor dan Admin. */
   mfa: MfaRepository;
   navGraph: NavGraphRepository;
   originPoints: OriginPointsRepository;
   profiles: ProfilesRepository;
   publications: PublicationsRepository;
   snapshots: SnapshotsRepository;
+  /** Kesehatan sistem dari agen server (T-597); hanya Super Admin. */
+  systemHealth: SystemHealthRepository;
   systemSettings: SystemSettingsRepository;
   /** Tur panduan Admin yang sudah dilihat pengguna ini. */
   tours: TourProgressRepository;
@@ -136,6 +142,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     publications: createPublicationsRepository(db),
     snapshots: createSnapshotsRepository(db),
     trial: createTrialRepository(db),
+    systemHealth: createSystemHealthRepository(db),
     systemSettings: createSystemSettingsRepository(db),
     tours: createTourProgressRepository(db),
     users: createUsersRepository(db),

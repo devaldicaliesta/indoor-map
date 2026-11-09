@@ -60,4 +60,5 @@ say "Menjalankan versi $version"
 dc up -d --remove-orphans || rollback
 dc run --rm migrate || rollback
 health_check 36 || rollback
+"$DEPLOY_DIR/health-report.sh" --pasang-jadwal || say "PERINGATAN: jadwal laporan kesehatan tidak terpasang."
 say "Pembaruan $previous_version → $version selesai. Backup sebelum pembaruan: $backup"

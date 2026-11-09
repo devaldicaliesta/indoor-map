@@ -1,7 +1,8 @@
-// Edge Function account-notice: mengirim pemberitahuan akun (saat ini: akun terkunci) yang
-// dicatat Auth Hook penguncian di tabel account_notices. Dipanggil database lewat pg_net
-// dengan id pemberitahuan saja; fungsi hanya mengirim baris yang ada dan belum terkirim,
-// sehingga pemanggil tanpa akses database tidak bisa memicu email ke alamat pilihannya.
+// Edge Function account-notice: mengirim pemberitahuan dari tabel account_notices — akun
+// terkunci (Auth Hook penguncian) dan peringatan kesehatan sistem ke Super Admin (0061).
+// Dipanggil database lewat pg_net dengan id pemberitahuan saja; fungsi hanya mengirim baris
+// yang ada dan belum terkirim, sehingga pemanggil tanpa akses database tidak bisa memicu email
+// ke alamat pilihannya.
 import { serviceHeaders, url } from '../_shared/auth.ts';
 import { sendMail } from '../_shared/smtp.ts';
 import { loadSmtpConfig } from '../_shared/smtp-settings.ts';
@@ -12,6 +13,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 interface NoticeRow {
   id: string;
   kind: string;
+  details: Record<string, unknown> | null;
   profiles: { email: string; full_name: string } | null;
 }
 
@@ -32,7 +34,7 @@ async function claim(id: string): Promise<NoticeRow | null> {
   const query = new URLSearchParams({
     id: `eq.${id}`,
     sent_at: 'is.null',
-    select: 'id,kind,profiles(email,full_name)',
+    select: 'id,kind,details,profiles(email,full_name)',
   });
   const response = await fetch(`${url}/rest/v1/account_notices?${query}`, {
     method: 'PATCH',
@@ -69,7 +71,7 @@ Deno.serve(async (request) => {
     if (!smtp) throw new Error('server email belum diatur');
     await sendMail(smtp, {
       to: notice.profiles.email,
-      ...renderAccountNotice(notice.kind, notice.profiles.full_name),
+      ...renderAccountNotice(notice.kind, notice.profiles.full_name, notice.details ?? {}),
     });
   } catch (error) {
     // Rincian SMTP hanya ke log server; pemberitahuan kembali ke antrean untuk dikirim ulang.

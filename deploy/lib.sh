@@ -9,12 +9,38 @@ BACKUP_DIR="$DEPLOY_DIR/backups"
 RELEASES_DIR="$DEPLOY_DIR/releases"
 # Isi arsip rilis selain rahasia dan data: diganti saat upgrade, disimpan untuk rollback.
 RELEASE_FILES=(compose.yml lib.sh install.sh upgrade.sh rollback.sh backup.sh restore.sh migrate.sh
-  README.md SUMBER-TERBUKA.md release.env dev-hook-secret.sha256 db migrations licenses)
+  health-report.sh README.md SUMBER-TERBUKA.md release.env dev-hook-secret.sha256 db migrations licenses)
 
 say() { printf '\033[1m==>\033[0m %s\n' "$*"; }
 die() { printf '\033[31mGAGAL:\033[0m %s\n' "$*" >&2; exit 1; }
 
 dc() { docker compose --project-directory "$DEPLOY_DIR" -f "$DEPLOY_DIR/compose.yml" --env-file "$ENV_FILE" "$@"; }
+
+# psql sebagai superuser di kontainer db: agen kesehatan dan backup menulis lewat fungsi `app.*`
+# (migrasi 0061) tanpa kunci API. Skrip SQL dibaca dari stdin agar variabel `-v` bisa dipakai.
+db_psql() { dc exec -T db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -X -q "$@"; }
+
+# Hasil backup untuk Kesehatan sistem; gagal mencatat (mis. database mati) tidak menghentikan skrip.
+record_backup() {
+  local ok=$1 message=${2:-}
+  printf "select app.health_backup_result(:'ok'::boolean, :'message');\n" |
+    db_psql -v ok="$ok" -v message="$message" -f - >/dev/null 2>&1 ||
+    printf 'Hasil backup tidak tercatat di database.\n' >&2
+}
+
+# Jadwal cron: backup harian 02.30 dan laporan kesehatan tiap 15 menit.
+install_schedules() {
+  if [ ! -w /etc/cron.d ]; then
+    say "PERINGATAN: tidak bisa menulis /etc/cron.d. Jadwalkan $DEPLOY_DIR/backup.sh harian dan $DEPLOY_DIR/health-report.sh tiap 15 menit secara manual."
+    return 0
+  fi
+  local path='PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  printf '# Backup harian PanduArah (backup.sh), retensi 14 hari.\n%s\n30 2 * * * root %s >>%s/backup.log 2>&1\n' \
+    "$path" "$DEPLOY_DIR/backup.sh" "$BACKUP_DIR" >/etc/cron.d/indoor-map-backup
+  printf '# Laporan Kesehatan sistem PanduArah (health-report.sh).\n%s\n*/15 * * * * root %s >/dev/null 2>>%s/health-report.log\n' \
+    "$path" "$DEPLOY_DIR/health-report.sh" "$BACKUP_DIR" >/etc/cron.d/indoor-map-health
+  say "Backup harian pukul 02.30 dan laporan kesehatan tiap 15 menit terjadwal (/etc/cron.d)."
+}
 
 load_env() {
   [ -f "$ENV_FILE" ] || die ".env belum ada di $DEPLOY_DIR. Jalankan install.sh lebih dulu."

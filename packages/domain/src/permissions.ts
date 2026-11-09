@@ -14,6 +14,7 @@ export const ADMIN_MODULES = [
   'settings',
   'users',
   'license',
+  'system_health',
 ] as const;
 export type AdminModule = (typeof ADMIN_MODULES)[number];
 
@@ -43,6 +44,7 @@ const MODULE_ACCESS: Record<AdminModule, Partial<Record<AppRole, ModuleAccess>>>
   settings: { super_admin: 'edit', admin: 'edit', editor: 'read', viewer: 'read' },
   users: { super_admin: 'edit' },
   license: { super_admin: 'edit' },
+  system_health: { super_admin: 'edit' },
 };
 
 export function moduleAccess(role: AppRole, module: AdminModule): ModuleAccess | null {

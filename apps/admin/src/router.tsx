@@ -15,6 +15,7 @@ import { LocationsPage } from './features/locations/locations-page';
 import { OriginPointsPage } from './features/origin-points/origin-points-page';
 import { PublishPage } from './features/publish/publish-page';
 import { SettingsPage } from './features/settings/settings-page';
+import { SystemHealthPage } from './features/system-health/system-health-page';
 import { UsersPage } from './features/users/users-page';
 import { VenuesPage } from './features/venues/venues-page';
 
@@ -80,6 +81,7 @@ export const router = createBrowserRouter([
       { path: 'settings', element: <SettingsPage /> },
       { path: 'users', element: <UsersPage /> },
       { path: 'license', element: <LicensePage /> },
+      { path: 'system-health', element: <SystemHealthPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

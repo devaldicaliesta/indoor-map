@@ -6,15 +6,29 @@ set -euo pipefail
 load_env
 
 RETENTION_DAYS=${RETENTION_DAYS:-14}
+# Hasil setiap backup dicatat untuk Kesehatan sistem; 2 kali gagal berturut-turut memicu email.
+step="persiapan"
+finish() {
+  local code=$?
+  if [ "$code" -eq 0 ]; then
+    record_backup true ""
+  else
+    record_backup false "Berhenti dengan kode $code saat $step."
+  fi
+}
+trap finish EXIT
 name=$(date +%Y%m%d-%H%M%S)
 target="$BACKUP_DIR/$name"
 mkdir -p "$target"
 chmod 700 "$BACKUP_DIR" "$target"
 
+step="backup database"
 say "Backup database ke $target" >&2
 dc exec -T db pg_basebackup -U supabase_admin -D "/backups/$name/db" -Ft -z -X fetch --checkpoint=fast
+step="backup Storage"
 say "Backup Storage" >&2
 dc exec -T storage tar czf - -C /var/lib/storage . >"$target/storage.tar.gz"
+step="menyalin .env"
 cp "$ENV_FILE" "$target/env"
 printf '%s\n' "$APP_VERSION" >"$target/version"
 # Penanda terakhir: restore hanya menerima backup yang lengkap.

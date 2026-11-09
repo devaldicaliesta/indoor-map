@@ -72,6 +72,7 @@ export {
   type SnapshotsRepository,
   TRIAL_ENDED,
 } from './repositories/snapshots';
+export type { SystemHealthRepository } from './repositories/system-health';
 export type { SystemSettingsRepository } from './repositories/system-settings';
 export type { TourProgressRepository } from './repositories/tours';
 export type { TrialRepository } from './repositories/trial';
