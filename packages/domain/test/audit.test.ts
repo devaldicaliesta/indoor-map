@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { AUDIT_ACTIONS, AuditActionSchema } from '../src';
 
 describe('AUDIT_ACTIONS', () => {
-  it('berisi peristiwa wajib NFR-SEC-05 dan hak subjek data UU PDP', () => {
+  it('berisi peristiwa wajib NFR-SEC-05, hak subjek data UU PDP, dan 2FA', () => {
     expect(AUDIT_ACTIONS).toEqual([
       'login',
       'login_failed',
@@ -17,6 +17,12 @@ describe('AUDIT_ACTIONS', () => {
       'user_data_deleted',
       'audit_purged',
       'eula_accepted',
+      'mfa_enabled',
+      'mfa_disabled',
+      'mfa_recovery_codes_created',
+      'mfa_recovery_used',
+      'mfa_recovery_failed',
+      'mfa_reset',
     ]);
   });
 

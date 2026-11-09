@@ -49,3 +49,21 @@ export function useDeleteUser() {
     },
   });
 }
+
+const mfaUsersKey = ['profiles', 'mfa'] as const;
+
+/** Super Admin: siapa yang sudah memakai 2FA. */
+export function useMfaUserIds(enabled: boolean) {
+  return useQuery({ queryKey: mfaUsersKey, queryFn: () => data.mfa.enabledUserIds(), enabled });
+}
+
+export function useResetUserMfa() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: UserId) => data.mfa.resetForUser(userId),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: mfaUsersKey });
+      await queryClient.invalidateQueries({ queryKey: ['audit'] });
+    },
+  });
+}

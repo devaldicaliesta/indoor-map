@@ -51,6 +51,9 @@ services:
       GOTRUE_SECURITY_REFRESH_TOKEN_ROTATION_ENABLED: "true"
       GOTRUE_SECURITY_REFRESH_TOKEN_REUSE_INTERVAL: 10
       GOTRUE_SESSIONS_INACTIVITY_TIMEOUT: 1h
+      # Verifikasi dua langkah Admin (T-592a); wajib per role diatur di Pengaturan → Sistem.
+      GOTRUE_MFA_TOTP_ENROLL_ENABLED: "true"
+      GOTRUE_MFA_TOTP_VERIFY_ENABLED: "true"
       GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_ENABLED: "true"
       GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_URI: pg-functions://postgres/app/hook_password_verification_attempt
       # Email Auth lewat Edge Function auth-email yang memakai SMTP Pengaturan Sistem (T-010).
