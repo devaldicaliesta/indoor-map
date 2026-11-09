@@ -96,9 +96,10 @@ Tulis pertanyaannya di PR atau di `docs/PROGRESS.md` bagian "Pertanyaan terbuka"
 
 ## graphify
 
-Graf pengetahuan kode ada di `graphify-out/` (tidak di-commit; dibangun ulang otomatis oleh hook SessionStart `.claude/hooks/graphify-session.sh`, murni AST lokal tanpa API key). Pasang lokal: `uv tool install 'graphifyy[sql]==0.9.104'`.
+Graf pengetahuan kode di-commit di `graphify-out/graph.json` dan `graphify-out/GRAPH_REPORT.md` (murni AST lokal, tanpa API key). Hook SessionStart `.claude/hooks/graphify-session.sh` membangun ulang hanya bila kode berubah sejak `built_at_commit`. Pasang lokal: `uv tool install 'graphifyy[sql]==0.9.104'`.
 
-- Bila `graphify-out/graph.json` ada, jalankan `graphify query "<pertanyaan>"` sebelum grep, pencarian, atau membaca file sumber untuk pertanyaan tentang kode, dan sertakan aturan ini di setiap prompt subagent yang menjelajah kode. Baca file mentah hanya untuk baris yang sudah ditunjuk graf.
+- Jalankan `graphify query "<pertanyaan>"` sebelum grep, pencarian, atau membaca file sumber untuk pertanyaan tentang kode, dan sertakan aturan ini di setiap prompt subagent yang menjelajah kode. Baca file mentah hanya untuk baris yang sudah ditunjuk graf.
 - `graphify explain "<konsep>"` untuk satu simbol/konsep, `graphify path "<A>" "<B>"` untuk hubungan, `graphify affected "<X>"` untuk dampak perubahan.
 - `graphify-out/GRAPH_REPORT.md` hanya untuk tinjauan arsitektur luas.
-- Setelah mengubah kode, jalankan `graphify update .` (AST saja, tanpa biaya API).
+- Setelah mengubah kode, jalankan `graphify update .` lalu commit `graphify-out/` bersama perubahan itu. Diff `graph.json` besar dan disembunyikan (`-diff`); itu wajar, jangan dibaca atau dianggap churn.
+- Bila `graph.json` konflik saat merge, jangan diselesaikan manual: ambil salah satu sisi lalu jalankan `graphify update .`.

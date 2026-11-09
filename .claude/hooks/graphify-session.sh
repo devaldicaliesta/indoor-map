@@ -21,5 +21,20 @@ fi
 
 graphify extract . --code-only >/dev/null 2>&1 \
   && graphify cluster-only . --no-label --no-viz >/dev/null 2>&1 \
-  || echo "graphify: gagal membangun graf" >&2
+  || { echo "graphify: gagal membangun graf" >&2; exit 0; }
+
+# Bila hanya built_at_commit yang berubah, pakai lagi versi yang di-commit agar working tree
+# tidak kotor di setiap sesi.
+python3 - <<'PY' && git checkout -q -- graphify-out/graph.json graphify-out/GRAPH_REPORT.md
+import json, subprocess, sys
+try:
+    committed = json.loads(subprocess.run(
+        ["git", "show", "HEAD:graphify-out/graph.json"], capture_output=True, check=True).stdout)
+except (subprocess.CalledProcessError, ValueError):
+    sys.exit(1)
+current = json.load(open("graphify-out/graph.json"))
+committed.pop("built_at_commit", None)
+current.pop("built_at_commit", None)
+sys.exit(0 if committed == current else 1)
+PY
 exit 0

@@ -35,5 +35,8 @@ __pycache__/
 # Hasil render video promosi (scripts/promo-motion.mjs)
 apps/landing/motion-promo/out/
 
-# Graf pengetahuan kode graphify (dibangun ulang otomatis oleh .claude/hooks/graphify-session.sh)
-graphify-out/
+# Graf pengetahuan kode graphify: graph.json dan GRAPH_REPORT.md di-commit agar Claude langsung
+# memakainya; cache, manifest (mtime), dan penanda root (path absolut) khusus mesin.
+graphify-out/*
+!graphify-out/graph.json
+!graphify-out/GRAPH_REPORT.md
