@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** F2.1 Siap jual (R0–R4 selesai)
-**Task berikutnya:** T-535 Riwayat lisensi atau T-595 Vendor Portal (F2.2; T-592b SSO menunggu IdP uji, T-592a, T-597, T-598 di review. F2.1 tersisa menunggu: T-599b menunggu T-599a di-merge, T-601b menunggu T-591, T-603b menunggu penunjukan pentester, T-605 menunggu T-501/T-511 selesai)
+**Task berikutnya:** T-595 Vendor Portal (F2.2; T-535 di review; T-592b SSO menunggu IdP uji, T-592a, T-597, T-598 di review. F2.1 tersisa menunggu: T-599b menunggu T-599a di-merge, T-601b menunggu T-591, T-603b menunggu penunjukan pentester, T-605 menunggu T-501/T-511 selesai)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -146,7 +146,7 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-532 | Audit log lengkap | — | siap | |
 | T-533 | Label kustom per venue | — | siap | |
 | T-534 | Duplikasi lantai | — | siap | |
-| T-535 | Riwayat lisensi | T-502 | siap | |
+| T-535 | Riwayat lisensi | T-502 | review | Halaman Lisensi: tabel "Riwayat lisensi" (dipasang, sumber, paket, ID, status Berlaku/Digantikan; terbaru dulu, `DataTable` + cari) dari `licenses` lewat `data.license.history()`; tanpa migrasi (RLS Super Admin yang ada). Belum: test integrasi/E2E (tanpa Docker), bukti `e2e/evidence/T-535/` |
 | T-536 | Publish terjadwal | — | siap | |
 | T-541 | Landmark + instruksi landmark | — | siap | |
 | T-542 | Kontrol label | — | siap | |
