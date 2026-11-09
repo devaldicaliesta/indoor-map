@@ -26,3 +26,7 @@ vulnerabilities:
     purls: ['pkg:golang/stdlib']
     statement: crypto/x509 Go 1.26.8; verifikasi rantai sertifikat hanya terjadi pada koneksi ACME opsional ke Let's Encrypt, proxy internal lewat http
     expired_at: 2026-11-30
+  - id: CVE-2026-78661
+    purls: ['pkg:golang/golang.org/x/net']
+    statement: DoS x/net/html lewat HTML buatan; Caddyfile tidak memakai templates/markdown, hanya file_server dan reverse_proxy. Caddy 2.11.9 masih x/net 0.60.0 (perbaikan di 0.62.0)
+    expired_at: 2026-11-30

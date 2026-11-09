@@ -47,6 +47,10 @@ CMD ["start", "--main-service", "/srv/main"]
 
 # Sama dengan services/cad-converter/Dockerfile, ditambah CA proxy dari deploy/ca untuk pip.
 FROM python:3.12-slim AS cad
+# Pembaruan keamanan paket Debian di atas image dasar, sama dengan image `functions`.
+RUN apt-get update -o APT::Update::Error-Mode=any \
+  && apt-get upgrade -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /srv
 COPY deploy/ca /tmp/ca
 RUN cat /etc/ssl/certs/ca-certificates.crt /tmp/ca/*.crt > /tmp/build-ca.pem 2>/dev/null || true

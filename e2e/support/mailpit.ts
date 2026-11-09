@@ -28,21 +28,26 @@ interface MailpitDetail {
   Inline: { FileName: string; ContentType: string; ContentID: string; Size: number }[] | null;
 }
 
-async function search(to: string): Promise<MailpitSummary[]> {
-  const url = `${env.mailpitUrl}/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`;
+async function search(to: string, subject?: string): Promise<MailpitSummary[]> {
+  const query = subject ? `to:"${to}" subject:"${subject}"` : `to:"${to}"`;
+  const url = `${env.mailpitUrl}/api/v1/search?query=${encodeURIComponent(query)}`;
   const response = await fetch(url);
   if (!response.ok)
     throw new Error(`Mailpit ${env.mailpitUrl} tidak menjawab (${response.status}).`);
   return ((await response.json()) as { messages: MailpitSummary[] }).messages;
 }
 
-/** Menunggu email ke-`count` (terbaru di depan) untuk alamat itu, lalu mengembalikan yang terbaru. */
-export async function waitForMail(to: string, count = 1): Promise<Mail> {
+/**
+ * Menunggu email ke-`count` (terbaru di depan) untuk alamat itu, lalu mengembalikan yang terbaru.
+ * `subject` membatasi pada satu jenis email, karena penerima Editor/Admin juga bisa menerima
+ * notifikasi publish dari spec lain yang berjalan bersamaan (T-598).
+ */
+export async function waitForMail(to: string, count = 1, subject?: string): Promise<Mail> {
   let messages: MailpitSummary[] = [];
   await expect
     .poll(
       async () => {
-        messages = await search(to);
+        messages = await search(to, subject);
         return messages.length;
       },
       {

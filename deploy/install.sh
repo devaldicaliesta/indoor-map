@@ -102,17 +102,6 @@ assert_own_hook_secret() {
   [[ $SEND_EMAIL_HOOK_SECRET == v1,whsec_* ]] || die "Format SEND_EMAIL_HOOK_SECRET harus v1,whsec_<base64>."
 }
 
-install_backup_schedule() {
-  local cron=/etc/cron.d/indoor-map-backup
-  if [ -w /etc/cron.d ]; then
-    printf '# Backup harian PanduArah (backup.sh), retensi 14 hari.\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\n30 2 * * * root %s >>%s/backup.log 2>&1\n' \
-      "$DEPLOY_DIR/backup.sh" "$BACKUP_DIR" >"$cron"
-    say "Backup harian terjadwal pukul 02.30 ($cron)."
-  else
-    say "PERINGATAN: tidak bisa menulis /etc/cron.d. Jadwalkan $DEPLOY_DIR/backup.sh harian secara manual."
-  fi
-}
-
 # .env lama (instalasi ulang, atau dipulihkan dari backup) harus untuk versi paket ini.
 assert_env_version() {
   local version
@@ -150,7 +139,9 @@ main() {
   say "Menerapkan migrasi database"
   dc run --rm migrate
   health_check || die "Layanan belum sehat. Periksa: docker compose -f $DEPLOY_DIR/compose.yml logs"
-  install_backup_schedule
+  # Jadwal backup harian dan laporan Kesehatan sistem, lalu laporan pertama.
+  install_schedules
+  "$DEPLOY_DIR/health-report.sh" >/dev/null || say "PERINGATAN: laporan kesehatan pertama gagal."
 
   cat <<DONE
 

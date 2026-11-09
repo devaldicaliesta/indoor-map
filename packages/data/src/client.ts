@@ -37,6 +37,10 @@ import { createLocationsRepository, type LocationsRepository } from './repositor
 import { createMfaRepository, type MfaRepository } from './repositories/mfa';
 import { createNavGraphRepository, type NavGraphRepository } from './repositories/nav-graph';
 import {
+  createNotificationsRepository,
+  type NotificationsRepository,
+} from './repositories/notifications';
+import {
   createOriginPointsRepository,
   type OriginPointsRepository,
 } from './repositories/origin-points';
@@ -46,6 +50,10 @@ import {
   type PublicationsRepository,
 } from './repositories/publications';
 import { createSnapshotsRepository, type SnapshotsRepository } from './repositories/snapshots';
+import {
+  createSystemHealthRepository,
+  type SystemHealthRepository,
+} from './repositories/system-health';
 import {
   createSystemSettingsRepository,
   type SystemSettingsRepository,
@@ -86,13 +94,17 @@ export interface DataClient {
   instructionTemplates: InstructionTemplatesRepository;
   locations: LocationsRepository;
   locationTypes: LocationTypesRepository;
-  /** Verifikasi dua langkah Supabase Auth (TOTP); dipakai dasbor vendor. */
+  /** Verifikasi dua langkah Supabase Auth (TOTP); dasbor vendor dan Admin. */
   mfa: MfaRepository;
   navGraph: NavGraphRepository;
+  /** Preferensi notifikasi email dan berhenti langganan (T-598). */
+  notifications: NotificationsRepository;
   originPoints: OriginPointsRepository;
   profiles: ProfilesRepository;
   publications: PublicationsRepository;
   snapshots: SnapshotsRepository;
+  /** Kesehatan sistem dari agen server (T-597); hanya Super Admin. */
+  systemHealth: SystemHealthRepository;
   systemSettings: SystemSettingsRepository;
   /** Tur panduan Admin yang sudah dilihat pengguna ini. */
   tours: TourProgressRepository;
@@ -131,11 +143,13 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     locationTypes: createLocationTypesRepository(db),
     mfa: createMfaRepository(db),
     navGraph: createNavGraphRepository(db),
+    notifications: createNotificationsRepository(db),
     originPoints: createOriginPointsRepository(db),
     profiles,
     publications: createPublicationsRepository(db),
     snapshots: createSnapshotsRepository(db),
     trial: createTrialRepository(db),
+    systemHealth: createSystemHealthRepository(db),
     systemSettings: createSystemSettingsRepository(db),
     tours: createTourProgressRepository(db),
     users: createUsersRepository(db),

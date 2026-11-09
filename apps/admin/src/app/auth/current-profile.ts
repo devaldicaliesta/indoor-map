@@ -20,6 +20,8 @@ export function useAuthSync() {
     () =>
       data.auth.onChange(() => {
         void queryClient.invalidateQueries({ queryKey: currentProfileKey });
+        // Tingkat sesi (aal) ikut berubah saat kode 2FA dimasukkan di tab lain.
+        void queryClient.invalidateQueries({ queryKey: ['auth', 'mfa'], exact: true });
       }),
     [queryClient],
   );

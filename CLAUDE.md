@@ -93,3 +93,11 @@ Setiap task kode memakai skill `ponytail` level `full` (perubahan terkecil yang 
 - Perubahan skema yang menghapus atau mengganti nama kolom.
 
 Tulis pertanyaannya di PR atau di `docs/PROGRESS.md` bagian "Pertanyaan terbuka", lalu hentikan task.
+
+## graphify
+
+Graf pengetahuan kode di-commit di `graphify-out/` dan diperbarui otomatis oleh CI (`.github/workflows/graphify.yml`) setiap push ke `main`, jadi grafnya mencerminkan `main`, bukan perubahan di branch kerja. CLI terpasang otomatis di sesi cloud; lokal: `uv tool install 'graphifyy[sql]==0.9.104'`.
+
+- Untuk pertanyaan tentang kode, jalankan `graphify query "<simbol, file, atau konsep>"` sebelum grep atau membaca file, lalu baca hanya baris yang ditunjuk. Sertakan aturan ini di prompt subagent yang menjelajah kode.
+- Untuk fokus yang lebih sempit: `graphify explain "<simbol>"`, `graphify path "<A>" "<B>"`, `graphify affected "<X>"`.
+- Jangan membaca `graph.json` langsung dan jangan meng-commit `graphify-out/`; CI yang memperbaruinya. `GRAPH_REPORT.md` hanya untuk tinjauan arsitektur luas.

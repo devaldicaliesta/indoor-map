@@ -1,0 +1,2 @@
+# Batas token output graphify query (default 2000).
+query_budget=1500

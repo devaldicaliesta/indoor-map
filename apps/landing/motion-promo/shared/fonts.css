@@ -1,0 +1,54 @@
+/* Font di-host sendiri: Figtree untuk teks kinetik (landing), IBM Plex untuk tampilan Admin,
+   Atkinson Hyperlegible untuk tampilan Visitor (docs/05-desain-ui.md). */
+@font-face {
+  font-family: "Figtree";
+  font-weight: 400;
+  src: url("../../src/fonts/figtree-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Figtree";
+  font-weight: 700;
+  src: url("../../src/fonts/figtree-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 400;
+  src: url("../../../../packages/ui/src/fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 700;
+  src: url("../../../../packages/ui/src/fonts/ibm-plex-sans-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-weight: 400;
+  src: url("../../../../packages/ui/src/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-weight: 700;
+  src: url("../../../../packages/ui/src/fonts/ibm-plex-mono-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  font-weight: 400;
+  src: url("../../../../packages/ui/src/fonts/atkinson-hyperlegible-latin-400-normal.woff2")
+    format("woff2");
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  font-weight: 700;
+  src: url("../../../../packages/ui/src/fonts/atkinson-hyperlegible-latin-700-normal.woff2")
+    format("woff2");
+}
+
+html,
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #f2f3ef;
+}
+canvas {
+  display: block;
+}

@@ -1,3 +1,4 @@
+import { type MfaState, type UserId, UserIdSchema } from '@indoor/domain';
 import { DataError, toDataError } from '../errors';
 import type { Db } from '../supabase';
 
@@ -26,6 +27,22 @@ export interface MfaRepository {
   enrollTotp(issuer: string): Promise<TotpEnrollment>;
   /** Memeriksa kode 6 digit; bila benar sesi naik ke `aal2`. */
   verifyTotp(factorId: string, code: string): Promise<void>;
+  /** Keadaan 2FA Admin menurut server; `null` bila pengguna tidak punya profil Admin. */
+  adminState(): Promise<MfaState | null>;
+  /** Mematikan 2FA sendiri. Butuh sesi aal2; kode cadangan ikut gugur di server. */
+  unenrollTotp(factorId: string): Promise<void>;
+  /** 10 kode cadangan baru menggantikan semua kode lama; hanya tampil sekali. */
+  generateRecoveryCodes(): Promise<string[]>;
+  recoveryCodesLeft(): Promise<number>;
+  /**
+   * Masuk dengan kode cadangan: aplikasi autentikator lama dilepas. `false` untuk kode salah atau
+   * sudah dipakai.
+   */
+  recover(code: string): Promise<boolean>;
+  /** Super Admin: pengguna yang sudah memakai 2FA. */
+  enabledUserIds(): Promise<Set<UserId>>;
+  /** Super Admin: melepas 2FA pengguna lain dan mengeluarkan semua sesinya. */
+  resetForUser(userId: UserId): Promise<void>;
 }
 
 function mfaError(error: { code?: string | undefined; status?: number | undefined }): DataError {
@@ -94,6 +111,60 @@ export function createMfaRepository(db: Db): MfaRepository {
     async verifyTotp(factorId, code) {
       const { error } = await db.auth.mfa.challengeAndVerify({ factorId, code: code.trim() });
       if (error) throw mfaError(error);
+    },
+
+    async adminState() {
+      const { data, error } = await db.rpc('mfa_status');
+      if (error) throw toDataError(error);
+      const row = data[0];
+      if (!row) return null;
+      return {
+        required: row.required,
+        roleRequired: row.role_required,
+        hasTotp: row.has_totp,
+        satisfied: row.satisfied,
+      };
+    },
+
+    async unenrollTotp(factorId) {
+      const { error } = await db.auth.mfa.unenroll({ factorId });
+      if (error) throw mfaError(error);
+      // Token lama masih menyebut aal2 dan faktor yang sudah dilepas.
+      const refreshed = await db.auth.refreshSession();
+      if (refreshed.error) throw mfaError(refreshed.error);
+    },
+
+    async generateRecoveryCodes() {
+      const { data, error } = await db.rpc('mfa_recovery_codes_generate');
+      if (error) throw toDataError(error);
+      return data;
+    },
+
+    async recoveryCodesLeft() {
+      const { data, error } = await db.rpc('mfa_recovery_codes_left');
+      if (error) throw toDataError(error);
+      return data;
+    },
+
+    async recover(code) {
+      const { data, error } = await db.rpc('mfa_recover', { p_code: code });
+      if (error) throw toDataError(error);
+      if (!data) return false;
+      // Faktor sudah dihapus server; sesi baru agar daftar faktor di token ikut kosong.
+      const refreshed = await db.auth.refreshSession();
+      if (refreshed.error) throw mfaError(refreshed.error);
+      return true;
+    },
+
+    async enabledUserIds() {
+      const { data, error } = await db.rpc('user_mfa_list');
+      if (error) throw toDataError(error);
+      return new Set(data.map((row) => UserIdSchema.parse(row.user_id)));
+    },
+
+    async resetForUser(userId) {
+      const { error } = await db.rpc('user_mfa_reset', { p_user_id: userId });
+      if (error) throw toDataError(error);
     },
   };
 }

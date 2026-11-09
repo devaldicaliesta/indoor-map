@@ -1,5 +1,6 @@
 import type { AdminModule, AppRole } from '@indoor/domain';
 import {
+  ActivityIcon,
   BuildingIcon,
   type LucideIcon,
   MapIcon,
@@ -29,6 +30,7 @@ export const MODULE_NAV: Record<AdminModule, ModuleNav> = {
   settings: { path: '/settings', label: 'Pengaturan', icon: SettingsIcon },
   users: { path: '/users', label: 'Pengguna', icon: UsersIcon },
   license: { path: '/license', label: 'Lisensi', icon: ShieldCheckIcon },
+  system_health: { path: '/system-health', label: 'Kesehatan sistem', icon: ActivityIcon },
 };
 
 export const ROLE_LABELS: Record<AppRole, string> = {

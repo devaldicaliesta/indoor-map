@@ -36,7 +36,11 @@ export function ModuleRoute({
 }
 
 // Modul yang berlaku untuk seluruh instalasi, bukan per venue.
-const INSTALLATION_MODULES: ReadonlySet<AdminModule> = new Set(['users', 'license']);
+const INSTALLATION_MODULES: ReadonlySet<AdminModule> = new Set([
+  'users',
+  'license',
+  'system_health',
+]);
 
 export function ModulePage({
   module,

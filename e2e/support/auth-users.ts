@@ -30,7 +30,7 @@ export async function inviteUser(
     role,
     redirectTo: `${env.adminUrl}/reset-password`,
   });
-  const { link } = await waitForMail(user.email);
+  const { link } = await waitForMail(user.email, 1, 'Undangan Admin');
   if (!link) throw new Error(`Email undangan ${user.email} tanpa tautan.`);
   const verified = await fetch(link, { redirect: 'manual' });
   const hash = new URL(verified.headers.get('location') ?? '').hash.slice(1);

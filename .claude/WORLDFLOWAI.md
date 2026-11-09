@@ -23,6 +23,19 @@ Awalan `ecc-` mencegah bentrok dengan command bawaan Claude Code (`/code-review`
 
 Bila CI atau `pnpm check` merah: `/ecc-build-fix`. Untuk perubahan RLS, Storage, Edge Function, atau auth: `/ecc-security-review`.
 
+## Skill keamanan tambahan
+
+Dua skill audit keamanan ditambahkan untuk meninjau kode repo ini sendiri (bukan untuk menyerang target luar):
+
+| Skill | Asal | Pakai untuk |
+| --- | --- | --- |
+| `security-audit` | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) (MIT) | Audit sumber bertahap: recon → perburuan → validasi → laporan. Default "guidance mode"; alur enam fase hanya saat diminta audit penuh. Jalankan hanya membaca kode; eksekusi kode target butuh sandbox sesuai SKILL.md-nya. |
+| `bughunter-*` | [awarexone/Agentic-Bug-Hunter](https://github.com/awarexone/Agentic-Bug-Hunter) (MIT) | Referensi tinjauan sumber: `bughunter-web2-vuln-classes` (kelas kerentanan web) dan `bughunter-cicd-security` (GitHub Actions). |
+
+Hanya dua referensi yang relevan dengan stack ini yang dibawa. Yang lain sengaja tidak diambil: perkakas ofensif terhadap target hidup (recon subdomain, credential spray, web3, mobile), red-team LLM dan audit MCP (aplikasi tidak memakai LLM/MCP), serta penulisan laporan dan triase bug bounty (tumpang tindih dengan fase validasi `security-audit`). Deskripsi skill dimuat di setiap sesi, jadi skill yang tidak relevan memboroskan token. Lisensi masing-masing disimpan di `.claude/skills/security-audit/LICENSE` dan `.claude/skills/bughunter-LICENSE`.
+
+Kedua skill melengkapi, bukan menggantikan, `/ecc-security-review` dan `ecc-security-checklist` yang sudah ada (khusus RLS, Storage, Edge Function, auth, unggahan, snapshot publik).
+
 ## Yang sengaja tidak dibawa
 
 - **Hook** repo asal: format otomatis dengan Prettier (repo ini memakai Biome), blokir `pnpm dev` di luar tmux, blokir file `.md` baru (playbook di `docs/` berupa Markdown), dan penyimpanan sesi ke `~/.claude/sessions`.

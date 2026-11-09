@@ -1,11 +1,16 @@
-import { LanguageCodeSchema, type SystemSettings, type SystemSettingsPatch } from '@indoor/domain';
+import {
+  AppRoleSchema,
+  LanguageCodeSchema,
+  type SystemSettings,
+  type SystemSettingsPatch,
+} from '@indoor/domain';
 import type { Tables, TablesUpdate } from '../database.types';
 import { DataError, toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
 
 const COLUMNS =
-  'public_visitor_url, smtp_host, smtp_port, smtp_username, smtp_from, default_timezone, default_language, basemap_tile_url, basemap_attribution, audit_retention_days, updated_at';
+  'public_visitor_url, smtp_host, smtp_port, smtp_username, smtp_from, default_timezone, default_language, basemap_tile_url, basemap_attribution, audit_retention_days, mfa_required_roles, updated_at';
 
 export type SystemSettingsRow = Omit<Tables<'system_settings'>, 'id'>;
 
@@ -21,6 +26,7 @@ export function mapSystemSettingsRow(row: SystemSettingsRow): SystemSettings {
     basemapTileUrl: row.basemap_tile_url,
     basemapAttribution: row.basemap_attribution,
     auditRetentionDays: row.audit_retention_days,
+    mfaRequiredRoles: row.mfa_required_roles.map((role) => AppRoleSchema.parse(role)),
     updatedAt: row.updated_at,
   };
 }
@@ -40,6 +46,7 @@ export function toSystemSettingsUpdate(
   if (patch.basemapAttribution !== undefined) update.basemap_attribution = patch.basemapAttribution;
   if (patch.auditRetentionDays !== undefined)
     update.audit_retention_days = patch.auditRetentionDays;
+  if (patch.mfaRequiredRoles !== undefined) update.mfa_required_roles = patch.mfaRequiredRoles;
   return update;
 }
 

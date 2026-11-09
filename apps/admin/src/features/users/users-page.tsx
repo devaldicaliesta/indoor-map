@@ -21,7 +21,7 @@ import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { ROLE_LABELS } from '../../app/navigation';
 import { useTableState } from '../../hooks/use-table-state';
 import { InviteUserDialog } from './invite-user-dialog';
-import { useUpdateUser, useUsers } from './queries';
+import { useMfaUserIds, useUpdateUser, useUsers } from './queries';
 import { RoleSelect } from './role-select';
 import { UserDataMenu } from './user-data-menu';
 
@@ -78,6 +78,7 @@ function UsersTable({ access }: { access: ModuleAccess }) {
   const update = useUpdateUser();
   const table = useTableState({ filters: FILTERS });
   const manageData = useCan('user.manage');
+  const mfaUsers = useMfaUserIds(manageData);
 
   function change(
     profile: Profile,
@@ -136,6 +137,18 @@ function UsersTable({ access }: { access: ModuleAccess }) {
     },
     { id: 'status', header: 'Status', cell: (profile) => <UserStatus profile={profile} /> },
   ];
+  if (manageData) {
+    columns.push({
+      id: 'mfa',
+      header: '2FA',
+      cell: (profile) =>
+        mfaUsers.data?.has(profile.userId) ? (
+          <StatusDot tone="ok">Aktif</StatusDot>
+        ) : mfaUsers.data ? (
+          <span className="text-ink-muted">—</span>
+        ) : null,
+    });
+  }
   if (editable) {
     columns.push({
       id: 'actions',
@@ -159,7 +172,11 @@ function UsersTable({ access }: { access: ModuleAccess }) {
             {profile.isActive ? 'Nonaktifkan' : 'Aktifkan'}
           </Button>
           {manageData ? (
-            <UserDataMenu profile={profile} isSelf={profile.userId === me?.userId} />
+            <UserDataMenu
+              profile={profile}
+              isSelf={profile.userId === me?.userId}
+              hasMfa={mfaUsers.data?.has(profile.userId) ?? false}
+            />
           ) : null}
         </div>
       ),

@@ -12,9 +12,11 @@ import { ActivationPage } from './features/license/activation-page';
 import { LicenseGate } from './features/license/license-gate';
 import { LicensePage } from './features/license/license-page';
 import { LocationsPage } from './features/locations/locations-page';
+import { UnsubscribePage } from './features/notifications/unsubscribe-page';
 import { OriginPointsPage } from './features/origin-points/origin-points-page';
 import { PublishPage } from './features/publish/publish-page';
 import { SettingsPage } from './features/settings/settings-page';
+import { SystemHealthPage } from './features/system-health/system-health-page';
 import { UsersPage } from './features/users/users-page';
 import { VenuesPage } from './features/venues/venues-page';
 
@@ -36,6 +38,8 @@ export const router = createBrowserRouter([
   // Tanpa lisensi berlaku semua halaman diarahkan ke /aktivasi; halaman masuk tetap terbuka
   // agar Super Admin bisa masuk untuk memasang lisensi baru (kecuali di instalasi baru).
   { path: '/aktivasi', element: <ActivationPage />, errorElement: <RouteError /> },
+  // Dari tautan email, tanpa login dan tanpa syarat lisensi: berhenti berlangganan selalu bisa.
+  { path: '/berhenti-langganan', element: <UnsubscribePage />, errorElement: <RouteError /> },
   {
     path: '/login',
     element: (
@@ -80,6 +84,7 @@ export const router = createBrowserRouter([
       { path: 'settings', element: <SettingsPage /> },
       { path: 'users', element: <UsersPage /> },
       { path: 'license', element: <LicensePage /> },
+      { path: 'system-health', element: <SystemHealthPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

@@ -13,6 +13,7 @@ const base: SystemFormValues = {
   basemapTileUrl: '',
   basemapAttribution: '',
   auditRetentionDays: '365',
+  mfaRequiredRoles: ['super_admin'],
 };
 
 describe('validate', () => {
@@ -52,6 +53,7 @@ describe('toPatch', () => {
       basemapTileUrl: null,
       basemapAttribution: null,
       auditRetentionDays: 365,
+      mfaRequiredRoles: ['super_admin'],
     });
   });
 });

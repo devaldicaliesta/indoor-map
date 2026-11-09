@@ -20,8 +20,10 @@ const ALL = [
   'Pengaturan',
   'Pengguna',
   'Lisensi',
+  'Kesehatan sistem',
 ];
-const WITHOUT_ADMIN_ONLY = ALL.filter((m) => m !== 'Pengguna' && m !== 'Lisensi');
+const SUPER_ADMIN_ONLY = ['Pengguna', 'Lisensi', 'Kesehatan sistem'];
+const WITHOUT_ADMIN_ONLY = ALL.filter((m) => !SUPER_ADMIN_ONLY.includes(m));
 
 // Tabel role di docs/01-produk.md; menu yang hanya bisa dibaca diberi penanda "baca".
 const read = (menus: string[], readOnly: string[]) =>
