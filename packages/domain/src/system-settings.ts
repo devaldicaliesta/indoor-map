@@ -1,4 +1,5 @@
 import type { LanguageCode } from './language';
+import type { AppRole } from './profile';
 
 /** Password SMTP tidak pernah disimpan di sini. */
 export interface SystemSettings {
@@ -15,6 +16,8 @@ export interface SystemSettings {
   basemapAttribution: string | null;
   /** Masa simpan log audit dalam hari; peristiwa yang lebih tua dihapus server tiap hari. */
   auditRetentionDays: number;
+  /** Role yang wajib verifikasi dua langkah (TOTP); ditegakkan server lewat `app.user_role()`. */
+  mfaRequiredRoles: AppRole[];
   updatedAt: string;
 }
 

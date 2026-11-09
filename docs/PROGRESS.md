@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** F2.1 Siap jual (R0–R4 selesai)
-**Task berikutnya:** T-592 2FA dan SSO Admin (F2.2; menutup temuan ASVS F-03. F2.1 tersisa menunggu: T-599b menunggu T-599a di-merge, T-601b menunggu T-591, T-603b menunggu penunjukan pentester, T-605 menunggu T-501/T-511 selesai)
+**Task berikutnya:** T-592b SSO Admin (butuh IdP uji; T-592a 2FA TOTP di review, menutup temuan ASVS F-03. F2.1 tersisa menunggu: T-599b menunggu T-599a di-merge, T-601b menunggu T-591, T-603b menunggu penunjukan pentester, T-605 menunggu T-501/T-511 selesai)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -175,7 +175,7 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-582 | Event & promosi di Visitor | T-581 | menunggu | |
 | T-583 | Playlist promosi di Info Point | T-582, T-408 | menunggu | |
 | T-591 | Analitik penggunaan | T-502 | siap | |
-| T-592a | 2FA TOTP Admin | — | dikerjakan | |
+| T-592a | 2FA TOTP Admin | — | review | Migrasi 0059 (wajib per role di `app.user_role()`: sesi tanpa `aal2` tanpa hak bila role diwajibkan atau 2FA diaktifkan sendiri; kode cadangan hash SHA-256; reset Super Admin) + **0060**: trigger `auth.mfa_factors` mencatat `mfa_enabled`/`mfa_disabled` hanya dari koneksi Auth (`session_user = supabase_auth_admin`; reset/kode cadangan sudah mencatat sendiri) dan menggugurkan kode cadangan saat faktor terakhir dilepas; `user_mfa_list()` (Super Admin). **Celah ditutup:** `requireSuperAdmin`/`activeSuperAdmin` Edge Function membaca role lewat service role sehingga password saja cukup (email uji, pasang lisensi); kini juga memeriksa `mfa_status()` atas nama pemanggil — dibuktikan test integrasi gagal pada kode lama. Admin: gerbang 2FA setelah password (pasang QR → kode cadangan sekali tampil → Admin; kode; "Ponsel hilang? Pakai kode cadangan"), menu akun → Keamanan akun (aktifkan, buat kode baru, sisa kode, matikan hanya bila role tidak diwajibkan), Pengaturan → Sistem → Verifikasi dua langkah (centang per role; Super Admin tanpa 2FA ditolak mewajibkan role-nya sendiri), Pengguna: kolom 2FA + "Reset verifikasi dua langkah…", label Log audit. Domain `mfa.ts` (langkah gerbang, normalisasi kode). GoTrue `GOTRUE_MFA_TOTP_*` eksplisit di `deploy/compose.yml`. Diuji: 42 pgTAP `admin_mfa` (1.357 pgTAP total lulus), 5 integrasi `admin-mfa` dengan TOTP sungguhan (111 integrasi total lulus), domain, `pnpm check` hijau, E2E `license/f2/T-592-admin-mfa.spec.ts` TC-OPS-06/07 lulus 3× berturut-turut (`--no-deps`; proyek serial karena kewajiban per role berlaku global), regresi login/T-008/T-009b/T-010/T-012/T-601 lulus. Bukti `e2e/evidence/T-592/`. Temuan di luar lingkup: E2E T-617 sekali gagal saat paralel (toast "…diblokir." menutupi tombol "Buka blokir"), lulus 2× saat diulang. Belum: sesi lain yang sudah aal2 tetap berlaku sampai JWT habis (≤ 1 jam) setelah reset, sama dengan menonaktifkan pengguna. |
 | T-592b | SSO Admin (OIDC/SAML, LDAP) | T-592a | menunggu | Butuh IdP uji |
 | T-593 | API dan webhook integrasi | — | siap | |
 | T-594 | Export GeoJSON dan IMDF | — | siap | |

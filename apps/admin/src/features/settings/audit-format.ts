@@ -15,6 +15,12 @@ export const AUDIT_LABELS: Record<AuditAction, string> = {
   user_data_deleted: 'Akun dihapus',
   audit_purged: 'Log audit dibersihkan',
   eula_accepted: 'EULA disetujui',
+  mfa_enabled: '2FA diaktifkan',
+  mfa_disabled: '2FA dimatikan',
+  mfa_recovery_codes_created: 'Kode cadangan 2FA dibuat',
+  mfa_recovery_used: 'Masuk dengan kode cadangan',
+  mfa_recovery_failed: 'Kode cadangan salah',
+  mfa_reset: '2FA direset',
 };
 
 const FAILURE_REASONS: Record<string, string> = {
@@ -35,6 +41,7 @@ const SETTING_FIELDS: Record<string, string> = {
   basemap_tile_url: 'URL tile peta dasar',
   basemap_attribution: 'atribusi peta dasar',
   audit_retention_days: 'masa simpan log audit',
+  mfa_required_roles: 'role wajib 2FA',
 };
 
 const LICENSE_SOURCES: Record<string, string> = {

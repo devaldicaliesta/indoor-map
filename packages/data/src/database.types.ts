@@ -1460,6 +1460,7 @@ export type Database = {
           default_language: Database['public']['Enums']['language_code'];
           default_timezone: string;
           id: boolean;
+          mfa_required_roles: Database['public']['Enums']['app_role'][];
           public_visitor_url: string | null;
           smtp_from: string | null;
           smtp_host: string | null;
@@ -1474,6 +1475,7 @@ export type Database = {
           default_language?: Database['public']['Enums']['language_code'];
           default_timezone?: string;
           id?: boolean;
+          mfa_required_roles?: Database['public']['Enums']['app_role'][];
           public_visitor_url?: string | null;
           smtp_from?: string | null;
           smtp_host?: string | null;
@@ -1488,6 +1490,7 @@ export type Database = {
           default_language?: Database['public']['Enums']['language_code'];
           default_timezone?: string;
           id?: boolean;
+          mfa_required_roles?: Database['public']['Enums']['app_role'][];
           public_visitor_url?: string | null;
           smtp_from?: string | null;
           smtp_host?: string | null;
@@ -1778,6 +1781,19 @@ export type Database = {
         }[];
       };
       license_valid_until: { Args: Record<PropertyKey, never>; Returns: string };
+      mfa_recover: { Args: { p_code: string }; Returns: boolean };
+      mfa_recovery_codes_generate: { Args: Record<PropertyKey, never>; Returns: string[] };
+      mfa_recovery_codes_left: { Args: Record<PropertyKey, never>; Returns: number };
+      mfa_status: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          aal: string;
+          has_totp: boolean;
+          required: boolean;
+          role_required: boolean;
+          satisfied: boolean;
+        }[];
+      };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {
@@ -1969,6 +1985,13 @@ export type Database = {
         Args: { p_role: Database['public']['Enums']['app_role'] };
         Returns: string;
       };
+      user_mfa_list: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          user_id: string;
+        }[];
+      };
+      user_mfa_reset: { Args: { p_user_id: string }; Returns: undefined };
       vendor_access: { Args: Record<PropertyKey, never>; Returns: string };
       vendor_block: { Args: { p_note?: string; p_value: string }; Returns: string };
       vendor_blocklist: {

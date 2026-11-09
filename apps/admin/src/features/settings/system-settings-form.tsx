@@ -1,4 +1,4 @@
-import type { LanguageCode, SystemSettings } from '@indoor/domain';
+import { APP_ROLES, type AppRole, type LanguageCode, type SystemSettings } from '@indoor/domain';
 import {
   Button,
   Input,
@@ -13,6 +13,7 @@ import {
 import { type ChangeEvent, type FormEvent, type ReactNode, useState } from 'react';
 import { Field } from '../../app/components/field';
 import { TimezoneSelect } from '../../app/components/timezone-select';
+import { ROLE_LABELS } from '../../app/navigation';
 import {
   useSaveSystemSettings,
   useSendTestEmail,
@@ -22,6 +23,7 @@ import {
 import {
   type SystemFormErrors,
   type SystemFormValues,
+  type SystemTextField,
   toFormValues,
   toPatch,
   validate,
@@ -57,7 +59,7 @@ function Form({ settings, passwordIsSet }: { settings: SystemSettings; passwordI
     <K extends keyof SystemFormValues>(key: K) =>
     (value: SystemFormValues[K]) =>
       setValues((current) => ({ ...current, [key]: value }));
-  const input = (key: keyof SystemFormValues) => ({
+  const input = (key: SystemTextField) => ({
     id: key,
     value: values[key],
     onChange: (event: ChangeEvent<HTMLInputElement>) => set(key)(event.target.value),
@@ -210,6 +212,33 @@ function Form({ settings, passwordIsSet }: { settings: SystemSettings; passwordI
         </Field>
       </Section>
 
+      <Section
+        title="Verifikasi dua langkah"
+        description="Role yang dicentang wajib memasukkan kode aplikasi autentikator (TOTP) setiap masuk. Pengguna yang belum punya aplikasi diminta mendaftarkannya saat masuk berikutnya."
+      >
+        <fieldset className="col-span-2 grid gap-2">
+          <legend className="sr-only">Role wajib verifikasi dua langkah</legend>
+          {APP_ROLES.map((role) => (
+            <RoleCheckbox
+              key={role}
+              role={role}
+              checked={values.mfaRequiredRoles.includes(role)}
+              onChange={(checked) =>
+                set('mfaRequiredRoles')(
+                  APP_ROLES.filter((r) =>
+                    r === role ? checked : values.mfaRequiredRoles.includes(r),
+                  ),
+                )
+              }
+            />
+          ))}
+          <p className="text-ink-muted text-sm">
+            Mewajibkan role Anda sendiri hanya bisa setelah 2FA akun Anda aktif (menu akun →
+            Keamanan akun).
+          </p>
+        </fieldset>
+      </Section>
+
       <div className="flex items-center gap-2 border-line border-t pt-4">
         <Button type="submit" variant="primary" disabled={save.isPending}>
           {save.isPending ? 'Menyimpan…' : 'Simpan pengaturan'}
@@ -222,6 +251,28 @@ function Form({ settings, passwordIsSet }: { settings: SystemSettings; passwordI
         </span>
       </div>
     </form>
+  );
+}
+
+function RoleCheckbox({
+  role,
+  checked,
+  onChange,
+}: {
+  role: AppRole;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-2">
+      <input
+        type="checkbox"
+        className="size-4 accent-ink"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+      />
+      {ROLE_LABELS[role]}
+    </label>
   );
 }
 

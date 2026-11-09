@@ -1,4 +1,5 @@
 import {
+  type AppRole,
   AUDIT_RETENTION_DAYS,
   checkBasemapTileUrl,
   checkPublicVisitorUrl,
@@ -22,7 +23,11 @@ export interface SystemFormValues {
   basemapTileUrl: string;
   basemapAttribution: string;
   auditRetentionDays: string;
+  mfaRequiredRoles: AppRole[];
 }
+
+/** Isian teks; `mfaRequiredRoles` diisi lewat kotak centang. */
+export type SystemTextField = Exclude<keyof SystemFormValues, 'mfaRequiredRoles'>;
 
 export type SystemFormErrors = Partial<Record<keyof SystemFormValues, string>>;
 
@@ -39,6 +44,7 @@ export function toFormValues(settings: SystemSettings): SystemFormValues {
     basemapTileUrl: settings.basemapTileUrl ?? '',
     basemapAttribution: settings.basemapAttribution ?? '',
     auditRetentionDays: settings.auditRetentionDays.toString(),
+    mfaRequiredRoles: settings.mfaRequiredRoles,
   };
 }
 
@@ -99,5 +105,6 @@ export function toPatch(values: SystemFormValues): SystemSettingsPatch {
     basemapTileUrl: orNull(values.basemapTileUrl),
     basemapAttribution: orNull(values.basemapAttribution),
     auditRetentionDays: Number(values.auditRetentionDays.trim()),
+    mfaRequiredRoles: values.mfaRequiredRoles,
   };
 }

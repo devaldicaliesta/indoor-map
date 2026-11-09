@@ -56,6 +56,7 @@ describe('pengaturan sistem', () => {
     basemap_tile_url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     basemap_attribution: '© OpenStreetMap contributors',
     audit_retention_days: 365,
+    mfa_required_roles: ['super_admin' as const, 'admin' as const],
     updated_at: '2026-09-29T08:00:00+00:00',
   };
 
@@ -71,6 +72,7 @@ describe('pengaturan sistem', () => {
       basemapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
       basemapAttribution: '© OpenStreetMap contributors',
       auditRetentionDays: 365,
+      mfaRequiredRoles: ['super_admin', 'admin'],
       updatedAt: '2026-09-29T08:00:00+00:00',
     });
   });
@@ -81,11 +83,13 @@ describe('pengaturan sistem', () => {
         publicVisitorUrl: null,
         defaultLanguage: 'en',
         auditRetentionDays: 90,
+        mfaRequiredRoles: [],
       }),
     ).toEqual({
       public_visitor_url: null,
       default_language: 'en',
       audit_retention_days: 90,
+      mfa_required_roles: [],
     });
   });
 });
