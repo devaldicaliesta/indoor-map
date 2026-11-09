@@ -45,6 +45,7 @@ export type {
   CheckinResult,
   FirstAdminInput,
   LicenseDetails,
+  LicenseHistoryEntry,
   LicenseRepository,
   LicenseState,
   LicenseStatus,
