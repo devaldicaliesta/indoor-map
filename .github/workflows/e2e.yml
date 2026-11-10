@@ -62,6 +62,10 @@ jobs:
       - name: Database dan akun seed
         run: pnpm db:reset
 
+      - name: Data demo (batas trial T-504 butuh minimal 300 lokasi)
+        if: ${{ matrix.name == 'license' }}
+        run: pnpm db:seed-demo
+
       - name: Browser Playwright
         run: pnpm --filter @indoor/e2e exec playwright install --with-deps chromium
 
