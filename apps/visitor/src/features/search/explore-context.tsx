@@ -1,10 +1,11 @@
 import {
-  createSnapshotSearch,
+  createSnapshotSearchFromPrepared,
   type DeepLink,
   type ExploreChip,
   type ExploreTarget,
   exploreChips,
   indexSnapshot,
+  prepareSnapshotSearch,
   type Snapshot,
   type SnapshotIndex,
   type SnapshotSearch,
@@ -16,12 +17,13 @@ import {
   type RoutePlace,
   type RoutePlan,
 } from '@indoor/routing';
-import { createContext, type ReactNode, use, useMemo, useState } from 'react';
+import { createContext, type ReactNode, use, useEffect, useMemo, useState } from 'react';
 import { type StoreApi, useStore } from 'zustand';
 import type { RouteGraphStatus } from '../../data/loadSnapshot';
 import { visitorRoute } from '../route/route-model';
 import { sharedState } from '../share/share-model';
 import { createExploreStore, type ExploreState } from './explore-store';
+import { getCachedSearchIndex, setCachedSearchIndex } from './search-cache';
 
 export interface ExploreData {
   snapshot: Snapshot;
@@ -83,9 +85,32 @@ export function ExploreProvider({
   children: ReactNode;
 }) {
   const index = useMemo(() => indexSnapshot(snapshot), [snapshot]);
-  const search = useMemo(() => createSnapshotSearch(snapshot), [snapshot]);
-  const chips = useMemo(() => exploreChips(snapshot), [snapshot]);
+  const [search, setSearch] = useState<SnapshotSearch>(() => () => []);
+  const [chips, setChips] = useState<ExploreChip[]>([]);
   const [store] = useState(() => createExploreStore(sharedState(snapshot, index, link)));
+
+  useEffect(() => {
+    let active = true;
+    async function loadSearch() {
+      const venueId = snapshot.venue.id;
+      const version = snapshot.version;
+      let prepared = await getCachedSearchIndex(venueId, version);
+      if (!prepared) {
+        prepared = prepareSnapshotSearch(snapshot);
+        await setCachedSearchIndex(venueId, version, prepared);
+      }
+      if (active) {
+        setSearch(() => createSnapshotSearchFromPrepared(prepared!));
+        setChips(exploreChips(snapshot));
+      }
+    }
+    // Tunda pembuatan daftar A-Z dan chip sampai peta tampil (memberi ruang untuk render utama)
+    const timer = setTimeout(loadSearch, 100);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [snapshot]);
   const routeSnapshot = route ? route.snapshot : snapshot;
   const routeStatus = route?.status ?? 'ready';
   const retryRoute = route?.retry ?? READY;
