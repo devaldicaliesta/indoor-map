@@ -64,6 +64,9 @@ test.describe
     test('tampil bawaan dan bergerak; tombol mematikan dan menyalakan lagi (2D dan 3D)', async ({
       page,
     }) => {
+      // Empat pasang tangkapan kanvas 2D/3D dengan peta dirender CPU di CI memakai ±115 detik,
+      // tepat di batas bawaan 120 detik.
+      test.setTimeout(240_000);
       await page.setViewportSize({ width: 1440, height: 900 });
       await open(page);
       const toggle = page.getByRole('button', { name: /Ilustrasi orang di peta/ });
