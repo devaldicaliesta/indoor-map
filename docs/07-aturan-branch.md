@@ -58,12 +58,12 @@ Task di luar daftar ini dikerjakan langsung di `develop`.
 
 | Workflow | Kapan | Isi |
 | --- | --- | --- |
-| CI (`ci.yml`) | PR, push `main`/`develop`/`production` | `pnpm check`, `pnpm build`; job Database: pgTAP, `database.types.ts` sesuai migrasi, `pnpm test:integration` |
-| E2E (`e2e.yml`) | PR (dilewati bila hanya dokumen), push `main`, manual | Playwright per proyek/shard; check ringkasan `E2E` |
-| Security (`security.yml`) | PR, push, mingguan | pnpm audit, pip-audit, gitleaks, Trivy |
+| CI (`ci.yml`) | PR, push `main`/`develop` | `pnpm check`, `pnpm build`; job Database: pgTAP, `database.types.ts` sesuai migrasi, `pnpm test:integration` |
+| E2E (`e2e.yml`) | PR ke `main` (dilewati bila hanya dokumen), push `main`, manual | Playwright per proyek/shard; check ringkasan `E2E` |
+| Security (`security.yml`) | PR, push `main`/`develop`, mingguan | pnpm audit, pip-audit, gitleaks, Trivy |
 | Rilis production (`release.yml`) | manual dari `main` | fast-forward `production` |
 | Graf graphify | push `main` | perbarui `graphify-out/` |
 
 Versi action diperbarui Dependabot (`.github/dependabot.yml`, bulanan, PR ke `develop`).
-Required status check yang disarankan untuk `develop` dan `main`: `check`,
-`Database (pgTAP, tipe, integrasi)`, `E2E`.
+Required status check yang disarankan untuk `develop`: `check` dan
+`Database (pgTAP, tipe, integrasi)`; untuk `main` ditambah `E2E`.

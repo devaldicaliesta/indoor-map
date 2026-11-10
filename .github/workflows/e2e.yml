@@ -4,10 +4,12 @@ name: E2E
 # berjalan di job sendiri dengan database sendiri, supaya paralel dan tidak saling mengubah
 # keadaan (proyek license mengubah lisensi instalasi untuk semua test).
 #
-# Push hanya ke main: perubahan develop sudah diuji lewat PR-nya (merge ref), dan production
-# hanya fast-forward dari main (commit yang sama).
+# Hanya PR ke main, push ke main, dan manual: satu putaran memakai ~180 menit runner, terlalu
+# mahal untuk setiap PR ke develop di kuota Actions repo private. Production hanya fast-forward
+# dari main (commit yang sama).
 on:
   pull_request:
+    branches: [main]
   push:
     branches: [main]
   workflow_dispatch:
