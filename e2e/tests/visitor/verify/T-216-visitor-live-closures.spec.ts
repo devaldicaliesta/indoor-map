@@ -10,6 +10,11 @@ test.describe('T-216 Visitor: penutupan live', () => {
     fullVenue,
     superAdmin,
   }) => {
+    // Di runner CI (peta dirender CPU) test ini memakai >100 detik: jam palsu plus animasi orang mini
+    // membuat tiap screenshot menunggu bingkai peta. Gerak dikurangi menghentikan gambar ulang tiap
+    // bingkai; topik test ini penutupan, bukan animasi.
+    test.setTimeout(240_000);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     const venueId = fullVenue.venueId as Venue['id'];
     await superAdmin.publications.publish(venueId);
     const snapshot = await superAdmin.snapshots.latestWithGraph(venueId);
