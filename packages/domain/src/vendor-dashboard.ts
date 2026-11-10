@@ -219,3 +219,31 @@ export function leadsCsv(leads: readonly TrialLead[], labels: LeadsCsvLabels, no
   });
   return toCsv([LEADS_CSV_HEADER, ...rows]);
 }
+
+// ---------------------------------------------------------------------------
+// Data Klien dan Instalasi (T-595a)
+// ---------------------------------------------------------------------------
+
+export interface VendorClient {
+  id: string;
+  name: string;
+  institution: string;
+  email: string;
+  phone: string | null;
+  createdAt: string;
+  installationsCount: number;
+}
+
+export interface VendorInstallation {
+  id: string;
+  clientId: string;
+  clientName: string;
+  instanceId: string;
+  name: string;
+  plan: string;
+  validFrom: string;
+  validUntil: string;
+  lastVersion: string | null;
+  lastCheckinAt: string | null;
+  createdAt: string;
+}

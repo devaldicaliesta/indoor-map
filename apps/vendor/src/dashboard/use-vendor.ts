@@ -20,6 +20,12 @@ export const useCapacity = () =>
 export const useBlocklist = () =>
   useQuery({ queryKey: keys.blocklist, queryFn: () => data.vendor.blocklist() });
 
+export const useClients = () =>
+  useQuery({ queryKey: ['vendor', 'clients'], queryFn: () => data.vendor.clients() });
+
+export const useInstallations = () =>
+  useQuery({ queryKey: ['vendor', 'installations'], queryFn: () => data.vendor.installations() });
+
 const failed = (error: unknown) =>
   toast.error(error instanceof Error ? error.message : 'Tindakan gagal. Coba lagi.');
 
