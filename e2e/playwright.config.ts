@@ -11,9 +11,11 @@ const projectArgs = args.flatMap((arg, i) =>
 );
 const onlyLanding = projectArgs.length > 0 && projectArgs.every((name) => name === 'landing');
 
+const devHost = CI ? ' --host ::' : '';
+
 const appServers = [
   {
-    command: 'pnpm --filter @indoor/admin dev',
+    command: `pnpm --filter @indoor/admin dev${devHost}`,
     url: env.adminUrl,
     // Tur halaman (T-599) tidak mulai sendiri di spec lain; spec tur menyalakannya per perangkat.
     env: { VITE_TOUR_AUTOSTART: 'off' },
@@ -21,14 +23,14 @@ const appServers = [
     timeout: 120_000,
   },
   {
-    command: 'pnpm --filter @indoor/visitor dev',
+    command: `pnpm --filter @indoor/visitor dev${devHost}`,
     url: env.visitorUrl,
     env: { VITE_TOUR_AUTOSTART: 'off' },
     reuseExistingServer: !CI,
     timeout: 120_000,
   },
   {
-    command: 'pnpm --filter @indoor/vendor dev',
+    command: `pnpm --filter @indoor/vendor dev${devHost}`,
     url: env.vendorUrl,
     reuseExistingServer: !CI,
     timeout: 120_000,
@@ -44,8 +46,9 @@ export default defineConfig({
   // bukan disembunyikan: test itu tetap harus diperbaiki.
   retries: CI ? 1 : 0,
   workers: CI ? 1 : '50%',
-  timeout: 60_000,
-  expect: { timeout: 10_000 },
+  // Runner GitHub merender WebGL dengan CPU (SwiftShader), jauh lebih lambat dari laptop.
+  timeout: CI ? 120_000 : 60_000,
+  expect: { timeout: CI ? 20_000 : 10_000 },
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
@@ -58,8 +61,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    actionTimeout: 10_000,
-    navigationTimeout: 30_000,
+    actionTimeout: CI ? 30_000 : 10_000,
+    navigationTimeout: CI ? 60_000 : 30_000,
   },
   projects: [
     {

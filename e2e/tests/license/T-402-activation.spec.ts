@@ -85,6 +85,7 @@ test.describe('T-402 Aktivasi lisensi', () => {
     releaseLicense();
     await loginAs('super_admin');
     await expect(page).toHaveURL(/\/aktivasi$/);
+    await page.getByRole('tab', { name: 'Kunci lisensi' }).click();
     await page.getByRole('textbox', { name: 'Kunci lisensi' }).fill('KUNCI-PALSU');
     await page.getByRole('button', { name: 'Aktifkan' }).click();
     await expect(page.getByText(/Kunci lisensi tidak dikenal/)).toBeVisible();

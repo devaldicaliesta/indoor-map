@@ -10,6 +10,11 @@ test.describe('T-216 Visitor: penutupan live', () => {
     fullVenue,
     superAdmin,
   }) => {
+    // Di runner CI (peta dirender CPU) test ini memakai >100 detik: jam palsu plus animasi orang mini
+    // membuat tiap screenshot menunggu bingkai peta. Gerak dikurangi menghentikan gambar ulang tiap
+    // bingkai; topik test ini penutupan, bukan animasi.
+    test.setTimeout(240_000);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     const venueId = fullVenue.venueId as Venue['id'];
     await superAdmin.publications.publish(venueId);
     const snapshot = await superAdmin.snapshots.latestWithGraph(venueId);
@@ -30,7 +35,7 @@ test.describe('T-216 Visitor: penutupan live', () => {
     await visitor.profile.getByRole('button', { name: 'Saya di sini' }).click();
     await route.getByRole('checkbox', { name: /Rute aksesibel/ }).check();
     await expect(steps.filter({ hasText: /lift/i })).toHaveCount(1);
-    await page.screenshot({ path: shot('01-rute-lewat-lift') });
+    await page.screenshot({ path: shot('01-rute-lewat-lift'), timeout: 90_000 });
 
     // Admin menutup lift; Visitor tidak dimuat ulang.
     const closure = await superAdmin.closures.create(venueId, {
@@ -44,13 +49,13 @@ test.describe('T-216 Visitor: penutupan live', () => {
     await expect(alert).toBeVisible({ timeout: 15_000 });
     await expect(route).toContainText('Perawatan lift');
     await expect(steps).toHaveCount(0);
-    await page.screenshot({ path: shot('02-lift-ditutup-live') });
+    await page.screenshot({ path: shot('02-lift-ditutup-live'), timeout: 90_000 });
 
     // Penutupan diakhiri: rute lewat lift kembali tanpa muat ulang.
     await superAdmin.closures.setEndsAt(closure.id, new Date().toISOString());
     await page.clock.fastForward('01:05');
     await expect(steps.filter({ hasText: /lift/i })).toHaveCount(1, { timeout: 15_000 });
     await expect(alert).toBeHidden();
-    await page.screenshot({ path: shot('03-penutupan-berakhir') });
+    await page.screenshot({ path: shot('03-penutupan-berakhir'), timeout: 90_000 });
   });
 });
