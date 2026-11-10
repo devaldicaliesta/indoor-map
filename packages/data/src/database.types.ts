@@ -2038,6 +2038,34 @@ export type Database = {
         }[];
       };
       vendor_capacity: { Args: Record<PropertyKey, never>; Returns: number };
+      vendor_clients: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          id: string;
+          name: string;
+          institution: string;
+          email: string;
+          phone: string | null;
+          created_at: string;
+          installations_count: number;
+        }[];
+      };
+      vendor_installations: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          id: string;
+          client_id: string;
+          client_name: string;
+          instance_id: string;
+          name: string;
+          plan: string;
+          valid_from: string;
+          valid_until: string;
+          last_version: string | null;
+          last_checkin_at: string | null;
+          created_at: string;
+        }[];
+      };
       vendor_requests: {
         Args: Record<PropertyKey, never>;
         Returns: {
