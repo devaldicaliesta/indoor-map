@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { CSV_LABELS } from '../copy';
 import { useIdleSignOut } from '../idle-sign-out';
 import { BlocklistPanel } from './blocklist-panel';
+import { ClientsPanel } from './clients-panel';
 import { LeadsTable } from './leads-table';
 import { Summary } from './summary';
 import { type DialogTarget, TrialDialog } from './trial-dialogs';
@@ -65,62 +66,75 @@ export function DashboardPage({
         </Button>
       </header>
       <main className="mx-auto grid max-w-7xl gap-8 p-4 md:p-6">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="grid gap-1">
-            <h1 className="font-bold text-2xl">Trial ter-hosting</h1>
-            <p className="text-ink-muted">Kapasitas, trial berjalan, dan leads calon klien.</p>
-          </div>
-          <div className="ml-auto flex gap-2">
-            <Button size="sm" onClick={() => void leads.refetch()} disabled={leads.isFetching}>
-              <RefreshCwIcon aria-hidden="true" /> Muat ulang
-            </Button>
-            <Button
-              size="sm"
-              variant="primary"
-              disabled={!leads.data}
-              onClick={() => leads.data && downloadCsv(leads.data, Date.now())}
-            >
-              <DownloadIcon aria-hidden="true" /> Ekspor leads (CSV)
-            </Button>
-          </div>
-        </div>
+        <Tabs defaultValue="trial">
+          <TabsList className="mb-8">
+            <TabsTrigger value="trial">Trial ter-hosting</TabsTrigger>
+            <TabsTrigger value="clients">Klien & Instalasi</TabsTrigger>
+          </TabsList>
 
-        {leads.isError ? (
-          <p role="alert" className="border-danger border-l-4 bg-surface py-2 pl-3 text-danger">
-            {leads.error instanceof Error ? leads.error.message : 'Leads tidak bisa dimuat.'}
-          </p>
-        ) : null}
-        {leads.data && capacity.data !== undefined ? (
-          <Summary summary={summarizeLeads(leads.data, capacity.data)} />
-        ) : (
-          <Skeleton className="h-24" />
-        )}
+          <TabsContent value="trial" className="grid gap-8">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="grid gap-1">
+                <h1 className="font-bold text-2xl">Trial ter-hosting</h1>
+                <p className="text-ink-muted">Kapasitas, trial berjalan, dan leads calon klien.</p>
+              </div>
+              <div className="ml-auto flex gap-2">
+                <Button size="sm" onClick={() => void leads.refetch()} disabled={leads.isFetching}>
+                  <RefreshCwIcon aria-hidden="true" /> Muat ulang
+                </Button>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  disabled={!leads.data}
+                  onClick={() => leads.data && downloadCsv(leads.data, Date.now())}
+                >
+                  <DownloadIcon aria-hidden="true" /> Ekspor leads (CSV)
+                </Button>
+              </div>
+            </div>
 
-        {leads.data ? (
-          <Tabs defaultValue="active">
-            <TabsList className="overflow-x-auto">
-              {TABS.map((tab) => (
-                <TabsTrigger key={tab.id} value={tab.id}>
-                  {tab.label} ({filter(leads.data, tab.stages, now).length})
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {TABS.map((tab) => (
-              <TabsContent key={tab.id} value={tab.id}>
-                <LeadsTable
-                  leads={filter(leads.data, tab.stages, now)}
-                  now={now}
-                  empty={tab.empty}
-                  onAction={setTarget}
-                />
-              </TabsContent>
-            ))}
-          </Tabs>
-        ) : (
-          <Skeleton className="h-64" />
-        )}
+            {leads.isError ? (
+              <p role="alert" className="border-danger border-l-4 bg-surface py-2 pl-3 text-danger">
+                {leads.error instanceof Error ? leads.error.message : 'Leads tidak bisa dimuat.'}
+              </p>
+            ) : null}
+            {leads.data && capacity.data !== undefined ? (
+              <Summary summary={summarizeLeads(leads.data, capacity.data)} />
+            ) : (
+              <Skeleton className="h-24" />
+            )}
 
-        <BlocklistPanel />
+            {leads.data ? (
+              <Tabs defaultValue="active">
+                <TabsList className="overflow-x-auto">
+                  {TABS.map((tab) => (
+                    <TabsTrigger key={tab.id} value={tab.id}>
+                      {tab.label} ({filter(leads.data, tab.stages, now).length})
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                {TABS.map((tab) => (
+                  <TabsContent key={tab.id} value={tab.id}>
+                    <LeadsTable
+                      leads={filter(leads.data, tab.stages, now)}
+                      now={now}
+                      empty={tab.empty}
+                      onAction={setTarget}
+                    />
+                  </TabsContent>
+                ))}
+              </Tabs>
+            ) : (
+              <Skeleton className="h-64" />
+            )}
+
+            <BlocklistPanel />
+          </TabsContent>
+
+          <TabsContent value="clients">
+            <ClientsPanel />
+          </TabsContent>
+        </Tabs>
       </main>
       <TrialDialog
         target={target}
