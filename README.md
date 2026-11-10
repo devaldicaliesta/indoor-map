@@ -28,7 +28,8 @@
 <p align="center">
   <a href="https://youtu.be/pSLm7RZvioE"><b>🎬 Video demo</b></a> ·
   <a href="https://drive.google.com/drive/folders/1fAwisU3IpBYeNKnXQmyUKZD4KD9qyPXW?usp=sharing"><b>🎞️ Pitch deck</b></a> ·
-  <a href="https://drive.google.com/file/d/1dddGov9Tze6_D4WmzuM0Ql6P9N-5iVlS/view?usp=sharing"><b>🎥 Video tur teknis</b></a>
+  <a href="https://drive.google.com/file/d/1dddGov9Tze6_D4WmzuM0Ql6P9N-5iVlS/view?usp=sharing"><b>🎥 Video tur teknis</b></a> ·
+  <a href="HACKATHON.md"><b>🏆 Submission hackathon</b></a>
 </p>
 
 ---
