@@ -1,0 +1,167 @@
+name: E2E
+
+# Test end-to-end Playwright (e2e/README.md) di atas Supabase lokal. Tiap proyek Playwright
+# berjalan di job sendiri dengan database sendiri, supaya paralel dan tidak saling mengubah
+# keadaan (proyek license mengubah lisensi instalasi untuk semua test).
+#
+# Push hanya ke main: perubahan develop sudah diuji lewat PR-nya (merge ref), dan production
+# hanya fast-forward dari main (commit yang sama).
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # PR yang hanya mengubah dokumen tidak perlu ~90 menit runner E2E. Disaring di job, bukan
+  # paths-ignore, supaya check "E2E" tetap melapor (required check tidak menggantung).
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "${{ github.event_name }}" != 'pull_request' ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          code=$(git diff --name-only "$BASE...HEAD" \
+            | grep -vE '^(docs/|graphify-out/|e2e/evidence/)|\.md$' | head -1 || true)
+          echo "code=$([ -n "$code" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  e2e:
+    name: E2E (${{ matrix.name }})
+    needs: changes
+    if: ${{ needs.changes.outputs.code == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: landing
+            args: --project=landing
+          # Admin dan visitor dibagi shard (satu worker per job karena database dipakai bersama;
+          # tanpa shard keduanya 22–25 menit, paling lama di antara semua job).
+          - name: visitor-1
+            args: --project=visitor --project=visitor-nowebgl --shard=1/2
+          - name: visitor-2
+            args: --project=visitor --project=visitor-nowebgl --shard=2/2
+          - name: vendor
+            args: --project=vendor
+          - name: admin-1
+            args: --project=admin --shard=1/3
+          - name: admin-2
+            args: --project=admin --shard=2/3
+          - name: admin-3
+            args: --project=admin --shard=3/3
+          - name: license
+            args: --project=license --no-deps --grep-invert T-504
+          # Batas trial butuh data demo (≥ 300 lokasi), tetapi data itu melebihi kuota lisensi
+          # test lisensi lain (3–5 venue), jadi dijalankan terpisah.
+          - name: license-trial
+            args: --project=license --no-deps --grep T-504
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Supabase lokal
+        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+
+      - name: Environment E2E
+        run: |
+          anon=$(pnpm exec supabase status -o env | sed -n 's/^ANON_KEY="\{0,1\}\([^"]*\)"\{0,1\}$/\1/p')
+          test -n "$anon"
+          password=$(openssl rand -hex 16)
+          echo "::add-mask::$password"
+          {
+            echo "SEED_ADMIN_PASSWORD=$password"
+            echo "VITE_SUPABASE_URL=http://127.0.0.1:54321"
+            echo "VITE_SUPABASE_ANON_KEY=$anon"
+          } > .env.local
+
+      - name: Database dan akun seed
+        run: pnpm db:reset
+
+      - name: Data demo (batas trial T-504 butuh minimal 300 lokasi)
+        if: ${{ matrix.name == 'license-trial' }}
+        run: pnpm db:seed-demo
+
+      - name: Versi Playwright
+        id: pw
+        run: echo "version=$(pnpm --filter @indoor/e2e exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - name: Browser Playwright
+        if: ${{ steps.pw-cache.outputs.cache-hit != 'true' }}
+        run: pnpm --filter @indoor/e2e exec playwright install --with-deps chromium
+      - name: Dependensi sistem Chromium
+        if: ${{ steps.pw-cache.outputs.cache-hit == 'true' }}
+        run: pnpm --filter @indoor/e2e exec playwright install-deps chromium
+
+      - name: Test E2E
+        run: pnpm test:e2e -- ${{ matrix.args }}
+
+      - name: Ringkasan hasil
+        if: ${{ !cancelled() }}
+        run: |
+          report=e2e/test-results/junit.xml
+          if [ -f "$report" ]; then
+            tests=$(grep -o '<testsuites [^>]*' "$report" | sed -n 's/.*tests="\([0-9]*\)".*/\1/p')
+            failures=$(grep -o '<testsuites [^>]*' "$report" | sed -n 's/.*failures="\([0-9]*\)".*/\1/p')
+            skipped=$(grep -o '<testsuites [^>]*' "$report" | sed -n 's/.*skipped="\([0-9]*\)".*/\1/p')
+            echo "### E2E ${{ matrix.name }}: ${tests:-?} test, ${failures:-?} gagal, ${skipped:-?} dilewati" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### E2E ${{ matrix.name }}: laporan tidak dibuat (cek log langkah sebelumnya)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Unggah laporan dan artefak kegagalan
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-${{ matrix.name }}
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Log Supabase saat gagal
+        if: ${{ failure() }}
+        run: docker ps -a --format '{{.Names}} {{.Status}}'
+
+  # Satu check untuk branch protection, menggantikan sembilan nama job matriks.
+  result:
+    name: E2E
+    needs: [changes, e2e]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          CHANGES: ${{ needs.changes.result }}
+          E2E: ${{ needs.e2e.result }}
+        run: |
+          echo "changes=$CHANGES e2e=$E2E"
+          [ "$CHANGES" = success ] && { [ "$E2E" = success ] || [ "$E2E" = skipped ]; }

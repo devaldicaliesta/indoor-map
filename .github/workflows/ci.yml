@@ -15,6 +15,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -25,3 +26,40 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm build
+
+  # Otorisasi ada di database (RLS, fungsi SQL), jadi test-nya wajib jalan di setiap PR, bukan
+  # hanya di mesin pengembang: pgTAP, tipe hasil generate, dan test integrasi lewat repository.
+  database:
+    name: Database (pgTAP, tipe, integrasi)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Supabase lokal
+        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+
+      - name: Database dan akun seed
+        run: |
+          password=$(openssl rand -hex 16)
+          echo "::add-mask::$password"
+          echo "SEED_ADMIN_PASSWORD=$password" > .env.local
+          pnpm db:reset
+
+      - name: pgTAP
+        run: pnpm exec supabase test db
+
+      - name: Tipe database sesuai skema
+        run: |
+          pnpm db:types
+          git diff --exit-code packages/data/src/database.types.ts \
+            || { echo "::error::database.types.ts tidak sesuai migrasi; jalankan pnpm db:types."; exit 1; }
+
+      - name: Test integrasi
+        run: pnpm test:integration

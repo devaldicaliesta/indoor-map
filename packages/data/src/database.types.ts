@@ -2041,29 +2041,29 @@ export type Database = {
       vendor_clients: {
         Args: Record<PropertyKey, never>;
         Returns: {
-          id: string;
-          name: string;
-          institution: string;
-          email: string;
-          phone: string | null;
           created_at: string;
+          email: string;
+          id: string;
           installations_count: number;
+          institution: string;
+          name: string;
+          phone: string;
         }[];
       };
       vendor_installations: {
         Args: Record<PropertyKey, never>;
         Returns: {
-          id: string;
           client_id: string;
           client_name: string;
+          created_at: string;
+          id: string;
           instance_id: string;
+          last_checkin_at: string;
+          last_version: string;
           name: string;
           plan: string;
           valid_from: string;
           valid_until: string;
-          last_version: string | null;
-          last_checkin_at: string | null;
-          created_at: string;
         }[];
       };
       vendor_requests: {
