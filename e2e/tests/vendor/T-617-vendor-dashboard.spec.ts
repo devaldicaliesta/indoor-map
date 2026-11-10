@@ -120,6 +120,8 @@ test.describe('T-617 Dasbor vendor', () => {
     await expect(entry).toContainText('Pendaftaran berulang');
     await entry.scrollIntoViewIfNeeded();
     await page.screenshot({ path: shot('05-daftar-blokir'), fullPage: true });
+    await page.mouse.move(0, 0);
+    await expect(page.getByText(`spam-${fixture.tag}.co.id diblokir.`)).toBeHidden();
     await entry.getByRole('button', { name: 'Buka blokir' }).click();
     await expect(entry).toHaveCount(0);
 
