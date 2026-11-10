@@ -114,6 +114,19 @@ Rencana, tanpa menurunkan target:
    - simpan indeks pencarian hasil olahan di IndexedDB per versi snapshot;
    - tunda pembuatan daftar A–Z dan chip sampai peta tampil.
 
+## Tindak lanjut kunjungan ulang (T-513)
+
+Langkah 2 task T-513 sudah ada di kode:
+
+- **Cache indeks pencarian.** Hasil olahan indeks disimpan di IndexedDB per gedung dan versi snapshot (`apps/visitor/src/features/search/search-cache.ts`), sehingga kunjungan ulang tidak membangun ulang indeks.
+- **Penundaan chip dan daftar A–Z.** `ExploreProvider` membangun pencarian dan chip setelah render utama (`apps/visitor/src/features/search/explore-context.tsx`), agar peta tampil lebih dulu.
+
+Belum dikerjakan, karena butuh perangkat fisik dan penguji manusia:
+
+1. Angka kunjungan ulang di HP Android kelas menengah sungguhan (remote debugging, `tests/perf/specs/visitor.perf.ts`). Belum ada angka baru setelah dua perubahan di atas, jadi selisih terhadap 1,5 s di bagian Muat awal belum bisa dinyatakan terpenuhi.
+2. Uji manual daftar periksa `tests/perf/specs/compat.compat.ts` di Firefox, Edge, Safari macOS, iOS 15, dan Android 10.
+3. Bukti di `e2e/evidence/T-513/`.
+
 ## Uji beban (k6, `tests/perf/k6/load.js`)
 
 Skenario:

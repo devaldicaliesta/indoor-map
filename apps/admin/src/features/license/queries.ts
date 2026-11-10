@@ -105,6 +105,10 @@ export function useLicenseDetails() {
   return useQuery({ queryKey: ['license', 'details'], queryFn: () => data.license.details() });
 }
 
+export function useLicenseHistory() {
+  return useQuery({ queryKey: ['license', 'history'], queryFn: () => data.license.history() });
+}
+
 export function useCheckIn() {
   const queryClient = useQueryClient();
   return useMutation({

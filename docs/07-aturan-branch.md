@@ -48,5 +48,22 @@ Task di luar daftar ini dikerjakan langsung di `develop`.
 ## Rilis ke production
 
 1. PR `develop` → `main`, CI hijau, merge.
-2. `git checkout production && git merge --ff-only origin/main && git push origin production`.
-3. Cloudflare Pages membangun ulang otomatis dari `production`.
+2. Tunggu workflow CI, E2E, dan Security pada push ke `main` selesai hijau.
+3. Actions → **Rilis production** → Run workflow (branch `main`). Workflow menolak bila salah satu
+   dari tiga workflow itu belum hijau untuk commit `main`, lalu fast-forward `production` ke
+   `main`. Cadangan manual: `git checkout production && git merge --ff-only origin/main && git push origin production`.
+4. Cloudflare Pages membangun ulang otomatis dari `production`.
+
+## CI
+
+| Workflow | Kapan | Isi |
+| --- | --- | --- |
+| CI (`ci.yml`) | PR, push `main`/`develop`/`production` | `pnpm check`, `pnpm build`; job Database: pgTAP, `database.types.ts` sesuai migrasi, `pnpm test:integration` |
+| E2E (`e2e.yml`) | PR (dilewati bila hanya dokumen), push `main`, manual | Playwright per proyek/shard; check ringkasan `E2E` |
+| Security (`security.yml`) | PR, push, mingguan | pnpm audit, pip-audit, gitleaks, Trivy |
+| Rilis production (`release.yml`) | manual dari `main` | fast-forward `production` |
+| Graf graphify | push `main` | perbarui `graphify-out/` |
+
+Versi action diperbarui Dependabot (`.github/dependabot.yml`, bulanan, PR ke `develop`).
+Required status check yang disarankan untuk `develop` dan `main`: `check`,
+`Database (pgTAP, tipe, integrasi)`, `E2E`.

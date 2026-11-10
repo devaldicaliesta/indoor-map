@@ -19,6 +19,28 @@ Artefak test yang gagal (screenshot, video, trace) ada di `e2e/test-results/`, l
 
 Tur halaman (T-599) tidak mulai sendiri di server dev yang dijalankan Playwright (`VITE_TOUR_AUTOSTART=off`). Bila memakai server dev sendiri (`reuseExistingServer`), isi `VITE_TOUR_AUTOSTART=off` di `.env.local` agar tur tidak menutupi halaman di spec lain.
 
+## CI
+
+Workflow `.github/workflows/e2e.yml` menjalankan semua spec di GitHub Actions pada pull request, push ke `main`, dan manual. PR yang hanya mengubah dokumen (`docs/`, `*.md`, `graphify-out/`, `e2e/evidence/`) melewati job E2E. Browser Chromium di-cache per versi Playwright. Tiap proyek Playwright berjalan di job sendiri dengan Supabase lokal sendiri (`supabase start`), akun seed dari password acak per job (`pnpm db:reset`), dan Chromium dari `playwright install --with-deps chromium`:
+
+| Job | Proyek Playwright |
+| --- | --- |
+| landing | `landing` |
+| visitor-1, visitor-2 | `visitor`, `visitor-nowebgl`, dibagi 2 shard |
+| vendor | `vendor` |
+| admin-1, admin-2, admin-3 | `admin`, dibagi 3 shard |
+| license | `license` kecuali T-504 (`--no-deps`, serial), seed dasar |
+| license-trial | `license` hanya T-504; ditambah `pnpm db:seed-demo` karena batas trial butuh ≥ 300 lokasi, sedangkan data demo melebihi kuota lisensi test lain |
+
+Hasil:
+
+- Ringkasan jumlah test, gagal, dan dilewati ada di halaman ringkasan tiap job.
+- Laporan HTML, screenshot, video, dan trace kegagalan diunggah sebagai artefak `e2e-<job>` (14 hari). Unduh lalu jalankan `pnpm --filter @indoor/e2e exec playwright show-report <folder>`, atau `playwright show-trace <trace.zip>`.
+- Satu percobaan ulang di CI: test yang lulus pada percobaan kedua tercatat "flaky" di laporan.
+- `cad-floor-plan.spec.ts` dilewati di CI karena layanan `cad-converter` tidak dijalankan (`VITE_CAD_CONVERTER_URL` kosong).
+
+Agar E2E menahan merge, jadikan check `E2E` (job ringkasan yang gagal bila salah satu job matriks gagal) required status check di branch protection `develop` dan `main`, bersama `check` dan `Database (pgTAP, tipe, integrasi)` dari workflow CI.
+
 ## Isi
 
 | Test | Yang dibuktikan |
@@ -34,6 +56,9 @@ Tur halaman (T-599) tidak mulai sendiri di server dev yang dijalankan Playwright
 | `tests/admin/f2/T-601-account-data.spec.ts` | Super Admin mengekspor data akun Editor (berkas JSON berisi akun) lalu menghapusnya setelah mengetik ulang email; akun tidak bisa masuk lagi; Log audit mencatat "Data akun diekspor" dan "Akun dihapus" tanpa email; masa simpan log audit 7 hari ditolak, 90 hari tersimpan dan tercatat |
 | `tests/admin/f2/T-599-tour.spec.ts` | Tur halaman Lokasi: mulai sendiri sekali untuk akun baru, panah/Tab/Esc dan kontras AA, status tersimpan di server sehingga tidak muncul lagi di browser lain, diulang lewat "Tur halaman", Viewer tanpa langkah tombol tulis, tabel kosong melewati langkah pagination |
 | `tests/visitor/f2/T-599-tour.spec.ts` | Tur Visitor HP berbahasa Inggris (sheet dibuka setengah sebelum langkah chip, tidak muncul lagi, penyimpanan diblokir tidak berulang), driver.js belum diunduh sebelum tur dimulai, Info Point tidak memulai tur sendiri dan tur tertutup saat idle |
+| `tests/license/f2/T-592-admin-mfa.spec.ts` | Proyek `license` (serial, karena kewajiban 2FA per role berlaku global): Super Admin mewajibkan 2FA untuk Editor (role sendiri ditolak tanpa 2FA); Editor undangan memasang TOTP sungguhan (kode salah ditolak), menyimpan 10 kode cadangan, masuk lagi tanpa kode tidak membuka Admin, kode cadangan melepas aplikasi lama lalu dipakai ulang ditolak; Keamanan akun tanpa tombol Matikan untuk role wajib; Super Admin mereset 2FA dari Pengguna, tercatat "2FA direset" di Log audit, dan pengguna diminta memasang aplikasi baru |
+| `tests/license/f2/T-597-system-health.spec.ts` | Proyek `license` (serial, karena keadaan server dan email peringatan berlaku untuk seluruh instalasi): laporan agen dan hasil backup ditulis lewat fungsi yang sama dengan `deploy/health-report.sh`/`backup.sh`; satu backup gagal belum peringatan, dua kali berturut-turut + disk 90% + sertifikat 10 hari tampil di Kesehatan sistem dan mengirim 3 email ke Super Admin (Mailpit), laporan berikutnya tidak mengirim ulang, pulih menormalkan halaman; Admin, Editor, Operator, Viewer, dan tamu ditolak membaca |
+| `tests/license/f2/T-598-notifications.spec.ts` | Proyek `license` (serial; lisensi instalasi dan email akun seed): Editor undangan mematikan email "Peta diterbitkan" dari menu akun; publish venue mengirim email ke Editor lain (bukan pelaku, bukan yang mematikan) dengan tautan berhenti berlangganan; tautan dibuka tanpa login, konfirmasi, langganan berhenti dan publish berikutnya tidak terkirim; pengingat lisensi dengan jam palsu: H-30, H-7, H-1 masing-masing sekali |
 | `tests/vendor/T-617-vendor-dashboard.spec.ts` | Dasbor vendor (`pnpm --filter @indoor/vendor dev`, port 5176): staf vendor memasang 2FA TOTP sungguhan, lalu perpanjang, kunci, hapus (lewat Edge Function `trial-lifecycle`), ekspor leads CSV, daftar blokir, masuk ulang dengan kode, keluar otomatis; akun bukan staf ditolak |
 
 Setiap test membuat venue uji sendiri (`E2E …`) lewat fixture dan menghapusnya di akhir.

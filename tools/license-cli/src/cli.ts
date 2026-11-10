@@ -69,9 +69,6 @@ async function keygen(outDir: string): Promise<string> {
     );
   }
   const privatePath = join(target, PRIVATE_KEY_FILE);
-  if (existsSync(privatePath)) {
-    throw new CliError(`${privatePath} sudah ada; kunci lama tidak ditimpa.`);
-  }
   const keys = (await crypto.subtle.generateKey({ name: 'Ed25519' }, true, [
     'sign',
     'verify',
@@ -81,7 +78,16 @@ async function keygen(outDir: string): Promise<string> {
   );
   const publicKey = toBase64(new Uint8Array(await crypto.subtle.exportKey('raw', keys.publicKey)));
   mkdirSync(target, { recursive: true, mode: 0o700 });
-  writeFileSync(privatePath, `${privateKey}\n`, { mode: 0o600 });
+  // `wx` membuat berkas secara eksklusif: kunci lama tidak pernah ditimpa, tanpa celah waktu
+  // antara "cek ada atau tidak" dan "tulis" (race).
+  try {
+    writeFileSync(privatePath, `${privateKey}\n`, { mode: 0o600, flag: 'wx' });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+      throw new CliError(`${privatePath} sudah ada; kunci lama tidak ditimpa.`);
+    }
+    throw error;
+  }
   chmodSync(privatePath, 0o600);
   writeFileSync(join(target, PUBLIC_KEY_FILE), `${publicKey}\n`);
   return publicKey;

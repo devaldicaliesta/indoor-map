@@ -73,10 +73,20 @@ def make_handler(allowed_origins: set[str], check_token: TokenCheck | None):
     class Handler(BaseHTTPRequestHandler):
         server_version = "cad-converter"
 
-        def _cors(self) -> None:
+        def _allowed_origin(self) -> str | None:
+            # Header ditulis dari nilai konfigurasi, tidak pernah dari header permintaan, agar
+            # nilai Origin dari klien tidak bisa menyisipkan header lain (response splitting).
             origin = self.headers.get("Origin", "")
-            if origin and ("*" in allowed_origins or origin in allowed_origins):
-                self.send_header("Access-Control-Allow-Origin", origin)
+            if not origin:
+                return None
+            if "*" in allowed_origins:
+                return "*"
+            return next((allowed for allowed in allowed_origins if allowed == origin), None)
+
+        def _cors(self) -> None:
+            allowed = self._allowed_origin()
+            if allowed is not None:
+                self.send_header("Access-Control-Allow-Origin", allowed)
                 self.send_header("Vary", "Origin")
                 self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
                 self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")

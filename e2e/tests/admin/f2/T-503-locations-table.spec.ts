@@ -213,7 +213,7 @@ test.describe('T-503 Tabel Lokasi 2.000 baris (disaring di server)', () => {
       for (const [name, ms] of timings) expect(ms, name).toBeLessThan(2 * LIMIT_MS);
     } finally {
       await superAdmin.venues.remove(venue.venueId as Venue['id']);
-      await db.auth.signOut();
+      await db.auth.signOut({ scope: 'local' });
     }
   });
 });

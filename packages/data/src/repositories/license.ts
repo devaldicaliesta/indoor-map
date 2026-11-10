@@ -64,6 +64,17 @@ export interface LicenseDetails {
   checkinError: string | null;
 }
 
+/** Satu baris riwayat lisensi: yang berlaku sekarang dan yang pernah dipasang. */
+export interface LicenseHistoryEntry {
+  id: string;
+  licenseId: string;
+  client: string;
+  plan: string;
+  source: LicenseDetails['source'];
+  activatedAt: string;
+  isCurrent: boolean;
+}
+
 export interface FirstAdminInput {
   fullName: string;
   email: string;
@@ -103,6 +114,8 @@ export interface LicenseRepository {
   limits(): Promise<LicenseLimits>;
   /** Lisensi berlaku beserta keadaan check-in; `null` tanpa lisensi. Hanya Super Admin. */
   details(): Promise<LicenseDetails | null>;
+  /** Semua lisensi yang pernah dipasang, terbaru dulu. Hanya Super Admin. */
+  history(): Promise<LicenseHistoryEntry[]>;
   /** Fitur berbayar yang dibuka lisensi berlaku. */
   features(): Promise<PaidFeature[]>;
   /** Tanggal berakhir lisensi berlaku untuk banner pengingat; `null` tanpa lisensi. */
@@ -235,6 +248,30 @@ export function createLicenseRepository(db: Db): LicenseRepository {
         lastCheckinAt: installation.data.last_checkin_at,
         checkinError: installation.data.checkin_error,
       };
+    },
+
+    async history() {
+      const { data, error } = await db
+        .from('licenses')
+        .select('id, license_id, payload, source, activated_at, is_current')
+        .order('activated_at', { ascending: false });
+      if (error) throw toDataError(error);
+      return data.flatMap((row) => {
+        // Baris yang isinya tak terbaca dilewati agar satu baris rusak tidak menutup riwayat.
+        const payload = readLicensePayload(row.payload);
+        if (!payload) return [];
+        return [
+          {
+            id: row.id,
+            licenseId: row.license_id,
+            client: payload.client,
+            plan: payload.plan,
+            source: row.source,
+            activatedAt: row.activated_at,
+            isCurrent: row.is_current,
+          },
+        ];
+      });
     },
 
     async checkIn() {

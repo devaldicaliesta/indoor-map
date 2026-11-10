@@ -41,20 +41,38 @@ async function callerFromToken(authorization: string): Promise<Caller | null> {
   return user.id && user.email ? { id: user.id, email: user.email } : null;
 }
 
-async function isActiveSuperAdmin(userId: string): Promise<boolean> {
+/**
+ * Sesi pemanggil memenuhi wajib 2FA (0059). Profil dibaca dengan service role, yang tidak melihat
+ * tingkat sesi, jadi tanpa pemeriksaan ini password saja cukup untuk fungsi Super Admin.
+ */
+async function sessionPassesMfa(authorization: string): Promise<boolean> {
+  const response = await fetch(`${url}/rest/v1/rpc/mfa_status`, {
+    method: 'POST',
+    headers: callerHeaders(authorization),
+    body: '{}',
+  });
+  if (!response.ok) return false;
+  const [status] = (await response.json()) as { satisfied: boolean }[];
+  return status?.satisfied === true;
+}
+
+async function isActiveSuperAdmin(userId: string, authorization: string): Promise<boolean> {
   const response = await fetch(
     `${url}/rest/v1/profiles?select=role,is_active&user_id=eq.${encodeURIComponent(userId)}`,
     { headers: serviceHeaders },
   );
   if (!response.ok) return false;
   const [profile] = (await response.json()) as { role: string; is_active: boolean }[];
-  return profile?.role === 'super_admin' && profile.is_active;
+  return (
+    profile?.role === 'super_admin' && profile.is_active && (await sessionPassesMfa(authorization))
+  );
 }
 
 /** Pemanggil bila Super Admin aktif; `null` untuk tamu, sesi tidak sah, atau role lain. */
 export async function activeSuperAdmin(request: Request): Promise<Caller | null> {
-  const caller = await callerFromToken(request.headers.get('Authorization') ?? '');
-  return caller && (await isActiveSuperAdmin(caller.id)) ? caller : null;
+  const authorization = request.headers.get('Authorization') ?? '';
+  const caller = await callerFromToken(authorization);
+  return caller && (await isActiveSuperAdmin(caller.id, authorization)) ? caller : null;
 }
 
 /** Header REST atas nama pemanggil: RLS dan fungsi SQL melihat identitas pengguna itu. */
@@ -73,9 +91,10 @@ export async function requireSuperAdmin(
   request: Request,
   action: string,
 ): Promise<Caller | Response> {
-  const caller = await callerFromToken(request.headers.get('Authorization') ?? '');
+  const authorization = request.headers.get('Authorization') ?? '';
+  const caller = await callerFromToken(authorization);
   if (!caller) return fail(401, 'forbidden', 'Sesi tidak berlaku. Silakan masuk lagi.');
-  if (!(await isActiveSuperAdmin(caller.id))) {
+  if (!(await isActiveSuperAdmin(caller.id, authorization))) {
     return fail(403, 'forbidden', `Hanya Super Admin yang bisa ${action}.`);
   }
   return caller;

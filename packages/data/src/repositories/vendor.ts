@@ -51,6 +51,8 @@ export interface VendorRepository {
    * yang sudah jatuh tempo, sehingga aman dipanggil kapan saja.
    */
   runLifecycle(): Promise<LifecycleRun>;
+  clients(): Promise<import('@indoor/domain').VendorClient[]>;
+  installations(): Promise<import('@indoor/domain').VendorInstallation[]>;
 }
 
 type RequestRow = Database['public']['Functions']['vendor_requests']['Returns'][number];
@@ -168,6 +170,38 @@ export function createVendorRepository(db: Db): VendorRepository {
         if (body && typeof body.failed === 'number') return body;
       }
       throw toDataError(error);
+    },
+
+    async clients() {
+      const { data, error } = await db.rpc('vendor_clients');
+      if (error) throw toDataError(error);
+      return (data ?? []).map((row) => ({
+        id: row.id,
+        name: row.name,
+        institution: row.institution,
+        email: row.email,
+        phone: row.phone,
+        createdAt: row.created_at,
+        installationsCount: row.installations_count,
+      }));
+    },
+
+    async installations() {
+      const { data, error } = await db.rpc('vendor_installations');
+      if (error) throw toDataError(error);
+      return (data ?? []).map((row) => ({
+        id: row.id,
+        clientId: row.client_id,
+        clientName: row.client_name,
+        instanceId: row.instance_id,
+        name: row.name,
+        plan: row.plan,
+        validFrom: row.valid_from,
+        validUntil: row.valid_until,
+        lastVersion: row.last_version,
+        lastCheckinAt: row.last_checkin_at,
+        createdAt: row.created_at,
+      }));
     },
   };
 }

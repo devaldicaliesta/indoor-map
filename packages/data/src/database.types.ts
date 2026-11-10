@@ -26,6 +26,7 @@ export type Database = {
       account_notices: {
         Row: {
           created_at: string;
+          details: NonNullable<Json>;
           id: string;
           kind: string;
           sent_at: string | null;
@@ -33,6 +34,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          details?: NonNullable<Json>;
           id?: string;
           kind: string;
           sent_at?: string | null;
@@ -40,6 +42,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          details?: NonNullable<Json>;
           id?: string;
           kind?: string;
           sent_at?: string | null;
@@ -1204,6 +1207,35 @@ export type Database = {
           },
         ];
       };
+      notification_preferences: {
+        Row: {
+          enabled: boolean;
+          kind: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          enabled: boolean;
+          kind: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          enabled?: boolean;
+          kind?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_preferences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
       opening_hours: {
         Row: {
           closes_at: string | null;
@@ -1460,6 +1492,7 @@ export type Database = {
           default_language: Database['public']['Enums']['language_code'];
           default_timezone: string;
           id: boolean;
+          mfa_required_roles: Database['public']['Enums']['app_role'][];
           public_visitor_url: string | null;
           smtp_from: string | null;
           smtp_host: string | null;
@@ -1474,6 +1507,7 @@ export type Database = {
           default_language?: Database['public']['Enums']['language_code'];
           default_timezone?: string;
           id?: boolean;
+          mfa_required_roles?: Database['public']['Enums']['app_role'][];
           public_visitor_url?: string | null;
           smtp_from?: string | null;
           smtp_host?: string | null;
@@ -1488,6 +1522,7 @@ export type Database = {
           default_language?: Database['public']['Enums']['language_code'];
           default_timezone?: string;
           id?: boolean;
+          mfa_required_roles?: Database['public']['Enums']['app_role'][];
           public_visitor_url?: string | null;
           smtp_from?: string | null;
           smtp_host?: string | null;
@@ -1778,6 +1813,20 @@ export type Database = {
         }[];
       };
       license_valid_until: { Args: Record<PropertyKey, never>; Returns: string };
+      mfa_recover: { Args: { p_code: string }; Returns: boolean };
+      mfa_recovery_codes_generate: { Args: Record<PropertyKey, never>; Returns: string[] };
+      mfa_recovery_codes_left: { Args: Record<PropertyKey, never>; Returns: number };
+      mfa_status: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          aal: string;
+          has_totp: boolean;
+          required: boolean;
+          role_required: boolean;
+          satisfied: boolean;
+        }[];
+      };
+      notification_unsubscribe: { Args: { p_apply: boolean; p_token: string }; Returns: string };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {
@@ -1954,6 +2003,7 @@ export type Database = {
       set_smtp_password: { Args: { p_password: string }; Returns: undefined };
       smtp_password_for_sending: { Args: Record<PropertyKey, never>; Returns: string };
       smtp_password_is_set: { Args: Record<PropertyKey, never>; Returns: boolean };
+      system_health: { Args: Record<PropertyKey, never>; Returns: Json };
       take_over_edit_lock: { Args: { p_floor_id: string }; Returns: undefined };
       trial_status: {
         Args: Record<PropertyKey, never>;
@@ -1969,6 +2019,13 @@ export type Database = {
         Args: { p_role: Database['public']['Enums']['app_role'] };
         Returns: string;
       };
+      user_mfa_list: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          user_id: string;
+        }[];
+      };
+      user_mfa_reset: { Args: { p_user_id: string }; Returns: undefined };
       vendor_access: { Args: Record<PropertyKey, never>; Returns: string };
       vendor_block: { Args: { p_note?: string; p_value: string }; Returns: string };
       vendor_blocklist: {
@@ -1981,6 +2038,34 @@ export type Database = {
         }[];
       };
       vendor_capacity: { Args: Record<PropertyKey, never>; Returns: number };
+      vendor_clients: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          created_at: string;
+          email: string;
+          id: string;
+          installations_count: number;
+          institution: string;
+          name: string;
+          phone: string;
+        }[];
+      };
+      vendor_installations: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          client_id: string;
+          client_name: string;
+          created_at: string;
+          id: string;
+          instance_id: string;
+          last_checkin_at: string;
+          last_version: string;
+          name: string;
+          plan: string;
+          valid_from: string;
+          valid_until: string;
+        }[];
+      };
       vendor_requests: {
         Args: Record<PropertyKey, never>;
         Returns: {

@@ -26,6 +26,7 @@ import { Link } from 'react-router';
 import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useTableState } from '../../hooks/use-table-state';
 import { FormNotice } from '../auth/auth-layout';
+import { LicenseHistory } from './license-history';
 import { useCheckIn, useLicenseDetails, useLicenseLimits, useLicenseUsage } from './queries';
 import { VendorEmail } from './vendor-email';
 
@@ -278,6 +279,7 @@ function LicenseContent() {
       ) : null}
       <UsageTable usage={usage.data} trial={isTrialLicense(details.data.license)} />
       {limits.data ? <ActionLimits limits={limits.data} /> : null}
+      <LicenseHistory />
       <OpenSourceNotice />
     </div>
   );

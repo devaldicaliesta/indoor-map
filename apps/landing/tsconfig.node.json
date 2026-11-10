@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "vite.motion.config.ts"]
+  "include": ["vite.config.ts", "vite.motion.config.ts", "vite.promo.config.ts"]
 }

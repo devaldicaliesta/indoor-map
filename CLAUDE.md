@@ -77,6 +77,7 @@ pnpm db:types         generate tipe TS dari skema ke packages/data
 - Komentar hanya untuk menjelaskan *mengapa*, bukan mengulang *apa*. Tanpa tag kebutuhan seperti `(FR-MAP-09)`; nomor task hanya untuk menunjuk pekerjaan lanjutan ("dibuat di T-119").
 - Teks UI Admin dalam Bahasa Indonesia. Teks Visitor lewat i18next (ID/EN), tidak di-hardcode.
 - Nama commit: `T-xxx: ringkasan singkat` (misalnya `T-201: A* dengan heuristik jarak`).
+- Author commit selalu pemilik repo: jalankan `git config user.name "devaldi caliesta"` dan `git config user.email "devaldicaliesta@gmail.com"` di repo sebelum commit pertama setiap sesi. Jangan menambahkan trailer `Co-Authored-By` atau `Claude-Session` untuk AI di commit maupun PR.
 
 ## Workflow AI
 
@@ -92,3 +93,11 @@ Setiap task kode memakai skill `ponytail` level `full` (perubahan terkecil yang 
 - Perubahan skema yang menghapus atau mengganti nama kolom.
 
 Tulis pertanyaannya di PR atau di `docs/PROGRESS.md` bagian "Pertanyaan terbuka", lalu hentikan task.
+
+## graphify
+
+Graf pengetahuan kode di-commit di `graphify-out/` dan diperbarui otomatis oleh CI (`.github/workflows/graphify.yml`) setiap push ke `main`, jadi grafnya mencerminkan `main`, bukan perubahan di branch kerja. CLI terpasang otomatis di sesi cloud; lokal: `uv tool install 'graphifyy[sql]==0.9.104'`.
+
+- Untuk pertanyaan tentang kode, jalankan `graphify query "<simbol, file, atau konsep>"` sebelum grep atau membaca file, lalu baca hanya baris yang ditunjuk. Sertakan aturan ini di prompt subagent yang menjelajah kode.
+- Untuk fokus yang lebih sempit: `graphify explain "<simbol>"`, `graphify path "<A>" "<B>"`, `graphify affected "<X>"`.
+- Jangan membaca `graph.json` langsung dan jangan meng-commit `graphify-out/`; CI yang memperbaruinya. `GRAPH_REPORT.md` hanya untuk tinjauan arsitektur luas.

@@ -43,7 +43,16 @@ export type TrialRequestCheck =
   | { ok: false; problems: Partial<Record<TrialRequestField, TrialRequestProblem>> };
 
 const LIMITS = { name: 100, institution: 150, title: 100, email: 200, phone: 20 } as const;
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Setara dengan /^[^\s@]+@[^\s@]+\.[^\s@]+$/, tetapi linear: regex itu bisa backtracking
+// kuadratik untuk masukan buatan, dan form trial terbuka untuk publik.
+const isEmail = (value: string): boolean => {
+  if (/\s/.test(value)) return false;
+  const at = value.indexOf('@');
+  if (at <= 0 || at !== value.lastIndexOf('@')) return false;
+  const domain = value.slice(at + 1);
+  const dot = domain.indexOf('.', 1);
+  return dot !== -1 && dot <= domain.length - 2;
+};
 const PHONE = /^\+?[0-9][0-9 ()-]{6,18}[0-9]$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Baris baru di isian satu baris bisa menyisipkan header email (mis. "\r\nBcc:").
@@ -71,7 +80,7 @@ export function checkTrialRequest(input: Record<string, unknown>): TrialRequestC
   const institution = line('institution', true);
   const title = line('title', true);
   const email = line('email', true).toLowerCase();
-  if (email && !problems.email && !EMAIL.test(email)) problems.email = 'invalid';
+  if (email && !problems.email && !isEmail(email)) problems.email = 'invalid';
   const phone = line('phone', true);
   if (phone && !problems.phone && !PHONE.test(phone)) problems.phone = 'invalid';
 

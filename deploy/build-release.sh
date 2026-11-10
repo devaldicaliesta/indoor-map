@@ -94,7 +94,7 @@ assemble_package() {
   say "Menyusun paket klien $pkg"
   rm -rf "$pkg" "$pkg.tar.gz" "$pkg.tar.gz.sha256"
   mkdir -p "$pkg/db" "$pkg/migrations"
-  cp "$src/deploy/"{compose.yml,lib.sh,install.sh,upgrade.sh,rollback.sh,backup.sh,restore.sh,migrate.sh,README.md,SUMBER-TERBUKA.md} "$pkg/"
+  cp "$src/deploy/"{compose.yml,lib.sh,install.sh,upgrade.sh,rollback.sh,backup.sh,restore.sh,migrate.sh,health-report.sh,README.md,SUMBER-TERBUKA.md} "$pkg/"
   cp "$src/deploy/db/"{roles.sql,pg_hba.conf} "$pkg/db/"
   cp "$src/supabase/migrations/"*.sql "$pkg/migrations/"
   printf 'APP_VERSION=%s\nIMAGE_PREFIX=%s\nCOMMIT=%s\n' "$version" "$prefix" "$commit" >"$pkg/release.env"

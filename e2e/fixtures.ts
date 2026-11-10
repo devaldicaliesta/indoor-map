@@ -180,7 +180,8 @@ export const test = base.extend<Fixtures>({
       await use(venue);
     } finally {
       await superAdmin.venues.remove(venue.venueId as Venue['id']);
-      await db.auth.signOut();
+      // Bawaan supabase-js `global` mencabut sesi akun seed di worker lain yang sedang berjalan.
+      await db.auth.signOut({ scope: 'local' });
     }
   },
 

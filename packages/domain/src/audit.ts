@@ -18,6 +18,12 @@ export const AUDIT_ACTIONS = [
   'user_data_deleted',
   'audit_purged',
   'eula_accepted',
+  'mfa_enabled',
+  'mfa_disabled',
+  'mfa_recovery_codes_created',
+  'mfa_recovery_used',
+  'mfa_recovery_failed',
+  'mfa_reset',
 ] as const;
 export const AuditActionSchema = z.enum(AUDIT_ACTIONS);
 export type AuditAction = z.infer<typeof AuditActionSchema>;
