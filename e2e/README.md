@@ -19,6 +19,27 @@ Artefak test yang gagal (screenshot, video, trace) ada di `e2e/test-results/`, l
 
 Tur halaman (T-599) tidak mulai sendiri di server dev yang dijalankan Playwright (`VITE_TOUR_AUTOSTART=off`). Bila memakai server dev sendiri (`reuseExistingServer`), isi `VITE_TOUR_AUTOSTART=off` di `.env.local` agar tur tidak menutupi halaman di spec lain.
 
+## CI
+
+Workflow `.github/workflows/e2e.yml` menjalankan semua spec di GitHub Actions pada pull request dan push ke `main`, `develop`, `production`. Tiap proyek Playwright berjalan di job sendiri dengan Supabase lokal sendiri (`supabase start`), akun seed dari password acak per job (`pnpm db:reset`), dan Chromium dari `playwright install --with-deps chromium`:
+
+| Job | Proyek Playwright |
+| --- | --- |
+| landing | `landing` |
+| visitor | `visitor`, `visitor-nowebgl` |
+| vendor | `vendor` |
+| admin | `admin` |
+| license | `license` (`--no-deps`, serial) |
+
+Hasil:
+
+- Ringkasan jumlah test, gagal, dan dilewati ada di halaman ringkasan tiap job.
+- Laporan HTML, screenshot, video, dan trace kegagalan diunggah sebagai artefak `e2e-<job>` (14 hari). Unduh lalu jalankan `pnpm --filter @indoor/e2e exec playwright show-report <folder>`, atau `playwright show-trace <trace.zip>`.
+- Satu percobaan ulang di CI: test yang lulus pada percobaan kedua tercatat "flaky" di laporan.
+- `cad-floor-plan.spec.ts` dilewati di CI karena layanan `cad-converter` tidak dijalankan (`VITE_CAD_CONVERTER_URL` kosong).
+
+Agar E2E menahan merge, tambahkan job `E2E (landing)`, `E2E (visitor)`, `E2E (vendor)`, `E2E (admin)`, dan `E2E (license)` sebagai required status check di pengaturan branch protection.
+
 ## Isi
 
 | Test | Yang dibuktikan |
