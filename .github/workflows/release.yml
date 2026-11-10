@@ -1,0 +1,47 @@
+name: Rilis production
+
+# Langkah 2 "Rilis ke production" (docs/07-aturan-branch.md) sebagai tombol: fast-forward
+# production ke main, hanya bila CI, E2E, dan Security untuk commit itu hijau. Cloudflare Pages
+# membangun ulang dari push ke production. Push tanpa --force, jadi production yang menyimpang
+# dari main ditolak git, bukan ditimpa.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: release-production
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: CI, E2E, dan Security hijau untuk commit main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          for wf in ci.yml e2e.yml security.yml; do
+            conclusion=$(gh run list --workflow "$wf" --commit "$sha" --event push \
+              --json conclusion --jq '.[0].conclusion // "belum ada"')
+            echo "$wf: $conclusion"
+            if [ "$conclusion" != success ]; then
+              echo "::error::$wf untuk $sha belum hijau ($conclusion); rilis dibatalkan."
+              exit 1
+            fi
+          done
+
+      - name: Fast-forward production ke main
+        run: |
+          git push origin HEAD:refs/heads/production
+          echo "### production → $(git rev-parse --short HEAD)" >> "$GITHUB_STEP_SUMMARY"

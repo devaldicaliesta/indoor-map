@@ -3,10 +3,13 @@ name: E2E
 # Test end-to-end Playwright (e2e/README.md) di atas Supabase lokal. Tiap proyek Playwright
 # berjalan di job sendiri dengan database sendiri, supaya paralel dan tidak saling mengubah
 # keadaan (proyek license mengubah lisensi instalasi untuk semua test).
+#
+# Push hanya ke main: perubahan develop sudah diuji lewat PR-nya (merge ref), dan production
+# hanya fast-forward dari main (commit yang sama).
 on:
   pull_request:
   push:
-    branches: [main, develop, production]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -17,8 +20,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # PR yang hanya mengubah dokumen tidak perlu ~90 menit runner E2E. Disaring di job, bukan
+  # paths-ignore, supaya check "E2E" tetap melapor (required check tidak menggantung).
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "${{ github.event_name }}" != 'pull_request' ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          code=$(git diff --name-only "$BASE...HEAD" \
+            | grep -vE '^(docs/|graphify-out/|e2e/evidence/)|\.md$' | head -1 || true)
+          echo "code=$([ -n "$code" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
   e2e:
     name: E2E (${{ matrix.name }})
+    needs: changes
+    if: ${{ needs.changes.outputs.code == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -78,8 +106,20 @@ jobs:
         if: ${{ matrix.name == 'license-trial' }}
         run: pnpm db:seed-demo
 
+      - name: Versi Playwright
+        id: pw
+        run: echo "version=$(pnpm --filter @indoor/e2e exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
       - name: Browser Playwright
+        if: ${{ steps.pw-cache.outputs.cache-hit != 'true' }}
         run: pnpm --filter @indoor/e2e exec playwright install --with-deps chromium
+      - name: Dependensi sistem Chromium
+        if: ${{ steps.pw-cache.outputs.cache-hit == 'true' }}
+        run: pnpm --filter @indoor/e2e exec playwright install-deps chromium
 
       - name: Test E2E
         run: pnpm test:e2e -- ${{ matrix.args }}
@@ -111,3 +151,17 @@ jobs:
       - name: Log Supabase saat gagal
         if: ${{ failure() }}
         run: docker ps -a --format '{{.Names}} {{.Status}}'
+
+  # Satu check untuk branch protection, menggantikan sembilan nama job matriks.
+  result:
+    name: E2E
+    needs: [changes, e2e]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          CHANGES: ${{ needs.changes.result }}
+          E2E: ${{ needs.e2e.result }}
+        run: |
+          echo "changes=$CHANGES e2e=$E2E"
+          [ "$CHANGES" = success ] && { [ "$E2E" = success ] || [ "$E2E" = skipped ]; }
