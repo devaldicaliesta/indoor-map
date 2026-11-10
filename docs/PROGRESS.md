@@ -181,7 +181,7 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-594 | Export GeoJSON dan IMDF | — | siap | |
 | T-595 | Vendor Portal minimal | T-504, T-505 | menunggu | Dipecah ke sub-task |
 | T-595a | Vendor Portal: Data klien dan instalasi | T-595 | review | Skema, repository, dan UI untuk data klien dan instalasi |
-| T-595b | Vendor Portal: Manajemen lisensi dan kunci privat | T-595a | siap | |
+| T-595b | Vendor Portal: Manajemen lisensi dan kunci privat | T-595a | review | Selesai implementasi fungsi vendor-license dan vendor-dashboard |
 | T-595c | Vendor Portal: Antrean permintaan trial dari landing page | T-595b | siap | |
 | T-595d | Vendor Portal: Riwayat check-in instalasi dan unduh rilis | T-595b | siap | Bagian lisensi on-premise ditunda (2026-10-09); dasbor trial hosting dipisah ke T-617 |
 | T-596 | Bantuan dan dokumentasi pengguna | T-599b | menunggu | |
