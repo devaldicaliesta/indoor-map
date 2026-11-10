@@ -29,7 +29,8 @@ Workflow `.github/workflows/e2e.yml` menjalankan semua spec di GitHub Actions pa
 | visitor | `visitor`, `visitor-nowebgl` |
 | vendor | `vendor` |
 | admin | `admin` |
-| license | `license` (`--no-deps`, serial) |
+| license | `license` kecuali T-504 (`--no-deps`, serial), seed dasar |
+| license-trial | `license` hanya T-504; ditambah `pnpm db:seed-demo` karena batas trial butuh ≥ 300 lokasi, sedangkan data demo melebihi kuota lisensi test lain |
 
 Hasil:
 
@@ -38,7 +39,7 @@ Hasil:
 - Satu percobaan ulang di CI: test yang lulus pada percobaan kedua tercatat "flaky" di laporan.
 - `cad-floor-plan.spec.ts` dilewati di CI karena layanan `cad-converter` tidak dijalankan (`VITE_CAD_CONVERTER_URL` kosong).
 
-Agar E2E menahan merge, tambahkan job `E2E (landing)`, `E2E (visitor)`, `E2E (vendor)`, `E2E (admin)`, dan `E2E (license)` sebagai required status check di pengaturan branch protection.
+Agar E2E menahan merge, tambahkan job `E2E (landing)`, `E2E (visitor)`, `E2E (vendor)`, `E2E (admin)`, `E2E (license)`, dan `E2E (license-trial)` sebagai required status check di pengaturan branch protection.
 
 ## Isi
 

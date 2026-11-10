@@ -34,7 +34,11 @@ jobs:
           - name: admin
             args: --project=admin
           - name: license
-            args: --project=license --no-deps
+            args: --project=license --no-deps --grep-invert T-504
+          # Batas trial butuh data demo (≥ 300 lokasi), tetapi data itu melebihi kuota lisensi
+          # test lisensi lain (3–5 venue), jadi dijalankan terpisah.
+          - name: license-trial
+            args: --project=license --no-deps --grep T-504
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -63,7 +67,7 @@ jobs:
         run: pnpm db:reset
 
       - name: Data demo (batas trial T-504 butuh minimal 300 lokasi)
-        if: ${{ matrix.name == 'license' }}
+        if: ${{ matrix.name == 'license-trial' }}
         run: pnpm db:seed-demo
 
       - name: Browser Playwright
