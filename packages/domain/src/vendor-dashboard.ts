@@ -247,3 +247,13 @@ export interface VendorInstallation {
   lastCheckinAt: string | null;
   createdAt: string;
 }
+
+export interface VendorLicense {
+  id: string;
+  installationId: string;
+  licenseId: string;
+  payload: unknown;
+  signature: string;
+  status: 'active' | 'revoked' | 'expired';
+  issuedAt: string;
+}
