@@ -50,7 +50,7 @@ Task di luar daftar ini dikerjakan langsung di `develop`.
 1. PR `develop` → `main`, CI hijau, merge.
 2. Tunggu workflow CI, E2E, dan Security pada push ke `main` selesai hijau.
 3. Actions → **Rilis production** → Run workflow (branch `main`). Workflow menolak bila salah satu
-   dari tiga workflow itu belum hijau untuk commit `main`, lalu fast-forward `production` ke
+   dari tiga workflow itu belum hijau untuk commit `main` (commit graf graphify di atasnya dilewati), lalu fast-forward `production` ke
    `main`. Cadangan manual: `git checkout production && git merge --ff-only origin/main && git push origin production`.
 4. Cloudflare Pages membangun ulang otomatis dari `production`.
 
