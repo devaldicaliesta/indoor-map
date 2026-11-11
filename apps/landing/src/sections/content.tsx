@@ -29,7 +29,7 @@ import { DEMO_URL } from '../trial/api';
 const TONES = {
   canvas: 'bg-canvas',
   surface: 'bg-surface',
-  night: 'bg-night text-on-night',
+  night: 'mesh-night text-on-night',
 } as const;
 
 export function Section({
@@ -51,7 +51,7 @@ export function Section({
     <section
       id={id}
       aria-labelledby={`${id}-judul`}
-      className={cn('scroll-mt-16 py-20', TONES[tone])}
+      className={cn('scroll-mt-16 py-14 sm:py-20', TONES[tone])}
     >
       <div className="mx-auto grid max-w-6xl gap-10 px-4">
         <div className={cn('grid max-w-2xl gap-3', align === 'center' && 'mx-auto text-center')}>
@@ -201,10 +201,7 @@ function HeroRoute() {
 export function Hero() {
   const { copy } = useLanguage();
   return (
-    <section
-      aria-labelledby="hero-judul"
-      className="relative overflow-hidden bg-night text-on-night"
-    >
+    <section aria-labelledby="hero-judul" className="mesh-night overflow-hidden text-on-night">
       <HeroPlan />
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pt-14 pb-60 lg:grid-cols-[1.05fr_1fr] lg:pt-24 lg:pb-64">
         <div className="grid gap-7">
@@ -225,9 +222,9 @@ export function Hero() {
               <a href={DEMO_URL}>{copy.hero.secondary}</a>
             </Button>
           </div>
-          <ul className="m-0 grid list-none grid-cols-2 gap-4 p-0 sm:grid-cols-4">
+          <ul className="m-0 grid list-none grid-cols-2 gap-x-4 gap-y-5 border-night-line border-t p-0 pt-5 sm:grid-cols-4">
             {copy.hero.facts.map(([value, label]) => (
-              <li key={value} className="border-signal border-l-4 pl-3">
+              <li key={value}>
                 <strong className="block">{value}</strong>
                 <span className="text-on-night-muted text-sm">{label}</span>
               </li>
@@ -262,61 +259,95 @@ const BUILDING_ICONS = [
   TicketIcon,
 ];
 
+/**
+ * Disusun seperti papan direktori di lobi gedung: satu baris per jenis gedung, piktogram di kiri.
+ * Judul bagian menempel di kiri saat digulir di layar lebar.
+ */
 export function Buildings() {
   const { copy } = useLanguage();
   return (
-    <Section
+    <section
       id="gedung"
-      title={copy.buildings.title}
-      lead={copy.buildings.lead}
-      tone="canvas"
-      align="center"
+      aria-labelledby="gedung-judul"
+      className="scroll-mt-16 bg-canvas py-14 sm:py-20"
     >
-      <ul className="m-0 grid list-none gap-x-8 gap-y-10 p-0 sm:grid-cols-2 lg:grid-cols-4">
-        {copy.buildings.items.map(([title, body], i) => (
-          <li key={title} className="flex gap-4">
-            <Pictogram icon={BUILDING_ICONS[i] ?? Building2Icon} />
-            <div className="grid content-start gap-1">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 lg:grid-cols-[1fr_1.6fr] lg:gap-14">
+        <div className="grid max-w-xl content-start gap-3 lg:sticky lg:top-24 lg:self-start">
+          <h2 id="gedung-judul" className="display font-bold text-3xl sm:text-4xl">
+            {copy.buildings.title}
+          </h2>
+          <p className="text-ink-muted text-lg">{copy.buildings.lead}</p>
+        </div>
+        <ul className="m-0 list-none divide-y divide-line rounded-lg border border-line bg-surface p-0">
+          {copy.buildings.items.map(([title, body], i) => (
+            <li
+              key={title}
+              className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-1 p-4 sm:grid-cols-[auto_12rem_1fr] sm:p-5"
+            >
+              <Pictogram icon={BUILDING_ICONS[i] ?? Building2Icon} />
               <h3 className="font-bold text-lg">{title}</h3>
-              <p className="text-ink-muted">{body}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </Section>
+              <p className="col-start-2 text-ink-muted sm:col-start-3">{body}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 
+// Urutan mengikuti copy.features.items: tiga pertama yang dipegang pengunjung, lalu sisanya.
 const FEATURE_ICONS = [
-  Layers3Icon,
   RouteIcon,
   QrCodeIcon,
   MonitorSmartphoneIcon,
+  Layers3Icon,
   SearchIcon,
   OctagonXIcon,
   PenToolIcon,
   WifiOffIcon,
 ];
 
+/**
+ * Tiga fitur yang langsung dipakai pengunjung tampil besar; sisanya daftar ringkas di bawahnya,
+ * supaya bobot visual mengikuti bobot fiturnya.
+ */
 export function Features() {
   const { copy } = useLanguage();
+  const lead = copy.features.items.slice(0, 3);
+  const rest = copy.features.items.slice(3);
   return (
-    <section id="fitur" aria-labelledby="fitur-judul" className="scroll-mt-16 bg-surface py-20">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 lg:grid-cols-[1fr_2fr]">
-        <h2
-          id="fitur-judul"
-          className="display font-bold text-3xl sm:text-4xl lg:sticky lg:top-24 lg:self-start"
-        >
-          {copy.features.title}
-        </h2>
-        <ul className="m-0 grid list-none gap-x-10 p-0 sm:grid-cols-2">
-          {copy.features.items.map(([title, body], i) => {
-            const Icon = FEATURE_ICONS[i] ?? Layers3Icon;
+    <section
+      id="fitur"
+      aria-labelledby="fitur-judul"
+      className="scroll-mt-16 bg-surface py-14 sm:py-20"
+    >
+      <div className="mx-auto grid max-w-6xl gap-10 px-4">
+        <div className="grid max-w-2xl gap-3">
+          <h2 id="fitur-judul" className="display font-bold text-3xl sm:text-4xl">
+            {copy.features.title}
+          </h2>
+          <p className="text-ink-muted text-lg">{copy.features.lead}</p>
+        </div>
+        <ul className="m-0 grid list-none gap-4 p-0 md:grid-cols-3">
+          {lead.map(([title, body], i) => (
+            <li
+              key={title}
+              className="grid content-start gap-4 rounded-lg border border-line bg-canvas p-6"
+            >
+              <Pictogram icon={FEATURE_ICONS[i] ?? RouteIcon} />
+              <h3 className="font-bold text-xl">{title}</h3>
+              <p className="text-ink-muted">{body}</p>
+            </li>
+          ))}
+        </ul>
+        <ul className="m-0 grid list-none gap-x-8 gap-y-6 p-0 sm:grid-cols-2 lg:grid-cols-5">
+          {rest.map(([title, body], i) => {
+            const Icon = FEATURE_ICONS[i + 3] ?? Layers3Icon;
             return (
-              <li key={title} className="grid content-start gap-2 border-line border-t py-6">
+              <li key={title} className="grid content-start gap-2 border-line border-t pt-4">
                 <Icon aria-hidden="true" className="size-6 text-accent-blue" strokeWidth={1.75} />
-                <h3 className="font-bold text-lg">{title}</h3>
-                <p className="text-ink-muted">{body}</p>
+                <h3 className="font-bold">{title}</h3>
+                <p className="text-ink-muted text-sm">{body}</p>
               </li>
             );
           })}
@@ -326,16 +357,34 @@ export function Features() {
   );
 }
 
+/**
+ * Langkah digambar sebagai rute: titik asal bercincin, perhentian kuning, dan garis kuning di
+ * antaranya, sama dengan bahasa rute di hero dan aplikasi Visitor. Garis vertikal di layar
+ * sempit, mendatar mulai 1024 px.
+ */
 export function HowItWorks() {
   const { copy } = useLanguage();
+  const last = copy.how.steps.length - 1;
   return (
     <Section id="cara-kerja" title={copy.how.title} tone="canvas">
-      <ol className="m-0 grid list-none gap-8 p-0 sm:grid-cols-2 lg:grid-cols-4">
+      <ol className="m-0 grid list-none gap-10 p-0 lg:grid-cols-4 lg:gap-8">
         {copy.how.steps.map(([title, body], i) => (
-          <li key={title} className="grid content-start gap-3 border-signal border-t-4 pt-5">
+          <li
+            key={title}
+            className={cn(
+              'relative grid content-start gap-2 pl-14 lg:pt-14 lg:pl-0',
+              i < last &&
+                // Garis berhenti 0,25 rem sebelum perhentian berikutnya; jarak antarlangkah 2,5 rem
+                // (tegak) dan 2 rem (mendatar).
+                'before:absolute before:top-10 before:left-[15px] before:h-[calc(100%-0.25rem)] before:w-1.5 before:rounded-full before:bg-signal lg:before:top-[15px] lg:before:left-10 lg:before:h-1.5 lg:before:w-[calc(100%-0.75rem)]',
+            )}
+          >
             <span
-              className="flex size-9 items-center justify-center rounded-sm bg-signal font-bold text-on-signal"
               aria-hidden="true"
+              className={cn(
+                'absolute top-0 left-0 flex size-9 items-center justify-center rounded-full font-bold',
+                i === 0 ? 'border-4 border-ink bg-surface text-ink' : 'bg-signal text-on-signal',
+              )}
             >
               {i + 1}
             </span>

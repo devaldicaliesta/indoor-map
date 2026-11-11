@@ -67,7 +67,7 @@ const id = {
     visitor: 'Lihat Visitor',
     queued: 'Anda dalam antrean',
     queuedBody:
-      'Semua ruang kerja trial sedang terpakai. Kami mengirim email begitu ruang kerja Anda siap — tidak perlu mengajukan lagi.',
+      'Semua ruang kerja trial sedang terpakai. Kami mengirim email begitu ruang kerja Anda siap. Tidak perlu mengajukan lagi.',
     rejected: 'Trial tidak bisa diberikan',
     rejectedBody:
       'Alamat email atau instansi ini sudah pernah memakai trial PanduArah. Hubungi kami untuk melanjutkan.',
@@ -151,7 +151,7 @@ const en: TrialCopy = {
     visitor: 'View Visitor',
     queued: "You're in the queue",
     queuedBody:
-      'All trial workspaces are currently in use. We will email you as soon as yours is ready — no need to apply again.',
+      'All trial workspaces are currently in use. We will email you as soon as yours is ready. No need to apply again.',
     rejected: 'A trial cannot be provided',
     rejectedBody:
       'This email address or organisation has already used a PanduArah trial. Contact us to continue.',

@@ -28,11 +28,11 @@ test.describe('T-505 Landing page', () => {
     ).toBeVisible();
     for (const name of [
       'Untuk gedung yang ramai dan rumit',
-      'Fitur utama',
+      'Yang bisa dilakukan PanduArah',
       'Coba peta 3D interaktif',
-      'Cara kerja',
+      'Empat langkah sampai peta dipakai pengunjung',
       'On-premise dan lisensi',
-      'Tangkapan layar',
+      'Tampilan di HP, layar lobi, dan Admin',
       'Hubungi kami',
     ]) {
       await expect(page.getByRole('heading', { level: 2, name })).toBeAttached();
