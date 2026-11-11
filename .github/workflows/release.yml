@@ -1,9 +1,9 @@
 name: Rilis production
 
 # Langkah 2 "Rilis ke production" (docs/07-aturan-branch.md) sebagai tombol: fast-forward
-# production ke main, hanya bila CI, E2E, dan Security untuk commit itu hijau. Cloudflare Pages
-# membangun ulang dari push ke production. Push tanpa --force, jadi production yang menyimpang
-# dari main ditolak git, bukan ditimpa.
+# production ke main, hanya bila CI, E2E, dan Security untuk commit itu hijau (commit graf graphify
+# di atasnya dilewati). Cloudflare Pages membangun ulang dari push ke production. Push tanpa
+# --force, jadi production yang menyimpang dari main ditolak git, bukan ditimpa.
 on:
   workflow_dispatch:
 
@@ -30,7 +30,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          sha=$(git rev-parse HEAD)
+          # graphify.yml menambah commit bot di atas main setelah push. Commit itu memakai
+          # GITHUB_TOKEN sehingga tidak memicu CI, E2E, dan Security, jadi yang diperiksa adalah
+          # commit terakhir yang mengubah sesuatu di luar graphify-out/.
+          sha=$(git log -1 --first-parent --format=%H HEAD -- . ':(exclude)graphify-out')
+          echo "Diperiksa: $sha (HEAD main: $(git rev-parse HEAD))"
           for wf in ci.yml e2e.yml security.yml; do
             conclusion=$(gh run list --workflow "$wf" --commit "$sha" --event push \
               --json conclusion --jq '.[0].conclusion // "belum ada"')
