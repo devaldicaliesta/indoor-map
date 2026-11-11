@@ -1,7 +1,7 @@
 /** Teks landing page dalam dua bahasa; bentuk EN harus sama persis dengan ID. */
 const id = {
   meta: {
-    title: 'PanduArah — Navigasi dalam gedung untuk mal, rumah sakit, kampus, dan event',
+    title: 'PanduArah: Navigasi dalam gedung untuk mal, rumah sakit, kampus, dan event',
     description:
       'Peta interaktif 2D/3D dan petunjuk arah langkah demi langkah untuk gedung Anda. Dipasang di server sendiri.',
   },
@@ -46,15 +46,16 @@ const id = {
     ],
   },
   features: {
-    title: 'Fitur utama',
+    title: 'Yang bisa dilakukan PanduArah',
+    lead: 'Tiga yang pertama langsung dipakai pengunjung. Sisanya membantu pengelola menjaga peta tetap benar.',
     items: [
-      ['Peta 2D dan 3D', 'Lantai bertingkat dengan warna kategori, ikon fasilitas, dan rotasi.'],
       [
         'Rute langkah demi langkah',
         'Rute tercepat atau aksesibel (lift, tanpa tangga) antar lantai dan gedung.',
       ],
       ['QR "Anda di sini"', 'Pindai QR di lokasi, peta langsung tahu posisi dan arah hadap.'],
       ['Info Point', 'Layar sentuh di lobi dengan keyboard di layar dan QR "lanjutkan di HP".'],
+      ['Peta 2D dan 3D', 'Lantai bertingkat dengan warna kategori, ikon fasilitas, dan rotasi.'],
       ['Cari dan kategori', 'Salah ketik tetap ketemu, alias, kode unit, dan direktori A–Z.'],
       ['Penutupan langsung', 'Tutup lift atau koridor; rute pengunjung langsung menghindarinya.'],
       ['Editor peta', 'Gambar dari denah gambar, PDF, atau DXF; validasi sebelum publish.'],
@@ -89,7 +90,7 @@ const id = {
     noRoute: 'Rute ke lokasi ini tidak ditemukan.',
   },
   how: {
-    title: 'Cara kerja',
+    title: 'Empat langkah sampai peta dipakai pengunjung',
     steps: [
       [
         'Pasang di server Anda',
@@ -119,7 +120,7 @@ const id = {
     ],
   },
   screens: {
-    title: 'Tangkapan layar',
+    title: 'Tampilan di HP, layar lobi, dan Admin',
     items: [
       [
         'visitor-mall',
@@ -189,7 +190,7 @@ export type Copy = typeof id;
 
 const en: Copy = {
   meta: {
-    title: 'PanduArah — Indoor navigation for malls, hospitals, campuses, and events',
+    title: 'PanduArah: Indoor navigation for malls, hospitals, campuses, and events',
     description:
       'Interactive 2D/3D maps and step-by-step directions inside your building. Runs on your own server.',
   },
@@ -240,15 +241,16 @@ const en: Copy = {
     ],
   },
   features: {
-    title: 'Key features',
+    title: 'What PanduArah does',
+    lead: 'Visitors use the first three directly. The rest help managers keep the map accurate.',
     items: [
-      ['2D and 3D maps', 'Multi-floor maps with category colours, facility icons, and rotation.'],
       [
         'Step-by-step routes',
         'Fastest or accessible routes (lifts, no stairs) across floors and buildings.',
       ],
       ['"You are here" QR', 'Scan a QR code on site and the map knows your position and heading.'],
       ['Info Point', 'Lobby touch screens with an on-screen keyboard and "continue on phone" QR.'],
+      ['2D and 3D maps', 'Multi-floor maps with category colours, facility icons, and rotation.'],
       ['Search and categories', 'Typo-tolerant search, aliases, unit codes, and an A–Z directory.'],
       ['Live closures', 'Close a lift or corridor; visitor routes avoid it immediately.'],
       ['Map editor', 'Draw from image, PDF, or DXF plans; validated before publishing.'],
@@ -283,7 +285,7 @@ const en: Copy = {
     noRoute: 'No route to this place was found.',
   },
   how: {
-    title: 'How it works',
+    title: 'Four steps to a map visitors can use',
     steps: [
       [
         'Install on your server',
@@ -316,7 +318,7 @@ const en: Copy = {
     ],
   },
   screens: {
-    title: 'Screenshots',
+    title: 'On phones, lobby screens, and in Admin',
     items: [
       [
         'visitor-mall',

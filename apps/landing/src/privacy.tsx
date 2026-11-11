@@ -5,7 +5,7 @@ import { useDocumentMeta, useLanguage } from './language';
 export function PrivacyPage() {
   const { language, copy } = useLanguage();
   const p = copy.privacy;
-  useDocumentMeta(`${p.title} — PanduArah`, copy.meta.description);
+  useDocumentMeta(`${p.title} | PanduArah`, copy.meta.description);
   return (
     <>
       <SiteHeader sections={false} />

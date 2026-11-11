@@ -27,7 +27,7 @@ function takeToken(): string {
 export function TrialVerifyPage() {
   const { language, copy } = useLanguage();
   const text = TRIAL_COPY[language].verify;
-  useDocumentMeta(`${text.title} — PanduArah`, copy.meta.description);
+  useDocumentMeta(`${text.title} | PanduArah`, copy.meta.description);
   const [token] = useState(takeToken);
   const [result, setResult] = useState<VerifyResult | null>(token ? null : { outcome: 'invalid' });
 

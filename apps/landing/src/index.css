@@ -144,3 +144,47 @@ html[data-theme="dark"] {
     opacity: 1;
   }
 }
+
+/*
+ * Latar "malam" (hero dan pita lisensi): gradien mesh lembut bergrain, gaya feralui.dev/gradients,
+ * disusun dari token sendiri. Biru logo paling terang di belakang video, supaya mata jatuh ke sana;
+ * kuning tetap khusus rute dan aksi utama (campuran kuning dan biru tua menjadi hijau kusam). Teks
+ * berada di area biru tua; kontras on-night dan on-night-muted dicek di titik paling terang.
+ * Statis: tidak ada gerak terus-menerus.
+ */
+.mesh-night {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--night);
+  background-image:
+    radial-gradient(
+      50% 60% at 82% 30%,
+      color-mix(in oklab, var(--accent-blue) 55%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(60% 70% at 100% 100%, var(--night-raised), transparent 72%),
+    radial-gradient(
+      70% 80% at 0% 100%,
+      color-mix(in oklab, var(--accent-blue) 38%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(60% 60% at 8% 0%, color-mix(in oklab, var(--night) 70%, black), transparent 75%);
+}
+
+/* Grain dari feTurbulence: memecah pita warna gradien dan memberi tekstur kertas cetak. */
+.mesh-night::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+@media (forced-colors: active) {
+  .mesh-night::before {
+    display: none;
+  }
+}
