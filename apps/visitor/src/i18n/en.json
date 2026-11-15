@@ -158,6 +158,8 @@
     "swap": "Swap start and destination",
     "accessible": "Accessible route (wheelchair)",
     "distance": "{{distance}} m",
+    "duration_one": "about {{count}} min",
+    "duration_other": "about {{count}} min",
     "floors": "Floors on the route",
     "steps": "Route steps",
     "stepOf": "Step {{current}} of {{total}}",

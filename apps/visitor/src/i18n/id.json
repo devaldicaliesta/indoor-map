@@ -158,6 +158,8 @@
     "swap": "Tukar asal dan tujuan",
     "accessible": "Rute aksesibel (kursi roda)",
     "distance": "{{distance}} m",
+    "duration_one": "± {{count}} menit",
+    "duration_other": "± {{count}} menit",
     "floors": "Lantai yang dilewati",
     "steps": "Langkah rute",
     "stepOf": "Langkah {{current}} dari {{total}}",

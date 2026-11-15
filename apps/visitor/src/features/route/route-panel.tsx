@@ -1,4 +1,4 @@
-import { type RouteStep, roundStepDistance } from '@indoor/routing';
+import { type RouteStep, roundStepDistance, routeMinutes, routeSeconds } from '@indoor/routing';
 import { Button } from '@indoor/ui';
 import { ArrowUpDownIcon, ChevronLeftIcon, ChevronRightIcon, ListIcon } from 'lucide-react';
 import { useMemo } from 'react';
@@ -172,6 +172,14 @@ export function RoutePanel() {
         roundStepDistance(plan.route.distanceM),
       )
     : null;
+  const minutes = plan?.ok
+    ? routeMinutes(
+        routeSeconds(plan.route.legs, {
+          accessible,
+          levelOf: (floorId) => index.floors.get(floorId)?.level ?? 0,
+        }),
+      )
+    : null;
 
   return (
     <section className="grid gap-4" aria-label={t('route.title')}>
@@ -234,7 +242,12 @@ export function RoutePanel() {
       {plan?.ok ? (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-bold">{t('route.distance', { distance })}</span>
+            <span className="font-bold" data-testid="route-duration">
+              {t('route.duration', { count: minutes ?? 1 })}
+            </span>
+            <span className="text-ink-muted" data-testid="route-distance">
+              {t('route.distance', { distance })}
+            </span>
             <ul className="flex flex-wrap gap-1" aria-label={t('route.floors')}>
               {floors.map((floorId, i) => (
                 <li

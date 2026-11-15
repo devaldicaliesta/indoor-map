@@ -16,6 +16,15 @@ export {
   ESCALATOR_PER_FLOOR_M,
   STAIRS_PER_FLOOR_M,
 } from './costs';
+export {
+  ACCESSIBLE_WALK_SPEED_MPS,
+  CONNECTOR_SECONDS,
+  connectorSeconds,
+  type DurationOptions,
+  routeMinutes,
+  routeSeconds,
+  WALK_SPEED_MPS,
+} from './duration';
 export { directCost, type ResolvedEnd, resolveEnd, type Snap, snapToEdge } from './endpoints';
 export { findRoute } from './find-route';
 export { type BuildGraphOptions, buildGraph, type RouteArea, type RouteGraph } from './graph';
