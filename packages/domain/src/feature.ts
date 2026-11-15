@@ -15,6 +15,7 @@ export const FEATURE_KINDS = [
   'outdoor_area',
   'facility',
   'landmark',
+  'model3d',
 ] as const;
 export const FeatureKindSchema = z.enum(FEATURE_KINDS);
 export type FeatureKind = z.infer<typeof FeatureKindSchema>;
@@ -39,6 +40,10 @@ export interface MapFeatureProperties {
   subtype?: OutdoorSubtype;
   /** Luas koreksi manual (m²); tanpa nilai ini luas dihitung dari geometri. */
   areaM2?: number;
+  model?: string;
+  modelScale?: number;
+  modelRotation?: number;
+  baseHeight?: number;
 }
 
 /** Bentuk geometri tiap jenis fitur; menentukan alat gambar yang dipakai. */
@@ -56,6 +61,7 @@ export const KIND_SHAPE: Record<FeatureKind, FeatureShape> = {
   exit: 'point',
   facility: 'point',
   landmark: 'point',
+  model3d: 'point',
 };
 
 /** Subjenis `outdoor_area` di lapisan Area Luar, disimpan di `props.subtype`. */
@@ -68,6 +74,7 @@ export interface DrawKind {
   subtype?: OutdoorSubtype;
   /** Jenis fasilitas untuk `facility`; wajib ada saat fitur dibuat (constraint `features_facility_type`). */
   facilityTypeId?: string;
+  model?: string;
 }
 
 const INDOOR_KINDS: FeatureKind[] = [
@@ -81,8 +88,16 @@ const INDOOR_KINDS: FeatureKind[] = [
   'door',
   'exit',
   'facility',
+  'model3d',
 ];
-const OUTDOOR_KINDS: FeatureKind[] = ['non_walkable', 'wall', 'door', 'exit', 'facility'];
+const OUTDOOR_KINDS: FeatureKind[] = [
+  'non_walkable',
+  'wall',
+  'door',
+  'exit',
+  'facility',
+  'model3d',
+];
 
 export function drawKindsFor(shape: FeatureShape, isOutdoor: boolean): DrawKind[] {
   const kinds = (isOutdoor ? OUTDOOR_KINDS : INDOOR_KINDS)

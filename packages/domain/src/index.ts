@@ -44,6 +44,7 @@ export * from './location-detail';
 export * from './map-labels';
 export * from './map-view';
 export * from './mfa';
+export * from './models3d';
 export * from './names';
 export * from './nav-graph';
 export * from './notifications';
