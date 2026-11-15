@@ -89,7 +89,7 @@ describe('licensePayloadFor', () => {
     const payload = licensePayloadFor(request(), context);
     expect(payload).not.toBeNull();
     if (!payload) return;
-    expect(payload.validFrom).toBe('2026-11-15T00:00:00Z');
+    expect(payload.validFrom).toBe('2026-11-14T17:00:00Z');
     expect(payload.issuedAt).toBe('2026-11-15T03:04:05Z');
     const keys = (await crypto.subtle.generateKey({ name: 'Ed25519' }, true, [
       'sign',
@@ -109,6 +109,16 @@ describe('licensePayloadFor', () => {
       new Date('2026-12-01T00:00:00Z'),
     );
     expect(result).toEqual({ valid: true, license: payload });
+  });
+
+  it('lisensi bertanggal hari ini (WIB) langsung berlaku meski diterbitkan pukul 00.30 WIB', () => {
+    const payload = licensePayloadFor(request(), {
+      ...context,
+      issuedAt: new Date('2026-11-14T17:30:00Z'),
+    });
+    expect(Date.parse(payload?.validFrom ?? '')).toBeLessThanOrEqual(
+      Date.parse('2026-11-14T17:30:00Z'),
+    );
   });
 
   it('menolak nama klien kosong', () => {

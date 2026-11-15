@@ -126,6 +126,8 @@ export interface LicenseIssueContext {
 
 const isoSeconds = (date: Date) => date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 
+const jakartaDayStart = (day: string) => isoSeconds(new Date(`${day}T00:00:00+07:00`));
+
 export function licensePayloadFor(
   request: LicenseIssueRequest,
   context: LicenseIssueContext,
@@ -134,7 +136,7 @@ export function licensePayloadFor(
     licenseId: context.licenseId,
     client: context.client,
     plan: request.plan,
-    validFrom: `${request.validFrom}T00:00:00Z`,
+    validFrom: jakartaDayStart(request.validFrom),
     validUntil: `${request.validUntil}T00:00:00Z`,
     quota: request.quota,
     features: request.features,
