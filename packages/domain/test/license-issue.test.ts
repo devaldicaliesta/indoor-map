@@ -15,6 +15,7 @@ import {
   readLicenseIssueRequest,
   trialIssueDefaults,
 } from '../src/license-issue';
+import { daysRemaining } from '../src/license-quota';
 
 const INSTALLATION = '0b9f3c2e-1d4a-4c6b-8e7f-123456789abc';
 const INSTANCE = '7f3a9c10-0000-4000-8000-000000000001';
@@ -111,14 +112,15 @@ describe('licensePayloadFor', () => {
     expect(result).toEqual({ valid: true, license: payload });
   });
 
-  it('lisensi bertanggal hari ini (WIB) langsung berlaku meski diterbitkan pukul 00.30 WIB', () => {
-    const payload = licensePayloadFor(request(), {
+  it('tanggal mulai dan berakhir dihitung pada tengah malam WIB', () => {
+    const issuedAt = new Date('2026-11-14T17:30:00Z');
+    const payload = licensePayloadFor(request({ validUntil: '2026-11-29' }), {
       ...context,
-      issuedAt: new Date('2026-11-14T17:30:00Z'),
+      issuedAt,
     });
-    expect(Date.parse(payload?.validFrom ?? '')).toBeLessThanOrEqual(
-      Date.parse('2026-11-14T17:30:00Z'),
-    );
+    expect(Date.parse(payload?.validFrom ?? '')).toBeLessThanOrEqual(issuedAt.getTime());
+    expect(payload?.validUntil).toBe('2026-11-28T17:00:00Z');
+    expect(daysRemaining(payload?.validUntil ?? '', issuedAt)).toBe(14);
   });
 
   it('menolak nama klien kosong', () => {

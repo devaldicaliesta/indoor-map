@@ -84,14 +84,14 @@ describe('readLicenseKeyRequest', () => {
 });
 
 describe('licenseKeyIssueRequest', () => {
-  it('masa berlaku dihitung dari hari aktivasi dan lolos validasi penerbitan', () => {
+  it('masa berlaku dihitung dari hari aktivasi (WIB) dan lolos validasi penerbitan', () => {
     const request = licenseKeyIssueRequest(
       { plan: 'Profesional', durationDays: 365, quota: QUOTA, features: ['3d'] },
       INSTANCE,
       new Date('2026-11-15T17:45:00Z'),
     );
-    expect(request.validFrom).toBe('2026-11-15');
-    expect(request.validUntil).toBe('2027-11-15');
+    expect(request.validFrom).toBe('2026-11-16');
+    expect(request.validUntil).toBe('2027-11-16');
     expect(readLicenseIssueRequest(request).ok).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 import type { LicenseQuota } from './license.ts';
 import { TRIAL_PLAN } from './license.ts';
-import { type LicenseIssueRequest, readFeatures, readQuota } from './license-issue.ts';
+import { jakartaDay, type LicenseIssueRequest, readFeatures, readQuota } from './license-issue.ts';
 
 export const CROCKFORD_BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 export const LICENSE_KEY_LENGTH = 25;
@@ -109,7 +109,7 @@ export function licenseKeyIssueRequest(
   installationId: string,
   activatedAt: Date,
 ): LicenseIssueRequest {
-  const start = Date.parse(`${isoDay(activatedAt.getTime())}T00:00:00Z`);
+  const start = Date.parse(`${jakartaDay(activatedAt)}T00:00:00Z`);
   return {
     installationId,
     plan: template.plan,

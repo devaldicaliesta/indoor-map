@@ -126,6 +126,10 @@ export interface LicenseIssueContext {
 
 const isoSeconds = (date: Date) => date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 
+const JAKARTA_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' });
+
+export const jakartaDay = (date: Date) => JAKARTA_DAY.format(date);
+
 const jakartaDayStart = (day: string) => isoSeconds(new Date(`${day}T00:00:00+07:00`));
 
 export function licensePayloadFor(
@@ -137,7 +141,7 @@ export function licensePayloadFor(
     client: context.client,
     plan: request.plan,
     validFrom: jakartaDayStart(request.validFrom),
-    validUntil: `${request.validUntil}T00:00:00Z`,
+    validUntil: jakartaDayStart(request.validUntil),
     quota: request.quota,
     features: request.features,
     instanceId: context.instanceId,
@@ -183,7 +187,7 @@ export function licenseIssueDefaults(
     };
   }
   if (current.plan === TRIAL_PLAN) return trialIssueDefaults(today);
-  const currentEnd = current.validUntil.slice(0, 10);
+  const currentEnd = jakartaDay(new Date(current.validUntil));
   return {
     plan: current.plan,
     validFrom: today,
