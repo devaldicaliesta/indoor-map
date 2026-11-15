@@ -49,6 +49,7 @@ export * from './nav-graph';
 export * from './notifications';
 export * from './origin-point';
 export * from './permissions';
+export * from './pictograms';
 export * from './preview-message';
 export * from './profile';
 export * from './qr';

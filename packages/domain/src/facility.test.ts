@@ -4,10 +4,10 @@ import {
   checkFacilityTypeName,
   facilityIconPath,
   MAX_FACILITY_ICON_BYTES,
-  PICTOGRAM_KEYS,
   parseFacilityIcon,
   sortFacilityTypes,
 } from './facility';
+import { PICTOGRAM_KEYS } from './pictograms';
 
 describe('ikon jenis fasilitas', () => {
   it('piktogram bawaan disimpan sebagai builtin:<kunci> dan dibaca kembali', () => {
@@ -27,8 +27,10 @@ describe('ikon jenis fasilitas', () => {
     expect(facilityIconPath(null)).toBeNull();
   });
 
-  it('set bawaan memuat 14 piktogram yang diminta tanpa duplikat', () => {
-    expect(new Set(PICTOGRAM_KEYS).size).toBe(14);
+  it('kunci lama dari set 14 piktogram awal tetap dikenali', () => {
+    for (const key of ['toilet-male', 'atm', 'parking', 'emergency-exit']) {
+      expect(parseFacilityIcon(`builtin:${key}`)).toEqual({ kind: 'builtin', key });
+    }
   });
 });
 

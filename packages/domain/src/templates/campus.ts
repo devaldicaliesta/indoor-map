@@ -7,23 +7,27 @@ export const campus: VenueTemplate = {
   locationTypes: [
     {
       name: 'Ruang Kuliah',
-      icon: null,
+      icon: 'classroom',
       color: '#3d5a80',
       fields: [
         templateField('Kapasitas', 'number'),
         templateField('Proyektor', 'select', { options: ['Ada', 'Tidak ada'] }),
       ],
-      categories: [category('Ruang Kelas'), category('Auditorium')],
+      categories: [category('Ruang Kelas', 'classroom'), category('Auditorium', 'auditorium')],
     },
     {
       name: 'Laboratorium',
-      icon: null,
+      icon: 'science-lab',
       color: '#2f6f4f',
       fields: [
         templateField('Kepala laboratorium', 'text', { isSearchable: true }),
         templateField('Jam buka', 'opening_hours'),
       ],
-      categories: [category('Lab Komputer'), category('Lab Sains'), category('Studio')],
+      categories: [
+        category('Lab Komputer', 'computer-lab'),
+        category('Lab Sains', 'science-lab'),
+        category('Studio', 'art-studio'),
+      ],
     },
     {
       name: 'Kantor',
@@ -38,22 +42,22 @@ export const campus: VenueTemplate = {
         category('Rektorat'),
         category('Fakultas'),
         category('Program Studi'),
-        category('Layanan Mahasiswa'),
+        category('Layanan Mahasiswa', 'academic-office'),
       ],
     },
     {
       name: 'Perpustakaan',
-      icon: null,
+      icon: 'library',
       color: '#7a5c3d',
       fields: [templateField('Jam buka', 'opening_hours')],
-      categories: [category('Perpustakaan Pusat'), category('Ruang Baca')],
+      categories: [category('Perpustakaan Pusat', 'library'), category('Ruang Baca')],
     },
     {
       name: 'Kantin',
-      icon: null,
+      icon: 'food-court',
       color: '#b26a00',
       fields: [templateField('Jam buka', 'opening_hours')],
-      categories: [category('Kantin')],
+      categories: [category('Kantin', 'food-court')],
     },
   ],
   facilityTypes: [

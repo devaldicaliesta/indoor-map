@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { type CustomField, FIELD_TYPES, type FieldType, fieldKeyFromLabel } from '../custom-fields';
-import { PICTOGRAM_KEYS, type PictogramKey } from '../facility';
+import { PICTOGRAM_KEYS, type PictogramKey } from '../pictograms';
 import { VENUE_TYPES, type VenueType } from '../venue';
 
 /**
