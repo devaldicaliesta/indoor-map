@@ -2,6 +2,7 @@
 
 POST /inspect          badan = DXF → {layers, unit, metersPerUnit, extents}
 POST /render?layer=…   badan = DXF → {svg, widthPx, heightPx, extents}
+POST /scan?sensitivity= badan = PNG/JPG → {widthPx, heightPx, rooms, walls} dalam piksel
 GET  /health
 """
 
@@ -15,7 +16,10 @@ from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+import cv2
+
 from app.converter import ConversionError, inspect_dxf, render_svg
+from app.scan import scan_image
 
 # Sama dengan batas berkas denah di Admin dan bucket Storage.
 MAX_BYTES = 50 * 1024 * 1024
@@ -25,6 +29,17 @@ MAX_BYTES = 50 * 1024 * 1024
 TokenCheck = Callable[[str], str]
 
 CAD_FEATURE = "cad_import"
+PATHS = ("/inspect", "/render", "/scan")
+LOCKED = {
+    "/scan": "Scan denah termasuk fitur Impor denah CAD (DXF) yang tidak ada di paket lisensi ini.",
+}
+ERROR_STATUS = {
+    "dwg_unsupported": 415,
+    "invalid_dxf": 415,
+    "invalid_image": 415,
+    "too_large_px": 413,
+    "invalid_sensitivity": 400,
+}
 
 
 def supabase_access_check(url: str, anon_key: str) -> TokenCheck:
@@ -116,7 +131,7 @@ def make_handler(allowed_origins: set[str], check_token: TokenCheck | None):
 
         def do_POST(self) -> None:  # noqa: N802
             url = urlparse(self.path)
-            if url.path not in ("/inspect", "/render"):
+            if url.path not in PATHS:
                 self._fail(404, "not_found", "Alamat tidak dikenal.")
                 return
             if check_token is not None:
@@ -130,7 +145,7 @@ def make_handler(allowed_origins: set[str], check_token: TokenCheck | None):
                     self._fail(
                         403,
                         "feature_locked",
-                        "Impor denah CAD (DXF) tidak termasuk paket lisensi ini.",
+                        LOCKED.get(url.path, "Impor denah CAD (DXF) tidak termasuk paket lisensi ini."),
                     )
                     return
             length = int(self.headers.get("Content-Length") or 0)
@@ -142,17 +157,20 @@ def make_handler(allowed_origins: set[str], check_token: TokenCheck | None):
                 return
             data = self.rfile.read(length)
             try:
+                query = parse_qs(url.query)
                 if url.path == "/inspect":
                     self._json(200, inspect_dxf(data).as_json())
+                elif url.path == "/scan":
+                    self._json(200, scan_image(data, query.get("sensitivity", ["medium"])[0]))
                 else:
-                    query = parse_qs(url.query)
                     max_px = int(query.get("maxPx", ["4000"])[0])
                     self._json(200, render_svg(data, query.get("layer", []), max_px))
             except ConversionError as error:
-                status = 415 if error.code in ("dwg_unsupported", "invalid_dxf") else 422
-                self._fail(status, error.code, error.message)
+                self._fail(ERROR_STATUS.get(error.code, 422), error.code, error.message)
             except ValueError:
                 self._fail(400, "invalid", "Parameter tidak valid.")
+            except (cv2.error, MemoryError):
+                self._fail(422, "scan_failed", "Gambar tidak bisa dipindai. Coba gambar lain atau kepekaan lain.")
 
     return Handler
 

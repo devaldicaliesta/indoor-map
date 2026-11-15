@@ -6,11 +6,13 @@ import {
   MousePointer2Icon,
   PentagonIcon,
   Redo2Icon,
+  ScanLineIcon,
   SplineIcon,
   Undo2Icon,
   WaypointsIcon,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
+import { useScanStore } from '../floor-plans/scan/scan-store';
 import { useEditorStore } from './store/editor-store';
 import type { EditorSession } from './use-editor-session';
 import { TOOL_SHORTCUTS, UNDO_SHORTCUT } from './use-editor-shortcuts';
@@ -92,6 +94,8 @@ export function EditorToolbar({ canEdit, session }: { canEdit: boolean; session:
   const canRedo = useEditorStore((s) => s.history.future.length > 0);
   const tool = useEditorStore((s) => s.tool);
   const setTool = useEditorStore((s) => s.setTool);
+  const scanOpen = useScanStore((s) => s.open);
+  const setScanOpen = useScanStore((s) => s.setOpen);
   return (
     <div
       role="toolbar"
@@ -145,6 +149,27 @@ export function EditorToolbar({ canEdit, session }: { canEdit: boolean; session:
           >
             <Redo2Icon />
           </HistoryButton>
+          <hr className="my-1 border-line" />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label="Scan denah"
+                aria-pressed={scanOpen}
+                onClick={() => setScanOpen(!scanOpen)}
+                className={cn(
+                  buttonClass,
+                  scanOpen && 'bg-signal-soft shadow-[inset_0_0_0_1px_var(--ink)]',
+                )}
+              >
+                <ScanLineIcon />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <span className="font-bold">Scan denah</span> · Deteksi dinding dan ruang dari gambar
+              denah
+            </TooltipContent>
+          </Tooltip>
         </>
       ) : null}
     </div>
