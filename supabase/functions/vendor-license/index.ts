@@ -1,84 +1,110 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { licenseSigningBytes, toBase64 } from '../../../packages/domain/src/license.ts';
 import {
-  type LicensePayload,
-  licenseSigningBytes,
-  toBase64,
-} from '../../../packages/domain/src/license.ts';
+  licensePayloadFor,
+  newLicenseId,
+  readLicenseIssueRequest,
+} from '../../../packages/domain/src/license-issue.ts';
+import {
+  CORS_HEADERS,
+  callerHeaders,
+  fail,
+  reply,
+  requireCaller,
+  serviceHeaders,
+  url,
+} from '../_shared/auth.ts';
+import { logError } from '../trial-verify/activate.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+type SigningKey = Awaited<ReturnType<typeof crypto.subtle.importKey>>;
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+let signingKey: Promise<SigningKey> | null = null;
+
+function loadSigningKey(): Promise<SigningKey> {
+  signingKey ??= (async () => {
+    const text = (Deno.env.get('LICENSE_PRIVATE_KEY') ?? '').trim();
+    if (!text) throw new Error('LICENSE_PRIVATE_KEY belum diatur.');
+    const bytes = Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
+    return crypto.subtle.importKey('pkcs8', bytes, { name: 'Ed25519' }, false, ['sign']);
+  })();
+  signingKey.catch(() => {
+    signingKey = null;
+  });
+  return signingKey;
+}
+
+async function rpcAsCaller(authorization: string, name: string, body: unknown) {
+  return fetch(`${url}/rest/v1/rpc/${name}`, {
+    method: 'POST',
+    headers: callerHeaders(authorization),
+    body: JSON.stringify(body),
+  });
+}
+
+async function vendorSession(authorization: string): Promise<boolean> {
+  const response = await rpcAsCaller(authorization, 'vendor_access', {});
+  return response.ok && (await response.json()) === 'ok';
+}
+
+async function issue(request: Request): Promise<Response> {
+  const caller = await requireCaller(request);
+  if (caller instanceof Response) return caller;
+  const authorization = request.headers.get('Authorization') ?? '';
+  if (!(await vendorSession(authorization))) {
+    return fail(403, 'forbidden', 'Hanya staf vendor dengan verifikasi dua langkah.');
   }
 
-  try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } },
+  const check = readLicenseIssueRequest(await request.json().catch(() => null));
+  if (!check.ok) return fail(400, 'invalid', check.message);
+
+  const targetResponse = await rpcAsCaller(authorization, 'vendor_license_target', {
+    p_installation_id: check.request.installationId,
+  });
+  if (!targetResponse.ok) return fail(404, 'not_found', 'Instalasi tidak ditemukan.');
+  const [target] = (await targetResponse.json()) as { instance_id: string; client: string }[];
+  if (!target) return fail(404, 'not_found', 'Instalasi tidak ditemukan.');
+
+  const payload = licensePayloadFor(check.request, {
+    licenseId: newLicenseId(crypto.randomUUID()),
+    client: target.client,
+    instanceId: target.instance_id,
+    issuedAt: new Date(),
+  });
+  if (!payload) return fail(400, 'invalid', 'Isi lisensi tidak valid.');
+
+  const key = await loadSigningKey();
+  const signature = toBase64(
+    new Uint8Array(
+      await crypto.subtle.sign({ name: 'Ed25519' }, key, licenseSigningBytes(payload)),
+    ),
+  );
+
+  const recorded = await fetch(`${url}/rest/v1/rpc/vendor_license_record`, {
+    method: 'POST',
+    headers: serviceHeaders,
+    body: JSON.stringify({
+      p_actor: caller.id,
+      p_installation_id: check.request.installationId,
+      p_payload: payload,
+      p_signature: signature,
+    }),
+  });
+  if (!recorded.ok) {
+    logError(
+      'vendor-license',
+      `gagal mencatat lisensi ${recorded.status} ${await recorded.text()}`,
     );
+    return fail(500, 'unknown', 'Lisensi tidak bisa dicatat. Coba lagi.');
+  }
+  return reply(200, { license: { ...payload, signature } });
+}
 
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
-
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 401,
-      });
-    }
-
-    // Check if user is vendor staff
-    const { data: isVendor } = await supabaseClient.rpc('app_is_vendor');
-    if (!isVendor) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 403,
-      });
-    }
-
-    const { action, payload } = await req.json();
-
-    if (action === 'sign') {
-      const privateKeyText = Deno.env.get('LICENSE_PRIVATE_KEY');
-      if (!privateKeyText) {
-        throw new Error('LICENSE_PRIVATE_KEY not configured');
-      }
-
-      const privateKey = await crypto.subtle.importKey(
-        'pkcs8',
-        Uint8Array.from(atob(privateKeyText), (c) => c.charCodeAt(0)),
-        { name: 'Ed25519' },
-        false,
-        ['sign'],
-      );
-
-      const signature = await crypto.subtle.sign(
-        { name: 'Ed25519' },
-        privateKey,
-        licenseSigningBytes(payload as LicensePayload),
-      );
-
-      return new Response(JSON.stringify({ signature: toBase64(new Uint8Array(signature)) }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
-    }
-
-    return new Response(JSON.stringify({ error: 'Invalid action' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
+Deno.serve(async (request) => {
+  if (request.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
+  if (request.method !== 'POST') return reply(405, { message: 'Metode tidak didukung.' });
+  try {
+    return await issue(request);
   } catch (error) {
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    });
+    logError('vendor-license', error instanceof Error ? error.message : String(error));
+    return fail(500, 'unknown', 'Lisensi tidak bisa diterbitkan. Coba lagi.');
   }
 });

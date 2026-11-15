@@ -82,6 +82,8 @@ export type { InviteUserInput, UserDataExport, UsersRepository } from './reposit
 export type {
   BlockEntry,
   LifecycleRun,
+  NewVendorClient,
+  NewVendorInstallation,
   VendorAccess,
   VendorRepository,
 } from './repositories/vendor';

@@ -77,8 +77,11 @@ aktivitas (ditangani langkah 7).
    TRIAL_VISITOR_URL=https://app.panduarah.my.id
    TRIAL_ALLOWED_ORIGIN=https://panduarah.my.id
    SEND_EMAIL_HOOK_SECRET=<rahasia hook dari langkah 4.3>
+   LICENSE_PRIVATE_KEY=<isi ~/indoor-license-keys/license-private.pkcs8.b64>
    ```
-   Hapus berkas itu setelah dipasang.
+   Hapus berkas itu setelah dipasang. `LICENSE_PRIVATE_KEY` dipakai `vendor-license` untuk
+   menandatangani lisensi dari dasbor vendor; kunci ini hanya ada di rahasia Edge Function, tidak
+   pernah di database atau repo.
 2. Pasang semua fungsi (pengaturan `verify_jwt` dibaca dari `supabase/config.toml`) dengan
    **kunci publik lisensi vendor** ditanam sementara, lalu kembalikan berkasnya. Tanpa langkah
    ini `license-activate` di server memakai kunci DEV dan menolak lisensi bertanda tangan vendor:
@@ -91,7 +94,7 @@ aktivitas (ditangani langkah 7).
    ```
    Yang dipakai project ini: `publish`, `admin-users`, `auth-email`, `account-notice`,
    `system-settings`, `license-activate`, `license-checkin`, `license-service`, `trial-request`,
-   `trial-verify`, `trial-lifecycle`. Tanpa Docker: tambahkan `--use-api`.
+   `trial-verify`, `trial-lifecycle`, `vendor-license`. Tanpa Docker: tambahkan `--use-api`.
 
    Catatan kunci API: project Supabase baru memberi Edge Function **kunci format baru**
    (`SUPABASE_SERVICE_ROLE_KEY` = `sb_secret_…`, `SUPABASE_ANON_KEY` = `sb_publishable_…`), bukan

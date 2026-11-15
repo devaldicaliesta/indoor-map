@@ -409,6 +409,9 @@ TRIAL_SMTP_FROM = "PanduArah <panduarahid@gmail.com>"
 TRIAL_VERIFY_URL = "http://localhost:5175/trial/verifikasi/"
 TRIAL_ADMIN_URL = "http://localhost:5173"
 TRIAL_VISITOR_URL = "http://localhost:5174"
+# Vendor Portal (T-595b): lokal isi dari tools/license-cli/dev-keys di supabase/.env (lihat
+# .env.example); server vendor lewat `supabase secrets set`, tidak pernah di database.
+LICENSE_PRIVATE_KEY = "env(LICENSE_PRIVATE_KEY)"
 
 # Form trial di landing page vendor (T-505): dipanggil pengunjung tanpa login; dilindungi
 # validasi, honeypot, dan batas laju per IP. Khusus server vendor, tidak ikut paket klien.
