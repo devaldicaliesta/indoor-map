@@ -85,7 +85,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Supabase lokal
-        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+        run: |
+          printf 'LICENSE_PRIVATE_KEY=%s\n' "$(cat tools/license-cli/dev-keys/license-private.pkcs8.b64)" > supabase/.env
+          pnpm exec supabase start -x studio,imgproxy,vector,logflare
 
       - name: Environment E2E
         run: |
