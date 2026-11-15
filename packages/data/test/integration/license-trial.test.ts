@@ -128,13 +128,14 @@ describe.runIf(url && anonKey && serviceKey)('lisensi trial', () => {
 
   it('Mulai trial: aktif dalam satu permintaan, batas trial berlaku, trial kedua ditolak', async () => {
     const started = Date.now();
-    const license = await superAdmin.license.startTrial({
+    const trial = await superAdmin.license.startTrial({
       name: 'Rina Calon Klien',
       institution: `Mal Calon Klien ${suffix}`,
       email: `rina-${suffix}@calon-${suffix}.co.id`,
     });
     expect(Date.now() - started).toBeLessThan(60_000);
-    expect(license.plan).toBe('trial');
+    if (trial.status !== 'active') throw new Error('Vendor-stub menerbitkan trial langsung.');
+    expect(trial.license.plan).toBe('trial');
     const status = await superAdmin.license.status();
     expect(status).toMatchObject({ state: 'active', isTrial: true });
     const usage = await superAdmin.license.usage();

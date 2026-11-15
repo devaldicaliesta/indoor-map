@@ -428,6 +428,12 @@ verify_jwt = false
 [functions.trial-lifecycle]
 verify_jwt = false
 
+# API vendor untuk instalasi on-premise (T-595c): dipanggil `license-activate` server klien tanpa
+# akun vendor; isian divalidasi, dibatasi laju per IP, dan trial hanya terbit setelah disetujui.
+# Khusus server vendor, tidak ikut paket klien.
+[functions.vendor-api]
+verify_jwt = false
+
 # Dipanggil GoTrue tanpa JWT; keasliannya diperiksa lewat tanda tangan Standard Webhooks.
 [functions.auth-email]
 verify_jwt = false

@@ -168,7 +168,8 @@ select throws_ok($$ select public.vendor_license_revoke(
 reset role;
 select is(
   (select count(*)::integer from hosting.vendor_actions
-   where action in ('client_created', 'installation_created', 'license_revoked')),
+   where action in ('client_created', 'installation_created', 'license_revoked')
+     and user_id = 'b6500000-0000-4000-8000-0000000000f1'),
   3, 'Tambah klien, tambah instalasi, dan cabut lisensi tercatat di log vendor');
 
 select * from finish();

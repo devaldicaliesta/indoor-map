@@ -43,7 +43,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Supabase lokal
-        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+        run: bash scripts/supabase-start-ci.sh
 
       - name: Database dan akun seed
         run: |

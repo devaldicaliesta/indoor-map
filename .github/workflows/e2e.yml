@@ -87,7 +87,7 @@ jobs:
       - name: Supabase lokal
         run: |
           printf 'LICENSE_PRIVATE_KEY=%s\n' "$(cat tools/license-cli/dev-keys/license-private.pkcs8.b64)" > supabase/.env
-          pnpm exec supabase start -x studio,imgproxy,vector,logflare
+          bash scripts/supabase-start-ci.sh
 
       - name: Environment E2E
         run: |

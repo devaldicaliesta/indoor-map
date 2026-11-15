@@ -13,6 +13,7 @@ import { useIdleSignOut } from '../idle-sign-out';
 import { BlocklistPanel } from './blocklist-panel';
 import { ClientsPanel } from './clients-panel';
 import { LeadsTable } from './leads-table';
+import { ReleasesPanel } from './releases-panel';
 import { Summary } from './summary';
 import { type DialogTarget, TrialDialog } from './trial-dialogs';
 import { useCapacity, useLeads, useTrialAction } from './use-vendor';
@@ -70,6 +71,7 @@ export function DashboardPage({
           <TabsList className="mb-8">
             <TabsTrigger value="trial">Trial ter-hosting</TabsTrigger>
             <TabsTrigger value="clients">Klien & Instalasi</TabsTrigger>
+            <TabsTrigger value="releases">Rilis</TabsTrigger>
           </TabsList>
 
           <TabsContent value="trial" className="grid gap-8">
@@ -133,6 +135,10 @@ export function DashboardPage({
 
           <TabsContent value="clients">
             <ClientsPanel />
+          </TabsContent>
+
+          <TabsContent value="releases">
+            <ReleasesPanel />
           </TabsContent>
         </Tabs>
       </main>

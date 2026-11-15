@@ -1,7 +1,8 @@
 // Edge Function license-activate: memasang lisensi instalasi dan membuat Super Admin pertama.
 //   { mode: "online", licenseKey }  → minta berkas ke server vendor untuk instance ini
 //   { mode: "manual", license }     → berkas lisensi yang diunggah
-//   { mode: "trial", name, institution, email } → trial otomatis dari server vendor (T-504)
+//   { mode: "trial", name, institution, email } → trial dari server vendor: langsung terpasang
+//     (T-504) atau { queued: true } bila vendor perlu menyetujui dulu (T-595c)
 //   { mode: "first_admin", fullName, email, password }
 // Mode pemasangan lisensi membawa `eulaVersion` bila EULA versi berlaku belum pernah disetujui
 // instalasi ini; tanpa itu aktivasi ditolak (T-602). Persetujuan dicatat bersama lisensinya.
@@ -256,6 +257,9 @@ async function handle(request: Request, input: Record<string, unknown>) {
     const request = trialRequest(input);
     const eula = await eulaToRecord(input);
     const file = await fromVendor('/v1/trial', { ...request, instanceId: current.instance_id });
+    if ((file as { status?: unknown } | null)?.status === 'queued') {
+      return { queued: true, email: request.email };
+    }
     return { license: await install(file, 'online', current.instance_id, actorId, eula) };
   }
   if (input.mode === 'manual') {

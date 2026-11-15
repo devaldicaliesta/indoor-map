@@ -124,6 +124,7 @@ services:
       SUPABASE_DB_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
       SEND_EMAIL_HOOK_SECRET: ${SEND_EMAIL_HOOK_SECRET}
       LICENSE_VENDOR_URL: ${LICENSE_VENDOR_URL:-}
+      APP_VERSION: ${APP_VERSION}
 
   cad:
     image: ${IMAGE_PREFIX:-panduarah}/cad-converter:${APP_VERSION:?APP_VERSION belum diisi di .env}
