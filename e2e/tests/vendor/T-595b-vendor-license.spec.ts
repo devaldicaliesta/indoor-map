@@ -62,7 +62,7 @@ test.describe('T-595b Vendor Portal: lisensi', () => {
     await expect(installationRow).toContainText('Belum berlisensi');
     await page.screenshot({ path: shot('01-klien-instalasi'), fullPage: true });
 
-    await installationRow.getByRole('button', { name: 'Lisensi' }).click();
+    await installationRow.getByRole('button', { name: 'Lisensi', exact: true }).click();
     const licenseDialog = page.getByRole('dialog');
     await expect(licenseDialog).toContainText('Belum ada lisensi untuk instalasi ini.');
     await licenseDialog.getByRole('button', { name: 'Terbitkan lisensi' }).click();

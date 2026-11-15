@@ -2038,6 +2038,21 @@ export type Database = {
         }[];
       };
       vendor_capacity: { Args: Record<PropertyKey, never>; Returns: number };
+      vendor_checkin: {
+        Args: { p_instance_id: string; p_ip?: string; p_license_id: string; p_version?: string };
+        Returns: {
+          file: Json;
+          outcome: string;
+        }[];
+      };
+      vendor_checkins: {
+        Args: { p_installation_id: string; p_limit?: number };
+        Returns: {
+          created_at: string;
+          ip_address: string;
+          version: string;
+        }[];
+      };
       vendor_client_create: {
         Args: { p_email: string; p_institution: string; p_name: string; p_phone?: string };
         Returns: string;
@@ -2099,6 +2114,30 @@ export type Database = {
           status: string;
           valid_from: string;
           valid_until: string;
+        }[];
+      };
+      vendor_release_add: {
+        Args: {
+          p_download_url: string;
+          p_notes: string;
+          p_released_on: string;
+          p_sha256: string;
+          p_version: string;
+        };
+        Returns: string;
+      };
+      vendor_release_remove: { Args: { p_release_id: string }; Returns: undefined };
+      vendor_releases: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          created_at: string;
+          created_by_email: string;
+          download_url: string;
+          id: string;
+          notes: string;
+          released_on: string;
+          sha256: string;
+          version: string;
         }[];
       };
       vendor_requests: {

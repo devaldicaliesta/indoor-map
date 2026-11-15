@@ -1017,7 +1017,8 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
   3. Antrean permintaan trial on-premise dari halaman Aktivasi Admin klien (lewat
      `LICENSE_VENDOR_URL`, beserta ID instalasi): setujui → lisensi trial terbit dan terkirim
      lewat email; tolak → email beralasan. Trial landing page adalah trial ter-hosting (T-617).
-  4. Riwayat check-in instalasi dan unduh rilis per versi.
+  4. Riwayat check-in instalasi (versi dan IP, lewat `LICENSE_VENDOR_URL/v1/checkin`) dan unduh
+     rilis per versi (portal mencatat alamat unduh dan SHA-256 arsip rilis).
 - **Verifikasi:** TC-OPS-14, 15; bukti `e2e/evidence/T-595/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
   - [ ] Permintaan trial dari Admin klien bisa disetujui dan menghasilkan lisensi yang lolos aktivasi

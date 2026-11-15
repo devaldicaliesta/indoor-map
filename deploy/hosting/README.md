@@ -99,8 +99,10 @@ aktivitas (ditangani langkah 7).
 
    `vendor-api` adalah server vendor untuk instalasi on-premise klien (tanpa JWT): isi
    `LICENSE_VENDOR_URL` instalasi klien dengan `https://<project>.supabase.co/functions/v1/vendor-api`.
-   Saat ini hanya `POST /v1/trial` (permintaan trial masuk antrean dasbor vendor, tab Klien &
-   Instalasi); aktivasi kunci dan check-in menyusul (T-595d).
+   `POST /v1/trial` memasukkan permintaan trial ke antrean dasbor vendor (tab Klien & Instalasi).
+   `POST /v1/checkin` menjawab status lisensi dari data portal (pencabutan di portal berlaku pada
+   check-in harian berikutnya) dan mencatat versi serta IP instalasi. Aktivasi dengan kunci
+   (`/v1/activate`) belum tersedia (T-595e): klien memasang berkas lisensi.
 
    Catatan kunci API: project Supabase baru memberi Edge Function **kunci format baru**
    (`SUPABASE_SERVICE_ROLE_KEY` = `sb_secret_…`, `SUPABASE_ANON_KEY` = `sb_publishable_…`), bukan

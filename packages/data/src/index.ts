@@ -92,4 +92,5 @@ export type {
   TrialApproval,
   VendorClientsRepository,
 } from './repositories/vendor-clients';
+export type { VendorReleasesRepository } from './repositories/vendor-releases';
 export type { VenuesRepository } from './repositories/venues';

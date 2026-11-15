@@ -1,27 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
-import { createServer, type Server } from 'node:http';
+import type { Server } from 'node:http';
 import { env } from '../../../env';
 import { expect, test } from '../../../fixtures';
 import { currentLicenseId, restoreLicense, sql } from '../../../support/license';
 import { waitForMail } from '../../../support/mailpit';
-import { createVendorStaff, signInVendorStaff } from '../../../support/vendor';
+import { createVendorStaff, signInVendorStaff, vendorApiProxy } from '../../../support/vendor';
 
 const shot = (name: string) => `evidence/T-595c/${name}.png`;
-
-function vendorApiProxy(ip: string): Server {
-  return createServer(async (request, response) => {
-    const chunks: Buffer[] = [];
-    for await (const chunk of request) chunks.push(chunk as Buffer);
-    const upstream = await fetch(`${env.supabaseUrl}/functions/v1/vendor-api${request.url}`, {
-      method: request.method ?? 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
-      body: Buffer.concat(chunks).toString('utf8'),
-    });
-    response.writeHead(upstream.status, { 'Content-Type': 'application/json' });
-    response.end(await upstream.text());
-  });
-}
 
 test.describe.configure({ mode: 'serial' });
 

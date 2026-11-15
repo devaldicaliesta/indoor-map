@@ -10,6 +10,7 @@ import type { Database } from '../database.types';
 import { DataError, toDataError } from '../errors';
 import type { Db } from '../supabase';
 import { createVendorClientsRepository, type VendorClientsRepository } from './vendor-clients';
+import { createVendorReleasesRepository, type VendorReleasesRepository } from './vendor-releases';
 
 /** Langkah layar masuk dasbor vendor (`vendor_access`, migrasi 0053). */
 export type VendorAccess = 'ok' | 'mfa' | 'denied';
@@ -34,7 +35,7 @@ export interface LifecycleRun {
  * Dasbor vendor trial ter-hosting. Setiap fungsi di server mensyaratkan staf vendor dengan sesi
  * `aal2`; repository ini tidak menambah pemeriksaan apa pun.
  */
-export interface VendorRepository extends VendorClientsRepository {
+export interface VendorRepository extends VendorClientsRepository, VendorReleasesRepository {
   access(): Promise<VendorAccess>;
   capacity(): Promise<number>;
   leads(): Promise<TrialLead[]>;
@@ -99,6 +100,7 @@ function toLead(row: RequestRow): TrialLead {
 export function createVendorRepository(db: Db): VendorRepository {
   return {
     ...createVendorClientsRepository(db),
+    ...createVendorReleasesRepository(db),
 
     async access() {
       const { data, error } = await db.rpc('vendor_access');
