@@ -252,6 +252,6 @@ describe('matriks akses tabel', () => {
   it('permissions_matrix.test.sql sesuai matriks', () => {
     const sql = generate();
     if (process.env.UPDATE_MATRIX) writeFileSync(target, sql);
-    expect(readFileSync(target, 'utf8')).toBe(sql);
+    expect(readFileSync(target, 'utf8').replaceAll('\r\n', '\n')).toBe(sql);
   });
 });

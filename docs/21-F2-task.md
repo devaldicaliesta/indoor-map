@@ -1014,12 +1014,14 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
   1. Data klien dan instalasi (ID instalasi, versi, paket, masa berlaku).
   2. Terbitkan, perpanjang, ubah paket, dan cabut lisensi. Kunci privat disimpan di layanan
      terpisah atau HSM, bukan di basis data portal.
-  3. Antrean permintaan trial dari landing page: setujui → lisensi trial terbit dan terkirim
-     lewat email.
-  4. Riwayat check-in instalasi dan unduh rilis per versi.
+  3. Antrean permintaan trial on-premise dari halaman Aktivasi Admin klien (lewat
+     `LICENSE_VENDOR_URL`, beserta ID instalasi): setujui → lisensi trial terbit dan terkirim
+     lewat email; tolak → email beralasan. Trial landing page adalah trial ter-hosting (T-617).
+  4. Riwayat check-in instalasi (versi dan IP, lewat `LICENSE_VENDOR_URL/v1/checkin`) dan unduh
+     rilis per versi (portal mencatat alamat unduh dan SHA-256 arsip rilis).
 - **Verifikasi:** TC-OPS-14, 15; bukti `e2e/evidence/T-595/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
-  - [ ] Permintaan trial dari landing page bisa disetujui dan menghasilkan lisensi yang lolos aktivasi
+  - [ ] Permintaan trial dari Admin klien bisa disetujui dan menghasilkan lisensi yang lolos aktivasi
   - [ ] Kunci privat tidak pernah tersimpan di database portal
 
 ### T-596 · Bantuan dan dokumentasi pengguna

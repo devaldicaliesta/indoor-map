@@ -108,6 +108,159 @@ describe('repository dasbor vendor', () => {
   });
 });
 
+describe('antrean trial on-premise', () => {
+  const trialRow = {
+    id: 'e3000000-0000-4000-8000-0000000000bb',
+    name: 'Sari',
+    institution: 'Kampus Uji',
+    email: 'sari@kampus.ac.id',
+    instance_id: 'c3000000-0000-4000-8000-0000000000cc',
+    status: 'rejected',
+    reject_reason: 'Data belum lengkap',
+    created_at: '2026-11-15T01:00:00+00:00',
+    decided_at: '2026-11-15T02:00:00+00:00',
+    decided_by_email: 'staf@vendor.id',
+    license_id: null,
+  };
+  const license = {
+    licenseId: 'LIC-ABCDEF12',
+    client: 'Kampus Uji',
+    plan: 'trial',
+    validFrom: '2026-11-15T00:00:00Z',
+    validUntil: '2026-11-29T00:00:00Z',
+    quota: { venues: 1, buildings: 2, floors: 6, infoPoints: 2 },
+    features: ['3d'],
+    instanceId: trialRow.instance_id,
+    issuedAt: '2026-11-15T02:00:00Z',
+    signature: 'c2lnbmF0dXJl',
+  };
+
+  function invoking(result: { data: unknown; error: unknown }) {
+    const calls: { name: string; body: unknown }[] = [];
+    const db = {
+      rpc: async () => ({ data: [trialRow], error: null }),
+      functions: {
+        invoke: async (name: string, options: { body: unknown }) => {
+          calls.push({ name, body: options.body });
+          return result;
+        },
+      },
+    } as unknown as Db;
+    return { repo: createVendorRepository(db), calls };
+  }
+
+  it('baris antrean menjadi permintaan dengan keputusan dan alasannya', async () => {
+    const [request] = await invoking({ data: null, error: null }).repo.trialRequests();
+    expect(request).toEqual({
+      id: trialRow.id,
+      name: 'Sari',
+      institution: 'Kampus Uji',
+      email: 'sari@kampus.ac.id',
+      instanceId: trialRow.instance_id,
+      status: 'rejected',
+      rejectReason: 'Data belum lengkap',
+      createdAt: trialRow.created_at,
+      decidedAt: trialRow.decided_at,
+      decidedByEmail: 'staf@vendor.id',
+      licenseId: null,
+    });
+  });
+
+  it('persetujuan memanggil vendor-trial dan mengembalikan berkas lisensi', async () => {
+    const { repo, calls } = invoking({ data: { license, emailed: true }, error: null });
+    await expect(repo.approveTrial(trialRow.id, 20)).resolves.toEqual({ license, emailed: true });
+    expect(calls).toEqual([
+      { name: 'vendor-trial', body: { requestId: trialRow.id, decision: 'approve', days: 20 } },
+    ]);
+  });
+
+  it('balasan persetujuan tanpa lisensi yang terbaca ditolak', async () => {
+    const { repo } = invoking({
+      data: { license: { licenseId: 'x' }, emailed: true },
+      error: null,
+    });
+    await expect(repo.approveTrial(trialRow.id, 14)).rejects.toThrow('Balasan lisensi');
+  });
+
+  it('pesan penolakan dari fungsi diteruskan dan email gagal tetap dilaporkan', async () => {
+    const conflict = new Response(JSON.stringify({ message: 'Permintaan sudah diputuskan.' }), {
+      status: 409,
+    });
+    await expect(
+      invoking({ data: null, error: { context: conflict } }).repo.rejectTrial(trialRow.id, 'x'),
+    ).rejects.toThrow('Permintaan sudah diputuskan.');
+    const { repo, calls } = invoking({ data: { emailed: false }, error: null });
+    await expect(repo.rejectTrial(trialRow.id, 'Data belum lengkap')).resolves.toEqual({
+      emailed: false,
+    });
+    expect(calls[0]?.body).toEqual({
+      requestId: trialRow.id,
+      decision: 'reject',
+      reason: 'Data belum lengkap',
+    });
+  });
+});
+
+describe('check-in dan rilis', () => {
+  it('baris check-in dan rilis dipetakan; versi atau IP kosong menjadi null', async () => {
+    const checkins = repoWith({
+      data: [{ created_at: '2026-11-15T01:00:00+00:00', version: null, ip_address: null }],
+      error: null,
+    });
+    await expect(checkins.repo.checkins('i-1')).resolves.toEqual([
+      { at: '2026-11-15T01:00:00+00:00', version: null, ip: null },
+    ]);
+    expect(checkins.calls).toEqual([
+      { name: 'vendor_checkins', args: { p_installation_id: 'i-1' } },
+    ]);
+
+    const releases = repoWith({
+      data: [
+        {
+          id: 'r-1',
+          version: '1.2.0',
+          released_on: '2026-11-15',
+          notes: '',
+          download_url: 'https://unduh.vendor.id/a.tar.gz',
+          sha256: 'ab'.repeat(32),
+          created_by_email: null,
+          created_at: '2026-11-15T01:00:00+00:00',
+        },
+      ],
+      error: null,
+    });
+    await expect(releases.repo.releases()).resolves.toEqual([
+      {
+        id: 'r-1',
+        version: '1.2.0',
+        releasedOn: '2026-11-15',
+        notes: '',
+        downloadUrl: 'https://unduh.vendor.id/a.tar.gz',
+        sha256: 'ab'.repeat(32),
+        createdByEmail: null,
+        createdAt: '2026-11-15T01:00:00+00:00',
+      },
+    ]);
+  });
+
+  it('rilis ganda ditolak dengan pesan server', async () => {
+    const { repo, calls } = repoWith({
+      data: null,
+      error: { code: 'IM409', message: 'Rilis versi 1.2.0 sudah ada.' },
+    });
+    await expect(
+      repo.addRelease({
+        version: '1.2.0',
+        releasedOn: '2026-11-15',
+        notes: '',
+        downloadUrl: 'https://unduh.vendor.id/a.tar.gz',
+        sha256: 'ab'.repeat(32),
+      }),
+    ).rejects.toThrow('sudah ada');
+    expect(calls[0]?.name).toBe('vendor_release_add');
+  });
+});
+
 describe('kode TOTP untuk test', () => {
   it('cocok dengan vektor RFC 6238 (SHA-1)', () => {
     // Rahasia ASCII "12345678901234567890"; kode 8 digit 94287082 → 6 digit terakhir.

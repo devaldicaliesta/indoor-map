@@ -21,6 +21,7 @@ import {
 } from '../_shared/auth.ts';
 
 const vendorUrl = Deno.env.get('LICENSE_VENDOR_URL') ?? '';
+const appVersion = Deno.env.get('APP_VERSION') || undefined;
 
 type Outcome = 'renewed' | 'unchanged' | 'revoked' | 'failed';
 
@@ -59,7 +60,11 @@ async function askVendor(target: Target): Promise<VendorReply> {
     response = await fetch(`${vendorUrl.replace(/\/+$/, '')}/v1/checkin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ licenseId: target.license_id, instanceId: target.instance_id }),
+      body: JSON.stringify({
+        licenseId: target.license_id,
+        instanceId: target.instance_id,
+        version: appVersion,
+      }),
       signal: AbortSignal.timeout(15_000),
     });
   } catch {

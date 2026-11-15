@@ -2038,6 +2038,21 @@ export type Database = {
         }[];
       };
       vendor_capacity: { Args: Record<PropertyKey, never>; Returns: number };
+      vendor_checkin: {
+        Args: { p_instance_id: string; p_ip?: string; p_license_id: string; p_version?: string };
+        Returns: {
+          file: Json;
+          outcome: string;
+        }[];
+      };
+      vendor_checkins: {
+        Args: { p_installation_id: string; p_limit?: number };
+        Returns: {
+          created_at: string;
+          ip_address: string;
+          version: string;
+        }[];
+      };
       vendor_client_create: {
         Args: { p_email: string; p_institution: string; p_name: string; p_phone?: string };
         Returns: string;
@@ -2101,6 +2116,30 @@ export type Database = {
           valid_until: string;
         }[];
       };
+      vendor_release_add: {
+        Args: {
+          p_download_url: string;
+          p_notes: string;
+          p_released_on: string;
+          p_sha256: string;
+          p_version: string;
+        };
+        Returns: string;
+      };
+      vendor_release_remove: { Args: { p_release_id: string }; Returns: undefined };
+      vendor_releases: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          created_at: string;
+          created_by_email: string;
+          download_url: string;
+          id: string;
+          notes: string;
+          released_on: string;
+          sha256: string;
+          version: string;
+        }[];
+      };
       vendor_requests: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -2128,9 +2167,63 @@ export type Database = {
           verified_at: string;
         }[];
       };
+      vendor_trial_approve: {
+        Args: {
+          p_actor: string;
+          p_installation_id: string;
+          p_payload: Json;
+          p_request_id: string;
+          p_signature: string;
+        };
+        Returns: undefined;
+      };
       vendor_trial_delete: { Args: { p_venue_id: string }; Returns: undefined };
       vendor_trial_extend: { Args: { p_days: number; p_venue_id: string }; Returns: string };
       vendor_trial_lock: { Args: { p_venue_id: string }; Returns: undefined };
+      vendor_trial_prepare: {
+        Args: { p_request_id: string };
+        Returns: {
+          client: string;
+          email: string;
+          installation_id: string;
+          instance_id: string;
+          name: string;
+        }[];
+      };
+      vendor_trial_reject: {
+        Args: { p_reason: string; p_request_id: string };
+        Returns: {
+          email: string;
+          institution: string;
+          name: string;
+        }[];
+      };
+      vendor_trial_requests: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          created_at: string;
+          decided_at: string;
+          decided_by_email: string;
+          email: string;
+          id: string;
+          instance_id: string;
+          institution: string;
+          license_id: string;
+          name: string;
+          reject_reason: string;
+          status: string;
+        }[];
+      };
+      vendor_trial_submit: {
+        Args: {
+          p_email: string;
+          p_instance_id: string;
+          p_institution: string;
+          p_ip?: string;
+          p_name: string;
+        };
+        Returns: string;
+      };
       vendor_unblock: { Args: { p_value: string }; Returns: undefined };
     };
     Enums: {

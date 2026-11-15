@@ -138,8 +138,9 @@ function ManualForm({ eula }: { eula: EulaChoice }) {
 }
 
 /**
- * Trial otomatis (T-504): nama, instansi, dan email diteruskan ke server vendor yang langsung
- * menerbitkan lisensi trial untuk ID instalasi ini. Satu trial per instalasi, email, dan domain.
+ * Trial (T-504, T-595c): nama, instansi, dan email diteruskan ke server vendor, yang langsung
+ * menerbitkan lisensi trial untuk ID instalasi ini atau mengantrekannya sampai disetujui. Satu
+ * trial per instalasi, email, dan domain.
  */
 function TrialForm({ eula }: { eula: EulaChoice }) {
   const start = useStartTrial();
@@ -155,10 +156,13 @@ function TrialForm({ eula }: { eula: EulaChoice }) {
         eulaVersion: eula.version,
       },
       {
-        onSuccess: (license) =>
-          toast.success('Trial aktif', {
-            description: `${license.client} · ${TRIAL_MIN_DAYS} hari`,
-          }),
+        onSuccess: (started) => {
+          if (started.status === 'active') {
+            toast.success('Trial aktif', {
+              description: `${started.license.client} · ${TRIAL_MIN_DAYS} hari`,
+            });
+          }
+        },
       },
     );
   }
@@ -194,6 +198,12 @@ function TrialForm({ eula }: { eula: EulaChoice }) {
         />
       </div>
       {start.error ? <FormNotice tone="error">{start.error.message}</FormNotice> : null}
+      {start.data?.status === 'queued' ? (
+        <FormNotice tone="info">
+          Permintaan trial terkirim dan menunggu persetujuan vendor. Setelah disetujui, berkas
+          lisensi dikirim ke {start.data.email}; pasang di tab Unggah berkas.
+        </FormNotice>
+      ) : null}
       <Button type="submit" variant="primary" disabled={start.isPending || eula.blocked}>
         {start.isPending ? 'Meminta trial ke vendor…' : `Mulai trial ${TRIAL_MIN_DAYS} hari`}
       </Button>

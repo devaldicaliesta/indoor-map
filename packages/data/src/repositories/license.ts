@@ -40,6 +40,10 @@ export interface TrialRequest {
 }
 
 /** Ringkasan lisensi yang baru dipasang. */
+export type TrialStart =
+  | { status: 'active'; license: ActivatedLicense }
+  | { status: 'queued'; email: string };
+
 export interface ActivatedLicense {
   licenseId: string;
   client: string;
@@ -96,10 +100,11 @@ export interface LicenseRepository {
    */
   activateOnline(licenseKey: string, eulaVersion?: string): Promise<ActivatedLicense>;
   /**
-   * Trial otomatis: instalasi meminta lisensi trial ke server vendor (online) lalu langsung
-   * memasangnya. Vendor menolak trial kedua untuk instalasi, email, atau domain yang sama.
+   * Trial dari server vendor: langsung terpasang, atau antre sampai vendor menyetujui dan
+   * mengirim berkas lisensi ke email pemohon. Vendor menolak trial kedua untuk instalasi, email,
+   * atau domain yang sama.
    */
-  startTrial(input: TrialRequest, eulaVersion?: string): Promise<ActivatedLicense>;
+  startTrial(input: TrialRequest, eulaVersion?: string): Promise<TrialStart>;
   /** Berkas lisensi (JSON) dari vendor, diverifikasi server sebelum dipasang. */
   activateManual(license: unknown, eulaVersion?: string): Promise<ActivatedLicense>;
   /** Hanya untuk instalasi baru yang sudah berlisensi dan belum punya Super Admin. */
@@ -171,12 +176,12 @@ export function createLicenseRepository(db: Db): LicenseRepository {
     },
 
     async startTrial(input, eulaVersion) {
-      const { license } = await invoke<{ license: ActivatedLicense }>({
-        mode: 'trial',
-        ...input,
-        eulaVersion,
-      });
-      return license;
+      const result = await invoke<{ license?: ActivatedLicense; queued?: boolean; email?: string }>(
+        { mode: 'trial', ...input, eulaVersion },
+      );
+      if (result.license) return { status: 'active', license: result.license };
+      if (result.queued) return { status: 'queued', email: result.email ?? input.email };
+      throw new DataError('unknown', { message: 'Balasan trial dari vendor tidak dikenal.' });
     },
 
     async activateManual(license, eulaVersion) {

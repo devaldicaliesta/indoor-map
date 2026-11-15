@@ -26,6 +26,13 @@ export interface SmtpMessage {
   html?: string;
   /** Gambar untuk HTML; dikirim multipart/related agar tampil tanpa unduhan dari luar. */
   inline?: readonly InlineImage[];
+  attachments?: readonly Attachment[];
+}
+
+export interface Attachment {
+  filename: string;
+  contentType: string;
+  content: string;
 }
 
 export type SmtpFailure =
@@ -173,31 +180,53 @@ function buildMessage(config: SmtpConfig, message: SmtpMessage): string {
     `Date: ${new Date().toUTCString()}`,
     'MIME-Version: 1.0',
   ];
-  if (!message.html) {
-    return [
-      ...headers,
-      'Content-Type: text/plain; charset=utf-8',
-      'Content-Transfer-Encoding: 8bit',
-      '',
-      dotStuff(message.text),
-      '.',
-    ].join('\r\n');
-  }
-  const boundary = `alternative-${crypto.randomUUID()}`;
+  const attachments = message.attachments ?? [];
+  if (attachments.length === 0) return [...headers, ...bodyPart(message), '.'].join('\r\n');
+  const boundary = `mixed-${crypto.randomUUID()}`;
   return [
     ...headers,
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    `Content-Type: multipart/mixed; boundary="${boundary}"`,
     '',
     `--${boundary}`,
-    'Content-Type: text/plain; charset=utf-8',
-    'Content-Transfer-Encoding: 8bit',
-    '',
-    dotStuff(message.text),
-    `--${boundary}`,
-    ...htmlPart(message.html, message.inline ?? []),
+    ...bodyPart(message),
+    ...attachments.flatMap((attachment) => [`--${boundary}`, ...attachmentPart(attachment)]),
     `--${boundary}--`,
     '.',
   ].join('\r\n');
+}
+
+function textPart(text: string): string[] {
+  return [
+    'Content-Type: text/plain; charset=utf-8',
+    'Content-Transfer-Encoding: 8bit',
+    '',
+    dotStuff(text),
+  ];
+}
+
+function bodyPart(message: SmtpMessage): string[] {
+  if (!message.html) return textPart(message.text);
+  const boundary = `alternative-${crypto.randomUUID()}`;
+  return [
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    '',
+    `--${boundary}`,
+    ...textPart(message.text),
+    `--${boundary}`,
+    ...htmlPart(message.html, message.inline ?? []),
+    `--${boundary}--`,
+  ];
+}
+
+function attachmentPart(attachment: Attachment): string[] {
+  const filename = attachment.filename.replace(/["\r\n]/g, '');
+  return [
+    `Content-Type: ${attachment.contentType}; name="${filename}"`,
+    'Content-Transfer-Encoding: base64',
+    `Content-Disposition: attachment; filename="${filename}"`,
+    '',
+    base64Lines(attachment.content),
+  ];
 }
 
 async function connect(config: SmtpConfig): Promise<Conn> {

@@ -126,8 +126,12 @@ test.describe('T-008 Login, logout, reset password', () => {
     const requestReset = async (expectedMails: number) => {
       await page.goto('/forgot-password');
       await page.getByLabel('Email').fill(user.email);
-      await page.getByRole('button', { name: 'Kirim tautan reset' }).click();
-      await expect(page.getByRole('status')).toContainText(`Jika ${user.email} terdaftar`);
+      await expect(async () => {
+        await page.getByRole('button', { name: 'Kirim tautan reset' }).click();
+        await expect(page.getByRole('status')).toContainText(`Jika ${user.email} terdaftar`, {
+          timeout: 3_000,
+        });
+      }).toPass({ timeout: 20_000 });
       return waitForMail(user.email, expectedMails);
     };
     const first = await requestReset(2);

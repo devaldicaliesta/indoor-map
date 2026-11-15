@@ -1,3 +1,7 @@
+# Semua berkas teks berakhiran LF di setiap OS (Biome mewajibkan LF; checkout Windows dengan
+# core.autocrlf=true tanpa aturan ini menulis CRLF sehingga format gagal di lokal).
+* text=auto eol=lf
+
 # Graf graphify hasil generate: tanpa diff teks (hemat token saat git diff), ditandai generated di GitHub.
 graphify-out/graph.json linguist-generated=true -diff
 graphify-out/GRAPH_REPORT.md linguist-generated=true

@@ -19,6 +19,7 @@ export interface Mail {
   fromAddress: string;
   /** Gambar inline (multipart/related) beserta Content-ID yang dirujuk HTML lewat `cid:`. */
   inline: { fileName: string; contentType: string; contentId: string; size: number }[];
+  attachments: { fileName: string; contentType: string; content: string }[];
 }
 
 interface MailpitDetail {
@@ -26,6 +27,7 @@ interface MailpitDetail {
   HTML: string;
   From: { Name: string; Address: string };
   Inline: { FileName: string; ContentType: string; ContentID: string; Size: number }[] | null;
+  Attachments: { PartID: string; FileName: string; ContentType: string }[] | null;
 }
 
 async function search(to: string, subject?: string): Promise<MailpitSummary[]> {
@@ -61,6 +63,15 @@ export async function waitForMail(to: string, count = 1, subject?: string): Prom
   const detail = (await (
     await fetch(`${env.mailpitUrl}/api/v1/message/${latest.ID}`)
   ).json()) as MailpitDetail;
+  const attachments = await Promise.all(
+    (detail.Attachments ?? []).map(async (part) => ({
+      fileName: part.FileName,
+      contentType: part.ContentType,
+      content: await (
+        await fetch(`${env.mailpitUrl}/api/v1/message/${latest.ID}/part/${part.PartID}`)
+      ).text(),
+    })),
+  );
   const link = /(http\S+\/auth\/v1\/verify\?\S+)/.exec(detail.Text)?.[1] ?? '';
   return {
     id: latest.ID,
@@ -76,5 +87,6 @@ export async function waitForMail(to: string, count = 1, subject?: string): Prom
       contentId: part.ContentID,
       size: part.Size,
     })),
+    attachments,
   };
 }
