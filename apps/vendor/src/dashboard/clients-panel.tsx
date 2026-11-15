@@ -1,7 +1,9 @@
 import type { VendorClient, VendorInstallation } from '@indoor/domain';
+import { installationReleaseState, type VendorRelease } from '@indoor/domain/vendor-release';
 import {
   Button,
   Skeleton,
+  StatusDot,
   Table,
   TableBody,
   TableCell,
@@ -9,12 +11,14 @@ import {
   TableHeader,
   TableRow,
 } from '@indoor/ui';
-import { KeyRoundIcon, PlusIcon, RefreshCwIcon } from 'lucide-react';
+import { HistoryIcon, KeyRoundIcon, PlusIcon, RefreshCwIcon } from 'lucide-react';
 import { useState } from 'react';
 import { formatDate, formatDateTime } from '../copy';
+import { CheckinsDialog } from './checkins-dialog';
 import { AddClientDialog, AddInstallationDialog } from './client-dialogs';
 import { LicenseDialog } from './license-dialog';
 import { TrialRequestsPanel } from './trial-requests-panel';
+import { useReleases } from './use-releases';
 import { useClients, useInstallations } from './use-vendor';
 
 function ClientsTable({
@@ -70,12 +74,44 @@ function ClientsTable({
   );
 }
 
+function VersionState({
+  version,
+  releases,
+}: {
+  version: string | null;
+  releases: VendorRelease[];
+}) {
+  const state = installationReleaseState(version, releases);
+  if (state.kind === 'latest') {
+    return <span className="block text-ink-muted text-sm">Versi {version} (terbaru)</span>;
+  }
+  if (state.kind === 'outdated') {
+    return (
+      <>
+        <span className="block text-sm">
+          <StatusDot tone="warn">Versi {version} tertinggal</StatusDot>
+        </span>
+        <span className="block text-ink-muted text-sm">Rilis terbaru {state.latest}</span>
+      </>
+    );
+  }
+  return (
+    <span className="block text-ink-muted text-sm">
+      {version ? `Versi ${version}` : 'Versi tidak dilaporkan'}
+    </span>
+  );
+}
+
 function InstallationsTable({
   installations,
+  releases,
   onLicenses,
+  onCheckins,
 }: {
   installations: VendorInstallation[];
+  releases: VendorRelease[];
   onLicenses: (installation: VendorInstallation) => void;
+  onCheckins: (installation: VendorInstallation) => void;
 }) {
   return (
     <div className="overflow-x-auto rounded-lg border border-line bg-surface">
@@ -83,10 +119,7 @@ function InstallationsTable({
         <TableHeader>
           <TableRow>
             <TableHead>Instansi dan instalasi</TableHead>
-            <TableHead>ID instalasi</TableHead>
-            <TableHead>Paket</TableHead>
-            <TableHead>Masa berlaku</TableHead>
-            <TableHead>Versi terakhir</TableHead>
+            <TableHead>Lisensi</TableHead>
             <TableHead>Check-in terakhir</TableHead>
             <TableHead>
               <span className="sr-only">Aksi</span>
@@ -96,7 +129,7 @@ function InstallationsTable({
         <TableBody>
           {installations.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center text-ink-muted">
+              <TableCell colSpan={4} className="text-center text-ink-muted">
                 Belum ada instalasi.
               </TableCell>
             </TableRow>
@@ -106,22 +139,35 @@ function InstallationsTable({
                 <TableCell>
                   <span className="block font-medium">{inst.clientName}</span>
                   <span className="block text-ink-muted text-sm">{inst.name}</span>
+                  <span className="block font-mono text-ink-muted text-xs">{inst.instanceId}</span>
                 </TableCell>
-                <TableCell className="font-mono text-xs">{inst.instanceId}</TableCell>
-                <TableCell>{inst.plan ?? 'Belum berlisensi'}</TableCell>
                 <TableCell>
-                  {inst.validFrom && inst.validUntil
-                    ? `${formatDate(inst.validFrom)} – ${formatDate(inst.validUntil)}`
-                    : '–'}
+                  {inst.plan ?? 'Belum berlisensi'}
+                  {inst.validFrom && inst.validUntil ? (
+                    <span className="block text-ink-muted text-sm">
+                      {formatDate(inst.validFrom)} – {formatDate(inst.validUntil)}
+                    </span>
+                  ) : null}
                 </TableCell>
-                <TableCell>{inst.lastVersion ?? '–'}</TableCell>
                 <TableCell>
-                  {inst.lastCheckinAt ? formatDateTime(inst.lastCheckinAt) : '–'}
+                  {inst.lastCheckinAt ? formatDateTime(inst.lastCheckinAt) : 'Belum pernah'}
+                  {inst.lastCheckinAt ? (
+                    <VersionState version={inst.lastVersion} releases={releases} />
+                  ) : null}
                 </TableCell>
-                <TableCell className="text-right">
-                  <Button size="sm" onClick={() => onLicenses(inst)}>
-                    <KeyRoundIcon aria-hidden="true" /> Lisensi
-                  </Button>
+                <TableCell>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      size="sm"
+                      aria-label={`Check-in ${inst.clientName} ${inst.name}`}
+                      onClick={() => onCheckins(inst)}
+                    >
+                      <HistoryIcon aria-hidden="true" /> Check-in
+                    </Button>
+                    <Button size="sm" onClick={() => onLicenses(inst)}>
+                      <KeyRoundIcon aria-hidden="true" /> Lisensi
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
@@ -138,6 +184,8 @@ export function ClientsPanel() {
   const [addingClient, setAddingClient] = useState(false);
   const [installationFor, setInstallationFor] = useState<VendorClient | null>(null);
   const [licensesFor, setLicensesFor] = useState<VendorInstallation | null>(null);
+  const [checkinsFor, setCheckinsFor] = useState<VendorInstallation | null>(null);
+  const releases = useReleases();
 
   return (
     <div className="grid gap-8">
@@ -189,7 +237,12 @@ export function ClientsPanel() {
           Daftar instalasi
         </h3>
         {installations.data ? (
-          <InstallationsTable installations={installations.data} onLicenses={setLicensesFor} />
+          <InstallationsTable
+            installations={installations.data}
+            releases={releases.data ?? []}
+            onLicenses={setLicensesFor}
+            onCheckins={setCheckinsFor}
+          />
         ) : (
           <Skeleton className="h-32" />
         )}
@@ -198,6 +251,7 @@ export function ClientsPanel() {
       <AddClientDialog open={addingClient} onClose={() => setAddingClient(false)} />
       <AddInstallationDialog client={installationFor} onClose={() => setInstallationFor(null)} />
       <LicenseDialog installation={licensesFor} onClose={() => setLicensesFor(null)} />
+      <CheckinsDialog installation={checkinsFor} onClose={() => setCheckinsFor(null)} />
     </div>
   );
 }

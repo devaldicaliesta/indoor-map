@@ -201,6 +201,66 @@ describe('antrean trial on-premise', () => {
   });
 });
 
+describe('check-in dan rilis', () => {
+  it('baris check-in dan rilis dipetakan; versi atau IP kosong menjadi null', async () => {
+    const checkins = repoWith({
+      data: [{ created_at: '2026-11-15T01:00:00+00:00', version: null, ip_address: null }],
+      error: null,
+    });
+    await expect(checkins.repo.checkins('i-1')).resolves.toEqual([
+      { at: '2026-11-15T01:00:00+00:00', version: null, ip: null },
+    ]);
+    expect(checkins.calls).toEqual([
+      { name: 'vendor_checkins', args: { p_installation_id: 'i-1' } },
+    ]);
+
+    const releases = repoWith({
+      data: [
+        {
+          id: 'r-1',
+          version: '1.2.0',
+          released_on: '2026-11-15',
+          notes: '',
+          download_url: 'https://unduh.vendor.id/a.tar.gz',
+          sha256: 'ab'.repeat(32),
+          created_by_email: null,
+          created_at: '2026-11-15T01:00:00+00:00',
+        },
+      ],
+      error: null,
+    });
+    await expect(releases.repo.releases()).resolves.toEqual([
+      {
+        id: 'r-1',
+        version: '1.2.0',
+        releasedOn: '2026-11-15',
+        notes: '',
+        downloadUrl: 'https://unduh.vendor.id/a.tar.gz',
+        sha256: 'ab'.repeat(32),
+        createdByEmail: null,
+        createdAt: '2026-11-15T01:00:00+00:00',
+      },
+    ]);
+  });
+
+  it('rilis ganda ditolak dengan pesan server', async () => {
+    const { repo, calls } = repoWith({
+      data: null,
+      error: { code: 'IM409', message: 'Rilis versi 1.2.0 sudah ada.' },
+    });
+    await expect(
+      repo.addRelease({
+        version: '1.2.0',
+        releasedOn: '2026-11-15',
+        notes: '',
+        downloadUrl: 'https://unduh.vendor.id/a.tar.gz',
+        sha256: 'ab'.repeat(32),
+      }),
+    ).rejects.toThrow('sudah ada');
+    expect(calls[0]?.name).toBe('vendor_release_add');
+  });
+});
+
 describe('kode TOTP untuk test', () => {
   it('cocok dengan vektor RFC 6238 (SHA-1)', () => {
     // Rahasia ASCII "12345678901234567890"; kode 8 digit 94287082 → 6 digit terakhir.

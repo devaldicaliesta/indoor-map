@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { createServer, type Server } from 'node:http';
 import { totpCode } from '@indoor/data/testing/totp';
 import { expect, type Page } from '@playwright/test';
 import { env } from '../env';
@@ -128,4 +129,18 @@ export async function signInVendorStaff(page: Page, email: string) {
   await page.getByLabel('Kode 6 digit').fill(totpCode(secret));
   await page.getByRole('button', { name: 'Verifikasi' }).click();
   await expect(page.getByRole('heading', { name: 'Trial ter-hosting' })).toBeVisible();
+}
+
+export function vendorApiProxy(ip: string): Server {
+  return createServer(async (request, response) => {
+    const chunks: Buffer[] = [];
+    for await (const chunk of request) chunks.push(chunk as Buffer);
+    const upstream = await fetch(`${env.supabaseUrl}/functions/v1/vendor-api${request.url}`, {
+      method: request.method ?? 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
+      body: Buffer.concat(chunks).toString('utf8'),
+    });
+    response.writeHead(upstream.status, { 'Content-Type': 'application/json' });
+    response.end(await upstream.text());
+  });
 }
