@@ -2,7 +2,7 @@ import type { LicenseQuota } from './license.ts';
 import { TRIAL_PLAN } from './license.ts';
 import { type LicenseIssueRequest, readFeatures, readQuota } from './license-issue.ts';
 
-export const LICENSE_KEY_ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+export const CROCKFORD_BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 export const LICENSE_KEY_LENGTH = 25;
 export const LICENSE_KEY_DEFAULT_DAYS = 365;
 export const LICENSE_KEY_MAX_DAYS = 3650;
@@ -18,7 +18,7 @@ export function normalizeLicenseKey(value: unknown): string | null {
     .replace(/[\s-]/g, '')
     .replace(/[OIL]/g, (char) => LOOKALIKES[char] ?? char);
   if (compact.length !== LICENSE_KEY_LENGTH) return null;
-  if (![...compact].every((char) => LICENSE_KEY_ALPHABET.includes(char))) return null;
+  if (![...compact].every((char) => CROCKFORD_BASE32.includes(char))) return null;
   return compact.match(/.{5}/g)?.join('-') ?? null;
 }
 

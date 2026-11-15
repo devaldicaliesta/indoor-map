@@ -1,24 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { readLicenseIssueRequest } from '../src/license-issue';
 import {
+  CROCKFORD_BASE32,
   checkActivationRequest,
   isLicenseKeyStatus,
-  LICENSE_KEY_ALPHABET,
   licenseKeyIssueRequest,
   maskedLicenseKey,
   normalizeLicenseKey,
   readLicenseKeyRequest,
 } from '../src/license-key';
 
-const KEY = 'ABCDE-FGHJK-MNPQR-STVWX-YZ012';
+const SAMPLE = 'ABCDE-FGHJK-MNPQR-STVWX-YZ012';
 const CLIENT = '6f1b8a2e-3c4d-4e5f-8a9b-0c1d2e3f4a5b';
 const INSTANCE = '11111111-2222-4333-8444-555555555555';
 const QUOTA = { venues: 1, buildings: 2, floors: 10, infoPoints: 0 };
 
 describe('normalizeLicenseKey', () => {
   it('menerima huruf kecil, spasi, dan tanpa tanda hubung', () => {
-    expect(normalizeLicenseKey(' abcde fghjk mnpqr stvwx yz012 ')).toBe(KEY);
-    expect(normalizeLicenseKey('ABCDEFGHJKMNPQRSTVWXYZ012')).toBe(KEY);
+    expect(normalizeLicenseKey(' abcde fghjk mnpqr stvwx yz012 ')).toBe(SAMPLE);
+    expect(normalizeLicenseKey('ABCDEFGHJKMNPQRSTVWXYZ012')).toBe(SAMPLE);
   });
 
   it('huruf yang mirip angka dibaca sebagai angka', () => {
@@ -35,21 +35,24 @@ describe('normalizeLicenseKey', () => {
   });
 
   it('alfabet 32 karakter tanpa huruf yang membingungkan', () => {
-    expect(LICENSE_KEY_ALPHABET).toHaveLength(32);
-    expect(LICENSE_KEY_ALPHABET).not.toMatch(/[ILOU]/);
+    expect(CROCKFORD_BASE32).toHaveLength(32);
+    expect(CROCKFORD_BASE32).not.toMatch(/[ILOU]/);
   });
 });
 
 describe('checkActivationRequest', () => {
   it('menormalkan kunci dan ID instalasi', () => {
     expect(
-      checkActivationRequest({ licenseKey: KEY.toLowerCase(), instanceId: INSTANCE.toUpperCase() }),
-    ).toEqual({ ok: true, request: { licenseKey: KEY, instanceId: INSTANCE } });
+      checkActivationRequest({
+        licenseKey: SAMPLE.toLowerCase(),
+        instanceId: INSTANCE.toUpperCase(),
+      }),
+    ).toEqual({ ok: true, request: { licenseKey: SAMPLE, instanceId: INSTANCE } });
   });
 
   it('menolak kunci atau ID instalasi yang tidak valid', () => {
     expect(checkActivationRequest({ licenseKey: 'salah', instanceId: INSTANCE }).ok).toBe(false);
-    expect(checkActivationRequest({ licenseKey: KEY, instanceId: 'bukan-uuid' }).ok).toBe(false);
+    expect(checkActivationRequest({ licenseKey: SAMPLE, instanceId: 'bukan-uuid' }).ok).toBe(false);
     expect(checkActivationRequest(null).ok).toBe(false);
   });
 });
