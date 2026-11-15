@@ -132,6 +132,7 @@ describe('validasi publish: Error', () => {
         force2d: false,
         defaultLanguage: 'id',
         idleSeconds: 60,
+        playlist: null,
         nodeId: 'p3',
       },
     ] as SnapshotSource['infoPoints'];

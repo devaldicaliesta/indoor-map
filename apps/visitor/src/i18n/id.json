@@ -68,7 +68,11 @@
     "continueQr": "QR rute untuk HP",
     "continueTitle": "Lanjutkan di HP",
     "continueDescription": "Pindai QR ini untuk membawa rute yang sama di HP Anda.",
-    "offline": "Offline"
+    "offline": "Offline",
+    "playlist": "Event & Promo",
+    "playlistQr": "QR detail event untuk HP",
+    "playlistScan": "Pindai untuk detail di HP",
+    "playlistTouch": "Sentuh layar untuk rute dan peta"
   },
   "info": {
     "open": "Informasi peta",

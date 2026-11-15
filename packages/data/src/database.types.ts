@@ -879,6 +879,9 @@ export type Database = {
           loaded_version: number | null;
           name: string;
           node_id: string | null;
+          playlist_enabled: boolean;
+          playlist_event_ids: string[];
+          playlist_slide_seconds: number;
           updated_at: string;
           venue_id: string;
         };
@@ -897,6 +900,9 @@ export type Database = {
           loaded_version?: number | null;
           name: string;
           node_id?: string | null;
+          playlist_enabled?: boolean;
+          playlist_event_ids?: string[];
+          playlist_slide_seconds?: number;
           updated_at?: string;
           venue_id: string;
         };
@@ -915,6 +921,9 @@ export type Database = {
           loaded_version?: number | null;
           name?: string;
           node_id?: string | null;
+          playlist_enabled?: boolean;
+          playlist_event_ids?: string[];
+          playlist_slide_seconds?: number;
           updated_at?: string;
           venue_id?: string;
         };

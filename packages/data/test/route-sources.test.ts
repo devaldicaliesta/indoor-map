@@ -44,6 +44,9 @@ describe('sumber uji rute', () => {
         force_2d: true,
         default_language: 'en',
         idle_seconds: 90,
+        playlist_enabled: true,
+        playlist_slide_seconds: 10,
+        playlist_event_ids: ['e1'],
       }),
     ).toEqual({
       id: 'i1',
@@ -57,6 +60,7 @@ describe('sumber uji rute', () => {
       force2d: true,
       defaultLanguage: 'en',
       idleSeconds: 90,
+      playlist: { enabled: true, slideSeconds: 10, eventIds: ['e1'] },
     });
   });
 

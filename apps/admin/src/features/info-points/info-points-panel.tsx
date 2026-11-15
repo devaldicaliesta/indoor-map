@@ -107,7 +107,9 @@ export function InfoPointsPanel({ venue }: { venue: VenueSummary }) {
       id: 'display',
       header: 'Tampilan',
       cell: (point) =>
-        `${MODES[modeOf(point)]} · ${point.defaultLanguage.toUpperCase()} · idle ${point.idleSeconds} s`,
+        `${MODES[modeOf(point)]} · ${point.defaultLanguage.toUpperCase()} · idle ${point.idleSeconds} s${
+          point.playlist.enabled ? ` · playlist ${point.playlist.slideSeconds} s` : ''
+        }`,
     },
     {
       id: 'actions',

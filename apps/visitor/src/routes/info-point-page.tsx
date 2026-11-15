@@ -1,12 +1,14 @@
 import {
   type DeepLink,
+  type EventListing,
   type FloorId,
   infoPointSnapshot,
+  type LocationId,
   type VenueId,
   VenueIdSchema,
 } from '@indoor/domain';
 import { Skeleton } from '@indoor/ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router';
 import { PanelMessage } from '../app/panel-message';
@@ -15,6 +17,7 @@ import { useSnapshot } from '../data/loadSnapshot';
 import { showLanguage } from '../i18n';
 import { InfoPointModeContext } from '../infopoint/info-point-mode';
 import { OfflineBadge } from '../infopoint/offline-badge';
+import { PromoPlaylist, usePlaylistListings } from '../infopoint/promo-playlist';
 import { useIdle } from '../infopoint/use-idle';
 import { usePendingUpdate } from '../infopoint/use-pending-update';
 import { markerReason, SnapshotExplorer, useUnavailableText } from './venue-page';
@@ -95,6 +98,10 @@ function InfoPointScreen({ venueId, code }: { venueId: VenueId; code: string }) 
   );
   // Setiap sesi pengunjung baru (setelah idle) memasang ulang Visitor dari awal.
   const [session, setSession] = useState(0);
+  const [attract, setAttract] = useState(false);
+  const [entry, setEntry] = useState<Pick<DeepLink, 'to' | 'eventId'>>({});
+  const playlist = view?.infoPoint.playlist ?? null;
+  const listings = usePlaylistListings(view?.snapshot ?? null, playlist);
   const language = view?.infoPoint.defaultLanguage;
   useEffect(() => {
     if (language) showLanguage(language);
@@ -104,12 +111,32 @@ function InfoPointScreen({ venueId, code }: { venueId: VenueId; code: string }) 
     if (window.getSelection) window.getSelection()?.removeAllRanges();
     // Versi baru hanya dipasang di sini, saat tidak ada yang memakai layar.
     applyUpdate();
+    setEntry({});
     setSession((s) => s + 1);
+    if (playlist) setAttract(true);
   });
+  const leavePlaylist = useCallback(
+    (listing: EventListing | null) => {
+      setAttract(false);
+      if (!listing || !view) return;
+      const locationId = listing.event.locationIds.find((id) =>
+        view.snapshot.locations.some((l) => l.id === id),
+      );
+      setEntry(
+        locationId
+          ? { to: { kind: 'location', locationId: locationId as LocationId } }
+          : { eventId: listing.event.id },
+      );
+      setSession((s) => s + 1);
+    },
+    [view],
+  );
   const link = useMemo<DeepLink | null>(
     () =>
-      view ? { venueId, infoPointCode: code, floorId: view.infoPoint.floorId as FloorId } : null,
-    [view, venueId, code],
+      view
+        ? { venueId, infoPointCode: code, floorId: view.infoPoint.floorId as FloorId, ...entry }
+        : null,
+    [view, venueId, code, entry],
   );
 
   if (snapshot.isPending) {
@@ -139,6 +166,14 @@ function InfoPointScreen({ venueId, code }: { venueId: VenueId; code: string }) 
       >
         <SnapshotExplorer key={session} snapshot={view.snapshot} link={link} />
       </div>
+      {attract && playlist ? (
+        <PromoPlaylist
+          snapshot={view.snapshot}
+          listings={listings}
+          slideSeconds={playlist.slideSeconds}
+          onTouch={leavePlaylist}
+        />
+      ) : null}
       <OfflineBadge />
     </InfoPointModeContext.Provider>
   );

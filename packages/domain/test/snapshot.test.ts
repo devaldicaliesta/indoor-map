@@ -50,6 +50,20 @@ describe('buildSnapshot', () => {
     expect(snapshot.features.features).toHaveLength(127);
   });
 
+  it('playlist Info Point: id event diurutkan; snapshot lama tanpa playlist dibaca sebagai null', () => {
+    const source = sampleSnapshotSource();
+    const [first] = source.infoPoints;
+    if (!first) throw new Error('fixture');
+    const snapshot = buildSnapshot({
+      ...source,
+      infoPoints: [{ ...first, playlist: { slideSeconds: 8, eventIds: ['b', 'a'] } }],
+    });
+    expect(snapshot.infoPoints[0]?.playlist).toEqual({ slideSeconds: 8, eventIds: ['a', 'b'] });
+    const old = JSON.parse(JSON.stringify(buildSnapshot(source)));
+    for (const point of old.infoPoints) delete point.playlist;
+    expect(SnapshotSchema.parse(old).infoPoints[0]?.playlist).toBeNull();
+  });
+
   it('tidak berisi email, pengaturan server, atau data pribadi', () => {
     const source = sampleSnapshotSource();
     const venue = {

@@ -313,6 +313,12 @@ export interface SnapshotInfoPoint {
   defaultLanguage: SnapshotLanguage;
   idleSeconds: number;
   nodeId: string | null;
+  playlist: SnapshotPlaylist | null;
+}
+
+export interface SnapshotPlaylist {
+  slideSeconds: number;
+  eventIds: string[];
 }
 
 export interface InstructionText {

@@ -68,7 +68,11 @@
     "continueQr": "Route QR for your phone",
     "continueTitle": "Continue on your phone",
     "continueDescription": "Scan this QR code to take the same route on your phone.",
-    "offline": "Offline"
+    "offline": "Offline",
+    "playlist": "Events & Deals",
+    "playlistQr": "Event details QR for your phone",
+    "playlistScan": "Scan for details on your phone",
+    "playlistTouch": "Touch the screen for directions and the map"
   },
   "info": {
     "open": "Map information",

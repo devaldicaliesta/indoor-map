@@ -34,7 +34,7 @@ export function useLiveEvents(snapshot: Snapshot) {
   }, [events, store]);
 }
 
-function useNow(intervalMs: number): number {
+export function useNow(intervalMs: number): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), intervalMs);

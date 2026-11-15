@@ -203,7 +203,7 @@ export async function readSource(
     ),
     rest.select<Row>(
       'info_points',
-      `select=id,code,name,floor_id,geom,heading_deg,default_mode,force_2d,default_language,idle_seconds,node_id&${byVenue}&order=id`,
+      `select=id,code,name,floor_id,geom,heading_deg,default_mode,force_2d,default_language,idle_seconds,node_id,playlist_enabled,playlist_slide_seconds,playlist_event_ids&${byVenue}&order=id`,
     ),
   ]);
 
@@ -331,6 +331,13 @@ export async function readSource(
       defaultLanguage: p.default_language === 'en' ? 'en' : 'id',
       idleSeconds: num(p.idle_seconds),
       nodeId: strOrNull(p.node_id),
+      playlist:
+        p.playlist_enabled === true
+          ? {
+              slideSeconds: num(p.playlist_slide_seconds),
+              eventIds: Array.isArray(p.playlist_event_ids) ? p.playlist_event_ids.map(str) : [],
+            }
+          : null,
     })),
   };
 }

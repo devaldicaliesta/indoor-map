@@ -177,6 +177,10 @@ const InfoPointSchema = z.object({
   defaultLanguage: z.enum(SNAPSHOT_LANGUAGES),
   idleSeconds: z.number().int(),
   nodeId: id.nullable(),
+  playlist: z
+    .object({ slideSeconds: z.number().int().positive(), eventIds: z.array(id) })
+    .nullable()
+    .default(null),
 });
 
 /**

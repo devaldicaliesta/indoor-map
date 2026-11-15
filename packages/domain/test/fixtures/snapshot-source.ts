@@ -249,6 +249,7 @@ export function sampleSnapshotSource(): SnapshotSource {
         force2d: false,
         defaultLanguage: 'id',
         idleSeconds: 60,
+        playlist: null,
         nodeId: GRAPH.infoPoint,
       },
     ],

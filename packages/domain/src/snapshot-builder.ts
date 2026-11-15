@@ -285,6 +285,9 @@ function toInfoPoint(p: SnapshotInfoPoint): SnapshotInfoPoint {
     defaultLanguage: p.defaultLanguage,
     idleSeconds: p.idleSeconds,
     nodeId: p.nodeId,
+    playlist: p.playlist
+      ? { slideSeconds: p.playlist.slideSeconds, eventIds: [...p.playlist.eventIds].sort() }
+      : null,
   };
 }
 

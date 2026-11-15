@@ -21,7 +21,22 @@ export interface InfoPoint {
   defaultLanguage: LanguageCode;
   /** Detik tanpa sentuhan sebelum layar kembali ke tampilan awal. */
   idleSeconds: number;
+  playlist: InfoPointPlaylist;
 }
+
+export interface InfoPointPlaylist {
+  enabled: boolean;
+  slideSeconds: number;
+  eventIds: string[];
+}
+
+export const INFO_POINT_PLAYLIST_SLIDE_RANGE = { min: 4, max: 60 } as const;
+export const INFO_POINT_PLAYLIST_MAX_EVENTS = 50;
+export const DEFAULT_INFO_POINT_PLAYLIST: InfoPointPlaylist = {
+  enabled: false,
+  slideSeconds: 8,
+  eventIds: [],
+};
 
 export type InfoPointInput = Omit<InfoPoint, 'id'>;
 
@@ -34,11 +49,13 @@ export type InfoPointPlace = Pick<
 export const INFO_POINT_IDLE_RANGE = { min: 15, max: 600 } as const;
 const CODE = /^[A-Za-z0-9][A-Za-z0-9-]{0,31}$/;
 
-export type InfoPointProblem = 'code' | 'name' | 'idle';
+export type InfoPointProblem = 'code' | 'name' | 'idle' | 'slide' | 'events';
 
 /** Masalah isian Info Point; kosong bila boleh disimpan. Posisi diperiksa saat menempel ke jalur. */
 export function checkInfoPointInput(
-  input: Pick<InfoPointInput, 'code' | 'name' | 'idleSeconds'>,
+  input: Pick<InfoPointInput, 'code' | 'name' | 'idleSeconds'> & {
+    playlist?: InfoPointPlaylist;
+  },
 ): InfoPointProblem[] {
   const problems: InfoPointProblem[] = [];
   if (!CODE.test(input.code.trim())) problems.push('code');
@@ -46,6 +63,15 @@ export function checkInfoPointInput(
   const { min, max } = INFO_POINT_IDLE_RANGE;
   if (!Number.isInteger(input.idleSeconds) || input.idleSeconds < min || input.idleSeconds > max) {
     problems.push('idle');
+  }
+  const playlist = input.playlist;
+  if (playlist) {
+    const slide = INFO_POINT_PLAYLIST_SLIDE_RANGE;
+    const seconds = playlist.slideSeconds;
+    if (!Number.isInteger(seconds) || seconds < slide.min || seconds > slide.max) {
+      problems.push('slide');
+    }
+    if (playlist.eventIds.length > INFO_POINT_PLAYLIST_MAX_EVENTS) problems.push('events');
   }
   return problems;
 }

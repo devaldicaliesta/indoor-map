@@ -250,6 +250,9 @@ export function venueRows(source: SnapshotSource, venueId: string): VenueRows {
       default_language: i.defaultLanguage,
       idle_seconds: i.idleSeconds,
       node_id: i.nodeId,
+      playlist_enabled: i.playlist !== null,
+      playlist_slide_seconds: i.playlist?.slideSeconds ?? 8,
+      playlist_event_ids: i.playlist?.eventIds ?? [],
     })),
   };
   return {

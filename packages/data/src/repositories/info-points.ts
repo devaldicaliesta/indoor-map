@@ -18,6 +18,9 @@ type InfoPointRow = Pick<
   | 'force_2d'
   | 'default_language'
   | 'idle_seconds'
+  | 'playlist_enabled'
+  | 'playlist_slide_seconds'
+  | 'playlist_event_ids'
 >;
 
 export interface InfoPointsRepository {
@@ -30,7 +33,7 @@ export interface InfoPointsRepository {
 }
 
 const COLUMNS =
-  'id, code, name, floor_id, geom, heading_deg, node_id, default_mode, force_2d, default_language, idle_seconds';
+  'id, code, name, floor_id, geom, heading_deg, node_id, default_mode, force_2d, default_language, idle_seconds, playlist_enabled, playlist_slide_seconds, playlist_event_ids';
 
 export function mapInfoPointRow(row: InfoPointRow): InfoPoint {
   return {
@@ -45,6 +48,11 @@ export function mapInfoPointRow(row: InfoPointRow): InfoPoint {
     force2d: row.force_2d,
     defaultLanguage: row.default_language,
     idleSeconds: row.idle_seconds,
+    playlist: {
+      enabled: row.playlist_enabled,
+      slideSeconds: row.playlist_slide_seconds,
+      eventIds: row.playlist_event_ids,
+    },
   };
 }
 
@@ -60,6 +68,9 @@ function toRow(input: InfoPointInput) {
     force_2d: input.force2d,
     default_language: input.defaultLanguage,
     idle_seconds: input.idleSeconds,
+    playlist_enabled: input.playlist.enabled,
+    playlist_slide_seconds: input.playlist.slideSeconds,
+    playlist_event_ids: input.playlist.eventIds,
   };
 }
 
