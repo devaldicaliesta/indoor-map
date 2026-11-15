@@ -1,4 +1,4 @@
-import { categoryMembers, facilityMembers, featurePlace } from '@indoor/domain';
+import { categoryMembers, categoryName, facilityMembers, featurePlace } from '@indoor/domain';
 import { Button } from '@indoor/ui';
 import { NavigationIcon, XIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -52,10 +52,10 @@ export function CategoryList({ id }: { id: string }) {
   if (!category) return null;
   const members = categoryMembers(snapshot, id, i18n.resolvedLanguage);
   return (
-    <section className="grid gap-2" aria-label={category.name}>
+    <section className="grid gap-2" aria-label={categoryName(category, i18n.resolvedLanguage)}>
       <ListHeader
         icon={<EntityIcon icon={category.icon} color={category.color} />}
-        title={category.name}
+        title={categoryName(category, i18n.resolvedLanguage)}
         count={t('explore.locationCount', { count: members.length })}
       />
       <ul className="divide-y divide-line">
@@ -63,7 +63,12 @@ export function CategoryList({ id }: { id: string }) {
           <li key={location.id}>
             <ListRow
               title={location.name}
-              subtitle={locationSubtitle(index, location, t('location.notOnMap'))}
+              subtitle={locationSubtitle(
+                index,
+                location,
+                t('location.notOnMap'),
+                i18n.resolvedLanguage,
+              )}
               status={<LocationStatus location={location} className="text-sm" />}
               onClick={() => openDetail({ kind: 'location', id: location.id })}
             />

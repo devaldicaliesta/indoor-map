@@ -1,3 +1,4 @@
+import { categoryName } from '@indoor/domain';
 import { cn } from '@indoor/ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -43,7 +44,7 @@ const isList = (current: ExploreList | null, kind: ExploreList['kind'], id?: str
  * muat di sheet posisi intip; di desktop membungkus ke baris berikutnya.
  */
 export function ExploreChips({ scroll = false }: { scroll?: boolean }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { chips } = useExplore();
   const list = useExploreStore((s) => s.list);
   const toggleList = useExploreStore((s) => s.toggleList);
@@ -99,7 +100,9 @@ export function ExploreChips({ scroll = false }: { scroll?: boolean }) {
                   )
                 }
               >
-                {chip.kind === 'category' ? chip.category.name : chip.facilityType.name}
+                {chip.kind === 'category'
+                  ? categoryName(chip.category, i18n.resolvedLanguage)
+                  : chip.facilityType.name}
               </Chip>
             </li>
           );

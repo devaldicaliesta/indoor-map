@@ -1,5 +1,10 @@
 import type { CategoryWithUsage } from '@indoor/data';
-import { checkCategoryName, type LocationTypeId, type VenueId } from '@indoor/domain';
+import {
+  CATEGORY_NAME_MAX,
+  checkCategoryName,
+  type LocationTypeId,
+  type VenueId,
+} from '@indoor/domain';
 import {
   Button,
   Dialog,
@@ -43,6 +48,11 @@ export function CategoryDialog({
   const [name, setName] = useState(category?.name ?? '');
   const [choice, setChoice] = useState<IconChoice>(() => initialIconChoice(category?.icon ?? null));
   const [nameError, setNameError] = useState<string>();
+  const [nameEn, setNameEn] = useState(category?.nameEn ?? '');
+  const nameEnError =
+    nameEn.trim().length > CATEGORY_NAME_MAX
+      ? `Nama English paling banyak ${CATEGORY_NAME_MAX} karakter.`
+      : undefined;
   const [color, setColor] = useState(category?.color ?? '');
   const [submitted, setSubmitted] = useState(false);
   const [reading, setReading] = useState(false);
@@ -55,12 +65,12 @@ export function CategoryDialog({
     const problem = checkCategoryName(name, sameType, category?.id ?? null)[0];
     setNameError(problem ? CATEGORY_NAME_MESSAGES[problem] : undefined);
     setSubmitted(true);
-    if (problem || aliases.error || !isColorValue(color)) return;
+    if (problem || nameEnError || aliases.error || !isColorValue(color)) return;
     save.mutate(
       {
         id: category?.id ?? null,
         typeId,
-        input: { name, icon: iconChoiceValue(choice), color: color || null },
+        input: { name, nameEn, icon: iconChoiceValue(choice), color: color || null },
         sortOrder: others.length,
         iconPng: iconChoicePng(choice),
       },
@@ -99,6 +109,20 @@ export function CategoryDialog({
               onChange={(e) => setName(e.target.value)}
               autoFocus
               aria-invalid={nameError ? true : undefined}
+            />
+          </Field>
+          <Field
+            id="category-name-en"
+            label="Nama (English, opsional)"
+            hint="Tampil di Visitor berbahasa Inggris; kosong = nama Indonesia."
+            error={submitted ? nameEnError : undefined}
+          >
+            <Input
+              id="category-name-en"
+              lang="en"
+              value={nameEn}
+              onChange={(e) => setNameEn(e.target.value)}
+              aria-invalid={submitted && nameEnError ? true : undefined}
             />
           </Field>
           <IconField

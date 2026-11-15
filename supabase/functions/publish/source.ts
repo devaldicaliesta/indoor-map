@@ -98,6 +98,9 @@ function toLocation(r: Row): SourceLocation {
     code: strOrNull(r.code),
     name: str(r.name),
     description: strOrNull(r.description),
+    ...(typeof r.description_en === 'string' && r.description_en.trim()
+      ? { descriptionEn: r.description_en }
+      : {}),
     locationTypeId: str(r.location_type_id),
     status: r.status as SourceLocation['status'],
     openingDate: strOrNull(r.opening_date),
@@ -178,7 +181,7 @@ export async function readSource(
     ),
     rest.select<Row>(
       'locations',
-      `select=id,code,name,description,location_type_id,status,opening_date,logo_path,photo_paths,custom_fields,location_categories(category_id),location_units(feature_id,is_primary),opening_hours(weekday,special_date,opens_at,closes_at,is_closed)&${byVenue}&status=neq.inactive_permanent&order=id`,
+      `select=id,code,name,description,description_en,location_type_id,status,opening_date,logo_path,photo_paths,custom_fields,location_categories(category_id),location_units(feature_id,is_primary),opening_hours(weekday,special_date,opens_at,closes_at,is_closed)&${byVenue}&status=neq.inactive_permanent&order=id`,
     ),
     rest.select<Row>(
       'search_aliases',
@@ -213,7 +216,7 @@ export async function readSource(
   const categories = typeIds.length
     ? await rest.select<Row>(
         'categories',
-        `select=id,location_type_id,name,icon,color,sort_order&location_type_id=in.(${typeIds.join(',')})&order=id`,
+        `select=id,location_type_id,name,name_en,icon,color,sort_order&location_type_id=in.(${typeIds.join(',')})&order=id`,
       )
     : [];
   const settings = display[0];
@@ -272,6 +275,7 @@ export async function readSource(
       name: str(c.name),
       icon: strOrNull(c.icon),
       color: strOrNull(c.color),
+      ...(typeof c.name_en === 'string' && c.name_en.trim() ? { nameEn: c.name_en.trim() } : {}),
       sortOrder: num(c.sort_order),
     })),
     locations: locations.map(toLocation),

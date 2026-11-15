@@ -8,6 +8,7 @@ export * from './branding';
 export * from './building';
 export * from './closure';
 export * from './connector';
+export * from './content-language';
 export * from './csv';
 export * from './custom-fields';
 export * from './deep-link';

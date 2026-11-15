@@ -130,7 +130,12 @@ export function Directory() {
                 <li key={location.id}>
                   <ListRow
                     title={location.name}
-                    subtitle={locationSubtitle(index, location, t('location.notOnMap'))}
+                    subtitle={locationSubtitle(
+                      index,
+                      location,
+                      t('location.notOnMap'),
+                      i18n.resolvedLanguage,
+                    )}
                     status={<LocationStatus location={location} className="text-sm" />}
                     onClick={() => openDetail({ kind: 'location', id: location.id })}
                   />

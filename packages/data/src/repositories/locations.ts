@@ -42,7 +42,7 @@ const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/webp': 'webp',
 };
 
-const COLUMNS = `id, venue_id, location_type_id, code, name, description, logo_path, photo_paths, status, custom_fields, opening_date,
+const COLUMNS = `id, venue_id, location_type_id, code, name, description, description_en, logo_path, photo_paths, status, custom_fields, opening_date,
   opening_hours(weekday, special_date, opens_at, closes_at, is_closed),
   location_categories(category_id),
   location_units(feature_id, is_primary, features(unit_code, floor_id, floors(name, building_id, buildings!floors_building_same_venue(name))))`;
@@ -61,6 +61,7 @@ export interface LocationRow {
   code: string | null;
   name: string;
   description: string | null;
+  description_en: string | null;
   logo_path: string | null;
   photo_paths: string[];
   status: string;
@@ -102,6 +103,7 @@ export function mapLocationRow(row: LocationRow): Location {
     code: row.code,
     name: row.name,
     description: row.description,
+    descriptionEn: row.description_en,
     logoPath: row.logo_path,
     photoPaths: row.photo_paths,
     status: statusOf(row.status),
@@ -412,6 +414,13 @@ export function createLocationsRepository(db: Db): LocationsRepository {
           toSaveLocationArgs(locationId, venueId, typeId, input, { logoPath, photoPaths }),
         );
         if (error) throw saveError(error);
+        if (input.descriptionEn !== undefined) {
+          const translated = await db
+            .from('locations')
+            .update({ description_en: input.descriptionEn.trim() || null })
+            .eq('id', locationId);
+          if (translated.error) throw saveError(translated.error);
+        }
         const kept = new Set([logoPath, ...photoPaths]);
         await removeFiles([before.logo_path, ...before.photo_paths].filter((p) => !kept.has(p)));
         return locationId;

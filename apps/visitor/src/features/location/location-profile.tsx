@@ -1,8 +1,10 @@
 import {
+  categoryName,
   type DisplayField,
   displayFields,
   externalUrl,
   type LocationPlace,
+  locationDescription,
   locationPlaces,
 } from '@indoor/domain';
 import { useTranslation } from 'react-i18next';
@@ -66,7 +68,7 @@ function FieldValue({ field }: { field: DisplayField }) {
  * unit, status, aksi rute, lalu deskripsi, foto, dan field yang ditandai tampil.
  */
 export function LocationProfile({ id }: { id: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { index } = useExplore();
   const location = index.locations.get(id);
   if (!location) {
@@ -78,7 +80,11 @@ export function LocationProfile({ id }: { id: string }) {
     );
   }
   const type = index.locationTypes.get(location.locationTypeId);
-  const categories = location.categoryIds.flatMap((c) => index.categories.get(c)?.name ?? []);
+  const categories = location.categoryIds.flatMap((c) => {
+    const category = index.categories.get(c);
+    return category ? categoryName(category, i18n.resolvedLanguage) : [];
+  });
+  const description = locationDescription(location, i18n.resolvedLanguage);
   const fields = displayFields(location, type);
 
   return (
@@ -103,7 +109,14 @@ export function LocationProfile({ id }: { id: string }) {
       <LocationEvents locationId={location.id} />
       <RouteAction target={{ kind: 'location', id: location.id }} />
       <ShareButton title={location.name} />
-      {location.description ? <p className="whitespace-pre-line">{location.description}</p> : null}
+      {description ? (
+        <p
+          className="whitespace-pre-line"
+          lang={description === location.description ? undefined : 'en'}
+        >
+          {description}
+        </p>
+      ) : null}
       {location.photoPaths.length ? (
         <ul className="-mx-(--panel-padding) flex gap-2 overflow-x-auto px-(--panel-padding)">
           {location.photoPaths.map((path, i) => (

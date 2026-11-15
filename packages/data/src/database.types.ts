@@ -263,6 +263,7 @@ export type Database = {
           id: string;
           location_type_id: string;
           name: string;
+          name_en: string | null;
           sort_order: number;
         };
         Insert: {
@@ -271,6 +272,7 @@ export type Database = {
           id?: string;
           location_type_id: string;
           name: string;
+          name_en?: string | null;
           sort_order?: number;
         };
         Update: {
@@ -279,6 +281,7 @@ export type Database = {
           id?: string;
           location_type_id?: string;
           name?: string;
+          name_en?: string | null;
           sort_order?: number;
         };
         Relationships: [
@@ -1273,6 +1276,7 @@ export type Database = {
           created_at: string;
           custom_fields: NonNullable<Json>;
           description: string | null;
+          description_en: string | null;
           id: string;
           location_type_id: string;
           logo_path: string | null;
@@ -1288,6 +1292,7 @@ export type Database = {
           created_at?: string;
           custom_fields?: NonNullable<Json>;
           description?: string | null;
+          description_en?: string | null;
           id?: string;
           location_type_id: string;
           logo_path?: string | null;
@@ -1303,6 +1308,7 @@ export type Database = {
           created_at?: string;
           custom_fields?: NonNullable<Json>;
           description?: string | null;
+          description_en?: string | null;
           id?: string;
           location_type_id?: string;
           logo_path?: string | null;
@@ -2210,6 +2216,7 @@ export type Database = {
           created_at: string;
           custom_fields: NonNullable<Json>;
           description: string | null;
+          description_en: string | null;
           id: string;
           location_type_id: string;
           logo_path: string | null;

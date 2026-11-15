@@ -59,7 +59,7 @@ export function buildSearchIndex(input: SearchInput): SearchEntry[] {
     ...input.categories.map((c) => ({
       kind: 'category' as const,
       id: c.id,
-      text: searchText([c.name, ...aliasesOf('category', c.id)]),
+      text: searchText([c.name, ...(c.nameEn ? [c.nameEn] : []), ...aliasesOf('category', c.id)]),
     })),
     ...input.facilityTypes.map((t) => ({
       kind: 'facility_type' as const,

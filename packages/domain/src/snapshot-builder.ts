@@ -177,6 +177,7 @@ function toLocation(l: SourceLocation, visibleKeys: ReadonlySet<string>): Snapsh
     code: l.code,
     name: l.name,
     description: l.description,
+    ...(l.descriptionEn?.trim() ? { descriptionEn: l.descriptionEn } : {}),
     locationTypeId: l.locationTypeId,
     status: l.status as SnapshotLocationStatus,
     openingDate: l.openingDate,
@@ -333,6 +334,7 @@ export function buildSnapshot(source: SnapshotSource): Snapshot {
       name: c.name,
       icon: c.icon,
       color: isColor(c.color) ? c.color : null,
+      ...(c.nameEn?.trim() ? { nameEn: c.nameEn.trim() } : {}),
     }));
   const facilityTypes = sortByOrder(source.facilityTypes).map((t) => ({
     id: t.id,
