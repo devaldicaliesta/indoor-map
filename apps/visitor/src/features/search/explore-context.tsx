@@ -87,7 +87,9 @@ export function ExploreProvider({
   const index = useMemo(() => indexSnapshot(snapshot), [snapshot]);
   const [search, setSearch] = useState<SnapshotSearch>(() => () => []);
   const [chips, setChips] = useState<ExploreChip[]>([]);
-  const [store] = useState(() => createExploreStore(sharedState(snapshot, index, link)));
+  const [store] = useState(() =>
+    createExploreStore({ ...sharedState(snapshot, index, link), eventId: link?.eventId ?? null }),
+  );
 
   useEffect(() => {
     let active = true;

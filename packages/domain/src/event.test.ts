@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  currentEvents,
   type EventInput,
   eventLastEndsAt,
   eventOccurrences,
   eventPhase,
   eventTitle,
+  localizedText,
   nextOccurrence,
   validateEventInput,
 } from './event';
@@ -121,5 +123,48 @@ describe('eventTitle', () => {
     expect(eventTitle({ title: { id: 'Diskon', en: 'Sale' } }, 'en')).toBe('Sale');
     expect(eventTitle({ title: { id: 'Diskon', en: '' } }, 'en')).toBe('Diskon');
     expect(eventTitle({ title: { id: 'Diskon', en: 'Sale' } }, 'id')).toBe('Diskon');
+  });
+});
+
+describe('currentEvents (Visitor)', () => {
+  const now = new Date('2026-11-09T06:30:00+07:00');
+  const event = (id: string, overrides: Partial<EventInput>) => ({
+    ...input(overrides),
+    id,
+    venueId: 'v',
+    lastEndsAt: '',
+  });
+
+  it('berlangsung dulu, lalu segera dalam 7 hari; draf, lewat, dan jauh tidak tampil', () => {
+    const listings = currentEvents(
+      [
+        event('jauh', {
+          startsAt: '2026-11-30T09:00:00+07:00',
+          endsAt: '2026-11-30T10:00:00+07:00',
+        }),
+        event('segera', {
+          startsAt: '2026-11-10T09:00:00+07:00',
+          endsAt: '2026-11-10T10:00:00+07:00',
+        }),
+        event('lewat', {
+          startsAt: '2026-11-08T09:00:00+07:00',
+          endsAt: '2026-11-08T10:00:00+07:00',
+        }),
+        event('draf', { status: 'draft', startsAt: '2026-11-09T06:00:00+07:00' }),
+        event('mingguan', { repeat: 'weekly', repeatUntil: '2026-11-29' }),
+      ],
+      JKT,
+      now,
+    );
+    expect(listings.map((l) => [l.event.id, l.phase])).toEqual([
+      ['mingguan', 'live'],
+      ['segera', 'upcoming'],
+    ]);
+    expect(listings[0]?.occurrence.startsAt).toBe('2026-11-08T23:00:00.000Z');
+  });
+
+  it('localizedText jatuh ke ID bila EN kosong', () => {
+    expect(localizedText({ id: 'Diskon', en: ' ' }, 'en')).toBe('Diskon');
+    expect(localizedText({ id: 'Diskon', en: 'Sale' }, 'en')).toBe('Sale');
   });
 });

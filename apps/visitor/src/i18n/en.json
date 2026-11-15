@@ -112,6 +112,25 @@
     "missingTitle": "Not found on this map",
     "missingDescription": "Go back and search again by name or unit code."
   },
+  "events": {
+    "chip": "Events & Deals",
+    "heading": "Events & Deals",
+    "live": "Happening now",
+    "soon": "Coming up",
+    "empty": "No events or deals in the next 7 days.",
+    "kindEvent": "Event",
+    "kindPromotion": "Deal",
+    "liveBadge": "Live",
+    "back": "All events",
+    "moreInfo": "More info",
+    "showOnMap": "Show on map",
+    "places": "Where",
+    "atLocation": "Events here",
+    "repeatsDaily": "Every day",
+    "repeatsWeekly": "Every week",
+    "notFoundTitle": "This event has ended",
+    "notFoundDescription": "The event is over or no longer listed."
+  },
   "unit": {
     "label": "Unit"
   },

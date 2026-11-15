@@ -25,6 +25,7 @@ import { type CameraPadding, focusCamera, MAP_GAP_PX } from './camera';
 
 /** Label lokasi/fasilitas, atau unit/fasilitas di lantai, yang membuka detail saat diketuk. */
 export function targetOfPick(index: SnapshotIndex, pick: MapPick): ExploreTarget | null {
+  if (pick.layer === 'event') return null;
   if (pick.layer === 'floor') return targetOfFeature(index, pick.id);
   if (pick.kind === 'location') {
     return index.locations.has(pick.id) ? { kind: 'location', id: pick.id } : null;
@@ -119,7 +120,7 @@ export function useExploreMap({
   useEffect(() => {
     if (!map) return;
     const taps = createTapInteractions(map, {
-      isTarget: (pick) => targetOfPick(index, pick) !== null,
+      isTarget: (pick) => pick.layer === 'event' || targetOfPick(index, pick) !== null,
       onTap: (pick, at) => {
         const state = store.getState();
         const floorId = latest.current.view.floorId;
@@ -128,6 +129,10 @@ export function useExploreMap({
             const tapped = tapFloorId(snapshot, floorId, at);
             state.setOrigin({ kind: 'point', lng: at[0], lat: at[1], floorId: tapped });
           }
+          return;
+        }
+        if (pick?.layer === 'event') {
+          state.openEvent(pick.id);
           return;
         }
         const target = pick ? targetOfPick(index, pick) : null;

@@ -259,3 +259,39 @@ export function validateEventInput(input: EventInput, timeZone: string): EventIn
 export function eventTitle(event: Pick<VenueEvent, 'title'>, language: string): string {
   return language === 'en' && event.title.en.trim() ? event.title.en : event.title.id;
 }
+
+export const EVENT_SOON_DAYS = 7;
+
+export interface EventListing {
+  event: VenueEvent;
+  phase: 'live' | 'upcoming';
+  occurrence: EventOccurrence;
+}
+
+export function currentEvents(
+  events: readonly VenueEvent[],
+  timeZone: string,
+  now: Date,
+  soonDays = EVENT_SOON_DAYS,
+): EventListing[] {
+  const horizon = now.getTime() + soonDays * DAY_MS;
+  const listings: EventListing[] = [];
+  for (const event of events) {
+    if (event.status !== 'active') continue;
+    const occurrence = nextOccurrence(event, timeZone, now);
+    if (!occurrence) continue;
+    const start = Date.parse(occurrence.startsAt);
+    if (start <= now.getTime()) listings.push({ event, phase: 'live', occurrence });
+    else if (start <= horizon) listings.push({ event, phase: 'upcoming', occurrence });
+  }
+  return listings.sort(
+    (a, b) =>
+      (a.phase === b.phase ? 0 : a.phase === 'live' ? -1 : 1) ||
+      Date.parse(a.occurrence.startsAt) - Date.parse(b.occurrence.startsAt) ||
+      a.event.title.id.localeCompare(b.event.title.id, 'id'),
+  );
+}
+
+export function localizedText(text: LocalizedText, language: string): string {
+  return language === 'en' && text.en.trim() ? text.en : text.id;
+}

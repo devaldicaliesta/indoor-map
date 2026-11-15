@@ -187,3 +187,35 @@ describe('penutupan live di store', () => {
     expect(store.getState()).toMatchObject({ closures: [], activeStep: null });
   });
 });
+
+describe('pilihan dari event', () => {
+  it('event yang dibuka menyorot lokasi pertamanya dengan objek yang sama setiap kali', () => {
+    const store = createExploreStore({ eventId: 'ev-1' });
+    store.getState().setEvents([
+      {
+        id: 'ev-1',
+        venueId: 'v',
+        kind: 'event',
+        status: 'active',
+        title: { id: 'Seminar', en: '' },
+        summary: { id: '', en: '' },
+        description: { id: '', en: '' },
+        imagePath: null,
+        linkUrl: null,
+        startsAt: '2026-11-01T00:00:00Z',
+        endsAt: '2026-11-01T01:00:00Z',
+        repeat: 'none',
+        repeatUntil: null,
+        lastEndsAt: '2026-11-01T01:00:00Z',
+        point: null,
+        locationIds: ['loc-1'],
+      },
+    ]);
+    const first = selectionOf(store.getState());
+    expect(first).toEqual({ kind: 'location', id: 'loc-1' });
+    expect(selectionOf(store.getState())).toBe(first);
+    expect(store.getState().list).toEqual({ kind: 'events' });
+    store.getState().openDetail({ kind: 'location', id: 'loc-2' });
+    expect(store.getState().eventId).toBeNull();
+  });
+});

@@ -33,6 +33,7 @@ import { DESKTOP_QUERY, MOBILE_HEADER_PX } from '../../app/visitor-shell';
 import { PEEK_HEIGHT_PX } from '../../components/sheet-snap';
 import { useInfoPointMode } from '../../infopoint/info-point-mode';
 import { useClosureMap } from '../closures/use-closure-map';
+import { useEventMap } from '../events/use-event-map';
 import { useOriginMap } from '../origin/use-origin-map';
 import { useRouteMap } from '../route/use-route-map';
 import { useExplore } from '../search/explore-context';
@@ -116,7 +117,12 @@ const CONTROLS_PX = 44;
 
 /** Peta venue, atau pesan pengganti di perangkat tanpa WebGL (panel cari dan rute tetap jalan). */
 export function VenueMap({ snapshot }: { snapshot: Snapshot }) {
-  return useMapAvailable() ? <VenueMapCanvas snapshot={snapshot} /> : <MapUnavailable />;
+  const available = useMapAvailable();
+  const { store } = useExplore();
+  useEffect(() => {
+    if (!available) store.getState().setMapReady();
+  }, [available, store]);
+  return available ? <VenueMapCanvas snapshot={snapshot} /> : <MapUnavailable />;
 }
 
 /**
@@ -140,7 +146,7 @@ function VenueMapCanvas({ snapshot }: { snapshot: Snapshot }) {
   paddingRef.current = padding;
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [map, setMap] = useState<MapInstance | null>(null);
-  const { link, routeSnapshot } = useExplore();
+  const { link, routeSnapshot, store } = useExplore();
   const initialView = useMemo(
     () => (link && linkedMapView(snapshot, link)) ?? initialMapView(snapshot),
     [snapshot, link],
@@ -174,6 +180,7 @@ function VenueMapCanvas({ snapshot }: { snapshot: Snapshot }) {
   // Penutupan jalur dan konektor butuh graf; sebelum graf termuat hanya area yang ditandai.
   useClosureMap(map, routeSnapshot ?? snapshot, floorIds);
   useCrowdMap(map, snapshot, routeSnapshot, floorIds, people);
+  const eventMarks = useEventMap({ map, snapshot, floorIds, view, setView });
   const labels = useMemo(
     () => mapLabels(snapshot, floorIds, labelIds),
     [snapshot, floorIds, labelIds],
@@ -228,9 +235,10 @@ function VenueMapCanvas({ snapshot }: { snapshot: Snapshot }) {
         background: snapshot.venue.display.colors.facility,
       });
       setMap(instance);
+      store.getState().setMapReady();
     });
     return () => instance.remove();
-  }, [container, snapshot]);
+  }, [container, snapshot, store]);
 
   useEffect(() => {
     if (!map) return;
@@ -287,6 +295,7 @@ function VenueMapCanvas({ snapshot }: { snapshot: Snapshot }) {
         data-ready={map ? 'true' : 'false'}
         data-floor-id={view.floorId ?? ''}
         data-people={people ? 'on' : 'off'}
+        data-event-marks={eventMarks}
       />
       <div className="absolute left-3 max-w-[calc(100%-6rem)]" style={{ top: inset.top }}>
         <BuildingPicker

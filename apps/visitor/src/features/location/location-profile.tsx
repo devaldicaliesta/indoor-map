@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { PanelMessage } from '../../app/panel-message';
 import { data } from '../../data/client';
 import { intlLocale } from '../../i18n';
+import { LocationEvents } from '../events/event-views';
 import { useExplore } from '../search/explore-context';
 import { ShareButton } from '../share/share-button';
 import { LocationStatus } from './location-status';
@@ -99,6 +100,7 @@ export function LocationProfile({ id }: { id: string }) {
       </header>
       <Places places={locationPlaces(index, location)} />
       <LocationStatus location={location} />
+      <LocationEvents locationId={location.id} />
       <RouteAction target={{ kind: 'location', id: location.id }} />
       <ShareButton title={location.name} />
       {location.description ? <p className="whitespace-pre-line">{location.description}</p> : null}

@@ -128,3 +128,17 @@ describe('deep link', () => {
     });
   });
 });
+
+describe('tautan event (ev=)', () => {
+  const eventId = '0b9d5a3e-6f1c-4e2a-9d7b-1c2e3f4a5b6c';
+
+  it('menulis dan membaca id event', () => {
+    const path = encodeDeepLink({ venueId, eventId, language: 'en' });
+    expect(path).toBe(`/v/${venueId}?lang=en&ev=${eventId}`);
+    expect(decodeDeepLink(path)).toEqual({ venueId, eventId, language: 'en' });
+  });
+
+  it('id event yang rusak diabaikan', () => {
+    expect(decodeDeepLink(`/v/${venueId}?ev=<script>`)).toEqual({ venueId });
+  });
+});

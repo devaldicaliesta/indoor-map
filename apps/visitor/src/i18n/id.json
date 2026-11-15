@@ -112,6 +112,25 @@
     "missingTitle": "Tidak ditemukan di peta ini",
     "missingDescription": "Kembali lalu cari lagi dengan nama atau kode unit."
   },
+  "events": {
+    "chip": "Event & Promo",
+    "heading": "Event & Promo",
+    "live": "Sedang berlangsung",
+    "soon": "Segera",
+    "empty": "Belum ada event atau promo dalam 7 hari ke depan.",
+    "kindEvent": "Acara",
+    "kindPromotion": "Promo",
+    "liveBadge": "Berlangsung",
+    "back": "Semua event",
+    "moreInfo": "Info lebih lanjut",
+    "showOnMap": "Lihat di peta",
+    "places": "Tempat",
+    "atLocation": "Event di sini",
+    "repeatsDaily": "Setiap hari",
+    "repeatsWeekly": "Setiap minggu",
+    "notFoundTitle": "Event sudah berakhir",
+    "notFoundDescription": "Event ini sudah selesai atau tidak lagi ditampilkan."
+  },
   "unit": {
     "label": "Unit"
   },

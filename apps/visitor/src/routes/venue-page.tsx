@@ -20,6 +20,7 @@ import { data } from '../data/client';
 import { useRouteSnapshot, useSnapshot } from '../data/loadSnapshot';
 import { takeSlugPrefetch } from '../data/prefetch';
 import { closuresQuery, useLiveClosures } from '../features/closures/use-live-closures';
+import { useLiveEvents } from '../features/events/use-live-events';
 import { VenueMap } from '../features/map/venue-map';
 import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
 import { DetailBackBar, ExplorePanel } from '../features/search/explore-panel';
@@ -152,6 +153,7 @@ function VenueExplorer({ snapshot, autoTour }: { snapshot: Snapshot; autoTour: b
   const brand = useVenueBranding(snapshot);
   const tour = useExplorerTour(brand.name, autoTour);
   useLiveClosures(snapshot);
+  useLiveEvents(snapshot);
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const sheetSnap = useExploreStore((s) => s.sheetSnap);
   const setSheetSnap = useExploreStore((s) => s.setSheetSnap);

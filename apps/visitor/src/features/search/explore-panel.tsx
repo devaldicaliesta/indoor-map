@@ -2,6 +2,7 @@ import type { ExploreTarget } from '@indoor/domain';
 import { Button } from '@indoor/ui';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { EventList } from '../events/event-views';
 import { FacilityDetail, UnitDetail } from '../location/feature-details';
 import { LocationProfile } from '../location/location-profile';
 import { OriginChooser, OriginRow, OriginTapHint } from '../origin/origin-panels';
@@ -59,6 +60,7 @@ function ListContent({ hint }: { hint: boolean }) {
   if (list?.kind === 'category') return <CategoryList id={list.id} />;
   if (list?.kind === 'facility_type') return <FacilityTypeList id={list.id} />;
   if (list?.kind === 'directory') return <Directory />;
+  if (list?.kind === 'events') return <EventList />;
   return hint ? <p className="text-ink-muted">{t('explore.hint')}</p> : null;
 }
 
