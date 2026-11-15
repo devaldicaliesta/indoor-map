@@ -9,6 +9,7 @@ export type { Database, Json } from './database.types';
 export { DataError, type DataErrorKind } from './errors';
 export { type Page, type PageQuery, pageRange } from './pagination';
 export { type AliasesRepository, aliasKey } from './repositories/aliases';
+export type { AnalyticsConfig, AnalyticsRepository } from './repositories/analytics';
 export type { AuditFilters, AuditRepository } from './repositories/audit';
 export type { BuildingsRepository, OutdoorLayer } from './repositories/buildings';
 export type {

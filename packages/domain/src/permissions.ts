@@ -12,6 +12,7 @@ export const ADMIN_MODULES = [
   'events',
   'origin_points',
   'publish',
+  'analytics',
   'settings',
   'users',
   'license',
@@ -43,6 +44,7 @@ const MODULE_ACCESS: Record<AdminModule, Partial<Record<AppRole, ModuleAccess>>>
   origin_points: { super_admin: 'edit', admin: 'edit', editor: 'edit', viewer: 'read' },
   // Editor hanya menjalankan validasi; tombol Publish/Rollback diatur per aksi.
   publish: { super_admin: 'edit', admin: 'edit', editor: 'edit', viewer: 'read' },
+  analytics: { super_admin: 'edit', admin: 'edit', viewer: 'read' },
   settings: { super_admin: 'edit', admin: 'edit', editor: 'read', viewer: 'read' },
   users: { super_admin: 'edit' },
   license: { super_admin: 'edit' },

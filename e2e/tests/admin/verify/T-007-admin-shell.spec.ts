@@ -18,6 +18,7 @@ const ALL = [
   'Event & Promo',
   'Titik Asal',
   'Publish',
+  'Analitik',
   'Pengaturan',
   'Pengguna',
   'Lisensi',
@@ -32,7 +33,10 @@ const read = (menus: string[], readOnly: string[]) =>
 const MENUS: Record<AppRole, string[]> = {
   super_admin: ALL,
   admin: WITHOUT_ADMIN_ONLY,
-  editor: read(WITHOUT_ADMIN_ONLY, ['Venue', 'Penutupan', 'Pengaturan']),
+  editor: read(
+    WITHOUT_ADMIN_ONLY.filter((m) => m !== 'Analitik'),
+    ['Venue', 'Penutupan', 'Pengaturan'],
+  ),
   operator: read(['Editor Peta', 'Penutupan'], ['Editor Peta']),
   viewer: read(WITHOUT_ADMIN_ONLY, WITHOUT_ADMIN_ONLY),
 };

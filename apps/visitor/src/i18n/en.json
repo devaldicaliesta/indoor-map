@@ -243,5 +243,11 @@
       "routeTitle": "Route and continue on your phone",
       "routeBody": "Open a place and choose Directions to here. Scan the Continue on your phone QR code to take the same route to your phone."
     }
+  },
+  "analytics": {
+    "noticeLabel": "Privacy notice",
+    "accept": "OK",
+    "decline": "Decline",
+    "toggle": "Send anonymous usage statistics"
   }
 }

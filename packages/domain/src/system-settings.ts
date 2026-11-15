@@ -18,8 +18,12 @@ export interface SystemSettings {
   auditRetentionDays: number;
   /** Role yang wajib verifikasi dua langkah (TOTP); ditegakkan server lewat `app.user_role()`. */
   mfaRequiredRoles: AppRole[];
+  analyticsEnabled: boolean;
+  analyticsNotice: { id: string; en: string };
   updatedAt: string;
 }
+
+export const ANALYTICS_NOTICE_MAX = 500;
 
 export type SystemSettingsPatch = Partial<Omit<SystemSettings, 'updatedAt'>>;
 

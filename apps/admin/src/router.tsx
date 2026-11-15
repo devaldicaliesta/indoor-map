@@ -2,6 +2,7 @@ import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RequireAuth } from './app/auth/require-auth';
 import { HomeRedirect } from './app/module-route';
 import { NotFoundPage, RouteError } from './app/route-error';
+import { AnalyticsPage } from './features/analytics/analytics-page';
 import { ForgotPasswordPage } from './features/auth/forgot-password-page';
 import { LoginPage } from './features/auth/login-page';
 import { ResetPasswordPage } from './features/auth/reset-password-page';
@@ -81,6 +82,7 @@ export const router = createBrowserRouter([
       { path: 'locations', element: <LocationsPage /> },
       { path: 'closures', element: <ClosuresPage /> },
       { path: 'events', element: <EventsPage /> },
+      { path: 'analytics', element: <AnalyticsPage /> },
       { path: 'origin-points', element: <OriginPointsPage /> },
       { path: 'publish', element: <PublishPage /> },
       { path: 'settings', element: <SettingsPage /> },

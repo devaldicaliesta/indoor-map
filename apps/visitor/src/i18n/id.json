@@ -243,5 +243,11 @@
       "routeTitle": "Rute dan lanjutkan di HP",
       "routeBody": "Buka tempat lalu pilih Rute ke sini. Pindai QR Lanjutkan di HP untuk membawa rute yang sama ke ponsel Anda."
     }
+  },
+  "analytics": {
+    "noticeLabel": "Pemberitahuan privasi",
+    "accept": "Oke",
+    "decline": "Tolak",
+    "toggle": "Kirim statistik pemakaian anonim"
   }
 }

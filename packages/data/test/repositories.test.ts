@@ -57,6 +57,9 @@ describe('pengaturan sistem', () => {
     basemap_attribution: '© OpenStreetMap contributors',
     audit_retention_days: 365,
     mfa_required_roles: ['super_admin' as const, 'admin' as const],
+    analytics_enabled: false,
+    analytics_notice_id: 'Kami mencatat statistik.',
+    analytics_notice_en: 'We record statistics.',
     updated_at: '2026-09-29T08:00:00+00:00',
   };
 
@@ -73,6 +76,8 @@ describe('pengaturan sistem', () => {
       basemapAttribution: '© OpenStreetMap contributors',
       auditRetentionDays: 365,
       mfaRequiredRoles: ['super_admin', 'admin'],
+      analyticsEnabled: false,
+      analyticsNotice: { id: 'Kami mencatat statistik.', en: 'We record statistics.' },
       updatedAt: '2026-09-29T08:00:00+00:00',
     });
   });
@@ -84,12 +89,17 @@ describe('pengaturan sistem', () => {
         defaultLanguage: 'en',
         auditRetentionDays: 90,
         mfaRequiredRoles: [],
+        analyticsEnabled: true,
+        analyticsNotice: { id: 'A', en: 'B' },
       }),
     ).toEqual({
       public_visitor_url: null,
       default_language: 'en',
       audit_retention_days: 90,
       mfa_required_roles: [],
+      analytics_enabled: true,
+      analytics_notice_id: 'A',
+      analytics_notice_en: 'B',
     });
   });
 });

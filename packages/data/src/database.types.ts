@@ -58,6 +58,123 @@ export type Database = {
           },
         ];
       };
+      analytics_daily: {
+        Row: {
+          count: number;
+          day: string;
+          key: string;
+          metric: string;
+          venue_id: string;
+        };
+        Insert: {
+          count: number;
+          day: string;
+          key: string;
+          metric: string;
+          venue_id: string;
+        };
+        Update: {
+          count?: number;
+          day?: string;
+          key?: string;
+          metric?: string;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'analytics_daily_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      analytics_events: {
+        Row: {
+          device: Database['public']['Enums']['analytics_device'];
+          id: number;
+          kind: Database['public']['Enums']['analytics_kind'];
+          language: Database['public']['Enums']['language_code'];
+          occurred_at: string;
+          origin_kind: string | null;
+          origin_ref: string | null;
+          query: string | null;
+          result_count: number | null;
+          source: Database['public']['Enums']['analytics_source'];
+          source_ref: string | null;
+          target_id: string | null;
+          target_kind: string | null;
+          venue_id: string;
+        };
+        Insert: {
+          device: Database['public']['Enums']['analytics_device'];
+          id?: never;
+          kind: Database['public']['Enums']['analytics_kind'];
+          language: Database['public']['Enums']['language_code'];
+          occurred_at?: string;
+          origin_kind?: string | null;
+          origin_ref?: string | null;
+          query?: string | null;
+          result_count?: number | null;
+          source: Database['public']['Enums']['analytics_source'];
+          source_ref?: string | null;
+          target_id?: string | null;
+          target_kind?: string | null;
+          venue_id: string;
+        };
+        Update: {
+          device?: Database['public']['Enums']['analytics_device'];
+          id?: never;
+          kind?: Database['public']['Enums']['analytics_kind'];
+          language?: Database['public']['Enums']['language_code'];
+          occurred_at?: string;
+          origin_kind?: string | null;
+          origin_ref?: string | null;
+          query?: string | null;
+          result_count?: number | null;
+          source?: Database['public']['Enums']['analytics_source'];
+          source_ref?: string | null;
+          target_id?: string | null;
+          target_kind?: string | null;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'analytics_events_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      analytics_rollups: {
+        Row: {
+          day: string;
+          rolled_at: string;
+          venue_id: string;
+        };
+        Insert: {
+          day: string;
+          rolled_at?: string;
+          venue_id: string;
+        };
+        Update: {
+          day?: string;
+          rolled_at?: string;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'analytics_rollups_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       audit_events: {
         Row: {
           action: string;
@@ -1612,6 +1729,9 @@ export type Database = {
       };
       system_settings: {
         Row: {
+          analytics_enabled: boolean;
+          analytics_notice_en: string;
+          analytics_notice_id: string;
           audit_retention_days: number;
           basemap_attribution: string | null;
           basemap_tile_url: string | null;
@@ -1627,6 +1747,9 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          analytics_enabled?: boolean;
+          analytics_notice_en?: string;
+          analytics_notice_id?: string;
           audit_retention_days?: number;
           basemap_attribution?: string | null;
           basemap_tile_url?: string | null;
@@ -1642,6 +1765,9 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          analytics_enabled?: boolean;
+          analytics_notice_en?: string;
+          analytics_notice_id?: string;
           audit_retention_days?: number;
           basemap_attribution?: string | null;
           basemap_tile_url?: string | null;
@@ -1781,6 +1907,17 @@ export type Database = {
           user_id: string;
         }[];
       };
+      analytics_config: { Args: Record<PropertyKey, never>; Returns: Json };
+      analytics_facts: {
+        Args: { p_from: string; p_to: string; p_venue: string };
+        Returns: {
+          count: number;
+          day: string;
+          key: string;
+          metric: string;
+        }[];
+      };
+      analytics_ingest: { Args: { p_events: Json; p_venue: string }; Returns: number };
       apply_template: {
         Args: {
           p_template: Json;
@@ -2353,6 +2490,9 @@ export type Database = {
       vendor_unblock: { Args: { p_value: string }; Returns: undefined };
     };
     Enums: {
+      analytics_device: 'mobile' | 'tablet' | 'desktop' | 'kiosk';
+      analytics_kind: 'visit' | 'search' | 'location' | 'route';
+      analytics_source: 'direct' | 'origin_qr' | 'info_point' | 'link' | 'embed';
       app_role: 'super_admin' | 'admin' | 'editor' | 'operator' | 'viewer';
       connector_kind: 'elevator' | 'escalator' | 'stairs' | 'building_door';
       display_mode: '2d' | '3d';
@@ -2524,6 +2664,9 @@ export const Constants = {
   },
   public: {
     Enums: {
+      analytics_device: ['mobile', 'tablet', 'desktop', 'kiosk'],
+      analytics_kind: ['visit', 'search', 'location', 'route'],
+      analytics_source: ['direct', 'origin_qr', 'info_point', 'link', 'embed'],
       app_role: ['super_admin', 'admin', 'editor', 'operator', 'viewer'],
       connector_kind: ['elevator', 'escalator', 'stairs', 'building_door'],
       display_mode: ['2d', '3d'],

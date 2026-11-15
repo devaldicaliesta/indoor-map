@@ -14,6 +14,9 @@ const base: SystemFormValues = {
   basemapAttribution: '',
   auditRetentionDays: '365',
   mfaRequiredRoles: ['super_admin'],
+  analyticsEnabled: true,
+  analyticsNoticeId: ' Kami mencatat statistik. ',
+  analyticsNoticeEn: 'We record statistics.',
 };
 
 describe('validate', () => {
@@ -54,6 +57,19 @@ describe('toPatch', () => {
       basemapAttribution: null,
       auditRetentionDays: 365,
       mfaRequiredRoles: ['super_admin'],
+      analyticsEnabled: true,
+      analyticsNotice: { id: 'Kami mencatat statistik.', en: 'We record statistics.' },
+    });
+  });
+});
+
+describe('analitik', () => {
+  it('teks pemberitahuan wajib dan paling banyak 500 karakter', () => {
+    expect(
+      validate({ ...base, analyticsNoticeId: ' ', analyticsNoticeEn: 'x'.repeat(501) }),
+    ).toEqual({
+      analyticsNoticeId: 'Teks pemberitahuan wajib diisi.',
+      analyticsNoticeEn: 'Paling banyak 500 karakter.',
     });
   });
 });

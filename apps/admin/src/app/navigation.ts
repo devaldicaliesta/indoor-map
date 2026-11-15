@@ -1,6 +1,7 @@
 import type { AdminModule, AppRole, PaidFeature } from '@indoor/domain';
 import {
   ActivityIcon,
+  BarChart3Icon,
   BuildingIcon,
   type LucideIcon,
   MapIcon,
@@ -30,6 +31,7 @@ export const MODULE_NAV: Record<AdminModule, ModuleNav> = {
   events: { path: '/events', label: 'Event & Promo', icon: MegaphoneIcon, feature: 'events' },
   origin_points: { path: '/origin-points', label: 'Titik Asal', icon: QrCodeIcon },
   publish: { path: '/publish', label: 'Publish', icon: SendIcon },
+  analytics: { path: '/analytics', label: 'Analitik', icon: BarChart3Icon },
   settings: { path: '/settings', label: 'Pengaturan', icon: SettingsIcon },
   users: { path: '/users', label: 'Pengguna', icon: UsersIcon },
   license: { path: '/license', label: 'Lisensi', icon: ShieldCheckIcon },

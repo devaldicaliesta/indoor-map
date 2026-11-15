@@ -1,4 +1,5 @@
 export * from './aliases';
+export * from './analytics';
 export * from './area';
 export * from './audit';
 export * from './auth';
