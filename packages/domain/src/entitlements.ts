@@ -1,11 +1,12 @@
 /** Fitur berbayar yang dibuka lisensi (`features` di berkas lisensi). */
-export const PAID_FEATURES = ['3d', 'info_point', 'cad_import'] as const;
+export const PAID_FEATURES = ['3d', 'info_point', 'cad_import', 'events'] as const;
 export type PaidFeature = (typeof PAID_FEATURES)[number];
 
 export const FEATURE_LABELS: Record<PaidFeature, string> = {
   '3d': 'Tampilan 3D',
   info_point: 'Info Point',
   cad_import: 'Impor denah CAD (DXF)',
+  events: 'Event & Promo',
 };
 
 /** Keterangan pada kontrol yang terkunci. */

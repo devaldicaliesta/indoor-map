@@ -445,6 +445,123 @@ export type Database = {
           },
         ];
       };
+      event_locations: {
+        Row: {
+          event_id: string;
+          location_id: string;
+        };
+        Insert: {
+          event_id: string;
+          location_id: string;
+        };
+        Update: {
+          event_id?: string;
+          location_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'event_locations_event_id_fkey';
+            columns: ['event_id'];
+            isOneToOne: false;
+            referencedRelation: 'events';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'event_locations_location_id_fkey';
+            columns: ['location_id'];
+            isOneToOne: false;
+            referencedRelation: 'locations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      events: {
+        Row: {
+          created_at: string;
+          description_en: string | null;
+          description_id: string | null;
+          ends_at: string;
+          floor_id: string | null;
+          geom: unknown;
+          id: string;
+          image_path: string | null;
+          kind: Database['public']['Enums']['event_kind'];
+          last_ends_at: string;
+          link_url: string | null;
+          repeat: Database['public']['Enums']['event_repeat'];
+          repeat_until: string | null;
+          starts_at: string;
+          status: Database['public']['Enums']['event_status'];
+          summary_en: string | null;
+          summary_id: string | null;
+          title_en: string | null;
+          title_id: string;
+          updated_at: string;
+          venue_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          description_en?: string | null;
+          description_id?: string | null;
+          ends_at: string;
+          floor_id?: string | null;
+          geom?: unknown;
+          id?: string;
+          image_path?: string | null;
+          kind?: Database['public']['Enums']['event_kind'];
+          last_ends_at?: string;
+          link_url?: string | null;
+          repeat?: Database['public']['Enums']['event_repeat'];
+          repeat_until?: string | null;
+          starts_at: string;
+          status?: Database['public']['Enums']['event_status'];
+          summary_en?: string | null;
+          summary_id?: string | null;
+          title_en?: string | null;
+          title_id: string;
+          updated_at?: string;
+          venue_id: string;
+        };
+        Update: {
+          created_at?: string;
+          description_en?: string | null;
+          description_id?: string | null;
+          ends_at?: string;
+          floor_id?: string | null;
+          geom?: unknown;
+          id?: string;
+          image_path?: string | null;
+          kind?: Database['public']['Enums']['event_kind'];
+          last_ends_at?: string;
+          link_url?: string | null;
+          repeat?: Database['public']['Enums']['event_repeat'];
+          repeat_until?: string | null;
+          starts_at?: string;
+          status?: Database['public']['Enums']['event_status'];
+          summary_en?: string | null;
+          summary_id?: string | null;
+          title_en?: string | null;
+          title_id?: string;
+          updated_at?: string;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'events_floor_id_fkey';
+            columns: ['floor_id'];
+            isOneToOne: false;
+            referencedRelation: 'floors';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'events_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       facility_types: {
         Row: {
           created_at: string;
@@ -2231,6 +2348,9 @@ export type Database = {
       connector_kind: 'elevator' | 'escalator' | 'stairs' | 'building_door';
       display_mode: '2d' | '3d';
       escalator_direction: 'up' | 'down' | 'both';
+      event_kind: 'event' | 'promotion';
+      event_repeat: 'none' | 'daily' | 'weekly';
+      event_status: 'draft' | 'active' | 'ended';
       feature_kind:
         | 'unit'
         | 'corridor'
@@ -2399,6 +2519,9 @@ export const Constants = {
       connector_kind: ['elevator', 'escalator', 'stairs', 'building_door'],
       display_mode: ['2d', '3d'],
       escalator_direction: ['up', 'down', 'both'],
+      event_kind: ['event', 'promotion'],
+      event_repeat: ['none', 'daily', 'weekly'],
+      event_status: ['draft', 'active', 'ended'],
       feature_kind: [
         'unit',
         'corridor',

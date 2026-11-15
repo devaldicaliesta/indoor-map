@@ -16,6 +16,7 @@ import {
   type DisplaySettingsRepository,
 } from './repositories/display-settings';
 import { createEditLocksRepository, type EditLocksRepository } from './repositories/edit-locks';
+import { createEventsRepository, type EventsRepository } from './repositories/events';
 import {
   createFacilityTypesRepository,
   type FacilityTypesRepository,
@@ -82,6 +83,7 @@ export interface DataClient {
   cadConverter: CadConverterRepository;
   categories: CategoriesRepository;
   closures: ClosuresRepository;
+  events: EventsRepository;
   connectors: ConnectorsRepository;
   displaySettings: DisplaySettingsRepository;
   editLocks: EditLocksRepository;
@@ -129,6 +131,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     ),
     categories: createCategoriesRepository(db),
     closures: createClosuresRepository(db),
+    events: createEventsRepository(db),
     connectors: createConnectorsRepository(db),
     displaySettings: createDisplaySettingsRepository(db),
     editLocks: createEditLocksRepository(db, endpoint),

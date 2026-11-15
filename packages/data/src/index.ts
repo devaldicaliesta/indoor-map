@@ -23,6 +23,11 @@ export type { ConnectorInput, ConnectorsRepository } from './repositories/connec
 export type { DisplaySettingsRepository } from './repositories/display-settings';
 export type { EditLocksRepository } from './repositories/edit-locks';
 export type {
+  EventListState,
+  EventPageFilters,
+  EventsRepository,
+} from './repositories/events';
+export type {
   FacilityTypesRepository,
   FacilityTypeWithUsage,
 } from './repositories/facility-types';

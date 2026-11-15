@@ -18,6 +18,7 @@ export * from './edit-lock';
 export * from './entitlements';
 export * from './entrances';
 export * from './eula';
+export * from './event';
 export * from './explore';
 export * from './facility';
 export * from './feature';
