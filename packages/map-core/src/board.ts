@@ -261,11 +261,13 @@ export function buildBoardLayout(
       bold: index === 0,
     });
   });
+  const shortUrl = options.url.replace(/^https?:\/\//, '');
+  const urlSize = Math.min(7 * u, qrSide / Math.max(textWidth(shortUrl, 1), 1));
   text(
-    fitText(options.url.replace(/^https?:\/\//, ''), 7 * u, qrSide + 30 * u),
+    shortUrl,
     qrX + qrSide / 2,
     bottomY + qrSide + (18 + options.texts.scan.length * 14) * u,
-    7 * u,
+    urlSize,
     { anchor: 'middle', color: MUTED },
   );
 

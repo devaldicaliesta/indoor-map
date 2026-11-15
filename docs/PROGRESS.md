@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** F2.1 Siap jual (R0–R4 selesai)
-**Task berikutnya:** T-574 Papan "Anda di sini" cetak dengan QR (F2.3; T-548, T-572, T-571, T-544 di review)
+**Task berikutnya:** T-581 Event & promosi: data dan Admin (F2-I; T-548, T-572, T-571, T-544, T-574 di review)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -170,7 +170,7 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-571 | Elemen 3D: pustaka objek + model GLB | — | siap | Three.js disetujui 2026-10-06 (lazy) |
 | T-572 | Pustaka ikon POI lengkap | — | siap | |
 | T-573 | Penguatan CMS: media, edit massal, dasbor | T-503 | siap | |
-| T-574 | Papan "Anda di sini" cetak dengan QR | T-544 | siap | |
+| T-574 | Papan "Anda di sini" cetak dengan QR | T-544 | review | e2e/evidence/T-574 |
 | T-581 | Event & promosi: data dan Admin | T-502 | siap | |
 | T-582 | Event & promosi di Visitor | T-581 | menunggu | |
 | T-583 | Playlist promosi di Info Point | T-582, T-408 | menunggu | |
@@ -233,6 +233,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-11-16] T-574 — **Papan dan stiker dibuat dari snapshot terbit, di browser.** Papan "Anda di sini" (A4/A3/A2, potret) dan lembar stiker QR (A4, 5 × 5 cm, 15 per halaman) disusun `map-core/board.ts` di atas mesin cetak T-544 (`drawFloor` kini bisa memutar peta, `layoutsToPdf` menulis banyak halaman). Isinya diambil dari snapshot terakhir yang dipublish, bukan draf, agar papan sama dengan peta pengunjung; bila venue belum dipublish tombol dinonaktifkan dengan pesan. Peta diputar sesuai arah hadap titik asal sehingga "depan" pembaca ada di atas, panah utara ikut berputar. Lokasi utama = lokasi yang unitnya ada di lantai titik itu, urut nama, maks. 24, dan dipotong sesuai ruang yang tersisa di kertas. Teks papan mengikuti bahasa default venue (ID/EN). QR papan membuka Visitor dari titik itu (`?o=`); QR stiker memakai deep link `to=` lokasi sehingga Visitor meminta titik asal lalu memberi rute. Cetak massal per lantai menghasilkan satu PDF dengan satu halaman per titik.
 - [2026-11-16] T-544 — **PDF cetak ditulis langsung tanpa pustaka.** `map-core/print.ts` menyusun tata letak sekali (proyeksi equirectangular di sekitar lantai, utara di atas), lalu menulisnya sebagai SVG atau PDF 1.4 vektor satu halaman dengan font standar Helvetica/Helvetica-Bold (WinAnsi). Tidak menambah dependency dan ukuran berkas kecil, tetapi huruf di luar Latin-1 (mis. aksara CJK) tampil sebagai `?` di PDF; SVG memakai UTF-8 sehingga tetap utuh. Label ruang mengecil sesuai lebar ruang dan dilewati bila di bawah 6 pt agar tetap terbaca saat dicetak. Tombol "Export peta" ada di bilah atas Editor Peta (semua role yang bisa membuka editor). Dasar untuk T-574 (papan "Anda di sini").
 - [2026-11-15] T-595d — **Portal mencatat rilis, tidak menyimpan arsipnya.** Arsip `build-release.sh --save` berisi `images.tar` berukuran GB, melebihi batas berkas Supabase Storage; portal menyimpan versi, tanggal, catatan, alamat unduh (penyimpanan vendor) dan SHA-256. Lisensi yang sudah digantikan (`superseded`) tetap dijawab aktif dengan berkasnya sendiri agar klien yang belum memasang pengganti tidak gagal check-in; dicabut, atau digantikan tanpa lisensi aktif di instalasi itu, dijawab `revoked`. **Aktivasi dengan kunci dipisah ke T-595e**; sementara itu `/v1/activate` menjawab arahan memasang berkas lisensi.
 - [2026-11-15] T-595c — **Antrean trial on-premise berasal dari Admin klien, bukan landing page.** Spesifikasi T-595 langkah 3 menyebut landing, tetapi landing sudah melayani trial ter-hosting (T-617) dan lisensi on-premise wajib terikat ID instalasi yang hanya diketahui server klien. Jadi `LICENSE_VENDOR_URL` klien menunjuk Edge Function `vendor-api`: `POST /v1/trial` dari `license-activate` masuk antrean, staf vendor menyetujui di dasbor, dan lisensi trial bertanda tangan dikirim lewat email untuk dipasang di tab Unggah berkas. Trial tidak lagi otomatis di server vendor sungguhan (vendor-stub tetap otomatis untuk uji T-504). `/v1/activate` dan `/v1/checkin` di `vendor-api` menyusul di T-595d.
