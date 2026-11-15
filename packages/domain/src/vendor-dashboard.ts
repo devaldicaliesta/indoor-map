@@ -107,9 +107,7 @@ export function summarizeLeads(leads: readonly TrialLead[], capacity: number): V
   };
 }
 
-// ---------------------------------------------------------------------------
 // Daftar blokir
-// ---------------------------------------------------------------------------
 
 export type BlockKind = 'email' | 'domain';
 
@@ -157,9 +155,7 @@ export function parseBlockValue(input: string): BlockValueCheck {
   return { ok: true, value, kind: 'domain' };
 }
 
-// ---------------------------------------------------------------------------
 // Ekspor leads
-// ---------------------------------------------------------------------------
 
 /**
  * Isian pemohon dibuka vendor di spreadsheet; sel yang diawali `= + - @` (atau tab/CR) dibaca
@@ -220,10 +216,6 @@ export function leadsCsv(leads: readonly TrialLead[], labels: LeadsCsvLabels, no
   return toCsv([LEADS_CSV_HEADER, ...rows]);
 }
 
-// ---------------------------------------------------------------------------
-// Data Klien dan Instalasi (T-595a)
-// ---------------------------------------------------------------------------
-
 export interface VendorClient {
   id: string;
   name: string;
@@ -240,20 +232,10 @@ export interface VendorInstallation {
   clientName: string;
   instanceId: string;
   name: string;
-  plan: string;
-  validFrom: string;
-  validUntil: string;
+  plan: string | null;
+  validFrom: string | null;
+  validUntil: string | null;
   lastVersion: string | null;
   lastCheckinAt: string | null;
   createdAt: string;
-}
-
-export interface VendorLicense {
-  id: string;
-  installationId: string;
-  licenseId: string;
-  payload: unknown;
-  signature: string;
-  status: 'active' | 'revoked' | 'expired';
-  issuedAt: string;
 }

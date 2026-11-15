@@ -2038,6 +2038,10 @@ export type Database = {
         }[];
       };
       vendor_capacity: { Args: Record<PropertyKey, never>; Returns: number };
+      vendor_client_create: {
+        Args: { p_email: string; p_institution: string; p_name: string; p_phone?: string };
+        Returns: string;
+      };
       vendor_clients: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -2049,6 +2053,10 @@ export type Database = {
           name: string;
           phone: string;
         }[];
+      };
+      vendor_installation_create: {
+        Args: { p_client_id: string; p_instance_id: string; p_name: string };
+        Returns: string;
       };
       vendor_installations: {
         Args: Record<PropertyKey, never>;
@@ -2062,6 +2070,33 @@ export type Database = {
           last_version: string;
           name: string;
           plan: string;
+          valid_from: string;
+          valid_until: string;
+        }[];
+      };
+      vendor_license_record: {
+        Args: { p_actor: string; p_installation_id: string; p_payload: Json; p_signature: string };
+        Returns: undefined;
+      };
+      vendor_license_revoke: { Args: { p_license_id: string }; Returns: undefined };
+      vendor_license_target: {
+        Args: { p_installation_id: string };
+        Returns: {
+          client: string;
+          instance_id: string;
+        }[];
+      };
+      vendor_licenses: {
+        Args: { p_installation_id: string };
+        Returns: {
+          file: Json;
+          id: string;
+          issued_at: string;
+          issued_by_email: string;
+          license_id: string;
+          plan: string;
+          revoked_at: string;
+          status: string;
           valid_from: string;
           valid_until: string;
         }[];
