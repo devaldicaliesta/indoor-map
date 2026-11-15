@@ -49,7 +49,7 @@ const dayStart = (value: unknown): number | null => {
 const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= MAX_COUNT;
 
-function readQuota(value: unknown): LicenseQuota | null {
+export function readQuota(value: unknown): LicenseQuota | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
   const entries = value as Record<string, unknown>;
   const allowed: readonly string[] = [...REQUIRED_QUOTA_KEYS, ...OPTIONAL_QUOTA_KEYS];
@@ -70,7 +70,7 @@ function readQuota(value: unknown): LicenseQuota | null {
   return quota;
 }
 
-function readFeatures(value: unknown): string[] | null {
+export function readFeatures(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null;
   const known: readonly string[] = PAID_FEATURES;
   if (!value.every((feature) => typeof feature === 'string' && known.includes(feature))) {
