@@ -101,10 +101,11 @@ export function useAnalytics(enabled: boolean) {
     });
     const send = (event: Payload) => track(venueId, { ...context(), ...event } as AnalyticsEvent);
     const sendRoute = (state: ReturnType<typeof store.getState>) => {
-      if (!state.origin || !state.destination) return;
+      const target = state.stops.at(-1) ?? state.destination;
+      if (!state.origin || !target) return;
       send({
         kind: 'route',
-        ...targetEvent(state.destination),
+        ...targetEvent(target),
         ...originEvent(latest.current.index, state.origin),
       });
     };

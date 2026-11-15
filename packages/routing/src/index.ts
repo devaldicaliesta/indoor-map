@@ -67,6 +67,7 @@ export {
   type RoutePlace,
   routeEndTarget,
 } from './targets';
+export { nearestPlace, planTrip, type TripPlan, type TripSegment } from './trip';
 export type {
   ConnectorLeg,
   RouteFailure,

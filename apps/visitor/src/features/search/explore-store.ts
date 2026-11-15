@@ -45,6 +45,9 @@ export interface ExploreState {
   originMode: OriginMode;
   /** Tujuan "Rute ke sini"; panel rute tampil bila titik asal sudah ada. */
   destination: ExploreTarget | null;
+  stops: readonly ExploreTarget[];
+  nearestType: string | null;
+  nearestMissing: string | null;
   /** Rute kursi roda: hanya jalur dan konektor yang aksesibel. */
   accessible: boolean;
   /** Langkah yang sedang dilihat di mode langkah; `null` = daftar langkah. */
@@ -69,6 +72,10 @@ export interface ExploreState {
   setSheetSnap(snap: SheetSnap): void;
   /** "Rute ke sini": tanpa titik asal, pengunjung diminta menentukannya lebih dulu. */
   requestRoute(target: ExploreTarget): void;
+  requestNearest(facilityTypeId: string): void;
+  resolveNearest(target: ExploreTarget | null): void;
+  addStop(target: ExploreTarget): void;
+  removeDestination(index: number): void;
   /** Ganti titik asal dari panel rute atau penanda "Anda di sini". */
   chooseOrigin(): void;
   tapOrigin(): void;
@@ -96,6 +103,9 @@ const INITIAL = {
   originSeq: 0,
   originMode: 'off' as OriginMode,
   destination: null,
+  stops: [] as readonly ExploreTarget[],
+  nearestType: null as string | null,
+  nearestMissing: null as string | null,
   accessible: false,
   activeStep: null,
   routeSeq: 0,
@@ -104,6 +114,8 @@ const INITIAL = {
   eventId: null as string | null,
   mapReady: false,
 };
+
+export const MAX_ROUTE_STOPS = 4;
 
 const listKey = (list: ExploreList) => ('id' in list ? `${list.kind}:${list.id}` : list.kind);
 const sameList = (a: ExploreList | null, b: ExploreList) => a !== null && listKey(a) === listKey(b);
@@ -218,6 +230,9 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
         s.origin
           ? {
               destination,
+              stops: [],
+              nearestType: null,
+              nearestMissing: null,
               originMode: 'off',
               detail: null,
               eventId: null,
@@ -230,6 +245,9 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
             }
           : {
               destination,
+              stops: [],
+              nearestType: null,
+              nearestMissing: null,
               originMode: 'choose',
               detail: null,
               eventId: null,
@@ -238,6 +256,60 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
               sheetSnap: 'half',
             },
       ),
+
+    requestNearest: (nearestType) =>
+      set((s) =>
+        s.origin
+          ? { nearestType, nearestMissing: null }
+          : {
+              nearestType,
+              nearestMissing: null,
+              destination: null,
+              stops: [],
+              originMode: 'choose',
+              detail: null,
+              eventId: null,
+              query: '',
+              list: null,
+              sheetSnap: 'half',
+            },
+      ),
+
+    resolveNearest: (target) => {
+      const { nearestType, requestRoute } = get();
+      if (!nearestType) return;
+      if (target) requestRoute(target);
+      else
+        set({
+          nearestType: null,
+          nearestMissing: nearestType,
+          list: { kind: 'facility_type', id: nearestType },
+        });
+    },
+
+    addStop: (target) =>
+      set((s) =>
+        s.destination && s.stops.length < MAX_ROUTE_STOPS
+          ? {
+              stops: [...s.stops, target],
+              activeStep: null,
+              routeSeq: s.routeSeq + 1,
+            }
+          : {},
+      ),
+
+    removeDestination: (index) =>
+      set((s) => {
+        const all = [...(s.destination ? [s.destination] : []), ...s.stops];
+        if (all.length < 2) return {};
+        const rest = all.filter((_, i) => i !== index);
+        return {
+          destination: rest[0] ?? null,
+          stops: rest.slice(1),
+          activeStep: null,
+          routeSeq: s.routeSeq + 1,
+        };
+      }),
 
     chooseOrigin: () =>
       set({
@@ -269,10 +341,11 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
         originMode: 'off',
         // Tanpa titik asal, permintaan rute yang menunggunya ikut batal.
         destination: s.origin ? s.destination : null,
+        nearestType: null,
         sheetSnap: s.origin && s.destination ? 'half' : 'peek',
       })),
 
-    closeRoute: () => set({ destination: null, activeStep: null, sheetSnap: 'peek' }),
+    closeRoute: () => set({ destination: null, stops: [], activeStep: null, sheetSnap: 'peek' }),
 
     setAccessible: (accessible) =>
       set((s) => ({ accessible, activeStep: null, routeSeq: s.routeSeq + 1 })),
@@ -281,6 +354,7 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
       set((s) => ({
         origin,
         destination,
+        stops: [],
         originSeq: s.originSeq + 1,
         activeStep: null,
         routeSeq: s.routeSeq + 1,

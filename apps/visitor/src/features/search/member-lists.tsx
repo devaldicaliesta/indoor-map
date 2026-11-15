@@ -1,6 +1,6 @@
 import { categoryMembers, facilityMembers, featurePlace } from '@indoor/domain';
 import { Button } from '@indoor/ui';
-import { XIcon } from 'lucide-react';
+import { NavigationIcon, XIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EntityIcon } from '../../components/entity-icon';
@@ -79,6 +79,9 @@ export function FacilityTypeList({ id }: { id: string }) {
   const { t, i18n } = useTranslation();
   const { snapshot, index } = useExplore();
   const openDetail = useExploreStore((s) => s.openDetail);
+  const requestNearest = useExploreStore((s) => s.requestNearest);
+  const missing = useExploreStore((s) => s.nearestMissing === id);
+  const pending = useExploreStore((s) => s.nearestType === id);
   const type = index.facilityTypes.get(id);
   if (!type) return null;
   const members = facilityMembers(snapshot, index, id, i18n.resolvedLanguage);
@@ -88,7 +91,25 @@ export function FacilityTypeList({ id }: { id: string }) {
         icon={<EntityIcon icon={type.icon} safety={type.isSafety} />}
         title={type.name}
         count={t('explore.facilityCount', { count: members.length })}
-      />
+      >
+        {members.length > 1 ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="justify-self-start"
+            disabled={pending}
+            onClick={() => requestNearest(id)}
+          >
+            <NavigationIcon aria-hidden="true" strokeWidth={1.75} />
+            {t('explore.nearest', { name: type.name })}
+          </Button>
+        ) : null}
+        {missing ? (
+          <p role="status" className="text-ink-muted text-sm">
+            {t('explore.nearestMissing', { name: type.name })}
+          </p>
+        ) : null}
+      </ListHeader>
       <ul className="divide-y divide-line">
         {members.map((facility) => (
           <li key={facility.id}>

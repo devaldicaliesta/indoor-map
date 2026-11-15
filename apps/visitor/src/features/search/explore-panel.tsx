@@ -7,6 +7,7 @@ import { FacilityDetail, UnitDetail } from '../location/feature-details';
 import { LocationProfile } from '../location/location-profile';
 import { OriginChooser, OriginRow, OriginTapHint } from '../origin/origin-panels';
 import { RoutePanel } from '../route/route-panel';
+import { useNearestRequest } from '../route/use-nearest-request';
 import { detailTitle } from './detail-title';
 import { Directory } from './directory';
 import { ExploreChips } from './explore-chips';
@@ -69,6 +70,7 @@ function ListContent({ hint }: { hint: boolean }) {
  * panel jelajah dengan baris "Anda di sini".
  */
 export function ExplorePanel({ desktop }: { desktop: boolean }) {
+  useNearestRequest();
   const originMode = useExploreStore((s) => s.originMode);
   const routing = useExploreStore((s) => s.destination !== null && s.origin !== null);
   if (originMode === 'tap') return <OriginTapHint />;
