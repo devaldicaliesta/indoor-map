@@ -4,10 +4,14 @@ import { DEFAULT_FILL, DEFAULT_OUTLINE, POINT_COLOR, POINT_STYLE, VACANT_UNIT } 
 import type { FloorFeatureCollection } from './map';
 import type { MapDisplay } from './style';
 
-export type PaperSize = 'A3' | 'A4';
+export type PaperSize = 'A2' | 'A3' | 'A4';
 export type PaperOrientation = 'landscape' | 'portrait';
 
-const PAPER_MM: Record<PaperSize, readonly [number, number]> = { A3: [420, 297], A4: [297, 210] };
+const PAPER_MM: Record<PaperSize, readonly [number, number]> = {
+  A2: [594, 420],
+  A3: [420, 297],
+  A4: [297, 210],
+};
 const PT_PER_MM = 72 / 25.4;
 const EARTH_M_PER_DEG = 111_320;
 
@@ -131,61 +135,29 @@ function visitPositions(value: unknown, visit: (p: Position) => void) {
   else if (Array.isArray(value)) for (const item of value) visitPositions(item, visit);
 }
 
-export function buildPrintLayout(
+export interface PrintArea {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface FloorDrawing {
+  shapes: PrintShape[];
+  project: (position: Position) => [number, number];
+  scale: number;
+  hasData: boolean;
+}
+
+export function drawFloor(
   features: FloorFeatureCollection,
-  options: PrintOptions,
-): PrintLayout {
-  const [width, height] = paperPoints(options.paper, options.orientation);
-  const margin = 36;
-  const legendWidth = options.orientation === 'landscape' ? 190 : 0;
-  const headerHeight = options.subtitle ? 74 : 56;
-  const legendRows = LEGEND_ORDER.filter((kind) =>
-    features.features.some((f) => f.properties.kind === kind),
-  );
-  const bottomLegend = legendWidth === 0 ? Math.ceil(legendRows.length / 3) * 20 + 40 : 0;
-  const footerHeight = 24;
-  const map = {
-    x: margin,
-    y: margin + headerHeight,
-    w: width - margin * 2 - legendWidth - (legendWidth ? 18 : 0),
-    h: height - margin * 2 - headerHeight - footerHeight - bottomLegend,
-  };
+  map: PrintArea,
+  options: { colors?: MapDisplay['colors']; rotationDeg?: number } = {},
+): FloorDrawing {
   const shapes: PrintShape[] = [];
-
-  shapes.push({
-    type: 'text',
-    x: margin,
-    y: margin + 24,
-    size: 24,
-    text: options.title,
-    anchor: 'start',
-    bold: true,
-    color: INK,
-  });
-  if (options.subtitle) {
-    shapes.push({
-      type: 'text',
-      x: margin,
-      y: margin + 46,
-      size: 13,
-      text: options.subtitle,
-      anchor: 'start',
-      color: MUTED,
-    });
-  }
-  shapes.push({
-    type: 'path',
-    rings: [
-      [
-        [margin, margin + headerHeight - 10],
-        [width - margin, margin + headerHeight - 10],
-      ],
-    ],
-    closed: false,
-    stroke: LINE,
-    width: 0.75,
-  });
-
+  const turn = ((options.rotationDeg ?? 0) * Math.PI) / 180;
+  const cos = Math.cos(turn);
+  const sin = Math.sin(turn);
   let minX = Number.POSITIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
@@ -204,15 +176,36 @@ export function buildPrintLayout(
   const lng0 = hasData ? (minX + maxX) / 2 : 0;
   const kx = EARTH_M_PER_DEG * Math.cos((lat0 * Math.PI) / 180);
   const ky = EARTH_M_PER_DEG;
-  const spanX = Math.max((maxX - minX) * kx, 1);
-  const spanY = Math.max((maxY - minY) * ky, 1);
+  const local = ([lng = 0, lat = 0]: Position): [number, number] => {
+    const east = (lng - lng0) * kx;
+    const north = (lat - lat0) * ky;
+    return [east * cos - north * sin, east * sin + north * cos];
+  };
+  let left = Number.POSITIVE_INFINITY;
+  let right = Number.NEGATIVE_INFINITY;
+  let bottom = Number.POSITIVE_INFINITY;
+  let top = Number.NEGATIVE_INFINITY;
+  for (const feature of features.features) {
+    if (!('coordinates' in feature.geometry)) continue;
+    visitPositions(feature.geometry.coordinates, (position) => {
+      const [x, y] = local(position);
+      left = Math.min(left, x);
+      right = Math.max(right, x);
+      bottom = Math.min(bottom, y);
+      top = Math.max(top, y);
+    });
+  }
+  const spanX = hasData ? Math.max(right - left, 1) : 1;
+  const spanY = hasData ? Math.max(top - bottom, 1) : 1;
   const scale = hasData ? Math.min(map.w / spanX, map.h / spanY) * 0.94 : 1;
+  const midX = hasData ? (left + right) / 2 : 0;
+  const midY = hasData ? (bottom + top) / 2 : 0;
   const cx = map.x + map.w / 2;
   const cy = map.y + map.h / 2;
-  const project = ([lng = 0, lat = 0]: Position): [number, number] => [
-    cx + (lng - lng0) * kx * scale,
-    cy - (lat - lat0) * ky * scale,
-  ];
+  const project = (position: Position): [number, number] => {
+    const [x, y] = local(position);
+    return [cx + (x - midX) * scale, cy - (y - midY) * scale];
+  };
 
   const byKind = (kind: FeatureKind) => features.features.filter((f) => f.properties.kind === kind);
 
@@ -274,6 +267,73 @@ export function buildPrintLayout(
     if (size < 6) continue;
     shapes.push({ type: 'text', x, y: y + size * 0.35, size, text, anchor: 'middle', color: INK });
   }
+
+  return { shapes, project, scale, hasData };
+}
+
+export function buildPrintLayout(
+  features: FloorFeatureCollection,
+  options: PrintOptions,
+): PrintLayout {
+  const [width, height] = paperPoints(options.paper, options.orientation);
+  const margin = 36;
+  const legendWidth = options.orientation === 'landscape' ? 190 : 0;
+  const headerHeight = options.subtitle ? 74 : 56;
+  const legendRows = LEGEND_ORDER.filter((kind) =>
+    features.features.some((f) => f.properties.kind === kind),
+  );
+  const bottomLegend = legendWidth === 0 ? Math.ceil(legendRows.length / 3) * 20 + 40 : 0;
+  const footerHeight = 24;
+  const map = {
+    x: margin,
+    y: margin + headerHeight,
+    w: width - margin * 2 - legendWidth - (legendWidth ? 18 : 0),
+    h: height - margin * 2 - headerHeight - footerHeight - bottomLegend,
+  };
+  const shapes: PrintShape[] = [];
+
+  shapes.push({
+    type: 'text',
+    x: margin,
+    y: margin + 24,
+    size: 24,
+    text: options.title,
+    anchor: 'start',
+    bold: true,
+    color: INK,
+  });
+  if (options.subtitle) {
+    shapes.push({
+      type: 'text',
+      x: margin,
+      y: margin + 46,
+      size: 13,
+      text: options.subtitle,
+      anchor: 'start',
+      color: MUTED,
+    });
+  }
+  shapes.push({
+    type: 'path',
+    rings: [
+      [
+        [margin, margin + headerHeight - 10],
+        [width - margin, margin + headerHeight - 10],
+      ],
+    ],
+    closed: false,
+    stroke: LINE,
+    width: 0.75,
+  });
+
+  const {
+    shapes: floorShapes,
+    scale,
+    hasData,
+  } = drawFloor(features, map, {
+    ...(options.colors ? { colors: options.colors } : {}),
+  });
+  shapes.push(...floorShapes);
 
   const arrowX = map.x + map.w - 22;
   const arrowY = map.y + 14;
@@ -527,7 +587,7 @@ function pdfString(text: string): string {
   return `(${out})`;
 }
 
-export function layoutToPdf(layout: PrintLayout, producer = 'PanduArah'): Uint8Array {
+function pageContent(layout: PrintLayout): string {
   const h = layout.height;
   const ops: string[] = ['1 J 1 j'];
   for (const shape of layout.shapes) {
@@ -592,16 +652,30 @@ export function layoutToPdf(layout: PrintLayout, producer = 'PanduArah'): Uint8A
       );
     }
   }
-  const content = ops.join('\n');
-  const objects = [
+  return ops.join('\n');
+}
+
+export function layoutsToPdf(
+  layouts: readonly PrintLayout[],
+  title: string,
+  producer = 'PanduArah',
+): Uint8Array {
+  const fontRefs = '/Font << /F1 3 0 R /F2 4 0 R >>';
+  const pageObject = (index: number) => 6 + index * 2;
+  const objects: string[] = [
     '<< /Type /Catalog /Pages 2 0 R >>',
-    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${round(layout.width)} ${round(h)}] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>`,
-    `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+    `<< /Type /Pages /Kids [${layouts.map((_, i) => `${pageObject(i)} 0 R`).join(' ')}] /Count ${layouts.length} >>`,
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>',
-    `<< /Title ${pdfString(layout.title)} /Producer ${pdfString(producer)} >>`,
+    `<< /Title ${pdfString(title)} /Producer ${pdfString(producer)} >>`,
   ];
+  layouts.forEach((layout, index) => {
+    const content = pageContent(layout);
+    objects.push(
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${round(layout.width)} ${round(layout.height)}] /Resources << ${fontRefs} >> /Contents ${pageObject(index) + 1} 0 R >>`,
+      `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+    );
+  });
   let pdf = '%PDF-1.4\n%âãÏÓ\n';
   const offsets: number[] = [];
   objects.forEach((body, index) => {
@@ -611,8 +685,61 @@ export function layoutToPdf(layout: PrintLayout, producer = 'PanduArah'): Uint8A
   const xref = pdf.length;
   pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
   for (const offset of offsets) pdf += `${String(offset).padStart(10, '0')} 00000 n \n`;
-  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R /Info 7 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R /Info 5 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
   const bytes = new Uint8Array(pdf.length);
   for (let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 0xff;
   return bytes;
+}
+
+export function layoutToPdf(layout: PrintLayout, producer = 'PanduArah'): Uint8Array {
+  return layoutsToPdf([layout], layout.title, producer);
+}
+
+export function qrShapes(
+  matrix: readonly (readonly boolean[])[],
+  x: number,
+  y: number,
+  side: number,
+  quiet = 4,
+): PrintShape[] {
+  const modules = matrix.length + quiet * 2;
+  const cell = side / modules;
+  const rings: [number, number][][] = [];
+  matrix.forEach((row, r) => {
+    let c = 0;
+    while (c < row.length) {
+      if (!row[c]) {
+        c++;
+        continue;
+      }
+      const from = c;
+      while (c < row.length && row[c]) c++;
+      const x0 = x + (quiet + from) * cell;
+      const x1 = x + (quiet + c) * cell;
+      const y0 = y + (quiet + r) * cell;
+      const y1 = y0 + cell;
+      rings.push([
+        [x0, y0],
+        [x1, y0],
+        [x1, y1],
+        [x0, y1],
+      ]);
+    }
+  });
+  return [
+    {
+      type: 'path',
+      rings: [
+        [
+          [x, y],
+          [x + side, y],
+          [x + side, y + side],
+          [x, y + side],
+        ],
+      ],
+      closed: true,
+      fill: '#ffffff',
+    },
+    { type: 'path', rings, closed: true, fill: '#000000' },
+  ];
 }
