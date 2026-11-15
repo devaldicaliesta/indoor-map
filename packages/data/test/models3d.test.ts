@@ -104,3 +104,23 @@ describe('unggah model GLB', () => {
     expect(upload).not.toHaveBeenCalled();
   });
 });
+
+describe('daftar model unggahan', () => {
+  it('hanya berkas GLB di folder venue, nama tanpa cap waktu', async () => {
+    const list = vi.fn().mockResolvedValue({
+      data: [
+        { name: 'patung-lobi-1763300000000.glb' },
+        { name: 'catatan.txt' },
+        { name: 'menara.glb' },
+      ],
+      error: null,
+    });
+    const db = { storage: { from: () => ({ list }) } } as unknown as Db;
+    const models = await createModels3dRepository(db).list(VENUE);
+    expect(list).toHaveBeenCalledWith(`models/${VENUE}`, expect.objectContaining({ limit: 200 }));
+    expect(models).toEqual([
+      { path: `models/${VENUE}/patung-lobi-1763300000000.glb`, name: 'patung-lobi' },
+      { path: `models/${VENUE}/menara.glb`, name: 'menara' },
+    ]);
+  });
+});

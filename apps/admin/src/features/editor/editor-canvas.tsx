@@ -24,6 +24,7 @@ import {
 } from '@indoor/map-core';
 import { type MapControlLabels, MapControls } from '@indoor/ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { data } from '../../app/data-client';
 import { useClosureDialog } from '../closures/closure-dialog-store';
 import { facilityIconSpecs } from '../facilities/icons';
 import { useFeature } from '../license/queries';
@@ -138,6 +139,7 @@ export function EditorCanvas({
       center: initialCenter.current,
       zoom: 18,
       fadeDuration: 0,
+      modelUrl: data.models3d.url,
     });
     // terra-draw mencegah fokus pindah ke peta; kolom yang masih fokus disimpan dan dilepas
     // agar pintasan (Delete, Ctrl+Z) langsung berlaku setelah mengklik peta.

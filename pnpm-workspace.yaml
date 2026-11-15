@@ -16,6 +16,9 @@ catalog:
   '@playwright/test': 1.56.1
   # Tur panduan (T-599): MIT; intro.js ditolak karena AGPL-3.0. Dimuat lazy saat tur dimulai.
   driver.js: 1.9.0
+  # Objek 3D (T-571): MIT, disetujui pemilik 2026-10-06; hanya dimuat lazy saat mode 3D dibuka.
+  three: 0.187.0
+  '@types/three': 0.187.0
   # Audit aksesibilitas T-412 (MPL-2.0; hanya alat test, keputusan pemilik 2026-10-05).
   '@axe-core/playwright': 4.11.0
   '@supabase/supabase-js': ^2.117.2

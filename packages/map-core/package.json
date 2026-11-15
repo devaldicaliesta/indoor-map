@@ -17,11 +17,13 @@
     "@indoor/domain": "workspace:*",
     "maplibre-gl": "catalog:",
     "terra-draw": "catalog:",
+    "three": "catalog:",
     "terra-draw-maplibre-gl-adapter": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@types/geojson": "catalog:",
+    "@types/three": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
