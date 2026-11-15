@@ -67,10 +67,10 @@ test.describe('T-004 Supabase lokal dan skema inti', () => {
     );
     record(
       'TC-SEC-01b',
-      'anon hanya punya policy baca untuk closures dan publications',
+      'anon hanya punya policy baca untuk closures, publications, dan event aktif',
       sql(
         "select distinct tablename from pg_policies where schemaname='public' and cmd in ('SELECT','ALL') and (roles @> '{anon}' or roles @> '{public}') order by 1",
-      ).join(',') === 'closures,publications',
+      ).join(',') === 'closures,event_locations,events,publications',
     );
   });
 

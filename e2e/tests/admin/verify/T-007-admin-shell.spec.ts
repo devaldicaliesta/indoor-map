@@ -15,6 +15,7 @@ const ALL = [
   'Editor Peta',
   'Lokasi',
   'Penutupan',
+  'Event & Promo',
   'Titik Asal',
   'Publish',
   'Pengaturan',
