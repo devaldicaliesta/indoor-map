@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { totpCode } from '@indoor/data/testing/totp';
+import { expect, type Page } from '@playwright/test';
 import { env } from '../env';
 import { sql } from './license';
 
@@ -104,4 +106,26 @@ export function removeVendorFixture(fixture: VendorFixture) {
        delete from hosting.blocklist where value like '%${fixture.tag}%';
        delete from auth.users where id in (${ids(fixture.userIds)})
          or email like '%${fixture.tag}%';`);
+}
+
+export function createVendorStaff(email: string): string {
+  sql(`insert into app.server_settings (key, value) values ('hosting_mode', 'true')
+         on conflict (key) do update set value = 'true'`);
+  const userId = createAuthUser(email);
+  sql(`insert into public.profiles (user_id, full_name, email, role, all_venues)
+         values ('${userId}', 'Staf Vendor', '${email}', 'super_admin', true);
+       insert into hosting.vendor_staff (user_id) values ('${userId}');`);
+  return userId;
+}
+
+export async function signInVendorStaff(page: Page, email: string) {
+  await page.goto('/');
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Password').fill(env.password);
+  await page.getByRole('button', { name: 'Masuk' }).click();
+  await expect(page.getByRole('heading', { name: 'Pasang verifikasi dua langkah' })).toBeVisible();
+  const secret = (await page.getByTestId('totp-secret').textContent()) ?? '';
+  await page.getByLabel('Kode 6 digit').fill(totpCode(secret));
+  await page.getByRole('button', { name: 'Verifikasi' }).click();
+  await expect(page.getByRole('heading', { name: 'Trial ter-hosting' })).toBeVisible();
 }

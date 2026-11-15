@@ -14,3 +14,5 @@ supabase/functions/trial-request
 supabase/functions/trial-verify
 supabase/functions/trial-lifecycle
 supabase/functions/vendor-license
+supabase/functions/vendor-trial
+supabase/functions/vendor-api

@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { formatDate, formatDateTime } from '../copy';
 import { AddClientDialog, AddInstallationDialog } from './client-dialogs';
 import { LicenseDialog } from './license-dialog';
+import { TrialRequestsPanel } from './trial-requests-panel';
 import { useClients, useInstallations } from './use-vendor';
 
 function ClientsTable({
@@ -81,8 +82,7 @@ function InstallationsTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Instansi</TableHead>
-            <TableHead>Nama instalasi</TableHead>
+            <TableHead>Instansi dan instalasi</TableHead>
             <TableHead>ID instalasi</TableHead>
             <TableHead>Paket</TableHead>
             <TableHead>Masa berlaku</TableHead>
@@ -96,15 +96,17 @@ function InstallationsTable({
         <TableBody>
           {installations.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center text-ink-muted">
+              <TableCell colSpan={7} className="text-center text-ink-muted">
                 Belum ada instalasi.
               </TableCell>
             </TableRow>
           ) : (
             installations.map((inst) => (
               <TableRow key={inst.id}>
-                <TableCell className="font-medium">{inst.clientName}</TableCell>
-                <TableCell>{inst.name}</TableCell>
+                <TableCell>
+                  <span className="block font-medium">{inst.clientName}</span>
+                  <span className="block text-ink-muted text-sm">{inst.name}</span>
+                </TableCell>
                 <TableCell className="font-mono text-xs">{inst.instanceId}</TableCell>
                 <TableCell>{inst.plan ?? 'Belum berlisensi'}</TableCell>
                 <TableCell>
@@ -143,7 +145,7 @@ export function ClientsPanel() {
         <div className="grid gap-1">
           <h2 className="font-bold text-2xl">Klien & Instalasi</h2>
           <p className="text-ink-muted">
-            Klien on-premise, instalasinya, dan lisensi yang diterbitkan untuk setiap instalasi.
+            Permintaan trial on-premise, klien, instalasinya, dan lisensi setiap instalasi.
           </p>
         </div>
         <div className="ml-auto flex gap-2">
@@ -168,6 +170,8 @@ export function ClientsPanel() {
           Data klien atau instalasi tidak bisa dimuat.
         </p>
       ) : null}
+
+      <TrialRequestsPanel />
 
       <section className="grid gap-4" aria-labelledby="clients-title">
         <h3 id="clients-title" className="font-semibold text-lg">

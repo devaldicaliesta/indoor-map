@@ -1,26 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { totpCode } from '@indoor/data/testing/totp';
 import { importLicensePublicKey, verifyLicense } from '@indoor/domain/license';
 import { LICENSE_PUBLIC_KEY } from '@indoor/domain/license-public-key';
 import { expect, type Page, test } from '@playwright/test';
-import { env } from '../../env';
 import { sql } from '../../support/license';
-import { createAuthUser } from '../../support/vendor';
+import { createVendorStaff, signInVendorStaff } from '../../support/vendor';
 
 const shot = (name: string) => `evidence/T-595b/${name}.png`;
-
-async function signInWithTotp(page: Page, email: string) {
-  await page.goto('/');
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(env.password);
-  await page.getByRole('button', { name: 'Masuk' }).click();
-  await expect(page.getByRole('heading', { name: 'Pasang verifikasi dua langkah' })).toBeVisible();
-  const secret = (await page.getByTestId('totp-secret').textContent()) ?? '';
-  await page.getByLabel('Kode 6 digit').fill(totpCode(secret));
-  await page.getByRole('button', { name: 'Verifikasi' }).click();
-  await expect(page.getByRole('heading', { name: 'Trial ter-hosting' })).toBeVisible();
-}
 
 async function downloadedLicense(page: Page, action: () => Promise<void>) {
   const download = page.waitForEvent('download');
@@ -40,12 +26,7 @@ test.describe('T-595b Vendor Portal: lisensi', () => {
   let staffId = '';
 
   test.beforeAll(() => {
-    sql(`insert into app.server_settings (key, value) values ('hosting_mode', 'true')
-           on conflict (key) do update set value = 'true'`);
-    staffId = createAuthUser(staffEmail);
-    sql(`insert into public.profiles (user_id, full_name, email, role, all_venues)
-           values ('${staffId}', 'Staf Lisensi', '${staffEmail}', 'super_admin', true);
-         insert into hosting.vendor_staff (user_id) values ('${staffId}');`);
+    staffId = createVendorStaff(staffEmail);
   });
 
   test.afterAll(() => {
@@ -55,7 +36,7 @@ test.describe('T-595b Vendor Portal: lisensi', () => {
 
   test('klien, instalasi, terbitkan, perpanjang, dan cabut lisensi', async ({ page }) => {
     test.setTimeout(120_000);
-    await signInWithTotp(page, staffEmail);
+    await signInVendorStaff(page, staffEmail);
     await page.getByRole('tab', { name: 'Klien & Instalasi' }).click();
 
     await page.getByRole('button', { name: 'Tambah klien' }).click();

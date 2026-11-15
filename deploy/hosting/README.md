@@ -79,8 +79,8 @@ aktivitas (ditangani langkah 7).
    SEND_EMAIL_HOOK_SECRET=<rahasia hook dari langkah 4.3>
    LICENSE_PRIVATE_KEY=<isi ~/indoor-license-keys/license-private.pkcs8.b64>
    ```
-   Hapus berkas itu setelah dipasang. `LICENSE_PRIVATE_KEY` dipakai `vendor-license` untuk
-   menandatangani lisensi dari dasbor vendor; kunci ini hanya ada di rahasia Edge Function, tidak
+   Hapus berkas itu setelah dipasang. `LICENSE_PRIVATE_KEY` dipakai `vendor-license` dan
+   `vendor-trial` untuk menandatangani lisensi dari dasbor vendor; kunci ini hanya ada di rahasia Edge Function, tidak
    pernah di database atau repo.
 2. Pasang semua fungsi (pengaturan `verify_jwt` dibaca dari `supabase/config.toml`) dengan
    **kunci publik lisensi vendor** ditanam sementara, lalu kembalikan berkasnya. Tanpa langkah
@@ -94,7 +94,13 @@ aktivitas (ditangani langkah 7).
    ```
    Yang dipakai project ini: `publish`, `admin-users`, `auth-email`, `account-notice`,
    `system-settings`, `license-activate`, `license-checkin`, `license-service`, `trial-request`,
-   `trial-verify`, `trial-lifecycle`, `vendor-license`. Tanpa Docker: tambahkan `--use-api`.
+   `trial-verify`, `trial-lifecycle`, `vendor-license`, `vendor-trial`, `vendor-api`. Tanpa Docker:
+   tambahkan `--use-api`.
+
+   `vendor-api` adalah server vendor untuk instalasi on-premise klien (tanpa JWT): isi
+   `LICENSE_VENDOR_URL` instalasi klien dengan `https://<project>.supabase.co/functions/v1/vendor-api`.
+   Saat ini hanya `POST /v1/trial` (permintaan trial masuk antrean dasbor vendor, tab Klien &
+   Instalasi); aktivasi kunci dan check-in menyusul (T-595d).
 
    Catatan kunci API: project Supabase baru memberi Edge Function **kunci format baru**
    (`SUPABASE_SERVICE_ROLE_KEY` = `sb_secret_…`, `SUPABASE_ANON_KEY` = `sb_publishable_…`), bukan

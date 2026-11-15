@@ -50,6 +50,7 @@ export type {
   LicenseState,
   LicenseStatus,
   TrialRequest,
+  TrialStart,
 } from './repositories/license';
 export type { LocationTypesRepository } from './repositories/location-types';
 export type {
@@ -82,9 +83,13 @@ export type { InviteUserInput, UserDataExport, UsersRepository } from './reposit
 export type {
   BlockEntry,
   LifecycleRun,
-  NewVendorClient,
-  NewVendorInstallation,
   VendorAccess,
   VendorRepository,
 } from './repositories/vendor';
+export type {
+  NewVendorClient,
+  NewVendorInstallation,
+  TrialApproval,
+  VendorClientsRepository,
+} from './repositories/vendor-clients';
 export type { VenuesRepository } from './repositories/venues';

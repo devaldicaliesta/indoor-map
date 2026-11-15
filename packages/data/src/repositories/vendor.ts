@@ -3,20 +3,13 @@ import {
   TRIAL_REQUEST_STATUSES,
   type TrialLead,
   type TrialRequestStatus,
-  type VendorClient,
-  type VendorInstallation,
   type VenueId,
   VenueIdSchema,
 } from '@indoor/domain';
-import { type LicenseFile, readLicensePayload } from '@indoor/domain/license';
-import {
-  type LicenseIssueRequest,
-  type VendorLicense,
-  vendorLicenseStatus,
-} from '@indoor/domain/license-issue';
 import type { Database } from '../database.types';
 import { DataError, toDataError } from '../errors';
 import type { Db } from '../supabase';
+import { createVendorClientsRepository, type VendorClientsRepository } from './vendor-clients';
 
 /** Langkah layar masuk dasbor vendor (`vendor_access`, migrasi 0053). */
 export type VendorAccess = 'ok' | 'mfa' | 'denied';
@@ -41,7 +34,7 @@ export interface LifecycleRun {
  * Dasbor vendor trial ter-hosting. Setiap fungsi di server mensyaratkan staf vendor dengan sesi
  * `aal2`; repository ini tidak menambah pemeriksaan apa pun.
  */
-export interface VendorRepository {
+export interface VendorRepository extends VendorClientsRepository {
   access(): Promise<VendorAccess>;
   capacity(): Promise<number>;
   leads(): Promise<TrialLead[]>;
@@ -59,67 +52,6 @@ export interface VendorRepository {
    * yang sudah jatuh tempo, sehingga aman dipanggil kapan saja.
    */
   runLifecycle(): Promise<LifecycleRun>;
-  clients(): Promise<VendorClient[]>;
-  installations(): Promise<VendorInstallation[]>;
-  createClient(input: NewVendorClient): Promise<string>;
-  createInstallation(input: NewVendorInstallation): Promise<string>;
-  licenses(installationId: string): Promise<VendorLicense[]>;
-  issueLicense(request: LicenseIssueRequest): Promise<LicenseFile>;
-  revokeLicense(id: string): Promise<void>;
-}
-
-export interface NewVendorClient {
-  name: string;
-  institution: string;
-  email: string;
-  phone: string;
-}
-
-export interface NewVendorInstallation {
-  clientId: string;
-  instanceId: string;
-  name: string;
-}
-
-type LicenseRow = Database['public']['Functions']['vendor_licenses']['Returns'][number];
-
-function readLicenseFile(value: unknown): LicenseFile | null {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
-  const { signature, ...rest } = value as Record<string, unknown>;
-  const payload = readLicensePayload(rest);
-  return payload && typeof signature === 'string' ? { ...payload, signature } : null;
-}
-
-function toLicense(row: LicenseRow, now: Date): VendorLicense {
-  const status = vendorLicenseStatus(row.status, row.valid_until, now);
-  const file = readLicenseFile(row.file);
-  if (!status || !file) {
-    throw new DataError('unknown', { message: `Lisensi ${row.license_id} tidak terbaca.` });
-  }
-  return {
-    id: row.id,
-    licenseId: row.license_id,
-    status,
-    plan: row.plan,
-    validFrom: row.valid_from,
-    validUntil: row.valid_until,
-    issuedAt: row.issued_at,
-    issuedByEmail: row.issued_by_email,
-    revokedAt: row.revoked_at,
-    file,
-  };
-}
-
-async function functionError(error: unknown): Promise<DataError> {
-  const context = (error as { context?: unknown } | null)?.context;
-  if (context instanceof Response) {
-    const body = (await context.json().catch(() => null)) as { message?: unknown } | null;
-    if (body && typeof body.message === 'string') {
-      const kind = context.status === 401 || context.status === 403 ? 'forbidden' : 'invalid';
-      return new DataError(kind, { message: body.message, code: String(context.status) });
-    }
-  }
-  return toDataError(error);
 }
 
 type RequestRow = Database['public']['Functions']['vendor_requests']['Returns'][number];
@@ -166,6 +98,8 @@ function toLead(row: RequestRow): TrialLead {
 
 export function createVendorRepository(db: Db): VendorRepository {
   return {
+    ...createVendorClientsRepository(db),
+
     async access() {
       const { data, error } = await db.rpc('vendor_access');
       if (error) throw toDataError(error);
@@ -237,83 +171,6 @@ export function createVendorRepository(db: Db): VendorRepository {
         if (body && typeof body.failed === 'number') return body;
       }
       throw toDataError(error);
-    },
-
-    async clients() {
-      const { data, error } = await db.rpc('vendor_clients');
-      if (error) throw toDataError(error);
-      return (data ?? []).map((row) => ({
-        id: row.id,
-        name: row.name,
-        institution: row.institution,
-        email: row.email,
-        phone: row.phone,
-        createdAt: row.created_at,
-        installationsCount: row.installations_count,
-      }));
-    },
-
-    async installations() {
-      const { data, error } = await db.rpc('vendor_installations');
-      if (error) throw toDataError(error);
-      return (data ?? []).map((row) => ({
-        id: row.id,
-        clientId: row.client_id,
-        clientName: row.client_name,
-        instanceId: row.instance_id,
-        name: row.name,
-        plan: row.plan,
-        validFrom: row.valid_from,
-        validUntil: row.valid_until,
-        lastVersion: row.last_version,
-        lastCheckinAt: row.last_checkin_at,
-        createdAt: row.created_at,
-      }));
-    },
-
-    async createClient(input) {
-      const { data, error } = await db.rpc('vendor_client_create', {
-        p_name: input.name,
-        p_institution: input.institution,
-        p_email: input.email,
-        p_phone: input.phone,
-      });
-      if (error) throw toDataError(error);
-      return data;
-    },
-
-    async createInstallation(input) {
-      const { data, error } = await db.rpc('vendor_installation_create', {
-        p_client_id: input.clientId,
-        p_instance_id: input.instanceId,
-        p_name: input.name,
-      });
-      if (error) throw toDataError(error);
-      return data;
-    },
-
-    async licenses(installationId) {
-      const { data, error } = await db.rpc('vendor_licenses', {
-        p_installation_id: installationId,
-      });
-      if (error) throw toDataError(error);
-      const now = new Date();
-      return (data ?? []).map((row) => toLicense(row, now));
-    },
-
-    async issueLicense(request) {
-      const { data, error } = await db.functions.invoke<{ license: unknown }>('vendor-license', {
-        body: request,
-      });
-      if (error) throw await functionError(error);
-      const file = readLicenseFile(data?.license);
-      if (!file) throw new DataError('unknown', { message: 'Balasan lisensi tidak terbaca.' });
-      return file;
-    },
-
-    async revokeLicense(id) {
-      const { error } = await db.rpc('vendor_license_revoke', { p_license_id: id });
-      if (error) throw toDataError(error);
     },
   };
 }
