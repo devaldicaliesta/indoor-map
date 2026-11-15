@@ -118,7 +118,7 @@ describe('collectNotices dan renderNotices', () => {
       { name: 'dep', version: '1.0.0', license: 'ISC' },
       {},
     );
-    symlinkSync(join(store, 'zod@4.0.0', 'node_modules', 'zod'), join(deployed, 'zod'), 'dir');
+    symlinkSync(join(store, 'zod@4.0.0', 'node_modules', 'zod'), join(deployed, 'zod'), 'junction');
     expect(noticesOf(packageRootsIn(deployed)).map((n) => `${n.name}@${n.version}`)).toEqual([
       'dep@1.0.0',
       'zod@4.0.0',
