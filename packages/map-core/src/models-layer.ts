@@ -17,6 +17,7 @@ import {
   WebGLRenderer,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { LABEL_LAYER_ID } from './layers/labels';
 import {
   MODELS_LAYER_ID,
   type ModelsLayerController,
@@ -87,11 +88,17 @@ export function createModelsLayer(
     return pending.then((template) => template?.clone() ?? null);
   };
 
+  function report() {
+    const shown = root.children.filter((holder) => holder.children.length > 0).length;
+    map.getContainer().dataset.models = String(shown);
+  }
+
   function rebuild() {
     const current = ++generation;
     root.clear();
     const placed = placeModels(models);
     if (!placed) {
+      report();
       map.triggerRepaint();
       return;
     }
@@ -112,11 +119,13 @@ export function createModelsLayer(
         void upload(ref.path).then((object) => {
           if (object && current === generation) {
             holder.add(object);
+            report();
             map.triggerRepaint();
           }
         });
       }
     });
+    report();
     map.triggerRepaint();
   }
 
@@ -138,6 +147,7 @@ export function createModelsLayer(
         .fromArray(options.defaultProjectionData.mainMatrix)
         .multiply(transform);
       renderer.resetState();
+      renderer.clearDepth();
       renderer.render(scene, camera);
     },
   };
@@ -147,7 +157,9 @@ export function createModelsLayer(
   return {
     setModels(next) {
       models = next;
-      if (next.length > 0 && !attached()) map.addLayer(layer);
+      if (next.length > 0 && !attached()) {
+        map.addLayer(layer, map.getLayer(LABEL_LAYER_ID) ? LABEL_LAYER_ID : undefined);
+      }
       if (next.length === 0 && attached()) map.removeLayer(MODELS_LAYER_ID);
       rebuild();
     },

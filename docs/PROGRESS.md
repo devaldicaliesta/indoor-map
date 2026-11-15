@@ -5,7 +5,7 @@ Papan status proyek. Agen membaca file ini di awal sesi dan memperbaruinya di ak
 Status: `siap` · `menunggu` · `dikerjakan` · `review` · `selesai` · `diblokir`
 
 **Rilis aktif:** F2.1 Siap jual (R0–R4 selesai)
-**Task berikutnya:** T-595e Vendor Portal: Aktivasi dengan kunci lisensi (F2.2; T-595a/T-595b/T-595c/T-595d di review; T-535 di review; T-592b SSO menunggu IdP uji, T-592a, T-597, T-598 di review. F2.1 tersisa menunggu: T-599b menunggu T-599a di-merge, T-601b menunggu T-591, T-603b menunggu penunjukan pentester, T-605 menunggu T-501/T-511 selesai)
+**Task berikutnya:** T-544 Export peta cetak (F2.3; T-548, T-572, T-571 di review; T-574 menunggu T-544)
 
 ## R0 · Fondasi (`10-R0-fondasi.md`)
 
@@ -167,7 +167,7 @@ Perencanaan final (2026-10-06). Dimulai 2026-10-07 atas permintaan pemilik (T-50
 | T-561 | Pairing, status, reload perangkat | T-502 | siap | |
 | T-562 | Shell Windows (WPF) | T-561 | menunggu | |
 | T-563 | Mode aksesibilitas Info Point | — | siap | |
-| T-571 | Elemen 3D: pustaka objek + model GLB | — | siap | Three.js disetujui 2026-10-06 (lazy) |
+| T-571 | Elemen 3D: pustaka objek + model GLB | — | review | Three.js 0.187 lazy (chunk terpisah 157 kB gzip); 13 objek low-poly buatan sendiri; GLB ≤ 5 MB divalidasi; 200 objek −15% FPS editor 3D; bukti `e2e/evidence/T-571/` |
 | T-572 | Pustaka ikon POI lengkap | — | siap | |
 | T-573 | Penguatan CMS: media, edit massal, dasbor | T-503 | siap | |
 | T-574 | Papan "Anda di sini" cetak dengan QR | T-544 | menunggu | |
@@ -233,6 +233,7 @@ Format: `- [tanggal] T-xxx — pertanyaan. Opsi: A) … B) … Rekomendasi: … 
 
 ## Catatan keputusan
 
+- [2026-11-16] T-571 — **Objek 3D digambar di atas denah, tidak tertutup ruang.** Unit diekstrusi 4 m sebagai blok padat, sehingga objek di dalam ruang (patung di lobi, tanaman di ruang tunggu) tertutup atap ruangnya. Layer objek mengosongkan depth buffer sebelum menggambar: objek selalu tampil dan tetap saling menutupi dengan benar. Layer disisipkan di bawah label nama; garis rute yang ditambahkan setelahnya juga tampil di atas ruang saat ada objek di lantai itu. Three.js 0.187 (MIT) hanya ada di chunk `models-layer` (157 kB gzip) yang dimuat saat mode 3D dibuka dan lantai punya objek; bundel awal Visitor naik 0,6 kB gzip (kode sinkronisasi saja). Service worker mem-precache chunk itu di latar belakang (bukan jalur muat awal) sehingga mode 3D tetap terbuka saat offline. Pustaka bawaan 13 objek low-poly dibuat dari primitif Three.js (tanpa aset pihak ketiga). Model unggahan disimpan di `public-assets/models/{venue}/`, divalidasi (header GLB, glTF 2.0, ≤ 5 MB) di Admin dan dibatasi bucket serta CHECK database. Pengukuran TC-PAR-04 di stack lokal (dev server, SwiftShader): FPS geser editor 3D lantai 1.000 fitur 27,5 → 23,3 dengan 200 objek (rasio 0,85); ulangi di paket instalasi dengan `specs/models.perf.ts`.
 - [2026-11-15] T-595d — **Portal mencatat rilis, tidak menyimpan arsipnya.** Arsip `build-release.sh --save` berisi `images.tar` berukuran GB, melebihi batas berkas Supabase Storage; portal menyimpan versi, tanggal, catatan, alamat unduh (penyimpanan vendor) dan SHA-256. Lisensi yang sudah digantikan (`superseded`) tetap dijawab aktif dengan berkasnya sendiri agar klien yang belum memasang pengganti tidak gagal check-in; dicabut, atau digantikan tanpa lisensi aktif di instalasi itu, dijawab `revoked`. **Aktivasi dengan kunci dipisah ke T-595e**; sementara itu `/v1/activate` menjawab arahan memasang berkas lisensi.
 - [2026-11-15] T-595c — **Antrean trial on-premise berasal dari Admin klien, bukan landing page.** Spesifikasi T-595 langkah 3 menyebut landing, tetapi landing sudah melayani trial ter-hosting (T-617) dan lisensi on-premise wajib terikat ID instalasi yang hanya diketahui server klien. Jadi `LICENSE_VENDOR_URL` klien menunjuk Edge Function `vendor-api`: `POST /v1/trial` dari `license-activate` masuk antrean, staf vendor menyetujui di dasbor, dan lisensi trial bertanda tangan dikirim lewat email untuk dipasang di tab Unggah berkas. Trial tidak lagi otomatis di server vendor sungguhan (vendor-stub tetap otomatis untuk uji T-504). `/v1/activate` dan `/v1/checkin` di `vendor-api` menyusul di T-595d.
 - [2026-11-15] T-595b — **Perpanjang dan ubah paket = menerbitkan lisensi baru**, bukan mengubah lisensi lama: berkas lisensi bertanda tangan tidak bisa diubah, jadi lisensi berlaku sebelumnya ditandai `superseded` dan instalasi memasang berkas baru. Status `expired` tidak disimpan; dihitung dari `validUntil` saat dibaca. Kunci privat penanda tangan hanya ada di rahasia Edge Function `vendor-license`; pencatatan lisensi hanya bisa lewat service role agar tidak ada lisensi bertanda tangan palsu di portal.
