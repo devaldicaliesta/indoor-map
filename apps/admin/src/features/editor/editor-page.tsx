@@ -28,6 +28,7 @@ import { EditorToolbar } from './editor-toolbar';
 import { EditorTopbar, OUTDOOR } from './editor-topbar';
 import { LockBanner } from './lock/lock-banner';
 import { useEditLock } from './lock/use-edit-lock';
+import { PrintExport } from './print-export';
 import { KindPicker } from './properties/kind-picker';
 import { PropertiesPanel } from './properties/properties-panel';
 import { ReferenceFloorPicker } from './reference-layer';
@@ -80,6 +81,7 @@ function useFloorSelection(venueId: VenueId) {
 
   return {
     venueCenter: (venue.data?.center ?? null) as Point | null,
+    venueName: venue.data?.name ?? '',
     buildings: list,
     outdoorName: outdoor.data?.name ?? 'Area Luar',
     buildingValue,
@@ -183,6 +185,14 @@ function Editor({
           onFloor={selection.setFloor}
           onRetry={session.retry}
           validation={<ValidationSummary issues={validation.issues} />}
+          actions={
+            <PrintExport
+              venueName={selection.venueName}
+              placeName={building?.name ?? selection.outdoorName}
+              floorName={floor.name}
+              display={display}
+            />
+          }
           reference={
             building ? (
               <ReferenceFloorPicker
