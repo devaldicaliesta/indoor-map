@@ -1,5 +1,14 @@
 export type { Map as MapInstance } from 'maplibre-gl';
 export {
+  BOARD_TEXTS,
+  type BoardLanguage,
+  type BoardOptions,
+  type BoardTexts,
+  buildBoardLayout,
+  buildStickerSheets,
+  type StickerItem,
+} from './board';
+export {
   FOCUS_MIN_ZOOM,
   focusFeature,
   focusZoom,
@@ -204,6 +213,7 @@ export {
 } from './pick';
 export {
   buildPrintLayout,
+  layoutsToPdf,
   layoutToPdf,
   layoutToSvg,
   type PaperOrientation,
