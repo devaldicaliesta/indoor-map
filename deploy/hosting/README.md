@@ -101,8 +101,11 @@ aktivitas (ditangani langkah 7).
    `LICENSE_VENDOR_URL` instalasi klien dengan `https://<project>.supabase.co/functions/v1/vendor-api`.
    `POST /v1/trial` memasukkan permintaan trial ke antrean dasbor vendor (tab Klien & Instalasi).
    `POST /v1/checkin` menjawab status lisensi dari data portal (pencabutan di portal berlaku pada
-   check-in harian berikutnya) dan mencatat versi serta IP instalasi. Aktivasi dengan kunci
-   (`/v1/activate`) belum tersedia (T-595e): klien memasang berkas lisensi.
+   check-in harian berikutnya) dan mencatat versi serta IP instalasi. `POST /v1/activate`
+   menerima kunci lisensi yang dibuat di dialog **Kunci** daftar klien: aktivasi pertama mengikat
+   kunci ke ID instalasi itu, lalu lisensi ditandatangani dan dicatat (masa berlaku sejak hari
+   aktivasi). Aktivasi ulang dari instalasi yang sama mendapat lisensi yang sama; instalasi lain
+   ditolak. Portal hanya menyimpan SHA-256 kunci.
 
    Catatan kunci API: project Supabase baru memberi Edge Function **kunci format baru**
    (`SUPABASE_SERVICE_ROLE_KEY` = `sb_secret_…`, `SUPABASE_ANON_KEY` = `sb_publishable_…`), bukan
