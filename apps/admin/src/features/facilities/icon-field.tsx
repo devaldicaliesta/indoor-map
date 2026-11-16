@@ -2,15 +2,15 @@ import {
   checkFacilityIconFile,
   type FacilityIcon,
   type FacilityIconFileProblem,
-  PICTOGRAM_KEYS,
   type PictogramKey,
 } from '@indoor/domain';
 import type { IconSource } from '@indoor/map-core';
-import { cn, Input, Label, Pictogram, pictogramSvg } from '@indoor/ui';
+import { Input, Label, pictogramSvg } from '@indoor/ui';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Field } from '../../app/components/field';
 import { FacilityIconPreview } from './facility-icon-preview';
-import { iconSource, PICTOGRAM_LABELS } from './icons';
+import { iconSource } from './icons';
+import { PictogramPicker } from './pictogram-picker';
 import { rasterizeIcon } from './rasterize-icon';
 
 const FILE_MESSAGES: Record<FacilityIconFileProblem, string> = {
@@ -48,45 +48,6 @@ function choiceSource(choice: IconChoice): IconSource | null {
   // Ikon jenis fasilitas dan kategori sama-sama berada di bucket publik `public-assets`.
   if (choice.kind === 'saved') return iconSource(choice.icon);
   return { url: choice.previewUrl };
-}
-
-function PictogramPicker({
-  value,
-  disabled,
-  onChange,
-}: {
-  value: PictogramKey | null;
-  disabled: boolean;
-  onChange: (key: PictogramKey) => void;
-}) {
-  return (
-    <div
-      role="radiogroup"
-      aria-label="Ikon bawaan"
-      className="grid grid-cols-7 gap-1 rounded-md border border-line p-1"
-    >
-      {PICTOGRAM_KEYS.map((key) => (
-        // biome-ignore lint/a11y/useSemanticElements: tombol ikon, bukan radio bawaan browser
-        <button
-          key={key}
-          type="button"
-          role="radio"
-          aria-checked={value === key}
-          aria-label={PICTOGRAM_LABELS[key]}
-          title={PICTOGRAM_LABELS[key]}
-          disabled={disabled}
-          onClick={() => onChange(key)}
-          className={cn(
-            'flex h-10 cursor-pointer items-center justify-center rounded-sm text-ink hover:bg-canvas disabled:cursor-not-allowed',
-            value === key &&
-              'bg-signal-soft shadow-[inset_0_0_0_1px_var(--ink)] hover:bg-signal-soft',
-          )}
-        >
-          <Pictogram name={key} className="size-6" />
-        </button>
-      ))}
-    </div>
-  );
 }
 
 /**
@@ -153,7 +114,7 @@ export function IconField({
           disabled={disabled}
           onChange={(key) => {
             setError(undefined);
-            onChange({ kind: 'builtin', key });
+            onChange(key ? { kind: 'builtin', key } : null);
           }}
         />
       </div>

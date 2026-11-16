@@ -7,21 +7,21 @@ export const factoryWarehouse: VenueTemplate = {
   locationTypes: [
     {
       name: 'Area Produksi',
-      icon: null,
+      icon: 'production-area',
       color: '#3d5a80',
       fields: [
         templateField('APD wajib', 'text', { isRequired: true }),
         templateField('Shift', 'select', { options: ['Pagi', 'Siang', 'Malam', 'Non-shift'] }),
       ],
       categories: [
-        category('Lini Produksi'),
+        category('Lini Produksi', 'production-area'),
         category('Quality Control'),
-        category('Perawatan Mesin'),
+        category('Perawatan Mesin', 'maintenance'),
       ],
     },
     {
       name: 'Gudang',
-      icon: null,
+      icon: 'warehouse',
       color: '#7a5c3d',
       fields: [
         templateField('Jenis barang', 'text', { isSearchable: true }),
@@ -31,7 +31,7 @@ export const factoryWarehouse: VenueTemplate = {
     },
     {
       name: 'Dock',
-      icon: null,
+      icon: 'loading-dock',
       color: '#b26a00',
       fields: [templateField('Nomor dock', 'text', { isRequired: true, isSearchable: true })],
       categories: [category('Bongkar'), category('Muat')],
@@ -41,7 +41,11 @@ export const factoryWarehouse: VenueTemplate = {
       icon: 'information',
       color: '#2f6f4f',
       fields: [templateField('Ekstensi telepon', 'text')],
-      categories: [category('Administrasi'), category('K3'), category('Pos Keamanan')],
+      categories: [
+        category('Administrasi', 'administration'),
+        category('K3', 'ppe'),
+        category('Pos Keamanan', 'security-post'),
+      ],
     },
   ],
   facilityTypes: [...COMMON_FACILITY_TYPES, { name: 'Parkir', icon: 'parking', isSafety: false }],
