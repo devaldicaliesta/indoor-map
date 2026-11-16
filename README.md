@@ -36,14 +36,15 @@
 
 ## 📊 Dashboard status
 
-> Ringkasan dari [`docs/PROGRESS.md`](docs/PROGRESS.md), per **30 Oktober 2026**. Rincian setiap task ada di sana.
+> Ringkasan dari [`docs/PROGRESS.md`](docs/PROGRESS.md), per **16 November 2026**. Rincian setiap task ada di sana.
 
 | | |
 | --- | --- |
+| 📈 **Progres proyek** | **79%** — 133 dari 168 task sudah dibangun (130 selesai, 3 review) |
 | 🚀 **Rilis aktif** | F2.1 Siap jual |
-| 🔵 **Sedang dikerjakan** | T-592a (2FA TOTP Admin), branch `feature/2fa-admin` |
-| ⏭️ **Task berikutnya** | T-592b (SSO Admin, setelah T-592a selesai) |
-| 🧪 **Menunggu review** | T-511 (distribusi image Docker jadi), T-512 (Visitor tanpa WebGL), T-514 (perbaikan lisensi dan audit R4), T-521 (panduan Windows), T-599a (tur panduan), T-601a (kepatuhan UU PDP), T-602 (dokumen legal penjualan), T-603a (uji keamanan dan ASVS L2) |
+| 🔵 **Sedang dikerjakan** | — |
+| ⏭️ **Task berikutnya** | T-573 (Penguatan CMS: media, edit massal, dasbor) |
+| 🧪 **Menunggu review** | T-521 (panduan Windows, menunggu uji manual Hyper-V), T-535 (riwayat lisensi, bukti E2E belum ada), T-595a (Vendor Portal, bukti E2E belum ada) |
 
 | Rilis | Isi | Progres | Task |
 | --- | --- | --- | --- |
@@ -53,8 +54,9 @@
 | **R3** Operasional | Template, import, publish berversi | `████████████████████` 100% | 14 · ✅ |
 | **V** Visitor komersial | Tampilan Visitor bergaya peta indoor | `████████████████████` 100% | 8 · ✅ |
 | **R4** Komersial | Lisensi, kuota, Info Point, paket instalasi | `████████████████████` 100% | 13 · ✅ |
-| **F2** Fase 2 | Siap jual, keamanan, fitur pembeda | `████░░░░░░░░░░░░░░░░` 20% | 64 · ✅ 5 · 🟡 8 · 🔵 1 · ⬜ 32 · ⚪ 18 |
+| **F2** Fase 2 | Siap jual, keamanan, fitur pembeda | `██████████░░░░░░░░░░` 49% | 69 · ✅ 31 · 🟡 3 · ⬜ 25 · ⚪ 10 |
 | **F2-K** Trial hosting | Trial otomatis di Supabase + Cloudflare | `████████████████████` 100% | 14 · ✅ |
+| **Total** | Semua rilis | `████████████████░░░░` 79% | 168 · ✅ 130 · 🟡 3 · ⬜ 25 · ⚪ 10 |
 
 **Keterangan status:** ✅ selesai · 🟡 review (sudah dibangun, menunggu review pemilik) · 🔵 dikerjakan · ⬜ siap (dependensi selesai) · ⚪ menunggu · 🔴 diblokir
 
