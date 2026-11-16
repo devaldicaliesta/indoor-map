@@ -11,12 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from '@indoor/ui';
-import { HistoryIcon, KeyRoundIcon, PlusIcon, RefreshCwIcon } from 'lucide-react';
+import { HistoryIcon, KeyRoundIcon, KeySquareIcon, PlusIcon, RefreshCwIcon } from 'lucide-react';
 import { useState } from 'react';
 import { formatDate, formatDateTime } from '../copy';
 import { CheckinsDialog } from './checkins-dialog';
 import { AddClientDialog, AddInstallationDialog } from './client-dialogs';
 import { LicenseDialog } from './license-dialog';
+import { LicenseKeysDialog } from './license-keys-dialog';
 import { TrialRequestsPanel } from './trial-requests-panel';
 import { useReleases } from './use-releases';
 import { useClients, useInstallations } from './use-vendor';
@@ -24,9 +25,11 @@ import { useClients, useInstallations } from './use-vendor';
 function ClientsTable({
   clients,
   onAddInstallation,
+  onLicenseKeys,
 }: {
   clients: VendorClient[];
   onAddInstallation: (client: VendorClient) => void;
+  onLicenseKeys: (client: VendorClient) => void;
 }) {
   return (
     <div className="overflow-x-auto rounded-lg border border-line bg-surface">
@@ -60,10 +63,19 @@ function ClientsTable({
                 <TableCell>{client.phone ?? '–'}</TableCell>
                 <TableCell>{client.installationsCount}</TableCell>
                 <TableCell>{formatDate(client.createdAt)}</TableCell>
-                <TableCell className="text-right">
-                  <Button size="sm" onClick={() => onAddInstallation(client)}>
-                    <PlusIcon aria-hidden="true" /> Instalasi
-                  </Button>
+                <TableCell>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      size="sm"
+                      aria-label={`Kunci lisensi ${client.institution}`}
+                      onClick={() => onLicenseKeys(client)}
+                    >
+                      <KeySquareIcon aria-hidden="true" /> Kunci
+                    </Button>
+                    <Button size="sm" onClick={() => onAddInstallation(client)}>
+                      <PlusIcon aria-hidden="true" /> Instalasi
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
@@ -184,6 +196,7 @@ export function ClientsPanel() {
   const [addingClient, setAddingClient] = useState(false);
   const [installationFor, setInstallationFor] = useState<VendorClient | null>(null);
   const [licensesFor, setLicensesFor] = useState<VendorInstallation | null>(null);
+  const [keysFor, setKeysFor] = useState<VendorClient | null>(null);
   const [checkinsFor, setCheckinsFor] = useState<VendorInstallation | null>(null);
   const releases = useReleases();
 
@@ -226,7 +239,11 @@ export function ClientsPanel() {
           Daftar klien
         </h3>
         {clients.data ? (
-          <ClientsTable clients={clients.data} onAddInstallation={setInstallationFor} />
+          <ClientsTable
+            clients={clients.data}
+            onAddInstallation={setInstallationFor}
+            onLicenseKeys={setKeysFor}
+          />
         ) : (
           <Skeleton className="h-32" />
         )}
@@ -252,6 +269,7 @@ export function ClientsPanel() {
       <AddInstallationDialog client={installationFor} onClose={() => setInstallationFor(null)} />
       <LicenseDialog installation={licensesFor} onClose={() => setLicensesFor(null)} />
       <CheckinsDialog installation={checkinsFor} onClose={() => setCheckinsFor(null)} />
+      <LicenseKeysDialog client={keysFor} onClose={() => setKeysFor(null)} />
     </div>
   );
 }

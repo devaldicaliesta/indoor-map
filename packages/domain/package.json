@@ -7,6 +7,7 @@
     ".": "./src/index.ts",
     "./license": "./src/license.ts",
     "./license-issue": "./src/license-issue.ts",
+    "./license-key": "./src/license-key.ts",
     "./onprem-trial": "./src/onprem-trial.ts",
     "./vendor-release": "./src/vendor-release.ts",
     "./license-public-key": "./src/license.publicKey.ts",
