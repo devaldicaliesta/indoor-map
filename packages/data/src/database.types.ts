@@ -2206,6 +2206,53 @@ export type Database = {
           valid_until: string;
         }[];
       };
+      vendor_license_key_claim: {
+        Args: { p_instance_id: string; p_key: string };
+        Returns: {
+          client: string;
+          duration_days: number;
+          features: Json;
+          file: Json;
+          installation_id: string;
+          outcome: string;
+          plan: string;
+          quota: Json;
+        }[];
+      };
+      vendor_license_key_create: {
+        Args: {
+          p_client_id: string;
+          p_duration_days: number;
+          p_features: Json;
+          p_plan: string;
+          p_quota: Json;
+        };
+        Returns: string;
+      };
+      vendor_license_key_record: {
+        Args: { p_key: string; p_payload: Json; p_signature: string };
+        Returns: undefined;
+      };
+      vendor_license_key_revoke: { Args: { p_key_id: string }; Returns: undefined };
+      vendor_license_keys: {
+        Args: { p_client_id: string };
+        Returns: {
+          activated_at: string;
+          created_at: string;
+          created_by_email: string;
+          duration_days: number;
+          features: Json;
+          id: string;
+          installation_name: string;
+          instance_id: string;
+          key_hint: string;
+          license_id: string;
+          plan: string;
+          quota: Json;
+          revoked_at: string;
+          status: string;
+        }[];
+      };
       vendor_license_record: {
         Args: { p_actor: string; p_installation_id: string; p_payload: Json; p_signature: string };
         Returns: undefined;
