@@ -51,6 +51,7 @@ export function EditorTopbar({
   onFloor,
   reference,
   validation,
+  actions,
   onRetry,
 }: {
   buildings: Building[];
@@ -62,6 +63,7 @@ export function EditorTopbar({
   onFloor: (floorId: FloorId) => void;
   reference: React.ReactNode;
   validation: React.ReactNode;
+  actions?: React.ReactNode;
   onRetry: () => void;
 }) {
   return (
@@ -106,6 +108,7 @@ export function EditorTopbar({
       ) : null}
       <div className="w-56">{reference}</div>
       <div className="ml-auto flex items-center gap-3">
+        {actions}
         {validation}
         <SaveIndicator onRetry={onRetry} />
       </div>

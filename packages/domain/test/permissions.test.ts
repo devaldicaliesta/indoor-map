@@ -139,6 +139,7 @@ describe('licenseAllows (masa tenggang: Admin hanya-baca)', () => {
       'map.edit',
       'location.edit',
       'closure.manage',
+      'event.edit',
       'origin_point.edit',
       'publish.publish',
       'publish.rollback',

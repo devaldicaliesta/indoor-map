@@ -40,6 +40,7 @@ export interface Category {
   icon: FacilityIcon | null;
   /** `#rrggbb` untuk mewarnai unit di Visitor; `null` = warna tipe lokasi atau bawaan. */
   color: string | null;
+  nameEn: string | null;
   sortOrder: number;
 }
 
@@ -49,6 +50,7 @@ export interface CategoryInput {
   icon: FacilityIcon | null;
   /** Tidak diisi saat mengubah = warna lama dipertahankan. */
   color?: string | null;
+  nameEn?: string | null;
 }
 
 export const CATEGORY_NAME_MAX = 60;
@@ -102,6 +104,7 @@ export interface Location {
   code: string | null;
   name: string;
   description: string | null;
+  descriptionEn: string | null;
   logoPath: string | null;
   photoPaths: string[];
   status: LocationStatus;
@@ -125,6 +128,7 @@ export interface LocationInput {
   code: string;
   name: string;
   description: string;
+  descriptionEn?: string;
   categoryIds: CategoryId[];
   unitIds: FeatureId[];
   /** Unit utama; tanpa pilihan, unit pertama yang menjadi utama. */
@@ -184,10 +188,11 @@ export interface LocationInputProblems {
   name?: 'required' | 'too_long';
   code?: LocationCodeProblem;
   description?: 'too_long';
+  descriptionEn?: 'too_long';
 }
 
 export function checkLocationInput(
-  input: Pick<LocationInput, 'code' | 'name' | 'description'>,
+  input: Pick<LocationInput, 'code' | 'name' | 'description' | 'descriptionEn'>,
   others: readonly { id: string; code: string | null; name: string }[],
   selfId: string | null,
 ): LocationInputProblems {
@@ -198,6 +203,9 @@ export function checkLocationInput(
   const code = checkLocationCode(input.code, others, selfId);
   if (code) problems.code = code;
   if (input.description.trim().length > LOCATION_DESCRIPTION_MAX) problems.description = 'too_long';
+  if ((input.descriptionEn ?? '').trim().length > LOCATION_DESCRIPTION_MAX) {
+    problems.descriptionEn = 'too_long';
+  }
   return problems;
 }
 

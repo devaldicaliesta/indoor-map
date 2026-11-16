@@ -15,6 +15,7 @@ import { InfoIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { intlLocale } from '../../i18n';
+import { PrivacyToggle } from '../analytics/privacy-notice';
 
 /** Versi peta yang sedang dibuka, waktu terbitnya dalam zona waktu venue, dan tombol tur. */
 export function VenueInfo({
@@ -77,6 +78,7 @@ export function VenueInfo({
             }}
           />
         ) : null}
+        <PrivacyToggle />
         {/* Logo venue tetap yang utama; PanduArah hanya disebut kecil di sini. */}
         <p className="flex items-center gap-2 border-line border-t pt-3 text-ink-muted text-sm">
           <BrandSymbol label="" className="h-5" />

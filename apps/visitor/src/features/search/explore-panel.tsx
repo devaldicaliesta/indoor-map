@@ -2,10 +2,12 @@ import type { ExploreTarget } from '@indoor/domain';
 import { Button } from '@indoor/ui';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { EventList } from '../events/event-views';
 import { FacilityDetail, UnitDetail } from '../location/feature-details';
 import { LocationProfile } from '../location/location-profile';
 import { OriginChooser, OriginRow, OriginTapHint } from '../origin/origin-panels';
 import { RoutePanel } from '../route/route-panel';
+import { useNearestRequest } from '../route/use-nearest-request';
 import { detailTitle } from './detail-title';
 import { Directory } from './directory';
 import { ExploreChips } from './explore-chips';
@@ -59,6 +61,7 @@ function ListContent({ hint }: { hint: boolean }) {
   if (list?.kind === 'category') return <CategoryList id={list.id} />;
   if (list?.kind === 'facility_type') return <FacilityTypeList id={list.id} />;
   if (list?.kind === 'directory') return <Directory />;
+  if (list?.kind === 'events') return <EventList />;
   return hint ? <p className="text-ink-muted">{t('explore.hint')}</p> : null;
 }
 
@@ -67,6 +70,7 @@ function ListContent({ hint }: { hint: boolean }) {
  * panel jelajah dengan baris "Anda di sini".
  */
 export function ExplorePanel({ desktop }: { desktop: boolean }) {
+  useNearestRequest();
   const originMode = useExploreStore((s) => s.originMode);
   const routing = useExploreStore((s) => s.destination !== null && s.origin !== null);
   if (originMode === 'tap') return <OriginTapHint />;

@@ -68,7 +68,11 @@
     "continueQr": "QR rute untuk HP",
     "continueTitle": "Lanjutkan di HP",
     "continueDescription": "Pindai QR ini untuk membawa rute yang sama di HP Anda.",
-    "offline": "Offline"
+    "offline": "Offline",
+    "playlist": "Event & Promo",
+    "playlistQr": "QR detail event untuk HP",
+    "playlistScan": "Pindai untuk detail di HP",
+    "playlistTouch": "Sentuh layar untuk rute dan peta"
   },
   "info": {
     "open": "Informasi peta",
@@ -81,6 +85,8 @@
   },
   "explore": {
     "chips": "Kategori dan fasilitas",
+    "nearest": "Rute ke {{name}} terdekat",
+    "nearestMissing": "Tidak ada rute ke {{name}} dari titik asal Anda.",
     "directoryChip": "A–Z",
     "directoryTitle": "Semua lokasi A–Z",
     "openDirectory": "Buka daftar A–Z",
@@ -112,6 +118,25 @@
     "missingTitle": "Tidak ditemukan di peta ini",
     "missingDescription": "Kembali lalu cari lagi dengan nama atau kode unit."
   },
+  "events": {
+    "chip": "Event & Promo",
+    "heading": "Event & Promo",
+    "live": "Sedang berlangsung",
+    "soon": "Segera",
+    "empty": "Belum ada event atau promo dalam 7 hari ke depan.",
+    "kindEvent": "Acara",
+    "kindPromotion": "Promo",
+    "liveBadge": "Berlangsung",
+    "back": "Semua event",
+    "moreInfo": "Info lebih lanjut",
+    "showOnMap": "Lihat di peta",
+    "places": "Tempat",
+    "atLocation": "Event di sini",
+    "repeatsDaily": "Setiap hari",
+    "repeatsWeekly": "Setiap minggu",
+    "notFoundTitle": "Event sudah berakhir",
+    "notFoundDescription": "Event ini sudah selesai atau tidak lagi ditampilkan."
+  },
   "unit": {
     "label": "Unit"
   },
@@ -135,8 +160,18 @@
     "swap": "Tukar asal dan tujuan",
     "accessible": "Rute aksesibel (kursi roda)",
     "distance": "{{distance}} m",
+    "duration_one": "± {{count}} menit",
+    "duration_other": "± {{count}} menit",
     "floors": "Lantai yang dilewati",
     "steps": "Langkah rute",
+    "destinations": "Tujuan berurutan",
+    "removeStop": "Hapus tujuan {{name}}",
+    "addStop": "Tambah tujuan",
+    "addStopSearch": "Cari tujuan berikutnya",
+    "addStopResults": "Pilihan tujuan berikutnya",
+    "addStopCancel": "Batal menambah tujuan",
+    "segment": "Ke {{name}} ({{current}}/{{total}})",
+    "failedStop": "Tujuan ke-{{current}} ({{name}}) tidak bisa dicapai.",
     "stepOf": "Langkah {{current}} dari {{total}}",
     "previous": "Sebelumnya",
     "next": "Berikutnya",
@@ -220,5 +255,11 @@
       "routeTitle": "Rute dan lanjutkan di HP",
       "routeBody": "Buka tempat lalu pilih Rute ke sini. Pindai QR Lanjutkan di HP untuk membawa rute yang sama ke ponsel Anda."
     }
+  },
+  "analytics": {
+    "noticeLabel": "Pemberitahuan privasi",
+    "accept": "Oke",
+    "decline": "Tolak",
+    "toggle": "Kirim statistik pemakaian anonim"
   }
 }

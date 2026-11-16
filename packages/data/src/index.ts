@@ -9,6 +9,7 @@ export type { Database, Json } from './database.types';
 export { DataError, type DataErrorKind } from './errors';
 export { type Page, type PageQuery, pageRange } from './pagination';
 export { type AliasesRepository, aliasKey } from './repositories/aliases';
+export type { AnalyticsConfig, AnalyticsRepository } from './repositories/analytics';
 export type { AuditFilters, AuditRepository } from './repositories/audit';
 export type { BuildingsRepository, OutdoorLayer } from './repositories/buildings';
 export type {
@@ -22,6 +23,11 @@ export type { ClosurePageFilters, ClosuresRepository } from './repositories/clos
 export type { ConnectorInput, ConnectorsRepository } from './repositories/connectors';
 export type { DisplaySettingsRepository } from './repositories/display-settings';
 export type { EditLocksRepository } from './repositories/edit-locks';
+export type {
+  EventListState,
+  EventPageFilters,
+  EventsRepository,
+} from './repositories/events';
 export type {
   FacilityTypesRepository,
   FacilityTypeWithUsage,
@@ -59,6 +65,7 @@ export type {
   LocationsRepository,
 } from './repositories/locations';
 export type { MfaRepository, MfaStatus, TotpEnrollment } from './repositories/mfa';
+export type { Models3dRepository, UploadedModel } from './repositories/models3d';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
 export type { NotificationsRepository } from './repositories/notifications';
 export type { OriginPointsRepository } from './repositories/origin-points';

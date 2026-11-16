@@ -25,9 +25,10 @@ export function useShareUrl(): string {
  * "Bagikan": lembar bagikan perangkat (Web Share API) bila ada, selain itu tautan disalin. Bila
  * menyalin pun diblokir, tautan ditampilkan untuk disalin manual.
  */
-export function ShareButton({ title }: { title: string }) {
+export function ShareButton({ title, url: fixedUrl }: { title: string; url?: string }) {
   const { t } = useTranslation();
-  const url = useShareUrl();
+  const stateUrl = useShareUrl();
+  const url = fixedUrl ?? stateUrl;
   const [result, setResult] = useState<ShareResult>('idle');
 
   useEffect(() => {

@@ -28,6 +28,7 @@ import { floorLabel } from '../closures/closure-model';
 import { useVenueFloors } from '../editor/connectors/queries';
 import { InfoPointsPanel } from '../info-points/info-points-panel';
 import { QuotaNotice, useQuotaBlock } from '../license/quota-notice';
+import { BoardDialog, type BoardTarget, StickerDialog } from './board-dialogs';
 import { OriginDialog, type OriginDialogTarget } from './origin-dialog';
 import { floorFilter, PATH_FILTER, pathState } from './point-filters';
 import { downloadPdf, downloadPng, qrCard } from './qr-download';
@@ -59,6 +60,8 @@ function Origins({ venue }: { venue: VenueSummary }) {
   const remove = useRemoveOriginPoint(venue.id);
   const [dialog, setDialog] = useState<OriginDialogTarget>(null);
   const [removing, setRemoving] = useState<OriginPoint | null>(null);
+  const [board, setBoard] = useState<BoardTarget>(null);
+  const [stickers, setStickers] = useState(false);
   const filters = [floorFilter(places, points.data), PATH_FILTER];
   const table = useTableState({ filters });
 
@@ -132,6 +135,14 @@ function Origins({ venue }: { venue: VenueSummary }) {
               size="sm"
               variant="ghost"
               disabled={!link}
+              onClick={() => setBoard({ kind: 'point', point })}
+            >
+              Papan
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={!link}
               onClick={() => link && window.open(link, '_blank', 'noopener')}
             >
               Coba
@@ -172,18 +183,30 @@ function Origins({ venue }: { venue: VenueSummary }) {
         error={points.error?.message ?? null}
         onRetry={() => void points.refetch()}
         actions={
-          canEdit ? (
-            <>
-              <QuotaNotice message={originQuota} />
-              <Button
-                variant="primary"
-                disabled={!url || originQuota !== null}
-                onClick={() => setDialog({ point: null })}
-              >
-                Tambah titik asal
-              </Button>
-            </>
-          ) : null
+          <>
+            <Button
+              variant="secondary"
+              disabled={!url || !points.data?.length}
+              onClick={() => setBoard({ kind: 'floor' })}
+            >
+              Cetak papan massal
+            </Button>
+            <Button variant="secondary" disabled={!url} onClick={() => setStickers(true)}>
+              Stiker QR lokasi
+            </Button>
+            {canEdit ? (
+              <>
+                <QuotaNotice message={originQuota} />
+                <Button
+                  variant="primary"
+                  disabled={!url || originQuota !== null}
+                  onClick={() => setDialog({ point: null })}
+                >
+                  Tambah titik asal
+                </Button>
+              </>
+            ) : null}
+          </>
         }
         empty={
           <EmptyState
@@ -193,6 +216,24 @@ function Origins({ venue }: { venue: VenueSummary }) {
         }
       />
       {remove.error ? <FormNotice tone="error">{remove.error.message}</FormNotice> : null}
+      {url ? (
+        <>
+          <BoardDialog
+            target={board}
+            venue={venue}
+            points={points.data ?? []}
+            publicUrl={url}
+            floorName={(floorId) => (places ? floorLabel(places, floorId) : '')}
+            onClose={() => setBoard(null)}
+          />
+          <StickerDialog
+            open={stickers}
+            venue={venue}
+            publicUrl={url}
+            onClose={() => setStickers(false)}
+          />
+        </>
+      ) : null}
       <Dialog open={removing !== null} onOpenChange={(open) => (open ? null : setRemoving(null))}>
         <DialogContent>
           <DialogHeader>

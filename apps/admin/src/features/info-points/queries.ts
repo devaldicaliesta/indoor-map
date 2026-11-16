@@ -1,5 +1,5 @@
 import { type InfoPoint, type InfoPointInput, snapOriginPoint, type VenueId } from '@indoor/domain';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { data } from '../../app/data-client';
 import { editorQueues } from '../editor/session-helpers';
 import { SnapError, toChanges } from '../origin-points/queries';
@@ -46,5 +46,13 @@ export function useRemoveInfoPoint(venueId: VenueId) {
       void queryClient.invalidateQueries({ queryKey: infoPointsKey(venueId) });
       void queryClient.invalidateQueries({ queryKey: ['license', 'usage'] });
     },
+  });
+}
+
+export function usePlaylistEvents(venueId: VenueId, enabled: boolean) {
+  return useQuery({
+    queryKey: ['events', 'current', venueId],
+    queryFn: () => data.events.listCurrent(venueId, new Date()),
+    enabled,
   });
 }

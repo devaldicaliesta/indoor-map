@@ -1,5 +1,5 @@
 import type { ExploreTarget, Snapshot, SnapshotIndex } from '@indoor/domain';
-import { type RoutePlan, roundStepDistance } from '@indoor/routing';
+import { type RoutePlan, roundStepDistance, routeMinutes, routeSeconds } from '@indoor/routing';
 import { Button, cn } from '@indoor/ui';
 import { NavigationIcon, XIcon } from 'lucide-react';
 import { useMemo } from 'react';
@@ -97,6 +97,14 @@ export function RouteCard({
         roundStepDistance(plan.route.distanceM),
       )
     : '';
+  const minutes = plan.ok
+    ? routeMinutes(
+        routeSeconds(plan.route.legs, {
+          accessible: false,
+          levelOf: (id) => snapshot.floors.find((f) => f.id === id)?.level ?? 0,
+        }),
+      )
+    : 1;
 
   return (
     <section
@@ -118,7 +126,10 @@ export function RouteCard({
         {plan.ok ? (
           <>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-bold">{copy.demo.distance.replace('{m}', distance)}</span>
+              <span className="font-bold">
+                {copy.demo.duration.replace('{n}', String(minutes))}
+              </span>
+              <span className="text-ink-muted">{copy.demo.distance.replace('{m}', distance)}</span>
               {routeFloors.length > 1 ? (
                 <fieldset aria-label={copy.demo.floors} className="m-0 flex gap-1 border-0 p-0">
                   {routeFloors.map((id) => (

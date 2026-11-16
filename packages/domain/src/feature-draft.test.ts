@@ -91,4 +91,32 @@ describe('changeFeatureKind', () => {
     const door: MapFeatureProperties = { id: 'd', kind: 'door', floorId: 'f' };
     expect(() => changeFeatureKind(door, { kind: 'facility' }, () => 'X')).toThrow();
   });
+
+  it('objek 3D mendapat model bawaan; ganti jenis membuang skala dan rotasi', () => {
+    const landmark: MapFeatureProperties = { id: 'c', kind: 'landmark', floorId: 'f' };
+    expect(changeFeatureKind(landmark, { kind: 'model3d' }, () => 'X')).toEqual({
+      id: 'c',
+      kind: 'model3d',
+      floorId: 'f',
+      model: 'builtin:tree',
+    });
+    const model: MapFeatureProperties = {
+      id: 'c',
+      kind: 'model3d',
+      floorId: 'f',
+      model: 'builtin:bench',
+      modelScale: 2,
+      modelRotation: 45,
+    };
+    expect(changeFeatureKind(model, { kind: 'model3d' }, () => 'X')).toEqual(model);
+    expect(changeFeatureKind(model, { kind: 'model3d', model: 'builtin:car' }, () => 'X')).toEqual({
+      ...model,
+      model: 'builtin:car',
+    });
+    expect(changeFeatureKind(model, { kind: 'landmark' }, () => 'X')).toEqual({
+      id: 'c',
+      kind: 'landmark',
+      floorId: 'f',
+    });
+  });
 });

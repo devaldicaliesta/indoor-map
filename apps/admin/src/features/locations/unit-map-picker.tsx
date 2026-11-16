@@ -61,7 +61,7 @@ function unitInfo(unit: VenueUnit, selfId: LocationId | null, outdoorName: strin
 }
 
 /** Lantai yang ditampilkan: gedung/lantai unit pertama yang sudah dipilih, atau default venue. */
-function useFloorChoice(venueId: VenueId, start: VenueUnit | undefined) {
+export function useFloorChoice(venueId: VenueId, start: VenueUnit | undefined) {
   const buildings = useBuildings(venueId).data ?? [];
   const outdoor = useOutdoorLayer(venueId).data;
   const [buildingChoice, setBuilding] = useState<string | null>(

@@ -169,6 +169,7 @@ export function venueRows(source: SnapshotSource, venueId: string): VenueRows {
       name: c.name,
       icon: c.icon,
       color: c.color ?? null,
+      name_en: c.nameEn ?? null,
       sort_order: c.sortOrder,
     })),
     locations: source.locations.map((l) => ({
@@ -178,6 +179,7 @@ export function venueRows(source: SnapshotSource, venueId: string): VenueRows {
       code: l.code,
       name: l.name,
       description: l.description,
+      description_en: l.descriptionEn ?? null,
       status: l.status,
       opening_date: l.openingDate,
       custom_fields: l.customFields,
@@ -250,6 +252,9 @@ export function venueRows(source: SnapshotSource, venueId: string): VenueRows {
       default_language: i.defaultLanguage,
       idle_seconds: i.idleSeconds,
       node_id: i.nodeId,
+      playlist_enabled: i.playlist !== null,
+      playlist_slide_seconds: i.playlist?.slideSeconds ?? 8,
+      playlist_event_ids: i.playlist?.eventIds ?? [],
     })),
   };
   return {

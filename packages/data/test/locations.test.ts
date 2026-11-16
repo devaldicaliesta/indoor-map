@@ -36,6 +36,7 @@ const row: LocationRow = {
   code: 'RAD-01',
   name: 'Radiologi',
   description: null,
+  description_en: null,
   logo_path: 'locations/v/logo.png',
   photo_paths: [],
   status: 'active',
@@ -90,6 +91,7 @@ describe('lokasi', () => {
         special: { '2026-08-17': [] },
       },
       description: null,
+      descriptionEn: null,
       logoPath: 'locations/v/logo.png',
       photoPaths: [],
       status: 'active',
@@ -196,6 +198,7 @@ describe('lokasi', () => {
         id: CATEGORY,
         location_type_id: TYPE,
         name: 'Anak',
+        name_en: 'Children',
         icon: 'builtin:first-aid',
         color: '#2e7dbb',
         sort_order: 2,
@@ -206,6 +209,7 @@ describe('lokasi', () => {
       name: 'Anak',
       icon: { kind: 'builtin', key: 'first-aid' },
       color: '#2e7dbb',
+      nameEn: 'Children',
       sortOrder: 2,
     });
   });

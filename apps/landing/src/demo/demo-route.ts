@@ -39,6 +39,7 @@ export function demoOrigin(snapshot: Pick<Snapshot, 'originPoints'>): DemoOrigin
 /** Sasaran ketukan seperti di Visitor: label lokasi atau fasilitas, atau unit di bawah titik. */
 export function targetOfPick(index: SnapshotIndex, pick: MapPick): ExploreTarget | null {
   if (pick.layer === 'floor') return targetOfFeature(index, pick.id);
+  if (pick.layer === 'event') return null;
   if (pick.kind === 'location') {
     return index.locations.has(pick.id) ? { kind: 'location', id: pick.id } : null;
   }

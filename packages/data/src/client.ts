@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { type AuthRepository, createAuthRepository } from './auth';
 import type { Database } from './database.types';
 import { type AliasesRepository, createAliasesRepository } from './repositories/aliases';
+import { type AnalyticsRepository, createAnalyticsRepository } from './repositories/analytics';
 import { type AuditRepository, createAuditRepository } from './repositories/audit';
 import { type BuildingsRepository, createBuildingsRepository } from './repositories/buildings';
 import {
@@ -16,6 +17,7 @@ import {
   type DisplaySettingsRepository,
 } from './repositories/display-settings';
 import { createEditLocksRepository, type EditLocksRepository } from './repositories/edit-locks';
+import { createEventsRepository, type EventsRepository } from './repositories/events';
 import {
   createFacilityTypesRepository,
   type FacilityTypesRepository,
@@ -35,6 +37,7 @@ import {
 } from './repositories/location-types';
 import { createLocationsRepository, type LocationsRepository } from './repositories/locations';
 import { createMfaRepository, type MfaRepository } from './repositories/mfa';
+import { createModels3dRepository, type Models3dRepository } from './repositories/models3d';
 import { createNavGraphRepository, type NavGraphRepository } from './repositories/nav-graph';
 import {
   createNotificationsRepository,
@@ -76,16 +79,19 @@ export interface DataClientConfig {
 /** Pintu tunggal app ke database. Klien Supabase mentah tidak pernah diekspos. */
 export interface DataClient {
   aliases: AliasesRepository;
+  analytics: AnalyticsRepository;
   audit: AuditRepository;
   auth: AuthRepository;
   buildings: BuildingsRepository;
   cadConverter: CadConverterRepository;
   categories: CategoriesRepository;
   closures: ClosuresRepository;
+  events: EventsRepository;
   connectors: ConnectorsRepository;
   displaySettings: DisplaySettingsRepository;
   editLocks: EditLocksRepository;
   facilityTypes: FacilityTypesRepository;
+  models3d: Models3dRepository;
   features: FeaturesRepository;
   floorPlans: FloorPlansRepository;
   floors: FloorsRepository;
@@ -120,6 +126,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
   const profiles = createProfilesRepository(db);
   return {
     aliases: createAliasesRepository(db),
+    analytics: createAnalyticsRepository(db, endpoint),
     audit: createAuditRepository(db),
     auth: createAuthRepository(db, profiles),
     buildings: createBuildingsRepository(db),
@@ -129,10 +136,12 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     ),
     categories: createCategoriesRepository(db),
     closures: createClosuresRepository(db),
+    events: createEventsRepository(db),
     connectors: createConnectorsRepository(db),
     displaySettings: createDisplaySettingsRepository(db),
     editLocks: createEditLocksRepository(db, endpoint),
     facilityTypes: createFacilityTypesRepository(db),
+    models3d: createModels3dRepository(db),
     features: createFeaturesRepository(db),
     floorPlans: createFloorPlansRepository(db),
     floors: createFloorsRepository(db),

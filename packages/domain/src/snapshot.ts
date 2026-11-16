@@ -27,6 +27,7 @@ export const SNAPSHOT_FEATURE_KINDS = [
   'outdoor_area',
   'facility',
   'landmark',
+  'model3d',
 ] as const;
 export type SnapshotFeatureKind = (typeof SNAPSHOT_FEATURE_KINDS)[number];
 
@@ -173,6 +174,17 @@ export interface SnapshotFeatureProperties {
   color?: string;
   facilityTypeId?: string;
   subtype?: SnapshotOutdoorSubtype;
+  model?: string;
+  modelScale?: number;
+  modelRotation?: number;
+  baseHeight?: number;
+}
+
+export interface SnapshotModelPlacement {
+  model: string;
+  modelScale?: number;
+  modelRotation?: number;
+  baseHeight?: number;
 }
 
 export interface SnapshotFeature {
@@ -218,6 +230,7 @@ export interface SnapshotCategory {
   icon: string | null;
   /** `#rrggbb` warna unit di peta; `null` = warna tipe lokasi. Tidak ada di snapshot lama. */
   color?: string | null;
+  nameEn?: string;
 }
 
 export type SnapshotFieldValue = string | number | boolean | string[];
@@ -227,6 +240,7 @@ export interface SnapshotLocation {
   code: string | null;
   name: string;
   description: string | null;
+  descriptionEn?: string;
   locationTypeId: string;
   status: SnapshotLocationStatus;
   /** Tanggal `YYYY-MM-DD` untuk status segera buka. */
@@ -313,6 +327,12 @@ export interface SnapshotInfoPoint {
   defaultLanguage: SnapshotLanguage;
   idleSeconds: number;
   nodeId: string | null;
+  playlist: SnapshotPlaylist | null;
+}
+
+export interface SnapshotPlaylist {
+  slideSeconds: number;
+  eventIds: string[];
 }
 
 export interface InstructionText {

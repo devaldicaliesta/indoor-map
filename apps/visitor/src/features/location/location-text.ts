@@ -1,4 +1,5 @@
 import {
+  categoryName,
   locationPlaces,
   type Place,
   type SnapshotIndex,
@@ -12,8 +13,15 @@ export function placeText(place: Place | null | undefined): string | null {
 }
 
 /** Kategori lokasi, atau tipenya bila lokasi belum berkategori. */
-export function locationKindText(index: SnapshotIndex, location: SnapshotLocation): string | null {
-  const categories = location.categoryIds.flatMap((id) => index.categories.get(id)?.name ?? []);
+export function locationKindText(
+  index: SnapshotIndex,
+  location: SnapshotLocation,
+  language?: string,
+): string | null {
+  const categories = location.categoryIds.flatMap((id) => {
+    const category = index.categories.get(id);
+    return category ? categoryName(category, language) : [];
+  });
   if (categories.length) return categories.join(', ');
   return index.locationTypes.get(location.locationTypeId)?.name ?? null;
 }
@@ -26,9 +34,10 @@ export function locationSubtitle(
   index: SnapshotIndex,
   location: SnapshotLocation,
   notOnMap: string,
+  language?: string,
 ): string {
   const [first] = locationPlaces(index, location);
-  return [locationKindText(index, location), placeText(first) ?? notOnMap]
+  return [locationKindText(index, location, language), placeText(first) ?? notOnMap]
     .filter(Boolean)
     .join(' · ');
 }

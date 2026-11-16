@@ -2,11 +2,13 @@ import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RequireAuth } from './app/auth/require-auth';
 import { HomeRedirect } from './app/module-route';
 import { NotFoundPage, RouteError } from './app/route-error';
+import { AnalyticsPage } from './features/analytics/analytics-page';
 import { ForgotPasswordPage } from './features/auth/forgot-password-page';
 import { LoginPage } from './features/auth/login-page';
 import { ResetPasswordPage } from './features/auth/reset-password-page';
 import { ClosuresPage } from './features/closures/closures-page';
 import { EditorPage } from './features/editor/editor-page';
+import { EventsPage } from './features/events/events-page';
 import { GeoreferencePage } from './features/floor-plans/georeference';
 import { ActivationPage } from './features/license/activation-page';
 import { LicenseGate } from './features/license/license-gate';
@@ -79,6 +81,8 @@ export const router = createBrowserRouter([
       { path: 'map-editor', element: <EditorPage /> },
       { path: 'locations', element: <LocationsPage /> },
       { path: 'closures', element: <ClosuresPage /> },
+      { path: 'events', element: <EventsPage /> },
+      { path: 'analytics', element: <AnalyticsPage /> },
       { path: 'origin-points', element: <OriginPointsPage /> },
       { path: 'publish', element: <PublishPage /> },
       { path: 'settings', element: <SettingsPage /> },

@@ -213,6 +213,45 @@ function Form({ settings, passwordIsSet }: { settings: SystemSettings; passwordI
       </Section>
 
       <Section
+        title="Analitik pengunjung"
+        description="Statistik anonim pemakaian Visitor dan Info Point: pencarian, lokasi yang dibuka, rute, sumber kunjungan, bahasa, dan jenis perangkat. Tanpa alamat IP atau identitas pengunjung; data tetap di server ini. Pengunjung bisa menolak lewat pemberitahuan di Visitor."
+      >
+        <label className="col-span-2 flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={values.analyticsEnabled}
+            onChange={(e) => set('analyticsEnabled')(e.target.checked)}
+            className="size-4 accent-ink"
+          />
+          Aktifkan analitik pengunjung
+        </label>
+        {(['analyticsNoticeId', 'analyticsNoticeEn'] as const).map((key) => (
+          <div key={key} className="col-span-2">
+            <Field
+              id={key}
+              label={
+                key === 'analyticsNoticeId'
+                  ? 'Teks pemberitahuan privasi (Indonesia)'
+                  : 'Teks pemberitahuan privasi (English)'
+              }
+              error={errors[key]}
+            >
+              <textarea
+                id={key}
+                rows={2}
+                maxLength={500}
+                value={values[key]}
+                onChange={(e) => set(key)(e.target.value)}
+                aria-invalid={errors[key] ? true : undefined}
+                aria-describedby={errors[key] ? `${key}-error` : undefined}
+                className="w-full rounded-sm border border-line bg-surface px-3 py-2"
+              />
+            </Field>
+          </div>
+        ))}
+      </Section>
+
+      <Section
         title="Verifikasi dua langkah"
         description="Role yang dicentang wajib memasukkan kode aplikasi autentikator (TOTP) setiap masuk. Pengguna yang belum punya aplikasi diminta mendaftarkannya saat masuk berikutnya."
       >

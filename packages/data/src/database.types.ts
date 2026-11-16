@@ -58,6 +58,123 @@ export type Database = {
           },
         ];
       };
+      analytics_daily: {
+        Row: {
+          count: number;
+          day: string;
+          key: string;
+          metric: string;
+          venue_id: string;
+        };
+        Insert: {
+          count: number;
+          day: string;
+          key: string;
+          metric: string;
+          venue_id: string;
+        };
+        Update: {
+          count?: number;
+          day?: string;
+          key?: string;
+          metric?: string;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'analytics_daily_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      analytics_events: {
+        Row: {
+          device: Database['public']['Enums']['analytics_device'];
+          id: number;
+          kind: Database['public']['Enums']['analytics_kind'];
+          language: Database['public']['Enums']['language_code'];
+          occurred_at: string;
+          origin_kind: string | null;
+          origin_ref: string | null;
+          query: string | null;
+          result_count: number | null;
+          source: Database['public']['Enums']['analytics_source'];
+          source_ref: string | null;
+          target_id: string | null;
+          target_kind: string | null;
+          venue_id: string;
+        };
+        Insert: {
+          device: Database['public']['Enums']['analytics_device'];
+          id?: never;
+          kind: Database['public']['Enums']['analytics_kind'];
+          language: Database['public']['Enums']['language_code'];
+          occurred_at?: string;
+          origin_kind?: string | null;
+          origin_ref?: string | null;
+          query?: string | null;
+          result_count?: number | null;
+          source: Database['public']['Enums']['analytics_source'];
+          source_ref?: string | null;
+          target_id?: string | null;
+          target_kind?: string | null;
+          venue_id: string;
+        };
+        Update: {
+          device?: Database['public']['Enums']['analytics_device'];
+          id?: never;
+          kind?: Database['public']['Enums']['analytics_kind'];
+          language?: Database['public']['Enums']['language_code'];
+          occurred_at?: string;
+          origin_kind?: string | null;
+          origin_ref?: string | null;
+          query?: string | null;
+          result_count?: number | null;
+          source?: Database['public']['Enums']['analytics_source'];
+          source_ref?: string | null;
+          target_id?: string | null;
+          target_kind?: string | null;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'analytics_events_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      analytics_rollups: {
+        Row: {
+          day: string;
+          rolled_at: string;
+          venue_id: string;
+        };
+        Insert: {
+          day: string;
+          rolled_at?: string;
+          venue_id: string;
+        };
+        Update: {
+          day?: string;
+          rolled_at?: string;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'analytics_rollups_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       audit_events: {
         Row: {
           action: string;
@@ -146,6 +263,7 @@ export type Database = {
           id: string;
           location_type_id: string;
           name: string;
+          name_en: string | null;
           sort_order: number;
         };
         Insert: {
@@ -154,6 +272,7 @@ export type Database = {
           id?: string;
           location_type_id: string;
           name: string;
+          name_en?: string | null;
           sort_order?: number;
         };
         Update: {
@@ -162,6 +281,7 @@ export type Database = {
           id?: string;
           location_type_id?: string;
           name?: string;
+          name_en?: string | null;
           sort_order?: number;
         };
         Relationships: [
@@ -442,6 +562,123 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['user_id'];
+          },
+        ];
+      };
+      event_locations: {
+        Row: {
+          event_id: string;
+          location_id: string;
+        };
+        Insert: {
+          event_id: string;
+          location_id: string;
+        };
+        Update: {
+          event_id?: string;
+          location_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'event_locations_event_id_fkey';
+            columns: ['event_id'];
+            isOneToOne: false;
+            referencedRelation: 'events';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'event_locations_location_id_fkey';
+            columns: ['location_id'];
+            isOneToOne: false;
+            referencedRelation: 'locations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      events: {
+        Row: {
+          created_at: string;
+          description_en: string | null;
+          description_id: string | null;
+          ends_at: string;
+          floor_id: string | null;
+          geom: unknown;
+          id: string;
+          image_path: string | null;
+          kind: Database['public']['Enums']['event_kind'];
+          last_ends_at: string;
+          link_url: string | null;
+          repeat: Database['public']['Enums']['event_repeat'];
+          repeat_until: string | null;
+          starts_at: string;
+          status: Database['public']['Enums']['event_status'];
+          summary_en: string | null;
+          summary_id: string | null;
+          title_en: string | null;
+          title_id: string;
+          updated_at: string;
+          venue_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          description_en?: string | null;
+          description_id?: string | null;
+          ends_at: string;
+          floor_id?: string | null;
+          geom?: unknown;
+          id?: string;
+          image_path?: string | null;
+          kind?: Database['public']['Enums']['event_kind'];
+          last_ends_at?: string;
+          link_url?: string | null;
+          repeat?: Database['public']['Enums']['event_repeat'];
+          repeat_until?: string | null;
+          starts_at: string;
+          status?: Database['public']['Enums']['event_status'];
+          summary_en?: string | null;
+          summary_id?: string | null;
+          title_en?: string | null;
+          title_id: string;
+          updated_at?: string;
+          venue_id: string;
+        };
+        Update: {
+          created_at?: string;
+          description_en?: string | null;
+          description_id?: string | null;
+          ends_at?: string;
+          floor_id?: string | null;
+          geom?: unknown;
+          id?: string;
+          image_path?: string | null;
+          kind?: Database['public']['Enums']['event_kind'];
+          last_ends_at?: string;
+          link_url?: string | null;
+          repeat?: Database['public']['Enums']['event_repeat'];
+          repeat_until?: string | null;
+          starts_at?: string;
+          status?: Database['public']['Enums']['event_status'];
+          summary_en?: string | null;
+          summary_id?: string | null;
+          title_en?: string | null;
+          title_id?: string;
+          updated_at?: string;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'events_floor_id_fkey';
+            columns: ['floor_id'];
+            isOneToOne: false;
+            referencedRelation: 'floors';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'events_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -762,6 +999,9 @@ export type Database = {
           loaded_version: number | null;
           name: string;
           node_id: string | null;
+          playlist_enabled: boolean;
+          playlist_event_ids: string[];
+          playlist_slide_seconds: number;
           updated_at: string;
           venue_id: string;
         };
@@ -780,6 +1020,9 @@ export type Database = {
           loaded_version?: number | null;
           name: string;
           node_id?: string | null;
+          playlist_enabled?: boolean;
+          playlist_event_ids?: string[];
+          playlist_slide_seconds?: number;
           updated_at?: string;
           venue_id: string;
         };
@@ -798,6 +1041,9 @@ export type Database = {
           loaded_version?: number | null;
           name?: string;
           node_id?: string | null;
+          playlist_enabled?: boolean;
+          playlist_event_ids?: string[];
+          playlist_slide_seconds?: number;
           updated_at?: string;
           venue_id?: string;
         };
@@ -1030,6 +1276,7 @@ export type Database = {
           created_at: string;
           custom_fields: NonNullable<Json>;
           description: string | null;
+          description_en: string | null;
           id: string;
           location_type_id: string;
           logo_path: string | null;
@@ -1045,6 +1292,7 @@ export type Database = {
           created_at?: string;
           custom_fields?: NonNullable<Json>;
           description?: string | null;
+          description_en?: string | null;
           id?: string;
           location_type_id: string;
           logo_path?: string | null;
@@ -1060,6 +1308,7 @@ export type Database = {
           created_at?: string;
           custom_fields?: NonNullable<Json>;
           description?: string | null;
+          description_en?: string | null;
           id?: string;
           location_type_id?: string;
           logo_path?: string | null;
@@ -1486,6 +1735,9 @@ export type Database = {
       };
       system_settings: {
         Row: {
+          analytics_enabled: boolean;
+          analytics_notice_en: string;
+          analytics_notice_id: string;
           audit_retention_days: number;
           basemap_attribution: string | null;
           basemap_tile_url: string | null;
@@ -1501,6 +1753,9 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          analytics_enabled?: boolean;
+          analytics_notice_en?: string;
+          analytics_notice_id?: string;
           audit_retention_days?: number;
           basemap_attribution?: string | null;
           basemap_tile_url?: string | null;
@@ -1516,6 +1771,9 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          analytics_enabled?: boolean;
+          analytics_notice_en?: string;
+          analytics_notice_id?: string;
           audit_retention_days?: number;
           basemap_attribution?: string | null;
           basemap_tile_url?: string | null;
@@ -1655,6 +1913,17 @@ export type Database = {
           user_id: string;
         }[];
       };
+      analytics_config: { Args: Record<PropertyKey, never>; Returns: Json };
+      analytics_facts: {
+        Args: { p_from: string; p_to: string; p_venue: string };
+        Returns: {
+          count: number;
+          day: string;
+          key: string;
+          metric: string;
+        }[];
+      };
+      analytics_ingest: { Args: { p_events: Json; p_venue: string }; Returns: number };
       apply_template: {
         Args: {
           p_template: Json;
@@ -1947,6 +2216,7 @@ export type Database = {
           created_at: string;
           custom_fields: NonNullable<Json>;
           description: string | null;
+          description_en: string | null;
           id: string;
           location_type_id: string;
           logo_path: string | null;
@@ -2274,10 +2544,16 @@ export type Database = {
       vendor_unblock: { Args: { p_value: string }; Returns: undefined };
     };
     Enums: {
+      analytics_device: 'mobile' | 'tablet' | 'desktop' | 'kiosk';
+      analytics_kind: 'visit' | 'search' | 'location' | 'route';
+      analytics_source: 'direct' | 'origin_qr' | 'info_point' | 'link' | 'embed';
       app_role: 'super_admin' | 'admin' | 'editor' | 'operator' | 'viewer';
       connector_kind: 'elevator' | 'escalator' | 'stairs' | 'building_door';
       display_mode: '2d' | '3d';
       escalator_direction: 'up' | 'down' | 'both';
+      event_kind: 'event' | 'promotion';
+      event_repeat: 'none' | 'daily' | 'weekly';
+      event_status: 'draft' | 'active' | 'ended';
       feature_kind:
         | 'unit'
         | 'corridor'
@@ -2290,7 +2566,8 @@ export type Database = {
         | 'non_walkable'
         | 'outdoor_area'
         | 'facility'
-        | 'landmark';
+        | 'landmark'
+        | 'model3d';
       field_type: 'text' | 'number' | 'select' | 'opening_hours' | 'image' | 'link';
       floor_plan_format: 'png' | 'jpg' | 'pdf' | 'dwg' | 'dxf';
       instruction_action:
@@ -2442,10 +2719,16 @@ export const Constants = {
   },
   public: {
     Enums: {
+      analytics_device: ['mobile', 'tablet', 'desktop', 'kiosk'],
+      analytics_kind: ['visit', 'search', 'location', 'route'],
+      analytics_source: ['direct', 'origin_qr', 'info_point', 'link', 'embed'],
       app_role: ['super_admin', 'admin', 'editor', 'operator', 'viewer'],
       connector_kind: ['elevator', 'escalator', 'stairs', 'building_door'],
       display_mode: ['2d', '3d'],
       escalator_direction: ['up', 'down', 'both'],
+      event_kind: ['event', 'promotion'],
+      event_repeat: ['none', 'daily', 'weekly'],
+      event_status: ['draft', 'active', 'ended'],
       feature_kind: [
         'unit',
         'corridor',
@@ -2459,6 +2742,7 @@ export const Constants = {
         'outdoor_area',
         'facility',
         'landmark',
+        'model3d',
       ],
       field_type: ['text', 'number', 'select', 'opening_hours', 'image', 'link'],
       floor_plan_format: ['png', 'jpg', 'pdf', 'dwg', 'dxf'],

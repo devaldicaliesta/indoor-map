@@ -37,10 +37,14 @@ export interface DeepLink {
   to?: RouteEnd;
   accessible?: boolean;
   language?: LanguageCode;
+  eventId?: string;
 }
 
 export const OriginCodeSchema = z.string().regex(/^[0-9a-f]{12}$/);
 export const InfoPointCodeSchema = z.string().regex(/^[A-Za-z0-9_-]{1,32}$/);
+export const EventIdSchema = z
+  .string()
+  .regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
 
 /** Angka desimal biasa; string kosong, `Infinity`, atau notasi `1e3` ditolak. */
 const coordinate = (limit: number) =>
@@ -72,6 +76,7 @@ export const DeepLinkParamSchemas = {
   to: z.union([PointEndSchema, LocationEndSchema]),
   a11y: z.enum(['1', '0']).transform((value) => value === '1'),
   lang: LanguageCodeSchema,
+  ev: EventIdSchema,
 } as const;
 
 type ParamName = keyof typeof DeepLinkParamSchemas;
@@ -99,6 +104,7 @@ export function encodeDeepLink(link: DeepLink): string {
     ['to', link.to && encodeEnd(link.to)],
     ['a11y', link.accessible === undefined ? undefined : link.accessible ? '1' : '0'],
     ['lang', link.language],
+    ['ev', link.eventId],
   ];
   const query = params
     .flatMap(([name, value]) =>
@@ -162,6 +168,7 @@ export function decodeDeepLink(pathAndQuery: string): DeepLink | null {
   const to = parse(values, 'to');
   const accessible = parse(values, 'a11y');
   const language = parse(values, 'lang');
+  const eventId = parse(values, 'ev');
   if (buildingId) link.buildingId = buildingId;
   if (floorId) link.floorId = floorId;
   if (locationId) link.locationId = locationId;
@@ -171,5 +178,6 @@ export function decodeDeepLink(pathAndQuery: string): DeepLink | null {
   if (to) link.to = to;
   if (accessible !== undefined) link.accessible = accessible;
   if (language) link.language = language;
+  if (eventId) link.eventId = eventId;
   return link;
 }

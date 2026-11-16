@@ -68,7 +68,11 @@
     "continueQr": "Route QR for your phone",
     "continueTitle": "Continue on your phone",
     "continueDescription": "Scan this QR code to take the same route on your phone.",
-    "offline": "Offline"
+    "offline": "Offline",
+    "playlist": "Events & Deals",
+    "playlistQr": "Event details QR for your phone",
+    "playlistScan": "Scan for details on your phone",
+    "playlistTouch": "Touch the screen for directions and the map"
   },
   "info": {
     "open": "Map information",
@@ -81,6 +85,8 @@
   },
   "explore": {
     "chips": "Categories and facilities",
+    "nearest": "Route to the nearest {{name}}",
+    "nearestMissing": "No route to a {{name}} from your starting point.",
     "directoryChip": "A–Z",
     "directoryTitle": "All places A–Z",
     "openDirectory": "Open the A–Z list",
@@ -112,6 +118,25 @@
     "missingTitle": "Not found on this map",
     "missingDescription": "Go back and search again by name or unit code."
   },
+  "events": {
+    "chip": "Events & Deals",
+    "heading": "Events & Deals",
+    "live": "Happening now",
+    "soon": "Coming up",
+    "empty": "No events or deals in the next 7 days.",
+    "kindEvent": "Event",
+    "kindPromotion": "Deal",
+    "liveBadge": "Live",
+    "back": "All events",
+    "moreInfo": "More info",
+    "showOnMap": "Show on map",
+    "places": "Where",
+    "atLocation": "Events here",
+    "repeatsDaily": "Every day",
+    "repeatsWeekly": "Every week",
+    "notFoundTitle": "This event has ended",
+    "notFoundDescription": "The event is over or no longer listed."
+  },
   "unit": {
     "label": "Unit"
   },
@@ -135,8 +160,18 @@
     "swap": "Swap start and destination",
     "accessible": "Accessible route (wheelchair)",
     "distance": "{{distance}} m",
+    "duration_one": "about {{count}} min",
+    "duration_other": "about {{count}} min",
     "floors": "Floors on the route",
     "steps": "Route steps",
+    "destinations": "Destinations in order",
+    "removeStop": "Remove destination {{name}}",
+    "addStop": "Add destination",
+    "addStopSearch": "Search next destination",
+    "addStopResults": "Next destination options",
+    "addStopCancel": "Cancel adding destination",
+    "segment": "To {{name}} ({{current}}/{{total}})",
+    "failedStop": "Destination {{current}} ({{name}}) cannot be reached.",
     "stepOf": "Step {{current}} of {{total}}",
     "previous": "Previous",
     "next": "Next",
@@ -220,5 +255,11 @@
       "routeTitle": "Route and continue on your phone",
       "routeBody": "Open a place and choose Directions to here. Scan the Continue on your phone QR code to take the same route to your phone."
     }
+  },
+  "analytics": {
+    "noticeLabel": "Privacy notice",
+    "accept": "OK",
+    "decline": "Decline",
+    "toggle": "Send anonymous usage statistics"
   }
 }

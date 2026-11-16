@@ -1,4 +1,4 @@
-import type { Closure } from '@indoor/domain';
+import type { Closure, VenueEvent } from '@indoor/domain';
 import {
   type DirectoryFilter,
   type ExploreSelection,
@@ -13,7 +13,8 @@ import type { SheetSnap } from '../../components/sheet-snap';
 export type ExploreList =
   | { kind: 'category'; id: string }
   | { kind: 'facility_type'; id: string }
-  | { kind: 'directory' };
+  | { kind: 'directory' }
+  | { kind: 'events' };
 
 /**
  * `fit`: kamera membingkai pilihan (dipilih dari daftar); `pan`: hanya digeser agar tidak
@@ -44,6 +45,9 @@ export interface ExploreState {
   originMode: OriginMode;
   /** Tujuan "Rute ke sini"; panel rute tampil bila titik asal sudah ada. */
   destination: ExploreTarget | null;
+  stops: readonly ExploreTarget[];
+  nearestType: string | null;
+  nearestMissing: string | null;
   /** Rute kursi roda: hanya jalur dan konektor yang aksesibel. */
   accessible: boolean;
   /** Langkah yang sedang dilihat di mode langkah; `null` = daftar langkah. */
@@ -52,6 +56,9 @@ export interface ExploreState {
   routeSeq: number;
   /** Penutupan yang sedang berlaku dan sasarannya ada di snapshot; dibaca ulang tiap menit. */
   closures: readonly Closure[];
+  events: readonly VenueEvent[];
+  eventId: string | null;
+  mapReady: boolean;
 
   search(query: string): void;
   /** Membuka daftar dan mengosongkan pencarian (hasil cari berupa kategori atau jenis fasilitas). */
@@ -65,6 +72,10 @@ export interface ExploreState {
   setSheetSnap(snap: SheetSnap): void;
   /** "Rute ke sini": tanpa titik asal, pengunjung diminta menentukannya lebih dulu. */
   requestRoute(target: ExploreTarget): void;
+  requestNearest(facilityTypeId: string): void;
+  resolveNearest(target: ExploreTarget | null): void;
+  addStop(target: ExploreTarget): void;
+  removeDestination(index: number): void;
   /** Ganti titik asal dari panel rute atau penanda "Anda di sini". */
   chooseOrigin(): void;
   tapOrigin(): void;
@@ -76,6 +87,10 @@ export interface ExploreState {
   swap(origin: RoutePlace, destination: ExploreTarget): void;
   showStep(step: number | null): void;
   setClosures(closures: readonly Closure[]): void;
+  setEvents(events: readonly VenueEvent[]): void;
+  openEvent(id: string): void;
+  closeEvent(): void;
+  setMapReady(): void;
 }
 
 const INITIAL = {
@@ -88,14 +103,22 @@ const INITIAL = {
   originSeq: 0,
   originMode: 'off' as OriginMode,
   destination: null,
+  stops: [] as readonly ExploreTarget[],
+  nearestType: null as string | null,
+  nearestMissing: null as string | null,
   accessible: false,
   activeStep: null,
   routeSeq: 0,
   closures: [] as readonly Closure[],
+  events: [] as readonly VenueEvent[],
+  eventId: null as string | null,
+  mapReady: false,
 };
 
-const sameList = (a: ExploreList | null, b: ExploreList) =>
-  a?.kind === b.kind && (a.kind === 'directory' || (b.kind !== 'directory' && a.id === b.id));
+export const MAX_ROUTE_STOPS = 4;
+
+const listKey = (list: ExploreList) => ('id' in list ? `${list.kind}:${list.id}` : list.kind);
+const sameList = (a: ExploreList | null, b: ExploreList) => a !== null && listKey(a) === listKey(b);
 
 /** Satu store per venue yang dibuka (dibuat ExploreProvider), jadi pilihan tidak terbawa ke venue lain. */
 /** Isi sama (dibaca ulang tiap menit): rute tidak dihitung ulang dan mode langkah tidak direset. */
@@ -105,12 +128,17 @@ export function sameClosures(a: readonly Closure[], b: readonly Closure[]): bool
   return a.length === b.length && a.every((c, i) => key(c) === key(b[i] as Closure));
 }
 
+export function sameEvents(a: readonly VenueEvent[], b: readonly VenueEvent[]): boolean {
+  return a.length === b.length && JSON.stringify(a) === JSON.stringify(b);
+}
+
 /** Keadaan awal dari tautan bagikan atau QR; tanpa tautan semuanya kosong. */
 export interface InitialExplore {
   detail?: ExploreTarget | null;
   origin?: RoutePlace | null;
   destination?: ExploreTarget | null;
   accessible?: boolean;
+  eventId?: string | null;
 }
 
 function initialState({
@@ -118,6 +146,7 @@ function initialState({
   origin = null,
   destination = null,
   accessible = false,
+  eventId = null,
 }: InitialExplore) {
   if (destination) {
     return {
@@ -128,6 +157,15 @@ function initialState({
       originMode: (origin ? 'off' : 'choose') as OriginMode,
       sheetSnap: 'half' as SheetSnap,
       routeSeq: origin ? 1 : 0,
+    };
+  }
+  if (eventId && !detail) {
+    return {
+      origin,
+      accessible,
+      list: { kind: 'events' } as ExploreList,
+      eventId,
+      sheetSnap: 'half' as SheetSnap,
     };
   }
   return {
@@ -148,6 +186,7 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
       set((s) => ({
         query,
         detail: null,
+        eventId: null,
         sheetSnap: query ? 'full' : s.list ? 'half' : 'peek',
       })),
 
@@ -155,20 +194,27 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
       set((s) => ({
         list,
         detail: null,
+        eventId: null,
         query: '',
         sheetSnap: list.kind === 'directory' ? 'full' : 'half',
         focus: { seq: s.focus.seq + 1, mode: 'fit' },
       })),
 
     toggleList: (list) => {
-      if (sameList(get().list, list)) set({ list: null, detail: null, sheetSnap: 'peek' });
-      else get().openList(list);
+      if (sameList(get().list, list)) {
+        set({ list: null, detail: null, eventId: null, sheetSnap: 'peek' });
+      } else get().openList(list);
     },
 
     closeList: () => set({ list: null, sheetSnap: 'peek' }),
 
     openDetail: (detail, mode = 'fit') =>
-      set((s) => ({ detail, sheetSnap: 'half', focus: { seq: s.focus.seq + 1, mode } })),
+      set((s) => ({
+        detail,
+        eventId: null,
+        sheetSnap: 'half',
+        focus: { seq: s.focus.seq + 1, mode },
+      })),
 
     closeDetail: () =>
       set((s) => ({
@@ -184,8 +230,12 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
         s.origin
           ? {
               destination,
+              stops: [],
+              nearestType: null,
+              nearestMissing: null,
               originMode: 'off',
               detail: null,
+              eventId: null,
               // Sorotan daftar atau hasil cari sebelumnya tidak ikut tampil di atas rute.
               query: '',
               list: null,
@@ -195,16 +245,81 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
             }
           : {
               destination,
+              stops: [],
+              nearestType: null,
+              nearestMissing: null,
               originMode: 'choose',
               detail: null,
+              eventId: null,
               query: '',
               list: null,
               sheetSnap: 'half',
             },
       ),
 
+    requestNearest: (nearestType) =>
+      set((s) =>
+        s.origin
+          ? { nearestType, nearestMissing: null }
+          : {
+              nearestType,
+              nearestMissing: null,
+              destination: null,
+              stops: [],
+              originMode: 'choose',
+              detail: null,
+              eventId: null,
+              query: '',
+              list: null,
+              sheetSnap: 'half',
+            },
+      ),
+
+    resolveNearest: (target) => {
+      const { nearestType, requestRoute } = get();
+      if (!nearestType) return;
+      if (target) requestRoute(target);
+      else
+        set({
+          nearestType: null,
+          nearestMissing: nearestType,
+          list: { kind: 'facility_type', id: nearestType },
+        });
+    },
+
+    addStop: (target) =>
+      set((s) =>
+        s.destination && s.stops.length < MAX_ROUTE_STOPS
+          ? {
+              stops: [...s.stops, target],
+              activeStep: null,
+              routeSeq: s.routeSeq + 1,
+            }
+          : {},
+      ),
+
+    removeDestination: (index) =>
+      set((s) => {
+        const all = [...(s.destination ? [s.destination] : []), ...s.stops];
+        if (all.length < 2) return {};
+        const rest = all.filter((_, i) => i !== index);
+        return {
+          destination: rest[0] ?? null,
+          stops: rest.slice(1),
+          activeStep: null,
+          routeSeq: s.routeSeq + 1,
+        };
+      }),
+
     chooseOrigin: () =>
-      set({ originMode: 'choose', detail: null, query: '', list: null, sheetSnap: 'half' }),
+      set({
+        originMode: 'choose',
+        detail: null,
+        eventId: null,
+        query: '',
+        list: null,
+        sheetSnap: 'half',
+      }),
 
     tapOrigin: () => set({ originMode: 'tap', detail: null, sheetSnap: 'peek' }),
 
@@ -226,10 +341,11 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
         originMode: 'off',
         // Tanpa titik asal, permintaan rute yang menunggunya ikut batal.
         destination: s.origin ? s.destination : null,
+        nearestType: null,
         sheetSnap: s.origin && s.destination ? 'half' : 'peek',
       })),
 
-    closeRoute: () => set({ destination: null, activeStep: null, sheetSnap: 'peek' }),
+    closeRoute: () => set({ destination: null, stops: [], activeStep: null, sheetSnap: 'peek' }),
 
     setAccessible: (accessible) =>
       set((s) => ({ accessible, activeStep: null, routeSeq: s.routeSeq + 1 })),
@@ -238,6 +354,7 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
       set((s) => ({
         origin,
         destination,
+        stops: [],
         originSeq: s.originSeq + 1,
         activeStep: null,
         routeSeq: s.routeSeq + 1,
@@ -249,13 +366,40 @@ export const createExploreStore = (initial: InitialExplore = {}) =>
       // Rute bisa memutar dengan jumlah langkah lain; mode langkah kembali ke daftar.
       set({ closures, activeStep: null });
     },
+    setEvents: (events) => {
+      if (sameEvents(get().events, events)) return;
+      set({ events });
+    },
+    openEvent: (id) =>
+      set((s) => ({
+        list: { kind: 'events' },
+        eventId: id,
+        detail: null,
+        query: '',
+        sheetSnap: 'half',
+        focus: { seq: s.focus.seq + 1, mode: 'fit' },
+      })),
+    closeEvent: () => set({ eventId: null }),
+    setMapReady: () => {
+      if (!get().mapReady) set({ mapReady: true });
+    },
   }));
 
 /** Yang disorot di peta: detail yang terbuka, atau daftar kategori/jenis fasilitas saat tidak mencari. */
+let eventSelection: { kind: 'location'; id: string } | null = null;
+
 export function selectionOf(
-  state: Pick<ExploreState, 'detail' | 'query' | 'list'>,
+  state: Pick<ExploreState, 'detail' | 'query' | 'list'> &
+    Partial<Pick<ExploreState, 'eventId' | 'events'>>,
 ): ExploreSelection | null {
   if (state.detail) return state.detail;
-  if (state.query || !state.list || state.list.kind === 'directory') return null;
+  if (!state.query && state.list?.kind === 'events' && state.eventId) {
+    const locationId = state.events?.find((e) => e.id === state.eventId)?.locationIds[0];
+    if (!locationId) return null;
+    if (eventSelection?.id !== locationId) eventSelection = { kind: 'location', id: locationId };
+    return eventSelection;
+  }
+  if (state.query || !state.list) return null;
+  if (state.list.kind === 'directory' || state.list.kind === 'events') return null;
   return state.list;
 }

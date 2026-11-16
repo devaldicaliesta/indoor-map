@@ -1,5 +1,14 @@
 export type { Map as MapInstance } from 'maplibre-gl';
 export {
+  BOARD_TEXTS,
+  type BoardLanguage,
+  type BoardOptions,
+  type BoardTexts,
+  buildBoardLayout,
+  buildStickerSheets,
+  type StickerItem,
+} from './board';
+export {
   FOCUS_MIN_ZOOM,
   focusFeature,
   focusZoom,
@@ -96,6 +105,13 @@ export {
   crowdLayer,
   setCrowd,
 } from './layers/crowd';
+export {
+  EVENT_COLORS,
+  EVENT_LAYER_IDS,
+  type EventMark,
+  eventCollection,
+  setEventMarks,
+} from './layers/events';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
 export {
   type GraphEdgeView,
@@ -165,6 +181,12 @@ export {
   routeLayers,
   setRoute,
 } from './layers/route';
+export {
+  SCAN_LEVEL_COLORS,
+  SCAN_PREVIEW_LAYER_IDS,
+  type ScanPreview,
+  setScanPreview,
+} from './layers/scan-preview';
 export { ISSUE_COLOR, ISSUE_LAYER_IDS, setIssueHighlight } from './layers/validation';
 export {
   type CreateMapOptions,
@@ -180,6 +202,15 @@ export {
   type ViewMode,
 } from './map';
 export {
+  MODELS_LAYER_ID,
+  type ModelUrl,
+  modelsLoaded,
+  type PlacedModel,
+  placedModels,
+  removeModels,
+  syncModels,
+} from './models';
+export {
   createTapInteractions,
   floorFeatureAt,
   type MapPick,
@@ -187,6 +218,17 @@ export {
   pickAt,
   type TapInteractionOptions,
 } from './pick';
+export {
+  buildPrintLayout,
+  layoutsToPdf,
+  layoutToPdf,
+  layoutToSvg,
+  type PaperOrientation,
+  type PaperSize,
+  type PrintLayout,
+  type PrintOptions,
+  paperPoints,
+} from './print';
 export {
   createSelectionInteractions,
   PICKABLE_LAYERS,

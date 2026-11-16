@@ -10,7 +10,7 @@ import { fromFunctionError } from '../functions';
 import type { Db } from '../supabase';
 
 const COLUMNS =
-  'public_visitor_url, smtp_host, smtp_port, smtp_username, smtp_from, default_timezone, default_language, basemap_tile_url, basemap_attribution, audit_retention_days, mfa_required_roles, updated_at';
+  'public_visitor_url, smtp_host, smtp_port, smtp_username, smtp_from, default_timezone, default_language, basemap_tile_url, basemap_attribution, audit_retention_days, mfa_required_roles, analytics_enabled, analytics_notice_id, analytics_notice_en, updated_at';
 
 export type SystemSettingsRow = Omit<Tables<'system_settings'>, 'id'>;
 
@@ -27,6 +27,8 @@ export function mapSystemSettingsRow(row: SystemSettingsRow): SystemSettings {
     basemapAttribution: row.basemap_attribution,
     auditRetentionDays: row.audit_retention_days,
     mfaRequiredRoles: row.mfa_required_roles.map((role) => AppRoleSchema.parse(role)),
+    analyticsEnabled: row.analytics_enabled,
+    analyticsNotice: { id: row.analytics_notice_id, en: row.analytics_notice_en },
     updatedAt: row.updated_at,
   };
 }
@@ -47,6 +49,11 @@ export function toSystemSettingsUpdate(
   if (patch.auditRetentionDays !== undefined)
     update.audit_retention_days = patch.auditRetentionDays;
   if (patch.mfaRequiredRoles !== undefined) update.mfa_required_roles = patch.mfaRequiredRoles;
+  if (patch.analyticsEnabled !== undefined) update.analytics_enabled = patch.analyticsEnabled;
+  if (patch.analyticsNotice !== undefined) {
+    update.analytics_notice_id = patch.analyticsNotice.id;
+    update.analytics_notice_en = patch.analyticsNotice.en;
+  }
   return update;
 }
 

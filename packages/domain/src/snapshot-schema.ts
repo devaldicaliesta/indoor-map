@@ -88,6 +88,10 @@ const FeatureSchema = z.object({
     color: z.exactOptional(text),
     facilityTypeId: z.exactOptional(id),
     subtype: z.exactOptional(z.enum(SNAPSHOT_OUTDOOR_SUBTYPES)),
+    model: z.exactOptional(text),
+    modelScale: z.exactOptional(z.number().positive()),
+    modelRotation: z.exactOptional(z.number().min(0).max(360)),
+    baseHeight: z.exactOptional(z.number().min(0)),
   }),
 });
 
@@ -111,6 +115,7 @@ const LocationSchema = z.object({
   code: nullableText,
   name: text,
   description: nullableText,
+  descriptionEn: text.exactOptional(),
   locationTypeId: id,
   status: z.enum(SNAPSHOT_LOCATION_STATUSES),
   openingDate: nullableText,
@@ -177,6 +182,10 @@ const InfoPointSchema = z.object({
   defaultLanguage: z.enum(SNAPSHOT_LANGUAGES),
   idleSeconds: z.number().int(),
   nodeId: id.nullable(),
+  playlist: z
+    .object({ slideSeconds: z.number().int().positive(), eventIds: z.array(id) })
+    .nullable()
+    .default(null),
 });
 
 /**
@@ -201,6 +210,7 @@ export const SnapshotSchema = z.object({
       name: text,
       icon: nullableText,
       color: nullableText.exactOptional(),
+      nameEn: text.exactOptional(),
     }),
   ),
   searchIndex: z.array(z.object({ kind: z.enum(SEARCH_TARGET_KINDS), id, text })),

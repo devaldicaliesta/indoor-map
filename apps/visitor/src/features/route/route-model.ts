@@ -1,12 +1,15 @@
 import type { ExploreTarget, Snapshot, SnapshotIndex, SnapshotLanguage } from '@indoor/domain';
 import {
   instructionText,
+  nearestPlace,
   planRoute,
+  planTrip,
   type RouteClosure,
   type RouteGraph,
   type RoutePlace,
   type RoutePlan,
   type RouteStep,
+  type TripSegment,
 } from '@indoor/routing';
 import { placeOfTarget } from '../origin/origin-model';
 
@@ -19,13 +22,45 @@ export function visitorRoute(
   snapshot: Snapshot,
   origin: RoutePlace,
   destination: ExploreTarget,
-  options: { accessible: boolean; closures?: readonly RouteClosure[] },
+  options: {
+    accessible: boolean;
+    closures?: readonly RouteClosure[];
+    stops?: readonly ExploreTarget[];
+  },
 ): RoutePlan {
-  // Server hanya mengirim penutupan yang sedang berlaku, jadi semuanya dianggap berlaku sekarang.
-  return planRoute(graph, snapshot, origin, placeOfTarget(destination), {
-    accessible: options.accessible,
-    closures: options.closures ?? [],
-  });
+  const routeOptions = { accessible: options.accessible, closures: options.closures ?? [] };
+  const stops = options.stops ?? [];
+  if (stops.length) {
+    return planTrip(
+      graph,
+      snapshot,
+      origin,
+      [destination, ...stops].map(placeOfTarget),
+      routeOptions,
+    );
+  }
+  return planRoute(graph, snapshot, origin, placeOfTarget(destination), routeOptions);
+}
+
+export function nearestTarget(
+  graph: RouteGraph,
+  snapshot: Snapshot,
+  origin: RoutePlace,
+  candidates: readonly ExploreTarget[],
+  options: { accessible: boolean; closures?: readonly RouteClosure[] },
+): ExploreTarget | null {
+  const found = nearestPlace(
+    graph,
+    snapshot,
+    origin,
+    candidates.map((target) => ({ target, ...placeOfTarget(target) })),
+    { accessible: options.accessible, closures: options.closures ?? [] },
+  );
+  return found?.place.target ?? null;
+}
+
+export function tripSegments(plan: RoutePlan): readonly TripSegment[] {
+  return plan.ok && 'segments' in plan ? (plan as { segments: TripSegment[] }).segments : [];
 }
 
 /** Teks setiap langkah dari template venue dalam bahasa tampilan. */

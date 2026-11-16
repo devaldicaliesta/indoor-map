@@ -20,7 +20,7 @@ import {
 import { createContext, type ReactNode, use, useEffect, useMemo, useState } from 'react';
 import { type StoreApi, useStore } from 'zustand';
 import type { RouteGraphStatus } from '../../data/loadSnapshot';
-import { visitorRoute } from '../route/route-model';
+import { nearestTarget, visitorRoute } from '../route/route-model';
 import { sharedState } from '../share/share-model';
 import { createExploreStore, type ExploreState } from './explore-store';
 import { getCachedSearchIndex, setCachedSearchIndex } from './search-cache';
@@ -46,20 +46,40 @@ export interface ExploreData {
     destination: ExploreTarget,
     accessible: boolean,
     closures: readonly RouteClosure[],
+    stops?: readonly ExploreTarget[],
   ): RoutePlan | null;
+  nearest(
+    origin: RoutePlace,
+    candidates: readonly ExploreTarget[],
+    accessible: boolean,
+    closures: readonly RouteClosure[],
+  ): ExploreTarget | null | undefined;
 }
 
-function routeCache(snapshot: Snapshot | null): ExploreData['route'] {
+const NO_STOPS: readonly ExploreTarget[] = [];
+
+function routeCache(snapshot: Snapshot | null): Pick<ExploreData, 'route' | 'nearest'> {
   let graph: RouteGraph | null = null;
   let last: { key: unknown[]; plan: RoutePlan } | null = null;
-  return (origin, destination, accessible, closures) => {
-    if (!snapshot) return null;
-    const key = [origin, destination, accessible, closures];
-    if (last && key.every((part, i) => part === last?.key[i])) return last.plan;
-    graph ??= buildRouteGraph(snapshot);
-    const plan = visitorRoute(graph, snapshot, origin, destination, { accessible, closures });
-    last = { key, plan };
-    return plan;
+  return {
+    route: (origin, destination, accessible, closures, stops = NO_STOPS) => {
+      if (!snapshot) return null;
+      const key = [origin, destination, accessible, closures, stops];
+      if (last && key.every((part, i) => part === last?.key[i])) return last.plan;
+      graph ??= buildRouteGraph(snapshot);
+      const plan = visitorRoute(graph, snapshot, origin, destination, {
+        accessible,
+        closures,
+        stops,
+      });
+      last = { key, plan };
+      return plan;
+    },
+    nearest: (origin, candidates, accessible, closures) => {
+      if (!snapshot) return undefined;
+      graph ??= buildRouteGraph(snapshot);
+      return nearestTarget(graph, snapshot, origin, candidates, { accessible, closures });
+    },
   };
 }
 
@@ -87,7 +107,9 @@ export function ExploreProvider({
   const index = useMemo(() => indexSnapshot(snapshot), [snapshot]);
   const [search, setSearch] = useState<SnapshotSearch>(() => () => []);
   const [chips, setChips] = useState<ExploreChip[]>([]);
-  const [store] = useState(() => createExploreStore(sharedState(snapshot, index, link)));
+  const [store] = useState(() =>
+    createExploreStore({ ...sharedState(snapshot, index, link), eventId: link?.eventId ?? null }),
+  );
 
   useEffect(() => {
     let active = true;
@@ -125,7 +147,7 @@ export function ExploreProvider({
       routeSnapshot,
       routeStatus,
       retryRoute,
-      route: routeCache(routeSnapshot),
+      ...routeCache(routeSnapshot),
     }),
     [snapshot, index, search, chips, store, link, routeSnapshot, routeStatus, retryRoute],
   );

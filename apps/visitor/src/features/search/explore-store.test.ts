@@ -187,3 +187,82 @@ describe('penutupan live di store', () => {
     expect(store.getState()).toMatchObject({ closures: [], activeStep: null });
   });
 });
+
+describe('pilihan dari event', () => {
+  it('event yang dibuka menyorot lokasi pertamanya dengan objek yang sama setiap kali', () => {
+    const store = createExploreStore({ eventId: 'ev-1' });
+    store.getState().setEvents([
+      {
+        id: 'ev-1',
+        venueId: 'v',
+        kind: 'event',
+        status: 'active',
+        title: { id: 'Seminar', en: '' },
+        summary: { id: '', en: '' },
+        description: { id: '', en: '' },
+        imagePath: null,
+        linkUrl: null,
+        startsAt: '2026-11-01T00:00:00Z',
+        endsAt: '2026-11-01T01:00:00Z',
+        repeat: 'none',
+        repeatUntil: null,
+        lastEndsAt: '2026-11-01T01:00:00Z',
+        point: null,
+        locationIds: ['loc-1'],
+      },
+    ]);
+    const first = selectionOf(store.getState());
+    expect(first).toEqual({ kind: 'location', id: 'loc-1' });
+    expect(selectionOf(store.getState())).toBe(first);
+    expect(store.getState().list).toEqual({ kind: 'events' });
+    store.getState().openDetail({ kind: 'location', id: 'loc-2' });
+    expect(store.getState().eventId).toBeNull();
+  });
+});
+
+describe('fasilitas terdekat dan beberapa tujuan', () => {
+  const origin = { kind: 'origin_point', code: 'LOBI' } as const;
+  const unit = (id: string) => ({ kind: 'unit', id }) as const;
+
+  it('tanpa titik asal, "terdekat" meminta titik asal lebih dulu; batal ikut menghapusnya', () => {
+    const store = createExploreStore();
+    store.getState().requestNearest('toilet');
+    expect(store.getState()).toMatchObject({ nearestType: 'toilet', originMode: 'choose' });
+    store.getState().cancelOrigin();
+    expect(store.getState().nearestType).toBeNull();
+  });
+
+  it('hasil terdekat membuka rute; tanpa hasil daftar jenis fasilitas tetap terbuka dengan pesan', () => {
+    const store = createExploreStore({ origin });
+    store.getState().requestNearest('toilet');
+    store.getState().resolveNearest(unit('t1'));
+    expect(store.getState()).toMatchObject({ destination: unit('t1'), nearestType: null });
+    store.getState().requestNearest('toilet');
+    store.getState().resolveNearest(null);
+    expect(store.getState()).toMatchObject({
+      nearestType: null,
+      nearestMissing: 'toilet',
+      list: { kind: 'facility_type', id: 'toilet' },
+    });
+  });
+
+  it('menambah dan menghapus tujuan berurutan; rute baru mengosongkan tujuan tambahan', () => {
+    const store = createExploreStore({ origin });
+    store.getState().addStop(unit('a'));
+    expect(store.getState().stops).toEqual([]);
+    store.getState().requestRoute(location);
+    const seq = store.getState().routeSeq;
+    for (const id of ['a', 'b', 'c', 'd', 'e']) store.getState().addStop(unit(id));
+    expect(store.getState().stops).toEqual(['a', 'b', 'c', 'd'].map(unit));
+    expect(store.getState().routeSeq).toBe(seq + 4);
+    store.getState().removeDestination(0);
+    expect(store.getState().destination).toEqual(unit('a'));
+    expect(store.getState().stops).toEqual(['b', 'c', 'd'].map(unit));
+    store.getState().removeDestination(2);
+    expect(store.getState().stops).toEqual(['b', 'd'].map(unit));
+    store.getState().requestRoute(location);
+    expect(store.getState().stops).toEqual([]);
+    store.getState().removeDestination(0);
+    expect(store.getState().destination).toEqual(location);
+  });
+});

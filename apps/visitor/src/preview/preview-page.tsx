@@ -49,6 +49,7 @@ export function PreviewPage() {
           snapshot={snapshot}
           link={link}
           autoTour={false}
+          analytics={false}
         />
       ) : (
         <VisitorShell>

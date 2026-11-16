@@ -13,6 +13,22 @@ describe('checkInfoPointInput', () => {
     expect(checkInfoPointInput({ code: 'A', name: 'x', idleSeconds: 600 })).toEqual([]);
     expect(checkInfoPointInput({ code: 'A', name: 'x', idleSeconds: 601 })).toEqual(['idle']);
   });
+
+  it('playlist: slide 4–60 detik, paling banyak 50 event', () => {
+    const base = { code: 'A', name: 'x', idleSeconds: 60 };
+    const playlist = (slideSeconds: number, count = 0) => ({
+      enabled: true,
+      slideSeconds,
+      eventIds: Array.from({ length: count }, (_, i) => `e${i}`),
+    });
+    expect(checkInfoPointInput({ ...base, playlist: playlist(4, 50) })).toEqual([]);
+    expect(checkInfoPointInput({ ...base, playlist: playlist(60) })).toEqual([]);
+    expect(checkInfoPointInput({ ...base, playlist: playlist(3) })).toEqual(['slide']);
+    expect(checkInfoPointInput({ ...base, playlist: playlist(61, 51) })).toEqual([
+      'slide',
+      'events',
+    ]);
+  });
 });
 
 describe('infoPointUrl', () => {

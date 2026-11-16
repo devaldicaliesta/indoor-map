@@ -20,6 +20,7 @@ import type {
   SnapshotLocation,
   SnapshotLocationStatus,
   SnapshotLocationType,
+  SnapshotModelPlacement,
   SnapshotNavEdge,
   SnapshotNavNode,
   SnapshotOriginPoint,
@@ -45,6 +46,7 @@ export interface SourceFeature {
   color: string | null;
   facilityTypeId: string | null;
   subtype: SnapshotOutdoorSubtype | null;
+  model?: SnapshotModelPlacement | null;
 }
 
 export interface SourceField extends SnapshotField, Ordered {

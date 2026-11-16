@@ -7,7 +7,7 @@ export const office: VenueTemplate = {
   locationTypes: [
     {
       name: 'Ruang Rapat',
-      icon: null,
+      icon: 'meeting-room',
       color: '#3d5a80',
       fields: [
         templateField('Kapasitas', 'number', { isRequired: true }),
@@ -17,20 +17,29 @@ export const office: VenueTemplate = {
     },
     {
       name: 'Kantor Divisi',
-      icon: null,
+      icon: 'office',
       color: '#2f6f4f',
       fields: [
         templateField('Ekstensi telepon', 'text', { isSearchable: true }),
         templateField('Penanggung jawab', 'text', { isVisible: false }),
       ],
-      categories: [category('Keuangan'), category('SDM'), category('TI'), category('Operasional')],
+      categories: [
+        category('Keuangan', 'finance'),
+        category('SDM', 'human-resources'),
+        category('TI', 'server-room'),
+        category('Operasional'),
+      ],
     },
     {
       name: 'Layanan',
       icon: 'information',
       color: '#6a4c93',
       fields: [templateField('Jam layanan', 'opening_hours')],
-      categories: [category('Resepsionis'), category('Pantry'), category('Ruang Laktasi')],
+      categories: [
+        category('Resepsionis', 'reception'),
+        category('Pantry', 'pantry'),
+        category('Ruang Laktasi', 'nursing-room'),
+      ],
     },
   ],
   facilityTypes: [...COMMON_FACILITY_TYPES, { name: 'Parkir', icon: 'parking', isSafety: false }],
