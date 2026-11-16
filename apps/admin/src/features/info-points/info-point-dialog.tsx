@@ -1,7 +1,10 @@
 import {
   checkInfoPointInput,
+  DEFAULT_INFO_POINT_PLAYLIST,
   type DisplayMode,
   INFO_POINT_IDLE_RANGE,
+  INFO_POINT_PLAYLIST_MAX_EVENTS,
+  INFO_POINT_PLAYLIST_SLIDE_RANGE,
   type InfoPoint,
   type InfoPointProblem,
   type LanguageCode,
@@ -34,6 +37,7 @@ import { useFeature } from '../license/queries';
 import { HeadingField } from '../origin-points/heading-field';
 import { OriginMap } from '../origin-points/origin-map';
 import { useSavedGraph } from '../origin-points/queries';
+import { PlaylistFields, playlistDraft, playlistOf } from './playlist-fields';
 import { useSaveInfoPoint } from './queries';
 
 type Places = NonNullable<ReturnType<typeof useVenueFloors>['data']>;
@@ -45,6 +49,8 @@ const PROBLEMS: Record<InfoPointProblem, string> = {
   code: 'Kode 1–32 karakter: huruf, angka, dan tanda hubung.',
   name: 'Nama wajib diisi.',
   idle: `Durasi idle ${INFO_POINT_IDLE_RANGE.min}–${INFO_POINT_IDLE_RANGE.max} detik.`,
+  slide: `Durasi per slide ${INFO_POINT_PLAYLIST_SLIDE_RANGE.min}–${INFO_POINT_PLAYLIST_SLIDE_RANGE.max} detik.`,
+  events: `Pilih paling banyak ${INFO_POINT_PLAYLIST_MAX_EVENTS} event.`,
 };
 
 function Choice<T extends string>({
@@ -103,12 +109,21 @@ function InfoPointForm({
   const [force2d, setForce2d] = useState(point?.force2d ?? false);
   const [language, setLanguage] = useState<LanguageCode>(point?.defaultLanguage ?? 'id');
   const [idle, setIdle] = useState(String(point?.idleSeconds ?? 60));
+  const [playlist, setPlaylist] = useState(() =>
+    playlistDraft(point?.playlist ?? DEFAULT_INFO_POINT_PLAYLIST),
+  );
   const [problems, setProblems] = useState<string[]>([]);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const idleSeconds = Number(idle);
-    const found = checkInfoPointInput({ code, name, idleSeconds }).map((p) => PROBLEMS[p]);
+    const playlistInput = playlistOf(playlist);
+    const found = checkInfoPointInput({
+      code,
+      name,
+      idleSeconds,
+      ...(playlistInput.enabled ? { playlist: playlistInput } : {}),
+    }).map((p) => PROBLEMS[p]);
     if (!position) found.push('Klik peta untuk meletakkan Info Point.');
     setProblems(found);
     if (found.length || !position) return;
@@ -126,6 +141,9 @@ function InfoPointForm({
           force2d,
           defaultLanguage: language,
           idleSeconds,
+          playlist: playlistInput.enabled
+            ? playlistInput
+            : { ...(point?.playlist ?? DEFAULT_INFO_POINT_PLAYLIST), enabled: false },
         },
       },
       {
@@ -259,6 +277,7 @@ function InfoPointForm({
           </label>
         </>,
       )}
+      <PlaylistFields venueId={venueId} draft={playlist} onChange={setPlaylist} />
       {problems.map((p) => (
         <FormNotice key={p} tone="error">
           {p}
@@ -292,7 +311,7 @@ export function InfoPointDialog({
 }) {
   return (
     <Dialog open={target !== null} onOpenChange={(open) => (open ? null : onClose())}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         {target ? (
           <InfoPointForm
             key={target.point?.id ?? 'baru'}

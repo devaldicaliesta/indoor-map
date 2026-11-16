@@ -1,4 +1,5 @@
 import {
+  ANALYTICS_NOTICE_MAX,
   type AppRole,
   AUDIT_RETENTION_DAYS,
   checkBasemapTileUrl,
@@ -24,10 +25,16 @@ export interface SystemFormValues {
   basemapAttribution: string;
   auditRetentionDays: string;
   mfaRequiredRoles: AppRole[];
+  analyticsEnabled: boolean;
+  analyticsNoticeId: string;
+  analyticsNoticeEn: string;
 }
 
 /** Isian teks; `mfaRequiredRoles` diisi lewat kotak centang. */
-export type SystemTextField = Exclude<keyof SystemFormValues, 'mfaRequiredRoles'>;
+export type SystemTextField = Exclude<
+  keyof SystemFormValues,
+  'mfaRequiredRoles' | 'analyticsEnabled'
+>;
 
 export type SystemFormErrors = Partial<Record<keyof SystemFormValues, string>>;
 
@@ -45,6 +52,9 @@ export function toFormValues(settings: SystemSettings): SystemFormValues {
     basemapAttribution: settings.basemapAttribution ?? '',
     auditRetentionDays: settings.auditRetentionDays.toString(),
     mfaRequiredRoles: settings.mfaRequiredRoles,
+    analyticsEnabled: settings.analyticsEnabled,
+    analyticsNoticeId: settings.analyticsNotice.id,
+    analyticsNoticeEn: settings.analyticsNotice.en,
   };
 }
 
@@ -88,6 +98,13 @@ export function validate(values: SystemFormValues): SystemFormErrors {
   if (!isValidAuditRetentionDays(Number(values.auditRetentionDays.trim() || Number.NaN))) {
     errors.auditRetentionDays = `Isi angka ${AUDIT_RETENTION_DAYS.min}–${AUDIT_RETENTION_DAYS.max} hari, misalnya 365 untuk satu tahun.`;
   }
+  for (const key of ['analyticsNoticeId', 'analyticsNoticeEn'] as const) {
+    const text = values[key].trim();
+    if (!text) errors[key] = 'Teks pemberitahuan wajib diisi.';
+    else if (text.length > ANALYTICS_NOTICE_MAX) {
+      errors[key] = `Paling banyak ${ANALYTICS_NOTICE_MAX} karakter.`;
+    }
+  }
   return errors;
 }
 
@@ -106,5 +123,7 @@ export function toPatch(values: SystemFormValues): SystemSettingsPatch {
     basemapAttribution: orNull(values.basemapAttribution),
     auditRetentionDays: Number(values.auditRetentionDays.trim()),
     mfaRequiredRoles: values.mfaRequiredRoles,
+    analyticsEnabled: values.analyticsEnabled,
+    analyticsNotice: { id: values.analyticsNoticeId.trim(), en: values.analyticsNoticeEn.trim() },
   };
 }

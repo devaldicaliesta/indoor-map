@@ -11,7 +11,7 @@
 --   license-cli issue --key tools/license-cli/dev-keys/license-private.pkcs8.b64
 --     --client "Pengembangan Lokal" --plan dev --instance 00000000-0000-4000-8000-0000000de701
 --     --from 2026-01-01 --until 2099-12-31 --venues 100000 --buildings 100000
---     --floors 100000 --info-points 100000 --features 3d,info_point --id LIC-DEV-LOCAL
+--     --floors 100000 --info-points 100000 --features 3d,info_point,events --id LIC-DEV-LOCAL
 -- ---------------------------------------------------------------------
 update public.installation set instance_id = '00000000-0000-4000-8000-0000000de701';
 insert into public.licenses (license_id, payload, signature, status, source)
@@ -31,12 +31,13 @@ values (
   },
   "features": [
     "3d",
-    "info_point"
+    "info_point",
+    "events"
   ],
   "instanceId": "00000000-0000-4000-8000-0000000de701",
-  "issuedAt": "2026-10-03T12:36:05Z"
+  "issuedAt": "2026-11-15T19:33:25Z"
 }$license$::jsonb,
-  'RpwcBtwPjo1vt28JSt0y5eA/nX/WwSIii6IvEFKLXOCSa2jBQrJFEfnNJrMpKvJnvETAl97ZdQcedHf36H3AAQ==',
+  'llbofCdVCltJ7PNZ2rksrF8kqgTDhAlcGHFw/UtWYqaYoZZmh/1JbubX0X2YNKGrQYJHtZ2i0eTIg0IZd8ckCQ==',
   'active',
   'manual'
 );

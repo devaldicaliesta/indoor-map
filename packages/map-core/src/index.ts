@@ -105,6 +105,13 @@ export {
   crowdLayer,
   setCrowd,
 } from './layers/crowd';
+export {
+  EVENT_COLORS,
+  EVENT_LAYER_IDS,
+  type EventMark,
+  eventCollection,
+  setEventMarks,
+} from './layers/events';
 export { FLOOR_PLAN_LAYER_ID, type FloorPlanImage, setFloorPlanImage } from './layers/floor-plan';
 export {
   type GraphEdgeView,

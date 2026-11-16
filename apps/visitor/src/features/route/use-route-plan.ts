@@ -10,9 +10,12 @@ export function useRoutePlan(): RoutePlan | null {
   const accessible = useExploreStore((s) => s.accessible);
   const choosing = useExploreStore((s) => s.originMode !== 'off');
   const closures = useExploreStore((s) => s.closures);
+  const stops = useExploreStore((s) => s.stops);
   return useMemo(
     () =>
-      origin && destination && !choosing ? route(origin, destination, accessible, closures) : null,
-    [route, origin, destination, accessible, choosing, closures],
+      origin && destination && !choosing
+        ? route(origin, destination, accessible, closures, stops)
+        : null,
+    [route, origin, destination, accessible, choosing, closures, stops],
   );
 }

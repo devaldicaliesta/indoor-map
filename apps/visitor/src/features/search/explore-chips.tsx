@@ -1,7 +1,9 @@
+import { categoryName } from '@indoor/domain';
 import { cn } from '@indoor/ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EntityIcon } from '../../components/entity-icon';
+import { useEventListings } from '../events/use-live-events';
 import { useExplore, useExploreStore } from './explore-context';
 import type { ExploreList } from './explore-store';
 
@@ -42,10 +44,12 @@ const isList = (current: ExploreList | null, kind: ExploreList['kind'], id?: str
  * muat di sheet posisi intip; di desktop membungkus ke baris berikutnya.
  */
 export function ExploreChips({ scroll = false }: { scroll?: boolean }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { chips } = useExplore();
   const list = useExploreStore((s) => s.list);
   const toggleList = useExploreStore((s) => s.toggleList);
+  const events = useEventListings();
+  const live = events.some((l) => l.phase === 'live');
 
   return (
     <nav aria-label={t('explore.chips')} className="min-w-0" data-tour="visitor-chips">
@@ -57,6 +61,22 @@ export function ExploreChips({ scroll = false }: { scroll?: boolean }) {
             : 'flex-wrap',
         )}
       >
+        {events.length ? (
+          <li className="shrink-0">
+            <Chip
+              active={isList(list, 'events')}
+              onClick={() => toggleList({ kind: 'events' })}
+              icon={
+                <span
+                  aria-hidden="true"
+                  className={cn('size-2.5 rounded-full', live ? 'bg-ok' : 'bg-ink-muted')}
+                />
+              }
+            >
+              {t('events.chip')} ({events.length})
+            </Chip>
+          </li>
+        ) : null}
         {chips.map((chip) => {
           const id = chip.kind === 'category' ? chip.category.id : chip.facilityType.id;
           return (
@@ -80,7 +100,9 @@ export function ExploreChips({ scroll = false }: { scroll?: boolean }) {
                   )
                 }
               >
-                {chip.kind === 'category' ? chip.category.name : chip.facilityType.name}
+                {chip.kind === 'category'
+                  ? categoryName(chip.category, i18n.resolvedLanguage)
+                  : chip.facilityType.name}
               </Chip>
             </li>
           );

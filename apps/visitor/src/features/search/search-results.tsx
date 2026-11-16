@@ -1,4 +1,4 @@
-import { facilityMembers, featurePlace, type SearchHit } from '@indoor/domain';
+import { categoryName, facilityMembers, featurePlace, type SearchHit } from '@indoor/domain';
 import { Button } from '@indoor/ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,7 @@ import { useExplore, useExploreStore } from './explore-context';
 import { openHit, SEARCH_RESULTS_ID } from './venue-search';
 
 function HitRow({ hit }: { hit: SearchHit }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { snapshot, index, store } = useExplore();
   const open = () => openHit(hit, store);
 
@@ -20,7 +20,7 @@ function HitRow({ hit }: { hit: SearchHit }) {
     return (
       <ListRow
         title={location.name}
-        subtitle={locationSubtitle(index, location, t('location.notOnMap'))}
+        subtitle={locationSubtitle(index, location, t('location.notOnMap'), i18n.resolvedLanguage)}
         status={<LocationStatus location={location} className="text-sm" />}
         onClick={open}
       />
@@ -33,7 +33,7 @@ function HitRow({ hit }: { hit: SearchHit }) {
     return (
       <ListRow
         icon={<EntityIcon icon={category.icon} color={category.color} />}
-        title={category.name}
+        title={categoryName(category, i18n.resolvedLanguage)}
         subtitle={t('search.categoryHit', { count })}
         onClick={open}
       />

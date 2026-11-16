@@ -19,7 +19,10 @@ import { DESKTOP_QUERY, VisitorShell } from '../app/visitor-shell';
 import { data } from '../data/client';
 import { useRouteSnapshot, useSnapshot } from '../data/loadSnapshot';
 import { takeSlugPrefetch } from '../data/prefetch';
+import { PrivacyNotice } from '../features/analytics/privacy-notice';
+import { useAnalytics } from '../features/analytics/use-analytics';
 import { closuresQuery, useLiveClosures } from '../features/closures/use-live-closures';
+import { useLiveEvents } from '../features/events/use-live-events';
 import { VenueMap } from '../features/map/venue-map';
 import { ExploreProvider, useExploreStore } from '../features/search/explore-context';
 import { DetailBackBar, ExplorePanel } from '../features/search/explore-panel';
@@ -132,52 +135,67 @@ export function SnapshotExplorer({
   snapshot,
   link,
   autoTour = true,
+  analytics = true,
 }: {
   snapshot: Snapshot;
   link: DeepLink | null;
   /** Pratinjau Admin mematikan tur otomatis. */
   autoTour?: boolean;
+  analytics?: boolean;
 }) {
   const route = useRouteSnapshot(snapshot);
   return (
     <ExploreProvider snapshot={snapshot} route={route} link={link}>
-      <VenueExplorer snapshot={snapshot} autoTour={autoTour} />
+      <VenueExplorer snapshot={snapshot} autoTour={autoTour} analytics={analytics} />
     </ExploreProvider>
   );
 }
 
 /** Peta dengan pencarian, chip, daftar, dan detail; semuanya dari snapshot di perangkat. */
-function VenueExplorer({ snapshot, autoTour }: { snapshot: Snapshot; autoTour: boolean }) {
+function VenueExplorer({
+  snapshot,
+  autoTour,
+  analytics,
+}: {
+  snapshot: Snapshot;
+  autoTour: boolean;
+  analytics: boolean;
+}) {
   const { t } = useTranslation();
   const brand = useVenueBranding(snapshot);
   const tour = useExplorerTour(brand.name, autoTour);
   useLiveClosures(snapshot);
+  useLiveEvents(snapshot);
+  useAnalytics(analytics);
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const sheetSnap = useExploreStore((s) => s.sheetSnap);
   const setSheetSnap = useExploreStore((s) => s.setSheetSnap);
   const hasDetail = useExploreStore((s) => s.detail !== null);
   return (
-    <VisitorShell
-      title={brand.name}
-      logoUrl={brand.logoUrl}
-      actions={
-        <>
-          {tour.infoPointButton}
-          <VenueInfo snapshot={snapshot} onTour={tour.start} />
-        </>
-      }
-      map={<VenueMap snapshot={snapshot} />}
-      search={
-        // Di HP kolom cari terlalu sempit untuk nama venue; logo yang menandai venue.
-        <VenueSearch
-          placeholder={isDesktop ? t('search.placeholderIn', { name: brand.name }) : undefined}
-        />
-      }
-      mobileHeader={hasDetail ? <DetailBackBar /> : undefined}
-      sheet={{ snap: sheetSnap, onSnapChange: setSheetSnap }}
-    >
-      <ExplorePanel desktop={isDesktop} />
-    </VisitorShell>
+    <>
+      <PrivacyNotice enabled={analytics} />
+      <VisitorShell
+        title={brand.name}
+        logoUrl={brand.logoUrl}
+        actions={
+          <>
+            {tour.infoPointButton}
+            <VenueInfo snapshot={snapshot} onTour={tour.start} />
+          </>
+        }
+        map={<VenueMap snapshot={snapshot} />}
+        search={
+          // Di HP kolom cari terlalu sempit untuk nama venue; logo yang menandai venue.
+          <VenueSearch
+            placeholder={isDesktop ? t('search.placeholderIn', { name: brand.name }) : undefined}
+          />
+        }
+        mobileHeader={hasDetail ? <DetailBackBar /> : undefined}
+        sheet={{ snap: sheetSnap, onSnapChange: setSheetSnap }}
+      >
+        <ExplorePanel desktop={isDesktop} />
+      </VisitorShell>
+    </>
   );
 }
 

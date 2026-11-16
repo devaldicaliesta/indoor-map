@@ -1,10 +1,12 @@
-import type { AdminModule, AppRole } from '@indoor/domain';
+import type { AdminModule, AppRole, PaidFeature } from '@indoor/domain';
 import {
   ActivityIcon,
+  BarChart3Icon,
   BuildingIcon,
   type LucideIcon,
   MapIcon,
   MapPinIcon,
+  MegaphoneIcon,
   OctagonXIcon,
   QrCodeIcon,
   SendIcon,
@@ -17,6 +19,7 @@ export interface ModuleNav {
   path: string;
   label: string;
   icon: LucideIcon;
+  feature?: PaidFeature;
 }
 
 // Urutan dan nama menu sesuai docs/spec/05-user-flow.md "Struktur menu Admin".
@@ -25,8 +28,10 @@ export const MODULE_NAV: Record<AdminModule, ModuleNav> = {
   map_editor: { path: '/map-editor', label: 'Editor Peta', icon: MapIcon },
   locations: { path: '/locations', label: 'Lokasi', icon: MapPinIcon },
   closures: { path: '/closures', label: 'Penutupan', icon: OctagonXIcon },
+  events: { path: '/events', label: 'Event & Promo', icon: MegaphoneIcon, feature: 'events' },
   origin_points: { path: '/origin-points', label: 'Titik Asal', icon: QrCodeIcon },
   publish: { path: '/publish', label: 'Publish', icon: SendIcon },
+  analytics: { path: '/analytics', label: 'Analitik', icon: BarChart3Icon },
   settings: { path: '/settings', label: 'Pengaturan', icon: SettingsIcon },
   users: { path: '/users', label: 'Pengguna', icon: UsersIcon },
   license: { path: '/license', label: 'Lisensi', icon: ShieldCheckIcon },

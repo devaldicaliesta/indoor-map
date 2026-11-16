@@ -749,6 +749,7 @@ export class VenueBuilder {
         force2d: false,
         defaultLanguage: 'id',
         idleSeconds: 90,
+        playlist: null,
         nodeId,
       },
     ];
@@ -823,6 +824,7 @@ export class VenueBuilder {
         force2d: false,
         defaultLanguage: 'id',
         idleSeconds: 90,
+        playlist: null,
         nodeId: node.id,
       },
     ];

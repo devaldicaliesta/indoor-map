@@ -1,8 +1,16 @@
-import { type AdminUser, visibleModulesFor } from '@indoor/domain';
+import {
+  type AdminModule,
+  type AdminUser,
+  lockedFeatureMessage,
+  type ModuleAccess,
+  type PaidFeature,
+  visibleModulesFor,
+} from '@indoor/domain';
 import { BrandLogo, BrandSymbol, cn, Tooltip, TooltipContent, TooltipTrigger } from '@indoor/ui';
-import { EyeIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from 'lucide-react';
+import { EyeIcon, LockIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from 'lucide-react';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import { NavLink, useMatch } from 'react-router';
+import { useFeature } from '../../features/license/queries';
 import { MODULE_NAV } from '../navigation';
 import { useSidebar } from './sidebar-store';
 
@@ -54,6 +62,90 @@ function NavItem({
   );
 }
 
+function ModuleItem({
+  module,
+  access,
+  collapsed,
+}: {
+  module: AdminModule;
+  access: ModuleAccess;
+  collapsed: boolean;
+}) {
+  const { path, label, icon: Icon, feature } = MODULE_NAV[module];
+  return feature ? (
+    <FeatureItem feature={feature}>
+      {(locked) => (
+        <ItemBody
+          path={path}
+          label={label}
+          Icon={Icon}
+          collapsed={collapsed}
+          readOnly={access === 'read'}
+          locked={locked ? lockedFeatureMessage(feature) : null}
+        />
+      )}
+    </FeatureItem>
+  ) : (
+    <ItemBody
+      path={path}
+      label={label}
+      Icon={Icon}
+      collapsed={collapsed}
+      readOnly={access === 'read'}
+      locked={null}
+    />
+  );
+}
+
+function FeatureItem({
+  feature,
+  children,
+}: {
+  feature: PaidFeature;
+  children: (locked: boolean) => ReactElement;
+}) {
+  return children(!useFeature(feature));
+}
+
+function ItemBody({
+  path,
+  label,
+  Icon,
+  collapsed,
+  readOnly,
+  locked,
+}: {
+  path: string;
+  label: string;
+  Icon: (typeof MODULE_NAV)[AdminModule]['icon'];
+  collapsed: boolean;
+  readOnly: boolean;
+  locked: string | null;
+}) {
+  const tooltip = locked ?? (readOnly ? `${label} (baca)` : label);
+  return (
+    <WithTooltip show={collapsed || locked !== null} label={tooltip}>
+      <NavItem path={path} collapsed={collapsed} aria-description={locked ?? undefined}>
+        <Icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+        <span className={collapsed ? 'sr-only' : 'flex-1 truncate'}>{label}</span>
+        {locked ? (
+          <span className={cn('flex items-center text-ink-muted', collapsed && 'sr-only')}>
+            <LockIcon className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+            <span className="sr-only">terkunci</span>
+          </span>
+        ) : readOnly ? (
+          <span
+            className={cn('flex items-center gap-1 text-ink-muted text-xs', collapsed && 'sr-only')}
+          >
+            <EyeIcon className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+            baca
+          </span>
+        ) : null}
+      </NavItem>
+    </WithTooltip>
+  );
+}
+
 export function Sidebar({ user }: { user: AdminUser }) {
   const collapsed = useSidebar((s) => s.collapsed);
   const toggle = useSidebar((s) => s.toggle);
@@ -81,29 +173,9 @@ export function Sidebar({ user }: { user: AdminUser }) {
         )}
       </div>
       <nav aria-label="Menu utama" className="flex flex-1 flex-col gap-0.5 p-2">
-        {visibleModulesFor(user).map(({ module, access }) => {
-          const { path, label, icon: Icon } = MODULE_NAV[module];
-          const readOnly = access === 'read';
-          return (
-            <WithTooltip key={module} show={collapsed} label={readOnly ? `${label} (baca)` : label}>
-              <NavItem path={path} collapsed={collapsed}>
-                <Icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                <span className={collapsed ? 'sr-only' : 'flex-1 truncate'}>{label}</span>
-                {readOnly ? (
-                  <span
-                    className={cn(
-                      'flex items-center gap-1 text-ink-muted text-xs',
-                      collapsed && 'sr-only',
-                    )}
-                  >
-                    <EyeIcon className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    baca
-                  </span>
-                ) : null}
-              </NavItem>
-            </WithTooltip>
-          );
-        })}
+        {visibleModulesFor(user).map(({ module, access }) => (
+          <ModuleItem key={module} module={module} access={access} collapsed={collapsed} />
+        ))}
       </nav>
       <div className="border-line border-t p-2">
         <WithTooltip show={collapsed} label={toggleLabel}>

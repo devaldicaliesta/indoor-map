@@ -1,6 +1,6 @@
-import { type RouteStep, roundStepDistance } from '@indoor/routing';
+import { type RouteStep, roundStepDistance, routeMinutes, routeSeconds } from '@indoor/routing';
 import { Button } from '@indoor/ui';
-import { ArrowUpDownIcon, ChevronLeftIcon, ChevronRightIcon, ListIcon } from 'lucide-react';
+import { ArrowUpDownIcon, ChevronLeftIcon, ChevronRightIcon, ListIcon, XIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { intlLocale } from '../../i18n';
@@ -11,12 +11,14 @@ import { useOriginName } from '../origin/origin-panels';
 import { detailTitle } from '../search/detail-title';
 import { useExplore, useExploreStore } from '../search/explore-context';
 import { ShareButton } from '../share/share-button';
+import { AddStop } from './add-stop';
 import {
   type RouteFailure,
   routeFailure,
   routeFloors,
   stepTexts,
   targetOfPlace,
+  tripSegments,
 } from './route-model';
 import { STEP_ICONS } from './step-icons';
 import { useRoutePlan } from './use-route-plan';
@@ -55,6 +57,57 @@ function useFloorLabel(floorIds: readonly string[]) {
     const building = floor.buildingId ? index.buildings.get(floor.buildingId) : undefined;
     return buildings.size > 1 && building ? `${building.name} ${floor.name}` : floor.name;
   };
+}
+
+function StepList({
+  steps,
+  texts,
+  from,
+  label,
+}: {
+  steps: readonly RouteStep[];
+  texts: readonly string[];
+  from: number;
+  label: string;
+}) {
+  const showStep = useExploreStore((s) => s.showStep);
+  return (
+    <ol className="-mx-2 grid gap-0.5" aria-label={label}>
+      {steps.map((step, i) => (
+        <StepRow
+          key={`${step.action}-${from + i}`}
+          step={step}
+          text={texts[from + i] ?? ''}
+          onSelect={() => showStep(from + i)}
+        />
+      ))}
+    </ol>
+  );
+}
+
+function Destinations({ names }: { names: readonly string[] }) {
+  const { t } = useTranslation();
+  const removeDestination = useExploreStore((s) => s.removeDestination);
+  return (
+    <ol className="grid gap-1" aria-label={t('route.destinations')}>
+      {names.map((name, i) => (
+        <li key={`${name}-${i}`} className="flex min-w-0 items-center gap-2">
+          <span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-line font-mono text-sm">
+            {i + 1}
+          </span>
+          <span className="min-w-0 flex-1 truncate font-bold">{name}</span>
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label={t('route.removeStop', { name })}
+            onClick={() => removeDestination(i)}
+          >
+            <XIcon aria-hidden="true" strokeWidth={1.75} />
+          </Button>
+        </li>
+      ))}
+    </ol>
+  );
 }
 
 function FailureMessage({ failure }: { failure: RouteFailure }) {
@@ -146,23 +199,41 @@ export function RoutePanel() {
   const { snapshot, index, store, routeStatus, retryRoute } = useExplore();
   const origin = useExploreStore((s) => s.origin);
   const destination = useExploreStore((s) => s.destination);
+  const stops = useExploreStore((s) => s.stops);
   const accessible = useExploreStore((s) => s.accessible);
   const activeStep = useExploreStore((s) => s.activeStep);
   // Fungsi aksi store tidak pernah berganti, jadi cukup dibaca sekali tanpa berlangganan.
-  const { chooseOrigin, closeRoute, setAccessible, swap, showStep } = store.getState();
+  const { chooseOrigin, closeRoute, setAccessible, swap } = store.getState();
   // Info Point: titik asal tetap, jadi tidak bisa diganti atau ditukar.
   const infoPoint = useInfoPointMode();
   const from = useOriginName();
   const plan = useRoutePlan();
   const to = destination ? detailTitle(index, destination) : '';
-  const language = i18n.resolvedLanguage === 'en' ? 'en' : 'id';
-  const texts = useMemo(
-    () =>
-      plan?.ok
-        ? stepTexts(plan.steps, snapshot, language, { origin: from ?? '', destination: to })
-        : [],
-    [plan, snapshot, language, from, to],
+  const names = useMemo(
+    () => (destination ? [destination, ...stops] : []).map((d) => detailTitle(index, d)),
+    [index, destination, stops],
   );
+  const segments = plan ? tripSegments(plan) : [];
+  const language = i18n.resolvedLanguage === 'en' ? 'en' : 'id';
+  const texts = useMemo(() => {
+    if (!plan?.ok) return [];
+    const parts = tripSegments(plan);
+    if (!parts.length) {
+      return stepTexts(plan.steps, snapshot, language, { origin: from ?? '', destination: to });
+    }
+    return parts.flatMap((part, k) =>
+      stepTexts(
+        plan.steps.slice(part.firstStep, part.firstStep + part.stepCount),
+        snapshot,
+        language,
+        {
+          origin: k === 0 ? (from ?? '') : (names[k - 1] ?? ''),
+          destination: names[k] ?? '',
+        },
+      ),
+    );
+  }, [plan, snapshot, language, from, to, names]);
+  const failedStop = plan && !plan.ok && 'failedStop' in plan ? Number(plan.failedStop) : null;
   const floors = plan?.ok ? routeFloors(plan.steps) : [];
   const floorLabel = useFloorLabel(floors);
   if (!destination || !origin) return null;
@@ -170,6 +241,14 @@ export function RoutePanel() {
   const distance = plan?.ok
     ? new Intl.NumberFormat(intlLocale(i18n.resolvedLanguage)).format(
         roundStepDistance(plan.route.distanceM),
+      )
+    : null;
+  const minutes = plan?.ok
+    ? routeMinutes(
+        routeSeconds(plan.route.legs, {
+          accessible,
+          levelOf: (floorId) => index.floors.get(floorId)?.level ?? 0,
+        }),
       )
     : null;
 
@@ -188,14 +267,20 @@ export function RoutePanel() {
             )}
           </dd>
           <dt className="text-ink-muted">{t('route.to')}</dt>
-          <dd className="col-span-2 min-w-0 truncate font-bold">{to}</dd>
+          {stops.length ? (
+            <dd className="col-span-2 min-w-0">
+              <Destinations names={names} />
+            </dd>
+          ) : (
+            <dd className="col-span-2 min-w-0 truncate font-bold">{to}</dd>
+          )}
         </dl>
         {infoPoint ? null : (
           <Button
             size="icon"
             variant="ghost"
             aria-label={t('route.swap')}
-            disabled={!swapTarget}
+            disabled={!swapTarget || stops.length > 0}
             onClick={() => swapTarget && swap(placeOfTarget(destination), swapTarget)}
           >
             <ArrowUpDownIcon aria-hidden="true" strokeWidth={1.75} />
@@ -226,6 +311,11 @@ export function RoutePanel() {
       ) : null}
       {plan && !plan.ok ? (
         <>
+          {failedStop !== null && stops.length ? (
+            <p className="font-bold">
+              {t('route.failedStop', { current: failedStop + 1, name: names[failedStop] ?? '' })}
+            </p>
+          ) : null}
           <FailureMessage failure={routeFailure(plan)} />
           <ClosureNotice ids={plan.blockingClosureIds} detour={false} />
         </>
@@ -234,7 +324,12 @@ export function RoutePanel() {
       {plan?.ok ? (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-bold">{t('route.distance', { distance })}</span>
+            <span className="font-bold" data-testid="route-duration">
+              {t('route.duration', { count: minutes ?? 1 })}
+            </span>
+            <span className="text-ink-muted" data-testid="route-distance">
+              {t('route.distance', { distance })}
+            </span>
             <ul className="flex flex-wrap gap-1" aria-label={t('route.floors')}>
               {floors.map((floorId, i) => (
                 <li
@@ -247,28 +342,43 @@ export function RoutePanel() {
               ))}
             </ul>
           </div>
-          {activeStep === null ? (
-            <ol className="-mx-2 grid gap-0.5" aria-label={t('route.steps')}>
-              {plan.steps.map((step, i) => (
-                <StepRow
-                  // Langkah tidak punya id; urutannya tetap selama rute yang sama.
-                  key={`${step.action}-${i}`}
-                  step={step}
-                  text={texts[i] ?? ''}
-                  onSelect={() => showStep(i)}
-                />
-              ))}
-            </ol>
+          {activeStep === null && segments.length ? (
+            <div className="grid gap-3">
+              {segments.map((segment, k) => {
+                const label = t('route.segment', {
+                  name: names[k] ?? '',
+                  current: k + 1,
+                  total: segments.length,
+                });
+                return (
+                  <section key={segment.firstStep} className="grid gap-1" aria-label={label}>
+                    <h3 className="font-bold text-ink-muted text-sm">{label}</h3>
+                    <StepList
+                      steps={plan.steps.slice(
+                        segment.firstStep,
+                        segment.firstStep + segment.stepCount,
+                      )}
+                      texts={texts}
+                      from={segment.firstStep}
+                      label={t('route.steps')}
+                    />
+                  </section>
+                );
+              })}
+            </div>
+          ) : activeStep === null ? (
+            <StepList steps={plan.steps} texts={texts} from={0} label={t('route.steps')} />
           ) : (
             <StepMode steps={plan.steps} texts={texts} active={activeStep} />
           )}
         </>
       ) : null}
+      {plan?.ok || stops.length ? <AddStop /> : null}
       {plan?.ok ? (
         infoPoint ? (
           <ContinueOnPhone />
         ) : (
-          <ShareButton title={`${from ?? ''} → ${to}`} />
+          <ShareButton title={`${from ?? ''} → ${names.join(' → ')}`} />
         )
       ) : null}
       <Button variant="ghost" className="justify-self-start" onClick={closeRoute}>

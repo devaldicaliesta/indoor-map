@@ -9,6 +9,7 @@ export type { Database, Json } from './database.types';
 export { DataError, type DataErrorKind } from './errors';
 export { type Page, type PageQuery, pageRange } from './pagination';
 export { type AliasesRepository, aliasKey } from './repositories/aliases';
+export type { AnalyticsConfig, AnalyticsRepository } from './repositories/analytics';
 export type { AuditFilters, AuditRepository } from './repositories/audit';
 export type { BuildingsRepository, OutdoorLayer } from './repositories/buildings';
 export type {
@@ -22,6 +23,11 @@ export type { ClosurePageFilters, ClosuresRepository } from './repositories/clos
 export type { ConnectorInput, ConnectorsRepository } from './repositories/connectors';
 export type { DisplaySettingsRepository } from './repositories/display-settings';
 export type { EditLocksRepository } from './repositories/edit-locks';
+export type {
+  EventListState,
+  EventPageFilters,
+  EventsRepository,
+} from './repositories/events';
 export type {
   FacilityTypesRepository,
   FacilityTypeWithUsage,

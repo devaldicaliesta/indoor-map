@@ -84,6 +84,7 @@ export function LocationSheet({
   const [code, setCode] = useState(location?.code ?? '');
   const [name, setName] = useState(location?.name ?? '');
   const [description, setDescription] = useState(location?.description ?? '');
+  const [descriptionEn, setDescriptionEn] = useState(location?.descriptionEn ?? '');
   const [selection, setSelection] = useState<UnitSelection>(() => {
     const unitIds =
       location?.units.map((u) => u.featureId) ?? (initialUnitId ? [initialUnitId] : []);
@@ -102,7 +103,11 @@ export function LocationSheet({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!type) return;
-    const found = checkLocationInput({ code, name, description }, locations, location?.id ?? null);
+    const found = checkLocationInput(
+      { code, name, description, descriptionEn },
+      locations,
+      location?.id ?? null,
+    );
     setProblems(found);
     // Berkas gambar yang belum diunggah dihitung terisi untuk pemeriksaan wajib.
     const inputs = { ...draft.inputs };
@@ -141,6 +146,7 @@ export function LocationSheet({
           code,
           name,
           description,
+          descriptionEn,
           categoryIds,
           unitIds: selection.unitIds,
           primaryUnitId: selection.primaryUnitId,
@@ -230,6 +236,22 @@ export function LocationSheet({
               value={description}
               disabled={readOnly || busy}
               onChange={(e) => setDescription(e.target.value)}
+              className="w-full rounded-sm border border-ink-muted bg-surface px-3 py-2 text-ink disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </Field>
+          <Field
+            id="location-description-en"
+            label={`Deskripsi English (${descriptionEn.trim().length}/${LOCATION_DESCRIPTION_MAX})`}
+            hint="Tampil di Visitor berbahasa Inggris; kosong = deskripsi Indonesia."
+            error={problems.descriptionEn ? 'Deskripsi English maksimal 500 karakter.' : undefined}
+          >
+            <textarea
+              id="location-description-en"
+              lang="en"
+              rows={3}
+              value={descriptionEn}
+              disabled={readOnly || busy}
+              onChange={(e) => setDescriptionEn(e.target.value)}
               className="w-full rounded-sm border border-ink-muted bg-surface px-3 py-2 text-ink disabled:cursor-not-allowed disabled:opacity-50"
             />
           </Field>
