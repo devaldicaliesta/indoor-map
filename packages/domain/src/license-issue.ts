@@ -49,7 +49,7 @@ const dayStart = (value: unknown): number | null => {
 const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= MAX_COUNT;
 
-function readQuota(value: unknown): LicenseQuota | null {
+export function readQuota(value: unknown): LicenseQuota | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
   const entries = value as Record<string, unknown>;
   const allowed: readonly string[] = [...REQUIRED_QUOTA_KEYS, ...OPTIONAL_QUOTA_KEYS];
@@ -70,7 +70,7 @@ function readQuota(value: unknown): LicenseQuota | null {
   return quota;
 }
 
-function readFeatures(value: unknown): string[] | null {
+export function readFeatures(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null;
   const known: readonly string[] = PAID_FEATURES;
   if (!value.every((feature) => typeof feature === 'string' && known.includes(feature))) {
@@ -126,6 +126,12 @@ export interface LicenseIssueContext {
 
 const isoSeconds = (date: Date) => date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 
+const JAKARTA_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' });
+
+export const jakartaDay = (date: Date) => JAKARTA_DAY.format(date);
+
+const jakartaDayStart = (day: string) => isoSeconds(new Date(`${day}T00:00:00+07:00`));
+
 export function licensePayloadFor(
   request: LicenseIssueRequest,
   context: LicenseIssueContext,
@@ -134,8 +140,8 @@ export function licensePayloadFor(
     licenseId: context.licenseId,
     client: context.client,
     plan: request.plan,
-    validFrom: `${request.validFrom}T00:00:00Z`,
-    validUntil: `${request.validUntil}T00:00:00Z`,
+    validFrom: jakartaDayStart(request.validFrom),
+    validUntil: jakartaDayStart(request.validUntil),
     quota: request.quota,
     features: request.features,
     instanceId: context.instanceId,
@@ -181,7 +187,7 @@ export function licenseIssueDefaults(
     };
   }
   if (current.plan === TRIAL_PLAN) return trialIssueDefaults(today);
-  const currentEnd = current.validUntil.slice(0, 10);
+  const currentEnd = jakartaDay(new Date(current.validUntil));
   return {
     plan: current.plan,
     validFrom: today,

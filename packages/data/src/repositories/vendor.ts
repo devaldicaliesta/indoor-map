@@ -10,6 +10,10 @@ import type { Database } from '../database.types';
 import { DataError, toDataError } from '../errors';
 import type { Db } from '../supabase';
 import { createVendorClientsRepository, type VendorClientsRepository } from './vendor-clients';
+import {
+  createVendorLicenseKeysRepository,
+  type VendorLicenseKeysRepository,
+} from './vendor-license-keys';
 import { createVendorReleasesRepository, type VendorReleasesRepository } from './vendor-releases';
 
 /** Langkah layar masuk dasbor vendor (`vendor_access`, migrasi 0053). */
@@ -35,7 +39,10 @@ export interface LifecycleRun {
  * Dasbor vendor trial ter-hosting. Setiap fungsi di server mensyaratkan staf vendor dengan sesi
  * `aal2`; repository ini tidak menambah pemeriksaan apa pun.
  */
-export interface VendorRepository extends VendorClientsRepository, VendorReleasesRepository {
+export interface VendorRepository
+  extends VendorClientsRepository,
+    VendorLicenseKeysRepository,
+    VendorReleasesRepository {
   access(): Promise<VendorAccess>;
   capacity(): Promise<number>;
   leads(): Promise<TrialLead[]>;
@@ -100,6 +107,7 @@ function toLead(row: RequestRow): TrialLead {
 export function createVendorRepository(db: Db): VendorRepository {
   return {
     ...createVendorClientsRepository(db),
+    ...createVendorLicenseKeysRepository(db),
     ...createVendorReleasesRepository(db),
 
     async access() {

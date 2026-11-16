@@ -261,6 +261,76 @@ describe('check-in dan rilis', () => {
   });
 });
 
+describe('kunci lisensi', () => {
+  const keyRow = {
+    id: 'k-1',
+    key_hint: 'YZ012',
+    status: 'activated',
+    plan: 'Profesional',
+    duration_days: 365,
+    quota: { venues: 1, buildings: 1, floors: 10, infoPoints: 0 },
+    features: ['3d'],
+    instance_id: 'c6800000-0000-4000-8000-000000000001',
+    installation_name: 'Instalasi c6800000',
+    license_id: 'LIC-AB12CD34',
+    created_at: '2026-11-15T01:00:00+00:00',
+    created_by_email: null,
+    activated_at: '2026-11-15T02:00:00+00:00',
+    revoked_at: null,
+  };
+
+  it('baris kunci dipetakan', async () => {
+    const { repo, calls } = repoWith({ data: [keyRow], error: null });
+    await expect(repo.licenseKeys('c-1')).resolves.toEqual([
+      {
+        id: 'k-1',
+        hint: 'YZ012',
+        status: 'activated',
+        plan: 'Profesional',
+        durationDays: 365,
+        quota: { venues: 1, buildings: 1, floors: 10, infoPoints: 0 },
+        features: ['3d'],
+        instanceId: 'c6800000-0000-4000-8000-000000000001',
+        installationName: 'Instalasi c6800000',
+        licenseId: 'LIC-AB12CD34',
+        createdAt: '2026-11-15T01:00:00+00:00',
+        createdByEmail: null,
+        activatedAt: '2026-11-15T02:00:00+00:00',
+        revokedAt: null,
+      },
+    ]);
+    expect(calls).toEqual([{ name: 'vendor_license_keys', args: { p_client_id: 'c-1' } }]);
+  });
+
+  it('status tak dikenal ditolak', async () => {
+    const { repo } = repoWith({ data: [{ ...keyRow, status: 'hilang' }], error: null });
+    await expect(repo.licenseKeys('c-1')).rejects.toThrow('tidak terbaca');
+  });
+
+  it('membuat kunci mengirim templat dan mengembalikan kunci', async () => {
+    const { repo, calls } = repoWith({ data: 'ABCDE-FGHJK-MNPQR-STVWX-YZ012', error: null });
+    await expect(
+      repo.createLicenseKey({
+        clientId: 'c-1',
+        plan: 'Profesional',
+        durationDays: 365,
+        quota: { venues: 1, buildings: 1, floors: 10, infoPoints: 0 },
+        features: [],
+      }),
+    ).resolves.toBe('ABCDE-FGHJK-MNPQR-STVWX-YZ012');
+    expect(calls[0]).toEqual({
+      name: 'vendor_license_key_create',
+      args: {
+        p_client_id: 'c-1',
+        p_plan: 'Profesional',
+        p_duration_days: 365,
+        p_quota: { venues: 1, buildings: 1, floors: 10, infoPoints: 0 },
+        p_features: [],
+      },
+    });
+  });
+});
+
 describe('kode TOTP untuk test', () => {
   it('cocok dengan vektor RFC 6238 (SHA-1)', () => {
     // Rahasia ASCII "12345678901234567890"; kode 8 digit 94287082 → 6 digit terakhir.
