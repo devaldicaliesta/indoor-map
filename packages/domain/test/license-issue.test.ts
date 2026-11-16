@@ -15,6 +15,7 @@ import {
   readLicenseIssueRequest,
   trialIssueDefaults,
 } from '../src/license-issue';
+import { daysRemaining } from '../src/license-quota';
 
 const INSTALLATION = '0b9f3c2e-1d4a-4c6b-8e7f-123456789abc';
 const INSTANCE = '7f3a9c10-0000-4000-8000-000000000001';
@@ -89,7 +90,7 @@ describe('licensePayloadFor', () => {
     const payload = licensePayloadFor(request(), context);
     expect(payload).not.toBeNull();
     if (!payload) return;
-    expect(payload.validFrom).toBe('2026-11-15T00:00:00Z');
+    expect(payload.validFrom).toBe('2026-11-14T17:00:00Z');
     expect(payload.issuedAt).toBe('2026-11-15T03:04:05Z');
     const keys = (await crypto.subtle.generateKey({ name: 'Ed25519' }, true, [
       'sign',
@@ -109,6 +110,17 @@ describe('licensePayloadFor', () => {
       new Date('2026-12-01T00:00:00Z'),
     );
     expect(result).toEqual({ valid: true, license: payload });
+  });
+
+  it('tanggal mulai dan berakhir dihitung pada tengah malam WIB', () => {
+    const issuedAt = new Date('2026-11-14T17:30:00Z');
+    const payload = licensePayloadFor(request({ validUntil: '2026-11-29' }), {
+      ...context,
+      issuedAt,
+    });
+    expect(Date.parse(payload?.validFrom ?? '')).toBeLessThanOrEqual(issuedAt.getTime());
+    expect(payload?.validUntil).toBe('2026-11-28T17:00:00Z');
+    expect(daysRemaining(payload?.validUntil ?? '', issuedAt)).toBe(14);
   });
 
   it('menolak nama klien kosong', () => {
