@@ -67,6 +67,8 @@ export interface FloorPlansRepository {
   savePlacement(id: FloorPlanId, placement: FloorPlanPlacement): Promise<FloorPlan>;
   /** URL bertanda untuk bucket privat, satu per path (urutan sama dengan masukan). */
   signedUrls(paths: string[]): Promise<string[]>;
+  /** Gambar tampil denah (raster PNG/JPG) untuk scan; tidak disimpan di tempat lain. */
+  downloadImage(plan: Pick<FloorPlan, 'rasterPath' | 'sourcePath'>): Promise<Blob>;
 }
 
 export function createFloorPlansRepository(db: Db): FloorPlansRepository {
@@ -183,6 +185,14 @@ export function createFloorPlansRepository(db: Db): FloorPlansRepository {
       const row = data[0];
       if (!row) throw await zeroRowsError(() => isVisible(id));
       return mapFloorPlanRow(row);
+    },
+
+    async downloadImage(plan) {
+      const { data, error } = await db.storage
+        .from(BUCKET)
+        .download(plan.rasterPath ?? plan.sourcePath);
+      if (error) throw toDataError(error);
+      return data;
     },
 
     async signedUrls(paths) {

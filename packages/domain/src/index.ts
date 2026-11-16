@@ -53,6 +53,7 @@ export * from './pictograms';
 export * from './preview-message';
 export * from './profile';
 export * from './qr';
+export * from './scan-import';
 export * from './search';
 export * from './selection';
 export * from './snapshot';

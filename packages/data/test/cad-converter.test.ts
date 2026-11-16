@@ -76,3 +76,53 @@ describe('klien konversi CAD', () => {
     });
   });
 });
+
+describe('scan denah', () => {
+  const png = new Blob([new Uint8Array([137, 80, 78, 71])], { type: 'image/png' });
+  const result = {
+    widthPx: 100,
+    heightPx: 80,
+    rooms: [
+      {
+        points: [
+          [0, 0],
+          [50, 0],
+          [50, 40],
+        ],
+        confidence: 0.9,
+      },
+    ],
+    walls: [],
+  };
+
+  it('mengirim gambar dengan kepekaan dan membaca hasilnya', async () => {
+    const { calls, fetcher } = stub(200, result);
+    const cad = createCadConverterRepository(session, 'http://cad.local', fetcher);
+    await expect(cad.scan(png, 'high')).resolves.toEqual(result);
+    expect(calls[0]?.url).toBe('http://cad.local/scan?sensitivity=high');
+    expect(new Headers(calls[0]?.init.headers).get('Content-Type')).toBe('image/png');
+  });
+
+  it('gambar di luar batas ditolak dengan pesan layanan', async () => {
+    const { fetcher } = stub(413, {
+      code: 'too_large_px',
+      message: 'Gambar 9000×10 piksel melebihi batas.',
+    });
+    const cad = createCadConverterRepository(session, 'http://cad.local', fetcher);
+    await expect(cad.scan(png, 'medium')).rejects.toMatchObject({
+      kind: 'invalid',
+      code: 'too_large_px',
+      message: expect.stringContaining('melebihi batas'),
+    });
+  });
+
+  it('balasan rusak dan layanan belum dipasang', async () => {
+    const { fetcher } = stub(200, { widthPx: 0 });
+    await expect(
+      createCadConverterRepository(session, 'http://cad.local', fetcher).scan(png, 'low'),
+    ).rejects.toThrow('tidak terbaca');
+    await expect(createCadConverterRepository(session, undefined).scan(png, 'low')).rejects.toThrow(
+      'Scan denah butuh',
+    );
+  });
+});
