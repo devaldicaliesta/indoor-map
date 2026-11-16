@@ -194,6 +194,16 @@ export {
   type TapInteractionOptions,
 } from './pick';
 export {
+  buildPrintLayout,
+  layoutToPdf,
+  layoutToSvg,
+  type PaperOrientation,
+  type PaperSize,
+  type PrintLayout,
+  type PrintOptions,
+  paperPoints,
+} from './print';
+export {
   createSelectionInteractions,
   PICKABLE_LAYERS,
   type SelectionInteractionOptions,
