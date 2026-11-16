@@ -27,6 +27,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { data } from '../../app/data-client';
 import { useClosureDialog } from '../closures/closure-dialog-store';
 import { facilityIconSpecs } from '../facilities/icons';
+import { ScanPreviewLayer } from '../floor-plans/scan/scan-preview-layer';
 import { useFeature } from '../license/queries';
 import { closureTargetAt, interceptCanvasClick } from './canvas-clicks';
 import { useConnectorDialog } from './connectors/connector-dialog-store';
@@ -309,6 +310,7 @@ export function EditorCanvas({
         data-ready={map && session.ready ? 'true' : 'false'}
       />
       <ReferenceLayer map={map} floorId={referenceFloorId} />
+      {floorId ? <ScanPreviewLayer map={map} floorId={floorId} /> : null}
       <GraphLayer map={map} session={session} canEdit={canEdit} status={graphStatus} />
       <EntranceLayer map={map} />
       <RouteLayer map={map} />

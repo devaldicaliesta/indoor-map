@@ -1,4 +1,9 @@
-import { checkLocationTypeName, type LocationType, type VenueId } from '@indoor/domain';
+import {
+  checkLocationTypeName,
+  type LocationType,
+  parseFacilityIcon,
+  type VenueId,
+} from '@indoor/domain';
 import {
   Button,
   Dialog,
@@ -7,18 +12,14 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Label,
   toast,
 } from '@indoor/ui';
 import { type FormEvent, useState } from 'react';
 import { ColorField, isColorValue } from '../../app/components/color-field';
 import { Field } from '../../app/components/field';
 import { FormNotice } from '../auth/auth-layout';
-import { PICTOGRAM_LABELS } from '../facilities/icons';
+import { PictogramPicker } from '../facilities/pictogram-picker';
 import { CATEGORY_NAME_MESSAGES } from '../locations/labels';
 import { useSaveLocationType } from '../locations/queries';
 
@@ -43,6 +44,8 @@ export function TypeDialog({
   const [submitted, setSubmitted] = useState(false);
   const [problem] = checkLocationTypeName(name, others, type?.id ?? null);
   const colorInvalid = !isColorValue(color);
+  const parsedIcon = parseFacilityIcon(icon === NO_ICON ? null : icon);
+  const iconKey = parsedIcon?.kind === 'builtin' ? parsedIcon.key : null;
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -76,22 +79,16 @@ export function TypeDialog({
           >
             <Input id="type-name" value={name} onChange={(e) => setName(e.target.value)} />
           </Field>
+          <div className="grid gap-1">
+            <Label>Ikon</Label>
+            <PictogramPicker
+              value={iconKey}
+              disabled={save.isPending}
+              allowNone
+              onChange={(key) => setIcon(key ? `builtin:${key}` : NO_ICON)}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field id="type-icon" label="Ikon">
-              <Select value={icon} onValueChange={setIcon}>
-                <SelectTrigger id="type-icon">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NO_ICON}>Tanpa ikon</SelectItem>
-                  {Object.entries(PICTOGRAM_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={`builtin:${key}`}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
             <ColorField
               id="type-color"
               label="Warna (opsional)"

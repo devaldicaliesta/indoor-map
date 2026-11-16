@@ -1,27 +1,6 @@
 import type { FacilityTypeId, VenueId } from './ids';
 import { checkUniqueName, type NameProblem, sortByOrder } from './names';
-
-/**
- * Piktogram bawaan (05-desain-ui.md "Ruang, bentuk, ikon"); gambarnya di
- * `packages/ui/src/pictograms`. Urutan ini dipakai di pemilih ikon.
- */
-export const PICTOGRAM_KEYS = [
-  'toilet-male',
-  'toilet-female',
-  'toilet-accessible',
-  'prayer-room',
-  'atm',
-  'first-aid',
-  'information',
-  'fire-extinguisher',
-  'assembly-point',
-  'emergency-exit',
-  'elevator',
-  'escalator',
-  'stairs',
-  'parking',
-] as const;
-export type PictogramKey = (typeof PICTOGRAM_KEYS)[number];
+import { isPictogramKey, type PictogramKey } from './pictograms';
 
 /** Ikon jenis fasilitas: piktogram bawaan, atau gambar unggahan di Storage `public-assets`. */
 export type FacilityIcon =
@@ -35,9 +14,7 @@ export function parseFacilityIcon(iconPath: string | null): FacilityIcon | null 
   if (!iconPath) return null;
   if (iconPath.startsWith(BUILTIN_PREFIX)) {
     const key = iconPath.slice(BUILTIN_PREFIX.length);
-    return (PICTOGRAM_KEYS as readonly string[]).includes(key)
-      ? { kind: 'builtin', key: key as PictogramKey }
-      : null;
+    return isPictogramKey(key) ? { kind: 'builtin', key } : null;
   }
   return { kind: 'upload', path: iconPath };
 }

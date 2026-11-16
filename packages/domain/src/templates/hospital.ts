@@ -9,7 +9,7 @@ export const hospital: VenueTemplate = {
   locationTypes: [
     {
       name: 'Poli',
-      icon: 'first-aid',
+      icon: 'clinic',
       color: '#2f6f4f',
       fields: [
         templateField('Jadwal praktik', 'opening_hours', { isRequired: true }),
@@ -18,48 +18,55 @@ export const hospital: VenueTemplate = {
         templateField('Layanan', 'select', { options: ['Umum', 'BPJS', 'Asuransi'] }),
       ],
       categories: [
-        category('Poli Umum'),
-        category('Poli Anak'),
-        category('Poli Gigi'),
-        category('Poli Mata'),
+        category('Poli Umum', 'stethoscope'),
+        category('Poli Anak', 'pediatrics'),
+        category('Poli Gigi', 'dental'),
+        category('Poli Mata', 'ophthalmology'),
         category('Poli Penyakit Dalam'),
         category('Poli Kandungan'),
       ],
     },
     {
       name: 'Lab',
-      icon: null,
+      icon: 'laboratory',
       color: '#3d5a80',
       fields: [hours, templateField('Perlu janji', 'select', { options: ['Ya', 'Tidak'] })],
-      categories: [category('Laboratorium Klinik'), category('Radiologi')],
+      categories: [
+        category('Laboratorium Klinik', 'laboratory'),
+        category('Radiologi', 'radiology'),
+      ],
     },
     {
       name: 'Apotek',
-      icon: null,
+      icon: 'pharmacy',
       color: '#6a4c93',
       fields: [hours],
       categories: [category('Apotek Rawat Jalan'), category('Apotek Rawat Inap')],
     },
     {
       name: 'IGD',
-      icon: 'first-aid',
+      icon: 'emergency-room',
       color: '#c8321e',
       fields: [
         templateField('Telepon darurat', 'link'),
         templateField('Buka 24 jam', 'select', { options: ['Ya', 'Tidak'] }),
       ],
-      categories: [category('IGD Umum'), category('IGD Anak')],
+      categories: [category('IGD Umum', 'emergency-room'), category('IGD Anak')],
     },
     {
       name: 'Kamar Rawat',
-      icon: null,
+      icon: 'inpatient',
       color: '#7a5c3d',
       fields: [
         templateField('Kelas', 'select', { options: ['VIP', 'Kelas 1', 'Kelas 2', 'Kelas 3'] }),
         templateField('Jumlah tempat tidur', 'number', { isVisible: false }),
         templateField('Jam besuk', 'opening_hours'),
       ],
-      categories: [category('Rawat Inap Umum'), category('ICU'), category('Perinatologi')],
+      categories: [
+        category('Rawat Inap Umum', 'inpatient'),
+        category('ICU'),
+        category('Perinatologi'),
+      ],
     },
   ],
   facilityTypes: [

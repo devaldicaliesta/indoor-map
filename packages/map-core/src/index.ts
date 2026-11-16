@@ -165,6 +165,12 @@ export {
   routeLayers,
   setRoute,
 } from './layers/route';
+export {
+  SCAN_LEVEL_COLORS,
+  SCAN_PREVIEW_LAYER_IDS,
+  type ScanPreview,
+  setScanPreview,
+} from './layers/scan-preview';
 export { ISSUE_COLOR, ISSUE_LAYER_IDS, setIssueHighlight } from './layers/validation';
 export {
   type CreateMapOptions,
@@ -196,6 +202,16 @@ export {
   pickAt,
   type TapInteractionOptions,
 } from './pick';
+export {
+  buildPrintLayout,
+  layoutToPdf,
+  layoutToSvg,
+  type PaperOrientation,
+  type PaperSize,
+  type PrintLayout,
+  type PrintOptions,
+  paperPoints,
+} from './print';
 export {
   createSelectionInteractions,
   PICKABLE_LAYERS,

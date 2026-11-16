@@ -4,9 +4,12 @@ import unittest
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 from app.server import make_handler, supabase_access_check
 from tests.sample import sample_dxf
+
+SIMPLE_PLAN = (Path(__file__).parent / "fixtures" / "simple.png").read_bytes()
 
 ORIGIN = "http://admin.local"
 
@@ -46,6 +49,17 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(headers["Access-Control-Allow-Origin"], ORIGIN)
         status, body, _ = self.post("/render?layer=DINDING&layer=PINTU&maxPx=1000", sample_dxf())
         self.assertEqual((status, body["widthPx"], body["heightPx"]), (200, 1000, 500))
+
+    def test_scan(self):
+        status, body, _ = self.post("/scan?sensitivity=high", SIMPLE_PLAN)
+        self.assertEqual((status, body["widthPx"], len(body["rooms"])), (200, 1200, 4))
+        status, body, _ = self.post("/scan", sample_dxf())
+        self.assertEqual((status, body["code"]), (415, "invalid_image"))
+        status, body, _ = self.post("/scan?sensitivity=ekstrem", SIMPLE_PLAN)
+        self.assertEqual((status, body["code"]), (400, "invalid_sensitivity"))
+        status, body, _ = self.post("/scan", SIMPLE_PLAN, token="tanpa-fitur")
+        self.assertEqual((status, body["code"]), (403, "feature_locked"))
+        self.assertIn("Scan denah", body["message"])
 
     def test_session_required(self):
         status, body, _ = self.post("/inspect", sample_dxf(), token="palsu")
