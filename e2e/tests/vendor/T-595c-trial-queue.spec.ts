@@ -122,7 +122,7 @@ test.describe('T-595c Vendor Portal: antrean trial on-premise', () => {
     const license = JSON.parse(attachment?.content ?? '{}') as Record<string, unknown>;
     expect(attachment?.fileName).toBe(`lisensi-${String(license.licenseId)}.json`);
     expect(attachment?.contentType).toBe('application/json');
-    const validUntil = new Date(Date.parse(`${todayInJakarta()}T00:00:00Z`) + 20 * DAY_MS)
+    const validUntil = new Date(Date.parse(`${todayInJakarta()}T00:00:00+07:00`) + 20 * DAY_MS)
       .toISOString()
       .replace('.000Z', 'Z');
     expect(license).toMatchObject({
