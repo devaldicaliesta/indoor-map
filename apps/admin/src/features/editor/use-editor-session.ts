@@ -226,6 +226,7 @@ export function useEditorSession(
 
   return useMemo(
     () => ({
+      venueId,
       ready: loaded,
       error,
       isOutdoor: floor?.isOutdoor ?? false,
@@ -248,6 +249,7 @@ export function useEditorSession(
       },
     }),
     [
+      venueId,
       loaded,
       error,
       floor?.isOutdoor,

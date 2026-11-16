@@ -186,6 +186,15 @@ export {
   type ViewMode,
 } from './map';
 export {
+  MODELS_LAYER_ID,
+  type ModelUrl,
+  modelsLoaded,
+  type PlacedModel,
+  placedModels,
+  removeModels,
+  syncModels,
+} from './models';
+export {
   createTapInteractions,
   floorFeatureAt,
   type MapPick,

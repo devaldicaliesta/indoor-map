@@ -31,6 +31,7 @@ import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '../../app/use-media-query';
 import { DESKTOP_QUERY, MOBILE_HEADER_PX } from '../../app/visitor-shell';
 import { PEEK_HEIGHT_PX } from '../../components/sheet-snap';
+import { data } from '../../data/client';
 import { useInfoPointMode } from '../../infopoint/info-point-mode';
 import { useClosureMap } from '../closures/use-closure-map';
 import { useOriginMap } from '../origin/use-origin-map';
@@ -202,6 +203,7 @@ function VenueMapCanvas({ snapshot }: { snapshot: Snapshot }) {
         mode: initialViewMode(snapshot),
         display,
         labelFont: LABEL_FONT,
+        modelUrl: data.snapshots.assetUrl,
       });
     } catch {
       // Konteks WebGL2 ditolak walau pemeriksaan awal lolos (GPU di daftar blokir, memori habis).

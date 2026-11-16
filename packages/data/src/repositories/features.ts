@@ -43,6 +43,30 @@ interface FeatureProps {
   subtype?: string;
   /** Luas di `area_m2` adalah koreksi manual, bukan hitungan otomatis. */
   areaManual?: boolean;
+  model?: unknown;
+  modelScale?: unknown;
+  modelRotation?: unknown;
+  baseHeight?: unknown;
+}
+
+const finiteNumber = (value: unknown): number | undefined =>
+  typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+
+function modelProps(
+  props: FeatureProps,
+): Pick<MapFeatureProperties, 'model' | 'modelScale' | 'modelRotation' | 'baseHeight'> {
+  const result: Pick<
+    MapFeatureProperties,
+    'model' | 'modelScale' | 'modelRotation' | 'baseHeight'
+  > = {};
+  if (typeof props.model === 'string') result.model = props.model;
+  const scale = finiteNumber(props.modelScale);
+  const rotation = finiteNumber(props.modelRotation);
+  const base = finiteNumber(props.baseHeight);
+  if (scale !== undefined) result.modelScale = scale;
+  if (rotation !== undefined) result.modelRotation = rotation;
+  if (base !== undefined) result.baseHeight = base;
+  return result;
 }
 
 const propsOf = (value: unknown): FeatureProps =>
@@ -75,6 +99,7 @@ export function mapFeatureRow(row: FeatureRow): Feature<Geometry, MapFeatureProp
     properties.subtype = props.subtype as OutdoorSubtype;
   }
   if (props.areaManual && row.area_m2 !== null) properties.areaM2 = Number(row.area_m2);
+  if (row.kind === 'model3d') Object.assign(properties, modelProps(props));
   return { type: 'Feature', id: row.id, geometry: geometryFromColumn(row.geom), properties };
 }
 
@@ -123,6 +148,7 @@ export function toFeatureColumns(venueId: VenueId, feature: FloorFeature) {
     props: {
       ...(p.kind === 'outdoor_area' && p.subtype ? { subtype: p.subtype } : {}),
       ...(p.kind === 'unit' && p.areaM2 !== undefined ? { areaManual: true } : {}),
+      ...(p.kind === 'model3d' ? modelProps(p) : {}),
     },
   };
 }
