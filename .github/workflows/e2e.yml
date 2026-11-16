@@ -76,6 +76,8 @@ jobs:
           - name: license-trial
             args: --project=license --no-deps --grep T-504
     steps:
+      - name: Cadangkan port Supabase dari rentang port sementara
+        run: sudo sysctl -w net.ipv4.ip_local_reserved_ports=54320-54329
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
