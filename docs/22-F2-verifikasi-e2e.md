@@ -128,18 +128,18 @@ backup gagal di Kesehatan sistem. Semua peristiwa tercatat di log audit.
 
 ### F2.3 · Nilai jual utama
 
-- [ ] T-548 · Scan denah tahap 1 — scan 3 fixture, pratinjau, pilih sebagian, impor draft, undo, batas berkas · TC-MPX-08 s.d. 11, 13 → `e2e/evidence/T-548/`
-- [ ] T-572 · Pustaka ikon — cari ID/EN dan alias, kategori, tampil tajam di peta · TC-PAR-05 s.d. 07 → `e2e/evidence/T-572/`
-- [ ] T-571 · Elemen 3D — objek pustaka dan GLB di Visitor 3D, validasi unggahan, Three.js lazy · TC-PAR-01 s.d. 04 → `e2e/evidence/T-571/`
-- [ ] T-544 · Export peta cetak — PDF A3 dan SVG dengan legenda, judul, arah utara · TC-MPX-04 → `e2e/evidence/T-544/`
-- [ ] T-574 · Papan "Anda di sini" dan stiker QR — papan A3, cetak massal, stiker 20 lokasi, QR membuka rute · TC-PAR-11, 12 → `e2e/evidence/T-574/`
-- [ ] T-581 · Event: data dan Admin — CRUD, validasi, berulang, RLS anon, fitur lisensi `events` · TC-EVT-01 s.d. 05, 11, TC-SEC-70 → `e2e/evidence/T-581/`
-- [ ] T-582 · Event di Visitor — tampil, rute, bagikan, hilang sendiri tanpa publish, muat awal · TC-EVT-06 s.d. 08 → `e2e/evidence/T-582/`
-- [ ] T-583 · Playlist Info Point — idle, sentuh, offline · TC-EVT-09, 10 → `e2e/evidence/T-583/`
-- [ ] T-591 · Analitik — event uji cocok dengan dasbor, tanpa data pribadi, opt-out, batas laju · TC-OPS-01 s.d. 05, TC-SEC-72 → `e2e/evidence/T-591/`
-- [ ] T-552 · Estimasi waktu — menit konsisten dengan jarak, ID/EN · TC-NVX-04 → `e2e/evidence/T-552/`
-- [ ] T-553 · Fasilitas terdekat dan multi-tujuan — toilet terdekat, rute 3 tujuan · TC-NVX-05, 06 → `e2e/evidence/T-553/`
-- [ ] T-554 · Konten multi-bahasa — EN tampil, kosong jatuh ke ID · TC-NVX-07 → `e2e/evidence/T-554/`
+- [x] T-548 · Scan denah tahap 1 — scan 3 fixture, pratinjau, pilih sebagian, impor draft, undo, batas berkas · TC-MPX-08 s.d. 11, 13 → `e2e/evidence/T-548/` (lulus lokal; dilewati di CI tanpa `VITE_CAD_CONVERTER_URL`)
+- [x] T-572 · Pustaka ikon — cari ID/EN dan alias, kategori, tampil tajam di peta · TC-PAR-05 s.d. 07 → `e2e/evidence/T-572/`
+- [x] T-571 · Elemen 3D — objek pustaka dan GLB di Visitor 3D, validasi unggahan, Three.js lazy · TC-PAR-01 s.d. 04 → `e2e/evidence/T-571/`
+- [x] T-544 · Export peta cetak — PDF A3 dan SVG dengan legenda, judul, arah utara · TC-MPX-04 → `e2e/evidence/T-544/`
+- [x] T-574 · Papan "Anda di sini" dan stiker QR — papan A3, cetak massal, stiker 20 lokasi, QR membuka rute · TC-PAR-11, 12 → `e2e/evidence/T-574/`
+- [x] T-581 · Event: data dan Admin — CRUD, validasi, berulang, RLS anon, fitur lisensi `events` · TC-EVT-01 s.d. 05, 11, TC-SEC-70 → `e2e/evidence/T-581/`
+- [x] T-582 · Event di Visitor — tampil, rute, bagikan, hilang sendiri tanpa publish, muat awal · TC-EVT-06 s.d. 08 → `e2e/evidence/T-582/`
+- [x] T-583 · Playlist Info Point — idle, sentuh, offline · TC-EVT-09, 10 → `e2e/evidence/T-583/`
+- [x] T-591 · Analitik — event uji cocok dengan dasbor, tanpa data pribadi, opt-out, batas laju · TC-OPS-01 s.d. 05, TC-SEC-72 → `e2e/evidence/T-591/`
+- [x] T-552 · Estimasi waktu — menit konsisten dengan jarak, ID/EN · TC-NVX-04 → `e2e/evidence/T-552/`
+- [x] T-553 · Fasilitas terdekat dan multi-tujuan — toilet terdekat, rute 3 tujuan · TC-NVX-05, 06 → `e2e/evidence/T-553/`
+- [x] T-554 · Konten multi-bahasa — EN tampil, kosong jatuh ke ID · TC-NVX-07 → `e2e/evidence/T-554/`
 - [ ] T-573 · Penguatan CMS — pustaka media, edit massal 100 lokasi + undo, dasbor · TC-PAR-08 s.d. 10, TC-SEC-78 → `e2e/evidence/T-573/`
 
 **Alur gabungan F2.3** (`admin/f2/F2.3-alur-gabungan.spec.ts`): Editor mengunggah denah, menekan
