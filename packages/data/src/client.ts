@@ -35,6 +35,7 @@ import {
 } from './repositories/location-types';
 import { createLocationsRepository, type LocationsRepository } from './repositories/locations';
 import { createMfaRepository, type MfaRepository } from './repositories/mfa';
+import { createModels3dRepository, type Models3dRepository } from './repositories/models3d';
 import { createNavGraphRepository, type NavGraphRepository } from './repositories/nav-graph';
 import {
   createNotificationsRepository,
@@ -86,6 +87,7 @@ export interface DataClient {
   displaySettings: DisplaySettingsRepository;
   editLocks: EditLocksRepository;
   facilityTypes: FacilityTypesRepository;
+  models3d: Models3dRepository;
   features: FeaturesRepository;
   floorPlans: FloorPlansRepository;
   floors: FloorsRepository;
@@ -133,6 +135,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     displaySettings: createDisplaySettingsRepository(db),
     editLocks: createEditLocksRepository(db, endpoint),
     facilityTypes: createFacilityTypesRepository(db),
+    models3d: createModels3dRepository(db),
     features: createFeaturesRepository(db),
     floorPlans: createFloorPlansRepository(db),
     floors: createFloorsRepository(db),

@@ -29,6 +29,7 @@ di `results/`; ringkasan dan analisisnya di `docs/laporan-performa.md`.
 | --- | --- |
 | `playwright test specs/visitor.perf.ts` | Muat awal dan kunjungan ulang Visitor (4G dan Slow 4G, CPU 4×), rute antar-lantai terjauh |
 | `playwright test specs/editor.perf.ts` | FPS editor di lantai 1.000 fitur dibanding lantai kosong |
+| `playwright test specs/models.perf.ts` | FPS editor 3D di lantai 1.000 fitur dengan dan tanpa 200 objek 3D (T-571, turun ≤ 20%) |
 | `playwright test specs/a11y.perf.ts` | Audit axe WCAG 2.1 AA di 15 halaman |
 | `playwright test -c playwright.compat.config.ts` | Matriks Chromium/Edge, Firefox, WebKit/Safari, Android, iPhone |
 | k6 (di bawah) | 200 pengunjung + 20 Admin bersamaan |

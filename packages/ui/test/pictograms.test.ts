@@ -18,9 +18,17 @@ describe('piktogram bawaan', () => {
     }
   });
 
+  it('ikon pustaka bergaris 1,75 seperti ikon UI', () => {
+    for (const key of PICTOGRAM_KEYS.slice(14)) {
+      for (const part of PICTOGRAM_SHAPES[key]) expect(part.stroke).toBe(1.75);
+    }
+  });
+
   it('path hanya memakai perintah path SVG dan angka', () => {
     for (const key of PICTOGRAM_KEYS) {
-      for (const part of PICTOGRAM_SHAPES[key]) expect(part.d).toMatch(/^[MmHhVvLlAaZz0-9 .-]+$/);
+      for (const part of PICTOGRAM_SHAPES[key]) {
+        expect(part.d).toMatch(/^[MmHhVvLlAaZzCcSsQqTt0-9 .,-]+$/);
+      }
     }
   });
 });

@@ -11,7 +11,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "pictograms": "node scripts/build-pictograms.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

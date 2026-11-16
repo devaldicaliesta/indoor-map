@@ -59,6 +59,7 @@ export type {
   LocationsRepository,
 } from './repositories/locations';
 export type { MfaRepository, MfaStatus, TotpEnrollment } from './repositories/mfa';
+export type { Models3dRepository, UploadedModel } from './repositories/models3d';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
 export type { NotificationsRepository } from './repositories/notifications';
 export type { OriginPointsRepository } from './repositories/origin-points';

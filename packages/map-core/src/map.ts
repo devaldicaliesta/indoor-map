@@ -5,6 +5,7 @@ import { prefersReducedMotion } from './camera';
 import { PITCH_3D } from './defaults';
 import { build3dFeatures, FLOOR_3D_SOURCE_ID } from './extrude';
 import type { LabelFont } from './layers/labels';
+import { type ModelUrl, setModelUrl, syncModels } from './models';
 import { handleMissingFacilityIcons } from './sprites';
 import {
   buildStyle,
@@ -29,6 +30,7 @@ export interface CreateMapOptions {
   fadeDuration?: number;
   /** Font label nama lokasi (Visitor); tanpa ini peta tidak menggambar label teks. */
   labelFont?: LabelFont;
+  modelUrl?: ModelUrl;
 }
 
 const MODE_TRANSITION_MS = 300;
@@ -48,6 +50,7 @@ export function createMap(container: HTMLElement, options: CreateMapOptions): Ma
     ...(options.fadeDuration === undefined ? {} : { fadeDuration: options.fadeDuration }),
   });
   handleMissingFacilityIcons(map);
+  setModelUrl(map, options.modelUrl);
   states.set(map, { features: EMPTY, display: options.display ?? {}, mode });
   if (mode === '3d') map.once('load', () => applyModeVisibility(map, '3d'));
   return map;
@@ -71,6 +74,7 @@ function refresh3d(map: MapLibreMap, state: MapState) {
   source?.setData(
     state.mode === '3d' ? build3dFeatures(state.features, venueHeights(state.display)) : EMPTY,
   );
+  void syncModels(map, state.features, state.mode);
 }
 
 /** Berganti lantai = mengganti data satu source, bukan membuat peta baru. */
