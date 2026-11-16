@@ -80,7 +80,7 @@ export function FacilityTypeDialog({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{type ? `Ubah ${type.name}` : 'Tambah jenis fasilitas'}</DialogTitle>
           <DialogDescription>
