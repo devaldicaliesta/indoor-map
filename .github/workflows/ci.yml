@@ -27,6 +27,23 @@ jobs:
       - run: pnpm check
       - run: pnpm build
 
+  cad-converter:
+    name: cad-converter (Python)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: services/cad-converter
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: services/cad-converter/requirements.txt
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -t .
+
   # Otorisasi ada di database (RLS, fungsi SQL), jadi test-nya wajib jalan di setiap PR, bukan
   # hanya di mesin pengembang: pgTAP, tipe hasil generate, dan test integrasi lewat repository.
   database:

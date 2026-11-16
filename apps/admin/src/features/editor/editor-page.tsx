@@ -18,6 +18,7 @@ import { ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
 import { ClosureDialog } from '../closures/closure-dialog';
 import { useFloorPlans } from '../floor-plans/queries';
+import { ScanPanel } from '../floor-plans/scan/scan-panel';
 import { useDisplaySettings } from '../settings/display/queries';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
 import { useFloors } from '../venues/floors/queries';
@@ -244,6 +245,7 @@ function Editor({
           {canEdit ? (
             <KindPicker isOutdoor={session.isOutdoor} facilityTypes={session.facilityTypes} />
           ) : null}
+          {canEdit ? <ScanPanel floorId={floor.id} onImport={session.importScan} /> : null}
         </div>
         <aside aria-label="Properti" className="min-h-0 overflow-y-auto border-line border-l">
           <PropertiesPanel
