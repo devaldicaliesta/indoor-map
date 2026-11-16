@@ -116,9 +116,13 @@ test.describe('T-595d Vendor Portal: check-in dan rilis', () => {
     expect(
       await vendorApi('/v1/checkin', { licenseId: 'LIC-TIDAK-ADA', instanceId }, ip),
     ).toMatchObject({ status: 404, body: { message: 'Lisensi tidak dikenal.' } });
-    const activation = await vendorApi('/v1/activate', { licenseKey: 'X', instanceId }, ip);
-    expect(activation.status).toBe(404);
-    expect(String(activation.body.message)).toContain('Unggah berkas');
+    expect(
+      await vendorApi(
+        '/v1/activate',
+        { licenseKey: '00000-00000-00000-00000-00000', instanceId },
+        ip,
+      ),
+    ).toMatchObject({ status: 404, body: { message: 'Kunci lisensi tidak dikenal.' } });
 
     await page.getByRole('button', { name: 'Muat ulang' }).click();
     const installationRow = page
