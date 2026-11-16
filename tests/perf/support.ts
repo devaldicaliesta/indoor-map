@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import type { CDPSession, Page } from '@playwright/test';
+import type { CDPSession, Locator, Page } from '@playwright/test';
 
 export interface SeededVenue {
   venueId: string;
@@ -54,3 +54,35 @@ export const median = (values: number[]) => {
   const sorted = [...values].sort((a, b) => a - b);
   return sorted[Math.floor(sorted.length / 2)] ?? Number.NaN;
 };
+
+/** Frame per detik selama penunjuk diseret bolak-balik dari tengah kanvas (±1,5 detik). */
+export async function dragFps(page: Page, canvas: Locator): Promise<number> {
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('kanvas tidak tampil');
+  await page.evaluate(() => {
+    const w = window as unknown as { __frames: number; __counting: boolean };
+    w.__frames = 0;
+    w.__counting = true;
+    const tick = () => {
+      if (!w.__counting) return;
+      w.__frames += 1;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  const started = Date.now();
+  const cx = box.x + box.width / 2;
+  const cy = box.y + box.height / 2;
+  await page.mouse.move(cx, cy);
+  await page.mouse.down();
+  for (let i = 1; i <= 30; i++) await page.mouse.move(cx + i * 4, cy + i * 2);
+  for (let i = 30; i >= 0; i--) await page.mouse.move(cx + i * 4, cy + i * 2);
+  await page.mouse.up();
+  const seconds = (Date.now() - started) / 1000;
+  const frames = await page.evaluate(() => {
+    const w = window as unknown as { __frames: number; __counting: boolean };
+    w.__counting = false;
+    return w.__frames;
+  });
+  return frames / seconds;
+}

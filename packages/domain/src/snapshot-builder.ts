@@ -26,6 +26,7 @@ import {
   type SnapshotLocation,
   type SnapshotLocationStatus,
   type SnapshotLocationType,
+  type SnapshotModelPlacement,
   type SnapshotOriginPoint,
   type SnapshotPolygon,
   type SnapshotPosition,
@@ -147,6 +148,18 @@ function toFloor(f: SnapshotFloor): SnapshotFloor {
   };
 }
 
+function modelProperties(placement: SnapshotModelPlacement): SnapshotModelPlacement {
+  const result: SnapshotModelPlacement = { model: placement.model };
+  const { modelScale, modelRotation, baseHeight } = placement;
+  if (modelScale !== undefined && modelScale > 0 && modelScale !== 1)
+    result.modelScale = modelScale;
+  if (modelRotation !== undefined && modelRotation > 0 && modelRotation < 360) {
+    result.modelRotation = modelRotation;
+  }
+  if (baseHeight !== undefined && baseHeight > 0) result.baseHeight = baseHeight;
+  return result;
+}
+
 /** Properti opsional hanya ditulis bila ada nilainya agar snapshot tetap kecil. */
 function toFeature(f: SourceFeature): SnapshotFeature {
   const properties: SnapshotFeatureProperties = { id: f.id, kind: f.kind, floorId: f.floorId };
@@ -157,6 +170,7 @@ function toFeature(f: SourceFeature): SnapshotFeature {
   if (isColor(f.color)) properties.color = f.color;
   if (f.kind === 'facility' && f.facilityTypeId) properties.facilityTypeId = f.facilityTypeId;
   if (f.kind === 'outdoor_area' && f.subtype) properties.subtype = f.subtype;
+  if (f.kind === 'model3d' && f.model) Object.assign(properties, modelProperties(f.model));
   return { type: 'Feature', id: f.id, geometry: snapshotGeometry(f.geometry), properties };
 }
 

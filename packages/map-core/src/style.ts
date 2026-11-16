@@ -60,7 +60,8 @@ export const LAYERS_3D_ONLY = [
 
 const FLAT_KINDS: FeatureKind[] = ['outdoor_area', 'corridor', 'non_walkable'];
 const ROOM_KINDS: FeatureKind[] = [...ROOM_KINDS_3D];
-const POINT_KINDS: FeatureKind[] = ['door', 'exit', 'landmark'];
+const VISITOR_POINT_KINDS: FeatureKind[] = ['door', 'exit', 'landmark'];
+const POINT_KINDS: FeatureKind[] = [...VISITOR_POINT_KINDS, 'model3d'];
 
 const kind: ExpressionSpecification = ['get', 'kind'];
 const isVacant: ExpressionSpecification = ['==', ['get', 'unitStatus'], 'vacant'];
@@ -279,9 +280,17 @@ export function buildStyle(
   options: { labelFont?: LabelFont } = {},
 ): StyleSpecification {
   const { labelFont } = options;
-  const layers = buildStyleLayers(display).filter(
-    (layer) => !labelFont || layer.id !== LAYER_IDS.facilities,
-  );
+  const layers = buildStyleLayers(display)
+    .filter((layer) => !labelFont || layer.id !== LAYER_IDS.facilities)
+    .map(
+      (layer): LayerSpecification =>
+        labelFont && layer.type === 'circle' && layer.id === LAYER_IDS.points
+          ? {
+              ...layer,
+              filter: ['all', ['==', ['geometry-type'], 'Point'], kindIn(VISITOR_POINT_KINDS)],
+            }
+          : layer,
+    );
   return {
     version: 8,
     light: { ...LIGHT_3D, position: [...LIGHT_3D.position] },

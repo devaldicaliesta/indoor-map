@@ -18,6 +18,7 @@ import type { EditorSession } from '../use-editor-session';
 import { CommitInput } from './commit-input';
 import { FacilityFields } from './facility-fields';
 import { HeightField, hasHeight } from './height-field';
+import { ModelFields } from './model-fields';
 import { MultiSelectionPanel } from './multi-selection-panel';
 import { RotateControl } from './rotate-control';
 import { UnitFields } from './unit-fields';
@@ -151,6 +152,9 @@ export function PropertiesPanel({
       ) : null}
       {p.kind === 'facility' ? (
         <FacilityFields feature={feature} session={session} canEdit={canEdit} />
+      ) : null}
+      {p.kind === 'model3d' ? (
+        <ModelFields feature={feature} session={session} canEdit={canEdit} />
       ) : null}
       {p.kind === 'unit' || p.kind === 'facility' ? (
         <EntranceField featureId={p.id} canEdit={canEdit} />

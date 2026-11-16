@@ -1,5 +1,7 @@
 import type { DrawKind, MapFeatureProperties } from './feature';
 
+export const DEFAULT_MODEL = 'builtin:tree';
+
 /**
  * Kode unit berikutnya dengan awalan tertentu, misalnya `GU-L1-007`. Kode unit wajib
  * ada untuk jenis unit dan unik per venue; kode otomatis bisa diganti pengguna.
@@ -29,6 +31,10 @@ export function changeFeatureKind(
     areaM2: _area,
     subtype: _subtype,
     facilityTypeId: _facilityType,
+    model: _model,
+    modelScale: _scale,
+    modelRotation: _rotation,
+    baseHeight: _baseHeight,
     ...rest
   } = properties;
   const result: MapFeatureProperties = { ...rest, kind: next.kind };
@@ -50,5 +56,14 @@ export function changeFeatureKind(
     }
   }
   if (next.kind === 'outdoor_area') result.subtype = next.subtype ?? 'road';
+  if (next.kind === 'model3d') {
+    result.model =
+      next.model ?? (properties.kind === 'model3d' ? properties.model : undefined) ?? DEFAULT_MODEL;
+    if (properties.kind === 'model3d') {
+      if (properties.modelScale !== undefined) result.modelScale = properties.modelScale;
+      if (properties.modelRotation !== undefined) result.modelRotation = properties.modelRotation;
+      if (properties.baseHeight !== undefined) result.baseHeight = properties.baseHeight;
+    }
+  }
   return result;
 }

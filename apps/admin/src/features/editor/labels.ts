@@ -14,6 +14,7 @@ export const FEATURE_KIND_LABELS: Record<FeatureKind, string> = {
   outdoor_area: 'Area luar',
   facility: 'Fasilitas',
   landmark: 'Penanda',
+  model3d: 'Objek 3D',
 };
 
 export const OUTDOOR_SUBTYPE_LABELS: Record<OutdoorSubtype, string> = {

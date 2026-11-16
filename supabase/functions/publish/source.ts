@@ -68,7 +68,21 @@ function toFeature(r: Row): SourceFeature {
     color: strOrNull(r.color),
     facilityTypeId: strOrNull(r.facility_type_id),
     subtype: (strOrNull(props.subtype) ?? null) as SourceFeature['subtype'],
+    model: modelOf(props),
   };
+}
+
+function modelOf(props: Row): SourceFeature['model'] {
+  const model = strOrNull(props.model);
+  if (!model) return null;
+  const placement: NonNullable<SourceFeature['model']> = { model };
+  const scale = numOrNull(props.modelScale);
+  const rotation = numOrNull(props.modelRotation);
+  const base = numOrNull(props.baseHeight);
+  if (scale !== null) placement.modelScale = scale;
+  if (rotation !== null) placement.modelRotation = rotation;
+  if (base !== null) placement.baseHeight = base;
+  return placement;
 }
 
 function toLocationType(r: Row): SourceLocationType {

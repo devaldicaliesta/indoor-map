@@ -27,6 +27,7 @@ export const SNAPSHOT_FEATURE_KINDS = [
   'outdoor_area',
   'facility',
   'landmark',
+  'model3d',
 ] as const;
 export type SnapshotFeatureKind = (typeof SNAPSHOT_FEATURE_KINDS)[number];
 
@@ -173,6 +174,17 @@ export interface SnapshotFeatureProperties {
   color?: string;
   facilityTypeId?: string;
   subtype?: SnapshotOutdoorSubtype;
+  model?: string;
+  modelScale?: number;
+  modelRotation?: number;
+  baseHeight?: number;
+}
+
+export interface SnapshotModelPlacement {
+  model: string;
+  modelScale?: number;
+  modelRotation?: number;
+  baseHeight?: number;
 }
 
 export interface SnapshotFeature {

@@ -12,6 +12,7 @@ import {
   nextUnitCode,
   normalizeUnitCode,
   removeEntrancesOf,
+  type ScanCandidate,
   type VenueId,
 } from '@indoor/domain';
 import { boundsCenter, type LngLat, rotateGeometry, translateGeometry } from '@indoor/map-core';
@@ -185,6 +186,32 @@ export function useEditorSession(
     [transformMany],
   );
 
+  const importScan = useCallback(
+    (candidates: readonly ScanCandidate[]): string[] => {
+      if (!floor || candidates.length === 0) return [];
+      const codes = unitCodesOf(useEditorStore.getState().features);
+      const prefix = unitCodePrefix(floor, building);
+      const nextCode = () => {
+        const code = nextUnitCode(prefix, codes);
+        codes.push(code);
+        return code;
+      };
+      const patch: Change<FloorFeature>[] = candidates.map((candidate) => {
+        const id = crypto.randomUUID();
+        const base: MapFeatureProperties = { id, kind: 'corridor', floorId: floor.id };
+        const properties = changeFeatureKind(base, { kind: candidate.kind }, nextCode);
+        return {
+          id,
+          before: null,
+          after: { type: 'Feature', id, geometry: candidate.geometry, properties },
+        };
+      });
+      commit(patch);
+      return patch.map((change) => change.id);
+    },
+    [floor, building, commit],
+  );
+
   /** Putar terhadap pusat kotak batas seluruh fitur terpilih, searah jarum jam. */
   const rotateMany = useCallback(
     (ids: readonly string[], degrees: number) => {
@@ -199,11 +226,13 @@ export function useEditorSession(
 
   return useMemo(
     () => ({
+      venueId,
       ready: loaded,
       error,
       isOutdoor: floor?.isOutdoor ?? false,
       facilityTypes,
       draw,
+      importScan,
       editGeometry,
       update,
       changeKind,
@@ -220,11 +249,13 @@ export function useEditorSession(
       },
     }),
     [
+      venueId,
       loaded,
       error,
       floor?.isOutdoor,
       facilityTypes,
       draw,
+      importScan,
       editGeometry,
       update,
       changeKind,

@@ -2566,7 +2566,8 @@ export type Database = {
         | 'non_walkable'
         | 'outdoor_area'
         | 'facility'
-        | 'landmark';
+        | 'landmark'
+        | 'model3d';
       field_type: 'text' | 'number' | 'select' | 'opening_hours' | 'image' | 'link';
       floor_plan_format: 'png' | 'jpg' | 'pdf' | 'dwg' | 'dxf';
       instruction_action:
@@ -2741,6 +2742,7 @@ export const Constants = {
         'outdoor_area',
         'facility',
         'landmark',
+        'model3d',
       ],
       field_type: ['text', 'number', 'select', 'opening_hours', 'image', 'link'],
       floor_plan_format: ['png', 'jpg', 'pdf', 'dwg', 'dxf'],

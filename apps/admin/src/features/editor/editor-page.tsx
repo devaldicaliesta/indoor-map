@@ -18,6 +18,7 @@ import { ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
 import { ClosureDialog } from '../closures/closure-dialog';
 import { useFloorPlans } from '../floor-plans/queries';
+import { ScanPanel } from '../floor-plans/scan/scan-panel';
 import { useDisplaySettings } from '../settings/display/queries';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
 import { useFloors } from '../venues/floors/queries';
@@ -28,6 +29,7 @@ import { EditorToolbar } from './editor-toolbar';
 import { EditorTopbar, OUTDOOR } from './editor-topbar';
 import { LockBanner } from './lock/lock-banner';
 import { useEditLock } from './lock/use-edit-lock';
+import { PrintExport } from './print-export';
 import { KindPicker } from './properties/kind-picker';
 import { PropertiesPanel } from './properties/properties-panel';
 import { ReferenceFloorPicker } from './reference-layer';
@@ -80,6 +82,7 @@ function useFloorSelection(venueId: VenueId) {
 
   return {
     venueCenter: (venue.data?.center ?? null) as Point | null,
+    venueName: venue.data?.name ?? '',
     buildings: list,
     outdoorName: outdoor.data?.name ?? 'Area Luar',
     buildingValue,
@@ -183,6 +186,14 @@ function Editor({
           onFloor={selection.setFloor}
           onRetry={session.retry}
           validation={<ValidationSummary issues={validation.issues} />}
+          actions={
+            <PrintExport
+              venueName={selection.venueName}
+              placeName={building?.name ?? selection.outdoorName}
+              floorName={floor.name}
+              display={display}
+            />
+          }
           reference={
             building ? (
               <ReferenceFloorPicker
@@ -234,6 +245,7 @@ function Editor({
           {canEdit ? (
             <KindPicker isOutdoor={session.isOutdoor} facilityTypes={session.facilityTypes} />
           ) : null}
+          {canEdit ? <ScanPanel floorId={floor.id} onImport={session.importScan} /> : null}
         </div>
         <aside aria-label="Properti" className="min-h-0 overflow-y-auto border-line border-l">
           <PropertiesPanel

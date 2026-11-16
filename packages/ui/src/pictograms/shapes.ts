@@ -1,4 +1,5 @@
 import type { PictogramKey } from '@indoor/domain';
+import { LIBRARY_SHAPES } from './library';
 
 /**
  * Satu bagian piktogram di kanvas 24×24: path berisi (aturan evenodd, sehingga lubang
@@ -18,7 +19,7 @@ function circle(cx: number, cy: number, r: number): string {
  * Set piktogram bawaan (05-desain-ui.md): bentuk sederhana dan tebal agar tetap terbaca
  * di dalam lingkaran 28 px di peta. Warna selalu `currentColor`; latar diatur pemakai.
  */
-export const PICTOGRAM_SHAPES: Record<PictogramKey, readonly PictogramPart[]> = {
+const LEGACY_SHAPES: Partial<Record<PictogramKey, readonly PictogramPart[]>> = {
   'toilet-male': [
     { d: circle(12, 4, 2.2) },
     {
@@ -93,3 +94,8 @@ export const PICTOGRAM_SHAPES: Record<PictogramKey, readonly PictogramPart[]> = 
     { d: 'M7 3h6.2a5.2 5.2 0 0 1 0 10.4h-2.4V21H7zM10.8 6.6v3.2h2.4a1.6 1.6 0 0 0 0-3.2z' },
   ],
 };
+
+export const PICTOGRAM_SHAPES = { ...LIBRARY_SHAPES, ...LEGACY_SHAPES } as Record<
+  PictogramKey,
+  readonly PictogramPart[]
+>;

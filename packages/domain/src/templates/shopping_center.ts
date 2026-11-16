@@ -7,7 +7,7 @@ export const shoppingCenter: VenueTemplate = {
   locationTypes: [
     {
       name: 'Tenant',
-      icon: null,
+      icon: 'shop',
       color: '#b26a00',
       fields: [
         templateField('Jam buka', 'opening_hours'),
@@ -16,12 +16,12 @@ export const shoppingCenter: VenueTemplate = {
         templateField('Merek', 'text', { isSearchable: true }),
       ],
       categories: [
-        category('Fashion'),
-        category('Kuliner'),
-        category('Elektronik'),
-        category('Kesehatan dan Kecantikan'),
-        category('Supermarket'),
-        category('Hiburan'),
+        category('Fashion', 'fashion'),
+        category('Kuliner', 'restaurant'),
+        category('Elektronik', 'electronics'),
+        category('Kesehatan dan Kecantikan', 'beauty'),
+        category('Supermarket', 'supermarket'),
+        category('Hiburan', 'cinema'),
       ],
     },
     {
@@ -29,7 +29,11 @@ export const shoppingCenter: VenueTemplate = {
       icon: 'information',
       color: '#2f6f4f',
       fields: [templateField('Jam layanan', 'opening_hours')],
-      categories: [category('Customer Service'), category('Ruang Laktasi'), category('Penitipan')],
+      categories: [
+        category('Customer Service', 'customer-service'),
+        category('Ruang Laktasi', 'nursing-room'),
+        category('Penitipan'),
+      ],
     },
   ],
   facilityTypes: [

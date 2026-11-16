@@ -88,6 +88,10 @@ const FeatureSchema = z.object({
     color: z.exactOptional(text),
     facilityTypeId: z.exactOptional(id),
     subtype: z.exactOptional(z.enum(SNAPSHOT_OUTDOOR_SUBTYPES)),
+    model: z.exactOptional(text),
+    modelScale: z.exactOptional(z.number().positive()),
+    modelRotation: z.exactOptional(z.number().min(0).max(360)),
+    baseHeight: z.exactOptional(z.number().min(0)),
   }),
 });
 

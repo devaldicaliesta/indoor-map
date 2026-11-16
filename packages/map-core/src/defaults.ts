@@ -39,6 +39,7 @@ export const OUTDOOR_SUBTYPE_FILL = {
 export const POINT_STYLE: Partial<Record<FeatureKind, { color: string; radius: number }>> = {
   door: { color: POINT_COLOR, radius: 3 },
   exit: { color: '#1b7f4b', radius: 4.5 },
+  model3d: { color: '#6b4fa3', radius: 5 },
 };
 
 /** Tinggi 3D default dalam meter; jenis yang tidak disebut datar (0). */
