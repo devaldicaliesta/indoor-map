@@ -1,0 +1,37 @@
+PanduArah
+Copyright (c) 2026 Devaldi Caliesta Octadiani. Hak cipta dilindungi undang-undang.
+All rights reserved.
+
+Perangkat lunak ini, termasuk kode sumber, kode objek, skema basis data,
+dokumentasi, desain, dan aset terkait ("Perangkat Lunak"), adalah milik
+Devaldi Caliesta Octadiani dan dilindungi Undang-Undang Nomor 28 Tahun 2014
+tentang Hak Cipta serta perjanjian internasional yang berlaku.
+
+Perangkat Lunak ini BUKAN perangkat lunak sumber terbuka. Tanpa izin tertulis
+dari pemegang hak cipta, Anda dilarang:
+
+  1. menyalin, memodifikasi, menerjemahkan, atau membuat karya turunan;
+  2. mendistribusikan, menjual, menyewakan, mensublisensikan, atau
+     menyediakan Perangkat Lunak sebagai layanan bagi pihak lain;
+  3. memasang atau menjalankan Perangkat Lunak untuk keperluan apa pun;
+  4. melakukan rekayasa balik, dekompilasi, atau membongkar Perangkat Lunak,
+     kecuali sejauh diizinkan oleh hukum yang berlaku;
+  5. menghapus atau mengubah pemberitahuan hak cipta ini.
+
+Kode sumber yang dapat dilihat di repositori ini hanya boleh dibaca untuk
+keperluan penilaian dan evaluasi. Melihat kode sumber tidak memberikan hak
+pakai apa pun.
+
+Hak pakai hanya diberikan kepada Pemegang Lisensi melalui perjanjian lisensi
+berlangganan yang sah dan Perjanjian Lisensi Pengguna Akhir (EULA) PanduArah
+(lihat docs/legal/eula.md). Bila ketentuan file ini berbeda dengan perjanjian
+tersebut, perjanjian tersebut yang berlaku bagi Pemegang Lisensi.
+
+Komponen pihak ketiga di dalam Perangkat Lunak tetap tunduk pada lisensinya
+masing-masing (lihat deploy/SUMBER-TERBUKA.md dan berkas pemberitahuan pihak
+ketiga di setiap build).
+
+PERANGKAT LUNAK DISEDIAKAN "SEBAGAIMANA ADANYA" TANPA JAMINAN APA PUN, KECUALI
+YANG DINYATAKAN SECARA TERTULIS DALAM PERJANJIAN LISENSI.
+
+Pertanyaan lisensi: panduarahid@gmail.com

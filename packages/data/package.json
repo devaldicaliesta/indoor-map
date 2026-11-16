@@ -1,6 +1,7 @@
 {
   "name": "@indoor/data",
   "private": true,
+  "license": "UNLICENSED",
   "version": "0.0.0",
   "type": "module",
   "exports": {
