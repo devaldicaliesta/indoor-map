@@ -7,7 +7,13 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!e2e/evidence/**/*.html", "!.claude/skills", "!graphify-out"]
+    "includes": [
+      "**",
+      "!e2e/evidence/**/*.html",
+      "!e2e/evidence/**/*.json",
+      "!.claude/skills",
+      "!graphify-out"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -54,7 +60,7 @@
   },
   "overrides": [
     {
-      "includes": ["scripts/**", "**/scripts/**"],
+      "includes": ["scripts/**", "**/scripts/**", "examples/**"],
       "linter": {
         "rules": {
           "suspicious": {

@@ -1,0 +1,55 @@
+{
+  "upsert": {
+    "locations": [
+      {
+        "id": "bddbf1d5-a7f4-491e-a3f3-da4f25cd2f3e",
+        "code": "RAD-01",
+        "action": "updated"
+      }
+    ]
+  },
+  "location": {
+    "id": "bddbf1d5-a7f4-491e-a3f3-da4f25cd2f3e",
+    "code": "RAD-01",
+    "name": "Radiologi",
+    "type": "Lokasi",
+    "hours": {
+      "weekly": {
+        "fri": [
+          "08:00-11:30"
+        ],
+        "mon": [
+          "08:00-12:00",
+          "13:00-16:00"
+        ],
+        "sat": [],
+        "sun": [],
+        "thu": [
+          "08:00-16:00"
+        ],
+        "tue": [
+          "08:00-16:00"
+        ],
+        "wed": [
+          "08:00-16:00"
+        ]
+      },
+      "special": [
+        {
+          "date": "2026-12-24",
+          "spans": []
+        }
+      ]
+    },
+    "units": [
+      "UJI-GF-001"
+    ],
+    "status": "active",
+    "updatedAt": "2026-11-22T12:27:00.33628+00:00",
+    "categories": [
+      "Pemeriksaan"
+    ],
+    "openingDate": null,
+    "visitorPath": "/v/4cff075b-d504-4b41-9055-1fa101d249b1?loc=bddbf1d5-a7f4-491e-a3f3-da4f25cd2f3e"
+  }
+}

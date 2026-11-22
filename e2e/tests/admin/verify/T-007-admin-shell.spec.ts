@@ -23,10 +23,11 @@ const ALL = [
   'Analitik',
   'Pengaturan',
   'Pengguna',
+  'Integrasi',
   'Lisensi',
   'Kesehatan sistem',
 ];
-const SUPER_ADMIN_ONLY = ['Pengguna', 'Lisensi', 'Kesehatan sistem'];
+const SUPER_ADMIN_ONLY = ['Pengguna', 'Integrasi', 'Lisensi', 'Kesehatan sistem'];
 const WITHOUT_ADMIN_ONLY = ALL.filter((m) => !SUPER_ADMIN_ONLY.includes(m));
 
 // Tabel role di docs/01-produk.md; menu yang hanya bisa dibaca diberi penanda "baca".
@@ -59,7 +60,12 @@ test.describe('T-007 Kerangka Admin', () => {
       // Menu terlarang lewat URL langsung tidak membuka halamannya.
       const shown = menus.map((m) => m.replace(/baca$/, ''));
       for (const hidden of ALL.filter((m) => !shown.includes(m)).slice(0, 2)) {
-        const path = { Pengguna: '/users', Lisensi: '/license', Venue: '/venues' }[hidden];
+        const path = {
+          Pengguna: '/users',
+          Integrasi: '/integrations',
+          Lisensi: '/license',
+          Venue: '/venues',
+        }[hidden];
         if (!path) continue;
         await page.goto(path);
         await expect(

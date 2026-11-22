@@ -23,6 +23,15 @@ export const AUDIT_LABELS: Record<AuditAction, string> = {
   mfa_reset: '2FA direset',
   location_bulk_edit: 'Edit massal lokasi',
   location_bulk_undo: 'Edit massal diurungkan',
+  api_key_created: 'Kunci API dibuat',
+  api_key_revoked: 'Kunci API dicabut',
+  api_locations_upserted: 'Lokasi diubah lewat API',
+  api_closure_created: 'Penutupan dibuat lewat API',
+  api_closure_ended: 'Penutupan diakhiri lewat API',
+  webhook_created: 'Webhook dibuat',
+  webhook_updated: 'Webhook diubah',
+  webhook_deleted: 'Webhook dihapus',
+  webhook_secret_rotated: 'Rahasia webhook diganti',
 };
 
 const FAILURE_REASONS: Record<string, string> = {
@@ -51,6 +60,8 @@ const LICENSE_SOURCES: Record<string, string> = {
   manual: 'unggah berkas',
   checkin: 'check-in',
 };
+
+const API_COUNT_LABELS = { created: 'baru', updated: 'diubah', unchanged: 'tetap' } as const;
 
 const BULK_KINDS: Record<string, string> = {
   status: 'status',
@@ -127,6 +138,23 @@ function describeDetails(event: AuditEvent): string {
       const total = typeof details.count === 'number' ? `${details.count} lokasi` : '';
       return [kind, total].filter(Boolean).join(' · ');
     }
+    case 'api_key_created':
+    case 'api_key_revoked':
+    case 'webhook_created':
+    case 'webhook_updated':
+    case 'webhook_deleted':
+    case 'webhook_secret_rotated':
+      return typeof details.name === 'string' ? details.name : '';
+    case 'api_locations_upserted': {
+      const counts = (['created', 'updated', 'unchanged'] as const)
+        .map((key) => [key, Number(details[key] ?? 0)] as const)
+        .filter(([, value]) => value > 0)
+        .map(([key, value]) => `${value} ${API_COUNT_LABELS[key]}`);
+      return [details.api_key, ...counts].filter(Boolean).join(' · ');
+    }
+    case 'api_closure_created':
+    case 'api_closure_ended':
+      return [details.api_key, details.reason].filter(Boolean).join(' · ');
     case 'settings_changed':
       return Array.isArray(details.fields)
         ? details.fields.map((f) => SETTING_FIELDS[String(f)] ?? String(f)).join(', ')

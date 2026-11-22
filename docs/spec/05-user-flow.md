@@ -16,9 +16,10 @@ Enam belas user flow di bawah ini menjabarkan langkah admin di layar untuk setia
 | Publish | Validasi, ringkasan perubahan, preview, riwayat versi | Admin, Super Admin (Editor hanya menjalankan validasi) |
 | Pengaturan | Tampilan 2D/3D, template instruksi, jenis fasilitas | Admin, Super Admin |
 | Pengguna | Kelola pengguna dan role | Super Admin |
+| Integrasi | Kunci API per sistem, webhook, log pengiriman, alamat API dan OpenAPI | Super Admin |
 | Lisensi | Status, kuota, aktivasi, unggah lisensi | Super Admin |
 
-Viewer dapat membuka semua menu kecuali Pengguna dan Lisensi dalam mode baca. Operator hanya melihat menu Penutupan dan peta dalam mode baca.
+Viewer dapat membuka semua menu kecuali Pengguna, Integrasi, dan Lisensi dalam mode baca. Operator hanya melihat menu Penutupan dan peta dalam mode baca.
 
 Pemilih venue selalu ada di bagian atas; semua menu bekerja pada venue yang sedang dipilih.
 
