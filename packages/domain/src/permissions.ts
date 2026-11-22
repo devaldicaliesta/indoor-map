@@ -5,9 +5,11 @@ import { APP_ROLES, type AppRole, type Profile } from './profile';
  * Satu sumber untuk UI; server menegakkan aturan yang sama lewat RLS dan fungsi `app.*`.
  */
 export const ADMIN_MODULES = [
+  'dashboard',
   'venues',
   'map_editor',
   'locations',
+  'media',
   'closures',
   'events',
   'origin_points',
@@ -24,6 +26,7 @@ export type AdminModule = (typeof ADMIN_MODULES)[number];
 export type ModuleAccess = 'edit' | 'read';
 
 const MODULE_ACCESS: Record<AdminModule, Partial<Record<AppRole, ModuleAccess>>> = {
+  dashboard: { super_admin: 'read', admin: 'read', editor: 'read', viewer: 'read' },
   venues: { super_admin: 'edit', admin: 'edit', editor: 'read', viewer: 'read' },
   map_editor: {
     super_admin: 'edit',
@@ -33,6 +36,7 @@ const MODULE_ACCESS: Record<AdminModule, Partial<Record<AppRole, ModuleAccess>>>
     viewer: 'read',
   },
   locations: { super_admin: 'edit', admin: 'edit', editor: 'edit', viewer: 'read' },
+  media: { super_admin: 'edit', admin: 'edit', editor: 'edit', viewer: 'read' },
   closures: {
     super_admin: 'edit',
     admin: 'edit',
@@ -67,6 +71,7 @@ export const ADMIN_ACTIONS = [
   'venue.edit',
   'map.edit',
   'location.edit',
+  'media.edit',
   'closure.manage',
   'event.edit',
   'origin_point.edit',
@@ -84,6 +89,7 @@ const ACTION_ROLES: Record<AdminAction, readonly AppRole[]> = {
   'venue.edit': ['super_admin', 'admin'],
   'map.edit': ['super_admin', 'admin', 'editor'],
   'location.edit': ['super_admin', 'admin', 'editor'],
+  'media.edit': ['super_admin', 'admin', 'editor'],
   'closure.manage': ['super_admin', 'admin', 'operator'],
   'event.edit': ['super_admin', 'admin', 'editor'],
   'origin_point.edit': ['super_admin', 'admin', 'editor'],
@@ -110,6 +116,7 @@ const LICENSE_GATED_ACTIONS: ReadonlySet<AdminAction> = new Set<AdminAction>([
   'venue.edit',
   'map.edit',
   'location.edit',
+  'media.edit',
   'closure.manage',
   'event.edit',
   'origin_point.edit',

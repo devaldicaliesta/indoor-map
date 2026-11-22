@@ -32,10 +32,15 @@ import {
 } from './repositories/instruction-templates';
 import { createLicenseRepository, type LicenseRepository } from './repositories/license';
 import {
+  createLocationBulkEditsRepository,
+  type LocationBulkEditsRepository,
+} from './repositories/location-bulk-edits';
+import {
   createLocationTypesRepository,
   type LocationTypesRepository,
 } from './repositories/location-types';
 import { createLocationsRepository, type LocationsRepository } from './repositories/locations';
+import { createMediaRepository, type MediaRepository } from './repositories/media';
 import { createMfaRepository, type MfaRepository } from './repositories/mfa';
 import { createModels3dRepository, type Models3dRepository } from './repositories/models3d';
 import { createNavGraphRepository, type NavGraphRepository } from './repositories/nav-graph';
@@ -65,6 +70,10 @@ import { createTourProgressRepository, type TourProgressRepository } from './rep
 import { createTrialRepository, type TrialRepository } from './repositories/trial';
 import { createUsersRepository, type UsersRepository } from './repositories/users';
 import { createVendorRepository, type VendorRepository } from './repositories/vendor';
+import {
+  createVenueDashboardRepository,
+  type VenueDashboardRepository,
+} from './repositories/venue-dashboard';
 import { createVenuesRepository, type VenuesRepository } from './repositories/venues';
 import type { Db } from './supabase';
 
@@ -99,7 +108,11 @@ export interface DataClient {
   license: LicenseRepository;
   instructionTemplates: InstructionTemplatesRepository;
   locations: LocationsRepository;
+  /** Edit massal lokasi dan undo-nya (T-573). */
+  locationBulkEdits: LocationBulkEditsRepository;
   locationTypes: LocationTypesRepository;
+  /** Pustaka media venue: daftar berkas, pemakaian, unggah, hapus yang tidak terpakai. */
+  media: MediaRepository;
   /** Verifikasi dua langkah Supabase Auth (TOTP); dasbor vendor dan Admin. */
   mfa: MfaRepository;
   navGraph: NavGraphRepository;
@@ -119,6 +132,7 @@ export interface DataClient {
   /** Dasbor vendor trial ter-hosting; hanya staf vendor ber-aal2 yang dilayani server. */
   vendor: VendorRepository;
   venues: VenuesRepository;
+  venueDashboard: VenueDashboardRepository;
 }
 
 /** `endpoint` dipakai pelepasan kunci saat tab ditutup; test yang hanya memberi `db` tidak membutuhkannya. */
@@ -149,7 +163,9 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     license: createLicenseRepository(db),
     instructionTemplates: createInstructionTemplatesRepository(db),
     locations: createLocationsRepository(db),
+    locationBulkEdits: createLocationBulkEditsRepository(db),
     locationTypes: createLocationTypesRepository(db),
+    media: createMediaRepository(db),
     mfa: createMfaRepository(db),
     navGraph: createNavGraphRepository(db),
     notifications: createNotificationsRepository(db),
@@ -164,6 +180,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     users: createUsersRepository(db),
     vendor: createVendorRepository(db),
     venues: createVenuesRepository(db),
+    venueDashboard: createVenueDashboardRepository(db),
   };
 }
 

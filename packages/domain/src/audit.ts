@@ -24,6 +24,8 @@ export const AUDIT_ACTIONS = [
   'mfa_recovery_used',
   'mfa_recovery_failed',
   'mfa_reset',
+  'location_bulk_edit',
+  'location_bulk_undo',
 ] as const;
 export const AuditActionSchema = z.enum(AUDIT_ACTIONS);
 export type AuditAction = z.infer<typeof AuditActionSchema>;

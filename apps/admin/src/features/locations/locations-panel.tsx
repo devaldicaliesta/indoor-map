@@ -1,13 +1,4 @@
-import {
-  type BuildingId,
-  BuildingIdSchema,
-  type FeatureId,
-  FeatureIdSchema,
-  type Location,
-  LocationIdSchema,
-  orderedUnits,
-  type VenueId,
-} from '@indoor/domain';
+import { type FeatureId, type Location, orderedUnits, type VenueId } from '@indoor/domain';
 import {
   Button,
   type DataColumn,
@@ -18,30 +9,37 @@ import {
   type TableController,
 } from '@indoor/ui';
 import { TriangleAlertIcon } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
-import { Can, useCan, useRole } from '../../app/auth/can';
+import { useCallback, useMemo, useState } from 'react';
+import { Can, useCan } from '../../app/auth/can';
 import { useTableState } from '../../hooks/use-table-state';
 import { ImportDialog } from '../import/import-dialog';
 import { QuotaNotice, useQuotaBlock } from '../license/quota-notice';
 import { useBuildings, useOutdoorLayer } from '../venues/buildings/queries';
 import { useFloors } from '../venues/floors/queries';
+import { BulkEditDialog } from './bulk-edit-dialog';
+import {
+  BulkUndoBanner,
+  SelectCheckbox,
+  SelectionBar,
+  useLocationSelection,
+} from './bulk-selection';
 import { DeleteLocationDialog } from './delete-location-dialog';
 import { buildingNames, floorNames, LOCATION_STATUS_LABELS, LOCATION_STATUS_TONE } from './labels';
 import { LocationSheet } from './location-sheet';
 import { LOCATION_FILTER, locationFilters, toLocationPageFilters } from './location-table';
 import {
   useCategories,
-  useLocation,
   useLocationCodes,
   useLocationPage,
   useLocationTypes,
   useVenueUnits,
 } from './queries';
+import { type DeepLinkTarget, useDeepLink, useSelectedBuilding } from './use-location-deep-link';
 
 type Open =
   | { kind: 'form'; location: Location | null; unitId: FeatureId | null }
   | { kind: 'delete'; location: Location }
+  | { kind: 'bulk' }
   | null;
 
 function UnitCell({ location }: { location: Location }) {
@@ -62,48 +60,7 @@ function UnitCell({ location }: { location: Location }) {
   );
 }
 
-/**
- * Tautan dari editor: `?location=<id>` membuka lokasi (walau di luar halaman tabel saat ini),
- * `?unit=<id>` membuat lokasi untuk unit itu. Parameter tabel lain di URL tetap.
- */
-function useDeepLink(venueId: VenueId, open: (value: Open) => void) {
-  const [params, setParams] = useSearchParams();
-  const locationId = LocationIdSchema.safeParse(params.get('location'));
-  const unitId = FeatureIdSchema.safeParse(params.get('unit'));
-  const target = useLocation(venueId, locationId.success ? locationId.data : null);
-  useEffect(() => {
-    if (!unitId.success && (!locationId.success || target.isPending)) return;
-    if (target.data) open({ kind: 'form', location: target.data, unitId: null });
-    else if (unitId.success) open({ kind: 'form', location: null, unitId: unitId.data });
-    setParams(
-      (previous) => {
-        const next = new URLSearchParams(previous);
-        next.delete('location');
-        next.delete('unit');
-        return next;
-      },
-      { replace: true },
-    );
-  }, [
-    locationId.success,
-    unitId.success,
-    unitId.data,
-    target.isPending,
-    target.data,
-    open,
-    setParams,
-  ]);
-}
-
-/** Gedung terpilih di URL (bukan Area Luar), untuk pilihan filter lantai. */
-function useSelectedBuilding(): BuildingId | null {
-  const [params] = useSearchParams();
-  const parsed = BuildingIdSchema.safeParse(params.get(LOCATION_FILTER.building));
-  return parsed.success ? parsed.data : null;
-}
-
 export function LocationsPanel({ venueId }: { venueId: VenueId }) {
-  const _role = useRole();
   const canEdit = useCan('location.edit');
   const categories = useCategories(venueId);
   const types = useLocationTypes(venueId);
@@ -115,7 +72,11 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
   const [importing, setImporting] = useState(false);
   const locationQuota = useQuotaBlock('locations');
   const [open, setOpen] = useState<Open>(null);
-  useDeepLink(venueId, setOpen);
+  const openForm = useCallback(
+    (target: DeepLinkTarget) => setOpen({ kind: 'form', ...target }),
+    [],
+  );
+  useDeepLink(venueId, openForm);
 
   const filters = locationFilters({
     categories: categories.data,
@@ -137,16 +98,35 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
     [table],
   );
   const { q, page, size } = table.state;
-  const result = useLocationPage(venueId, {
-    q,
-    filters: toLocationPageFilters(table.state),
-    page,
-    size,
-  });
+  const pageFilters = toLocationPageFilters(table.state);
+  const result = useLocationPage(venueId, { q, filters: pageFilters, page, size });
+  const selection = useLocationSelection(JSON.stringify([q, pageFilters]));
+  const pageIds = result.data?.rows.map((l) => l.id) ?? [];
+  const pageSelected = pageIds.filter((id) => selection.has(id)).length;
 
   const typeName = (id: string) => types.data?.find((t) => t.id === id)?.name ?? '';
   const categoryName = new Map((categories.data ?? []).map((c) => [c.id, c.name]));
+  const selectColumn: DataColumn<Location> = {
+    id: 'select',
+    className: 'w-10',
+    header: (
+      <SelectCheckbox
+        label="Pilih semua lokasi di halaman ini"
+        checked={pageIds.length > 0 && pageSelected === pageIds.length}
+        indeterminate={pageSelected > 0 && pageSelected < pageIds.length}
+        onChange={(checked) => selection.setMany(pageIds, checked)}
+      />
+    ),
+    cell: (l) => (
+      <SelectCheckbox
+        label={`Pilih ${l.name}`}
+        checked={selection.has(l.id)}
+        onChange={() => selection.toggle(l.id)}
+      />
+    ),
+  };
   const columns: DataColumn<Location>[] = [
+    ...(canEdit ? [selectColumn] : []),
     { id: 'code', header: 'Kode', cell: (l) => l.code ?? '—', className: 'font-mono' },
     {
       id: 'name',
@@ -208,6 +188,22 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
 
   return (
     <div className="grid gap-4">
+      <BulkUndoBanner
+        venueId={venueId}
+        types={types.data ?? []}
+        categories={categories.data ?? []}
+        canEdit={canEdit}
+      />
+      {canEdit ? (
+        <SelectionBar
+          venueId={venueId}
+          selection={selection}
+          total={result.data?.total ?? 0}
+          q={q}
+          filters={pageFilters}
+          onEdit={() => setOpen({ kind: 'bulk' })}
+        />
+      ) : null}
       <DataTable
         label="Lokasi"
         columns={columns}
@@ -264,6 +260,19 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
       ) : null}
       {importing && types.data ? (
         <ImportDialog venueId={venueId} types={types.data} onClose={() => setImporting(false)} />
+      ) : null}
+      {open?.kind === 'bulk' && types.data ? (
+        <BulkEditDialog
+          venueId={venueId}
+          ids={[...selection.ids]}
+          types={types.data}
+          categories={categories.data ?? []}
+          onDone={() => {
+            selection.clear();
+            setOpen(null);
+          }}
+          onClose={() => setOpen(null)}
+        />
       ) : null}
       {open?.kind === 'delete' ? (
         <DeleteLocationDialog

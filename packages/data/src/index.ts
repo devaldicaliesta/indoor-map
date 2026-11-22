@@ -58,12 +58,14 @@ export type {
   TrialRequest,
   TrialStart,
 } from './repositories/license';
+export type { LocationBulkEditsRepository } from './repositories/location-bulk-edits';
 export type { LocationTypesRepository } from './repositories/location-types';
 export type {
   LocationImages,
   LocationPageFilters,
   LocationsRepository,
 } from './repositories/locations';
+export type { MediaRepository } from './repositories/media';
 export type { MfaRepository, MfaStatus, TotpEnrollment } from './repositories/mfa';
 export type { Models3dRepository, UploadedModel } from './repositories/models3d';
 export type { NavGraphChanges, NavGraphRepository } from './repositories/nav-graph';
@@ -101,4 +103,5 @@ export type {
 } from './repositories/vendor-clients';
 export type { VendorLicenseKeysRepository } from './repositories/vendor-license-keys';
 export type { VendorReleasesRepository } from './repositories/vendor-releases';
+export type { VenueDashboardRepository } from './repositories/venue-dashboard';
 export type { VenuesRepository } from './repositories/venues';

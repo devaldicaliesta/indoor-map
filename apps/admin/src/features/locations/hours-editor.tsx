@@ -79,11 +79,14 @@ export function HoursEditor({
   error,
   disabled,
   onChange,
+  weeklyOnly = false,
 }: {
   hours: OpeningHours;
   error: string | undefined;
   disabled: boolean;
   onChange: (hours: OpeningHours) => void;
+  /** Hanya jadwal mingguan (edit massal: tanggal khusus tiap lokasi tidak diubah). */
+  weeklyOnly?: boolean;
 }) {
   const [newDate, setNewDate] = useState('');
   const dates = Object.keys(hours.special).sort();
@@ -107,6 +110,38 @@ export function HoursEditor({
           />
         </div>
       ))}
+      {weeklyOnly ? null : (
+        <SpecialDates
+          hours={hours}
+          dates={dates}
+          newDate={newDate}
+          disabled={disabled}
+          onNewDate={setNewDate}
+          onChange={onChange}
+        />
+      )}
+      {error ? <p className="text-danger text-sm">{error}</p> : null}
+    </fieldset>
+  );
+}
+
+function SpecialDates({
+  hours,
+  dates,
+  newDate,
+  disabled,
+  onNewDate,
+  onChange,
+}: {
+  hours: OpeningHours;
+  dates: readonly string[];
+  newDate: string;
+  disabled: boolean;
+  onNewDate: (date: string) => void;
+  onChange: (hours: OpeningHours) => void;
+}) {
+  return (
+    <>
       <p className="mt-2 font-bold text-sm">Tanggal khusus</p>
       {dates.map((date) => (
         <div key={date} className="grid grid-cols-[7rem_1fr_auto] items-center gap-2">
@@ -140,7 +175,7 @@ export function HoursEditor({
           className="w-44"
           value={newDate}
           disabled={disabled}
-          onChange={(e) => setNewDate(e.target.value)}
+          onChange={(e) => onNewDate(e.target.value)}
         />
         <Button
           type="button"
@@ -149,13 +184,12 @@ export function HoursEditor({
           onClick={() => {
             // Tanggal baru dimulai tutup (misalnya hari libur); tambahkan rentang bila buka.
             onChange({ ...hours, special: { ...hours.special, [newDate]: [] } });
-            setNewDate('');
+            onNewDate('');
           }}
         >
           Tambah tanggal
         </Button>
       </div>
-      {error ? <p className="text-danger text-sm">{error}</p> : null}
-    </fieldset>
+    </>
   );
 }

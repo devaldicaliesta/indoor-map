@@ -23,6 +23,8 @@ describe('AUDIT_ACTIONS', () => {
       'mfa_recovery_used',
       'mfa_recovery_failed',
       'mfa_reset',
+      'location_bulk_edit',
+      'location_bulk_undo',
     ]);
   });
 

@@ -3,6 +3,8 @@ import {
   ActivityIcon,
   BarChart3Icon,
   BuildingIcon,
+  ImagesIcon,
+  LayoutDashboardIcon,
   type LucideIcon,
   MapIcon,
   MapPinIcon,
@@ -24,9 +26,11 @@ export interface ModuleNav {
 
 // Urutan dan nama menu sesuai docs/spec/05-user-flow.md "Struktur menu Admin".
 export const MODULE_NAV: Record<AdminModule, ModuleNav> = {
+  dashboard: { path: '/dashboard', label: 'Dasbor', icon: LayoutDashboardIcon },
   venues: { path: '/venues', label: 'Venue', icon: BuildingIcon },
   map_editor: { path: '/map-editor', label: 'Editor Peta', icon: MapIcon },
   locations: { path: '/locations', label: 'Lokasi', icon: MapPinIcon },
+  media: { path: '/media', label: 'Media', icon: ImagesIcon },
   closures: { path: '/closures', label: 'Penutupan', icon: OctagonXIcon },
   events: { path: '/events', label: 'Event & Promo', icon: MegaphoneIcon, feature: 'events' },
   origin_points: { path: '/origin-points', label: 'Titik Asal', icon: QrCodeIcon },

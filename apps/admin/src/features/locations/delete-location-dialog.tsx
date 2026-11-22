@@ -31,7 +31,8 @@ export function DeleteLocationDialog({
             {codes.length
               ? `Tautan ke unit ${codes.join(', ')} ikut dilepas, sehingga unit itu bisa dipakai lokasi lain.`
               : 'Lokasi ini belum tertaut ke unit.'}{' '}
-            Logo dan fotonya ikut terhapus.
+            Logo dan foto yang diunggah untuk lokasi ini ikut terhapus; gambar dari pustaka media
+            tetap tersimpan.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

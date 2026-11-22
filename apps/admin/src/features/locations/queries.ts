@@ -1,5 +1,6 @@
 import type { LocationImages, LocationPageFilters, PageQuery } from '@indoor/data';
 import type {
+  BulkLocationChange,
   CategoryId,
   CategoryInput,
   CustomField,
@@ -227,4 +228,42 @@ export function locationImageUrl(path: string): string {
 
 export function uploadFieldImage(venueId: VenueId, file: Blob): Promise<string> {
   return data.locations.uploadFieldImage(venueId, file);
+}
+
+const bulkKey = (venueId: VenueId) => ['location-bulk-edits', venueId] as const;
+
+/** Id semua lokasi hasil cari/filter tabel saat ini, untuk "pilih semua hasil". */
+export function fetchLocationIds(venueId: VenueId, q: string, filters: LocationPageFilters) {
+  return data.locations.ids(venueId, q, filters);
+}
+
+/** Edit massal terakhir venue (untuk tombol Urungkan). */
+export function useLatestBulkEdit(venueId: VenueId) {
+  return useQuery({
+    queryKey: bulkKey(venueId),
+    queryFn: () => data.locationBulkEdits.latest(venueId),
+  });
+}
+
+/** Edit massal dan undo mengubah banyak lokasi; tabel, dasbor, dan unit ikut dimuat ulang. */
+export function useBulkEditMutations(venueId: VenueId) {
+  const queryClient = useQueryClient();
+  const onSettled = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: keys.locations(venueId) }),
+      queryClient.invalidateQueries({ queryKey: keys.units(venueId) }),
+      queryClient.invalidateQueries({ queryKey: bulkKey(venueId) }),
+      queryClient.invalidateQueries({ queryKey: ['venue-dashboard', venueId] }),
+    ]);
+  return {
+    apply: useMutation({
+      mutationFn: ({ ids, change }: { ids: readonly LocationId[]; change: BulkLocationChange }) =>
+        data.locationBulkEdits.apply(venueId, ids, change),
+      onSettled,
+    }),
+    undo: useMutation({
+      mutationFn: (id: string) => data.locationBulkEdits.undo(id),
+      onSettled,
+    }),
+  };
 }

@@ -19,10 +19,20 @@ const menuOf = (role: (typeof APP_ROLES)[number]) =>
     .join(',');
 
 describe('visibleModules', () => {
-  it('Super Admin melihat dan mengubah semua modul', () => {
+  it('Super Admin melihat semua modul dan mengubah semuanya kecuali Dasbor (ringkasan)', () => {
     expect(visibleModules('super_admin')).toEqual(
-      ADMIN_MODULES.map((module) => ({ module, access: 'edit' })),
+      ADMIN_MODULES.map((module) => ({ module, access: module === 'dashboard' ? 'read' : 'edit' })),
     );
+  });
+
+  it('Pustaka media diubah Editor ke atas, dibaca Viewer, tidak untuk Operator', () => {
+    expect(moduleAccess('editor', 'media')).toBe('edit');
+    expect(moduleAccess('viewer', 'media')).toBe('read');
+    expect(moduleAccess('operator', 'media')).toBeNull();
+    expect(moduleAccess('operator', 'dashboard')).toBeNull();
+    expect(can('editor', 'media.edit')).toBe(true);
+    expect(can('viewer', 'media.edit')).toBe(false);
+    expect(licenseAllows('media.edit', false)).toBe(false);
   });
 
   it('Pengguna, Lisensi, dan Kesehatan sistem hanya untuk Super Admin', () => {
@@ -138,6 +148,7 @@ describe('licenseAllows (masa tenggang: Admin hanya-baca)', () => {
       'venue.edit',
       'map.edit',
       'location.edit',
+      'media.edit',
       'closure.manage',
       'event.edit',
       'origin_point.edit',

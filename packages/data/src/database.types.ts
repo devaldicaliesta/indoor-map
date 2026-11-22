@@ -1166,6 +1166,67 @@ export type Database = {
         };
         Relationships: [];
       };
+      location_bulk_edits: {
+        Row: {
+          change: NonNullable<Json>;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          location_count: number;
+          previous: NonNullable<Json>;
+          seq: number;
+          undone_at: string | null;
+          undone_by: string | null;
+          venue_id: string;
+        };
+        Insert: {
+          change: NonNullable<Json>;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          location_count: number;
+          previous: NonNullable<Json>;
+          seq?: never;
+          undone_at?: string | null;
+          undone_by?: string | null;
+          venue_id: string;
+        };
+        Update: {
+          change?: NonNullable<Json>;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          location_count?: number;
+          previous?: NonNullable<Json>;
+          seq?: never;
+          undone_at?: string | null;
+          undone_by?: string | null;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'location_bulk_edits_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+          {
+            foreignKeyName: 'location_bulk_edits_undone_by_fkey';
+            columns: ['undone_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+          {
+            foreignKeyName: 'location_bulk_edits_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       location_categories: {
         Row: {
           category_id: string;
@@ -1932,6 +1993,10 @@ export type Database = {
         };
         Returns: undefined;
       };
+      bulk_edit_locations: {
+        Args: { p_change: Json; p_location_ids: string[]; p_venue_id: string };
+        Returns: string;
+      };
       delete_connector: { Args: { p_id: string }; Returns: undefined };
       eula_status: { Args: Record<PropertyKey, never>; Returns: string };
       hosting_lifecycle_authorized: { Args: { p_secret: string }; Returns: boolean };
@@ -2082,6 +2147,17 @@ export type Database = {
         }[];
       };
       license_valid_until: { Args: Record<PropertyKey, never>; Returns: string };
+      media_assets: {
+        Args: { p_venue_id: string };
+        Returns: {
+          bucket: string;
+          created_at: string;
+          mime_type: string;
+          path: string;
+          size_bytes: number;
+          usages: Json;
+        }[];
+      };
       mfa_recover: { Args: { p_code: string }; Returns: boolean };
       mfa_recovery_codes_generate: { Args: Record<PropertyKey, never>; Returns: string[] };
       mfa_recovery_codes_left: { Args: Record<PropertyKey, never>; Returns: number };
@@ -2283,6 +2359,7 @@ export type Database = {
           venue_id: string;
         }[];
       };
+      undo_location_bulk_edit: { Args: { p_id: string }; Returns: number };
       user_data_delete: { Args: { p_user_id: string }; Returns: undefined };
       user_data_export: { Args: { p_user_id: string }; Returns: Json };
       user_invite_check: {
@@ -2542,6 +2619,7 @@ export type Database = {
         Returns: string;
       };
       vendor_unblock: { Args: { p_value: string }; Returns: undefined };
+      venue_dashboard: { Args: { p_venue_id: string }; Returns: Json };
     };
     Enums: {
       analytics_device: 'mobile' | 'tablet' | 'desktop' | 'kiosk';

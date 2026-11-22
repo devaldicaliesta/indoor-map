@@ -21,6 +21,8 @@ export const AUDIT_LABELS: Record<AuditAction, string> = {
   mfa_recovery_used: 'Masuk dengan kode cadangan',
   mfa_recovery_failed: 'Kode cadangan salah',
   mfa_reset: '2FA direset',
+  location_bulk_edit: 'Edit massal lokasi',
+  location_bulk_undo: 'Edit massal diurungkan',
 };
 
 const FAILURE_REASONS: Record<string, string> = {
@@ -48,6 +50,14 @@ const LICENSE_SOURCES: Record<string, string> = {
   online: 'aktivasi online',
   manual: 'unggah berkas',
   checkin: 'check-in',
+};
+
+const BULK_KINDS: Record<string, string> = {
+  status: 'status',
+  type: 'tipe',
+  category_add: 'tambah kategori',
+  category_remove: 'lepas kategori',
+  hours: 'jam operasional',
 };
 
 const roleLabel = (role: unknown) =>
@@ -107,6 +117,16 @@ function describeDetails(event: AuditEvent): string {
       ]
         .filter(Boolean)
         .join(' · ');
+    case 'location_bulk_edit':
+    case 'location_bulk_undo': {
+      const change =
+        details.change && typeof details.change === 'object'
+          ? (details.change as Record<string, unknown>)
+          : {};
+      const kind = BULK_KINDS[String(change.kind)] ?? '';
+      const total = typeof details.count === 'number' ? `${details.count} lokasi` : '';
+      return [kind, total].filter(Boolean).join(' · ');
+    }
     case 'settings_changed':
       return Array.isArray(details.fields)
         ? details.fields.map((f) => SETTING_FIELDS[String(f)] ?? String(f)).join(', ')
