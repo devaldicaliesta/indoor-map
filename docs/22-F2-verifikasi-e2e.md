@@ -140,7 +140,7 @@ backup gagal di Kesehatan sistem. Semua peristiwa tercatat di log audit.
 - [x] T-552 · Estimasi waktu — menit konsisten dengan jarak, ID/EN · TC-NVX-04 → `e2e/evidence/T-552/`
 - [x] T-553 · Fasilitas terdekat dan multi-tujuan — toilet terdekat, rute 3 tujuan · TC-NVX-05, 06 → `e2e/evidence/T-553/`
 - [x] T-554 · Konten multi-bahasa — EN tampil, kosong jatuh ke ID · TC-NVX-07 → `e2e/evidence/T-554/`
-- [ ] T-573 · Penguatan CMS — pustaka media, edit massal 100 lokasi + undo, dasbor · TC-PAR-08 s.d. 10, TC-SEC-78 → `e2e/evidence/T-573/`
+- [x] T-573 · Penguatan CMS — pustaka media, edit massal 100 lokasi + undo, dasbor · TC-PAR-08 s.d. 10, TC-SEC-78 → `e2e/evidence/T-573/`
 
 **Alur gabungan F2.3** (`admin/f2/F2.3-alur-gabungan.spec.ts`): Editor mengunggah denah, menekan
 Scan, mengimpor ruang, memberi ikon dari pustaka, dan menaruh satu objek 3D. Admin membuat event

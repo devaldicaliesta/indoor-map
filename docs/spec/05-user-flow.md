@@ -6,9 +6,11 @@ Enam belas user flow di bawah ini menjabarkan langkah admin di layar untuk setia
 
 | Menu | Isi | Role yang dapat mengubah |
 | --- | --- | --- |
+| Dasbor | Ringkasan venue: lokasi per status, kelengkapan data, hasil validasi publish, versi terbit, penutupan, Info Point | — (hanya baca; Operator tidak melihatnya) |
 | Venue | Daftar venue, pengaturan venue, gedung, lantai, denah | Admin, Super Admin |
 | Editor Peta | Kanvas per lantai: fitur, fasilitas, jalur, konektor, test route | Editor, Admin, Super Admin |
-| Lokasi | Daftar lokasi, import, tipe lokasi dan field, kategori, alias | Editor, Admin, Super Admin |
+| Lokasi | Daftar lokasi, import, edit massal dengan undo, tipe lokasi dan field, kategori, alias | Editor, Admin, Super Admin |
+| Media | Pustaka berkas venue (logo, foto, ikon, denah) dengan pemakainya; unggah dan hapus aset tak terpakai | Editor, Admin, Super Admin (logo venue, ikon jenis fasilitas, denah: Admin, Super Admin) |
 | Penutupan | Daftar penutupan aktif dan terjadwal | Operator, Admin, Super Admin |
 | Titik Asal | QR titik asal, Info Point, konfigurasi Info Point | Editor, Admin, Super Admin |
 | Publish | Validasi, ringkasan perubahan, preview, riwayat versi | Admin, Super Admin (Editor hanya menjalankan validasi) |

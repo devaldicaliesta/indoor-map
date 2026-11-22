@@ -1,6 +1,7 @@
 import {
   inUseMessage,
   isImageAsset,
+  libraryFileName,
   MAX_IMAGE_BYTES,
   MEDIA_BUCKETS,
   MEDIA_USAGE_KINDS,
@@ -108,7 +109,8 @@ export function createMediaRepository(db: Db): MediaRepository {
       if (file.size > MAX_IMAGE_BYTES) {
         throw new DataError('invalid', { message: 'Gambar terlalu besar. Maksimal 5 MB.' });
       }
-      const path = `locations/${venueId}/media-${globalThis.crypto.randomUUID()}.${extension}`;
+      const name = file instanceof File ? file.name : '';
+      const path = `locations/${venueId}/${libraryFileName(name, globalThis.crypto.randomUUID(), extension)}`;
       const { error } = await db.storage
         .from('public-assets')
         .upload(path, file, { contentType: file.type });

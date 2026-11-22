@@ -56,11 +56,13 @@ export function SelectCheckbox({
   indeterminate = false,
   label,
   onChange,
+  tour,
 }: {
   checked: boolean;
   indeterminate?: boolean;
   label: string;
   onChange: (checked: boolean) => void;
+  tour?: string;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -71,6 +73,7 @@ export function SelectCheckbox({
       ref={ref}
       type="checkbox"
       aria-label={label}
+      data-tour={tour}
       className="size-4 cursor-pointer accent-ink"
       checked={checked}
       onChange={(e) => onChange(e.target.checked)}

@@ -22,11 +22,17 @@ export interface ModuleNav {
   label: string;
   icon: LucideIcon;
   feature?: PaidFeature;
+  readOnlyByDesign?: boolean;
 }
 
 // Urutan dan nama menu sesuai docs/spec/05-user-flow.md "Struktur menu Admin".
 export const MODULE_NAV: Record<AdminModule, ModuleNav> = {
-  dashboard: { path: '/dashboard', label: 'Dasbor', icon: LayoutDashboardIcon },
+  dashboard: {
+    path: '/dashboard',
+    label: 'Dasbor',
+    icon: LayoutDashboardIcon,
+    readOnlyByDesign: true,
+  },
   venues: { path: '/venues', label: 'Venue', icon: BuildingIcon },
   map_editor: { path: '/map-editor', label: 'Editor Peta', icon: MapIcon },
   locations: { path: '/locations', label: 'Lokasi', icon: MapPinIcon },

@@ -64,7 +64,9 @@ export function ModulePage({
         {venue && !INSTALLATION_MODULES.has(module) ? (
           <span className="text-ink-muted">{venue.name}</span>
         ) : null}
-        {access === 'read' ? <Badge>Mode baca</Badge> : null}
+        {access === 'read' && !MODULE_NAV[module].readOnlyByDesign ? (
+          <Badge>Mode baca</Badge>
+        ) : null}
         {actions || tour ? (
           <div className="ml-auto flex gap-2">
             {tour ? <AdminTourButton tour={tour} /> : null}

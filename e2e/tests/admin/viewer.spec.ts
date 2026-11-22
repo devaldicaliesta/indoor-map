@@ -6,9 +6,11 @@ import { AdminShell } from '../../pages/admin-shell';
 const shot = (name: string) => `evidence/T-312/${name}.png`;
 
 const PATHS: Record<string, string> = {
+  dashboard: '/dashboard',
   venues: '/venues',
   map_editor: '/map-editor',
   locations: '/locations',
+  media: '/media',
   closures: '/closures',
   origin_points: '/origin-points',
   publish: '/publish',

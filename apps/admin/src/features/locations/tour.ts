@@ -39,6 +39,14 @@ export const LOCATIONS_TOUR: AdminTour = {
       side: 'left',
     },
     {
+      target: 'locations-select',
+      requires: 'location.edit',
+      title: 'Edit massal',
+      description:
+        'Centang beberapa lokasi, atau pilih semua hasil pencarian, lalu tekan Edit massal untuk mengubah status, tipe, kategori, atau jam buka sekaligus. Perubahan terakhir bisa diurungkan.',
+      side: 'right',
+    },
+    {
       target: 'table-pagination',
       title: 'Halaman tabel',
       description: 'Atur jumlah baris per halaman dan pindah halaman.',

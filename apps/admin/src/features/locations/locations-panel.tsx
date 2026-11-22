@@ -112,6 +112,7 @@ export function LocationsPanel({ venueId }: { venueId: VenueId }) {
     header: (
       <SelectCheckbox
         label="Pilih semua lokasi di halaman ini"
+        tour="locations-select"
         checked={pageIds.length > 0 && pageSelected === pageIds.length}
         indeterminate={pageSelected > 0 && pageSelected < pageIds.length}
         onChange={(checked) => selection.setMany(pageIds, checked)}

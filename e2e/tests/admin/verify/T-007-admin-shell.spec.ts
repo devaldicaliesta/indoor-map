@@ -11,9 +11,11 @@ async function capture(page: Page, name: string) {
   await page.screenshot({ path: shot(name) });
 }
 const ALL = [
+  'Dasbor',
   'Venue',
   'Editor Peta',
   'Lokasi',
+  'Media',
   'Penutupan',
   'Event & Promo',
   'Titik Asal',
@@ -38,7 +40,10 @@ const MENUS: Record<AppRole, string[]> = {
     ['Venue', 'Penutupan', 'Pengaturan'],
   ),
   operator: read(['Editor Peta', 'Penutupan'], ['Editor Peta']),
-  viewer: read(WITHOUT_ADMIN_ONLY, WITHOUT_ADMIN_ONLY),
+  viewer: read(
+    WITHOUT_ADMIN_ONLY,
+    WITHOUT_ADMIN_ONLY.filter((m) => m !== 'Dasbor'),
+  ),
 };
 
 test.describe('T-007 Kerangka Admin', () => {

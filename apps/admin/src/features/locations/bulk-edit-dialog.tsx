@@ -265,7 +265,9 @@ export function BulkEditDialog({
   );
   const selected = useMemo(() => {
     const wanted = new Set<string>(ids);
-    return (all.data ?? []).filter((location: Location) => wanted.has(location.id));
+    return (all.data ?? [])
+      .filter((location: Location) => wanted.has(location.id))
+      .sort((a, b) => a.name.localeCompare(b.name, 'id', { numeric: true }));
   }, [all.data, ids]);
 
   const change = toChange(draft);

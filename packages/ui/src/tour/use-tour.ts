@@ -43,6 +43,16 @@ export function autoToursEnabled(byDefault = true): boolean {
 
 // Jeda agar halaman (tabel, peta) sempat tampil sebelum tur menunjuk elemennya.
 const AUTO_DELAY_MS = 600;
+const SETTLE_MAX_MS = 5000;
+const SETTLE_POLL_MS = 100;
+
+/** Menunggu data halaman selesai dimuat (tanpa `aria-busy`), paling lama `SETTLE_MAX_MS`. */
+async function pageSettled(): Promise<void> {
+  const deadline = Date.now() + SETTLE_MAX_MS;
+  while (document.querySelector('[aria-busy="true"]') && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, SETTLE_POLL_MS));
+  }
+}
 
 export function useTour<A extends string>(options: UseTourOptions<A>) {
   const latest = useRef(options);
@@ -87,11 +97,18 @@ export function useTour<A extends string>(options: UseTourOptions<A>) {
     ) {
       return;
     }
+    let cancelled = false;
     const timer = setTimeout(() => {
-      autoStarted.current = true;
-      void start();
+      void pageSettled().then(() => {
+        if (cancelled || autoStarted.current) return;
+        autoStarted.current = true;
+        void start();
+      });
     }, AUTO_DELAY_MS);
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [options.autoStart, options.autoStartByDefault, seen, start]);
 
   // Pindah halaman menutup tur yang masih terbuka.

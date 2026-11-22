@@ -67,14 +67,41 @@ export function assetFolder(bucket: MediaBucket, path: string): AssetFolder | nu
     : null;
 }
 
-/** Jenis aset dari letak berkasnya; nama berkas logo lokasi dibuat repository (`…-logo-…`). */
+const LIBRARY_PREFIX = 'media-';
+const SLUG_MAX = 40;
+
+/**
+ * Jenis aset dari letak berkasnya; nama berkas logo lokasi dibuat repository (`…-logo-…`),
+ * unggahan pustaka (`media-…`) selalu foto walau nama aslinya mirip logo.
+ */
 export function mediaKindOf(bucket: MediaBucket, path: string): MediaKind {
   if (bucket === 'floor-plans') return 'floor_plan';
   const folder = assetFolder(bucket, path);
   if (folder === 'venues') return 'logo';
   if (folder === 'categories' || folder === 'facility-types') return 'icon';
-  if (folder === 'locations' && /-logo-\d+\.[a-z]+$/.test(path)) return 'logo';
+  if (
+    folder === 'locations' &&
+    !mediaFileName(path).startsWith(LIBRARY_PREFIX) &&
+    /-logo-\d+\.[a-z]+$/.test(path)
+  ) {
+    return 'logo';
+  }
   return 'photo';
+}
+
+/** Nama berkas unggahan pustaka: nama asli yang dirapikan + penanda unik, mis. `media-denah-lobi-1a2b3c4d.png`. */
+export function libraryFileName(originalName: string, uniqueId: string, extension: string): string {
+  const base = originalName.replace(/\.[^.]*$/, '');
+  const slug = base
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, SLUG_MAX)
+    .replace(/-+$/, '');
+  const tag = uniqueId.replace(/-/g, '').slice(0, 8);
+  return `${LIBRARY_PREFIX}${slug || 'gambar'}-${tag}.${extension}`;
 }
 
 export function mediaFileName(path: string): string {

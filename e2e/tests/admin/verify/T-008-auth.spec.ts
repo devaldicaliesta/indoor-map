@@ -182,14 +182,14 @@ test.describe('T-008 Login, logout, reset password', () => {
   test('TC-AUTH-04 60 menit tanpa aktivitas keluar otomatis', async ({ page, loginAs }) => {
     await page.clock.install();
     await loginAs('viewer');
-    await expect(page).toHaveURL('/venues');
+    await expect(page).toHaveURL('/dashboard');
 
     await page.clock.fastForward('59:00');
     // Beri timer pemeriksa kesempatan berjalan agar keluar yang terlambat tetap tertangkap.
     await page.clock.runFor(31_000);
     await expect(page.getByText(/Sesi berakhir/)).toHaveCount(0);
-    await expect(page.getByRole('heading', { name: 'Venue' })).toBeVisible();
-    await expect(page).toHaveURL('/venues');
+    await expect(page.getByRole('heading', { name: 'Dasbor' })).toBeVisible();
+    await expect(page).toHaveURL('/dashboard');
 
     await page.clock.fastForward('01:00');
     await expect(page).toHaveURL(/\/login$/);

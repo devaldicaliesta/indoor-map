@@ -3,6 +3,7 @@ import {
   canDeleteMedia,
   filterMedia,
   inUseMessage,
+  libraryFileName,
   type MediaAsset,
   type MediaUsage,
   mediaKindOf,
@@ -100,5 +101,26 @@ describe('pakai ulang dan pesan terpakai', () => {
     expect(inUseMessage(['A', 'B', 'C', 'D', 'E'].map((n) => usage(n)))).toContain(
       'Lokasi "C" (foto) dan 2 lainnya.',
     );
+  });
+});
+
+describe('nama berkas unggahan pustaka', () => {
+  const id = '1a2b3c4d-0000-4000-8000-000000000000';
+
+  it('memakai nama asli yang dirapikan dan penanda unik', () => {
+    expect(libraryFileName('Denah Lobi (Baru).PNG', id, 'png')).toBe(
+      'media-denah-lobi-baru-1a2b3c4d.png',
+    );
+    expect(libraryFileName('Café Ñandú.jpeg', id, 'jpg')).toBe('media-cafe-nandu-1a2b3c4d.jpg');
+    expect(libraryFileName('', id, 'webp')).toBe('media-gambar-1a2b3c4d.webp');
+    expect(libraryFileName('###.png', id, 'png')).toBe('media-gambar-1a2b3c4d.png');
+    expect(libraryFileName(`${'a'.repeat(60)}.png`, id, 'png')).toBe(
+      `media-${'a'.repeat(40)}-1a2b3c4d.png`,
+    );
+  });
+
+  it('unggahan pustaka bernama mirip logo tetap foto', () => {
+    const path = `locations/${V}/${libraryFileName('toko-logo-2024.png', id, 'png')}`;
+    expect(mediaKindOf('public-assets', path)).toBe('photo');
   });
 });
