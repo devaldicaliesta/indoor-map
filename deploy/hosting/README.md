@@ -94,8 +94,10 @@ aktivitas (ditangani langkah 7).
    ```
    Yang dipakai project ini: `publish`, `admin-users`, `auth-email`, `account-notice`,
    `system-settings`, `license-activate`, `license-checkin`, `license-service`, `trial-request`,
-   `trial-verify`, `trial-lifecycle`, `vendor-license`, `vendor-trial`, `vendor-api`. Tanpa Docker:
-   tambahkan `--use-api`.
+   `trial-verify`, `trial-lifecycle`, `vendor-license`, `vendor-trial`, `vendor-api`, `api`,
+   `webhook-dispatch`. Tanpa Docker: tambahkan `--use-api`. `api` (API integrasi, kunci API sendiri) dan
+   `webhook-dispatch` (dibangunkan database dengan rahasia Vault `webhook_dispatch_secret`) berjalan
+   tanpa JWT, sesuai `supabase/config.toml`.
 
    `vendor-api` adalah server vendor untuk instalasi on-premise klien (tanpa JWT): isi
    `LICENSE_VENDOR_URL` instalasi klien dengan `https://<project>.supabase.co/functions/v1/vendor-api`.

@@ -12,10 +12,12 @@ declare const EdgeRuntime: {
 
 const FUNCTIONS_DIR = '/srv/supabase/functions';
 const PUBLIC_FUNCTIONS = new Set([
+  'api',
   'auth-email',
   'account-notice',
   'license-checkin',
   'license-service',
+  'webhook-dispatch',
 ]);
 const NAME = /^[a-z][a-z0-9-]*$/;
 const jwtSecret = Deno.env.get('JWT_SECRET') ?? '';

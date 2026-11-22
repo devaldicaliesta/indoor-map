@@ -47,6 +47,12 @@ export type { FloorsRepository } from './repositories/floors';
 export type { InfoPointsRepository } from './repositories/info-points';
 export type { InstructionTemplatesRepository } from './repositories/instruction-templates';
 export type {
+  ApiKeyInput,
+  DeliveryFilters,
+  IntegrationsRepository,
+  WebhookInput,
+} from './repositories/integrations';
+export type {
   ActivatedLicense,
   CheckinResult,
   FirstAdminInput,

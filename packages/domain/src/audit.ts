@@ -26,6 +26,15 @@ export const AUDIT_ACTIONS = [
   'mfa_reset',
   'location_bulk_edit',
   'location_bulk_undo',
+  'api_key_created',
+  'api_key_revoked',
+  'api_locations_upserted',
+  'api_closure_created',
+  'api_closure_ended',
+  'webhook_created',
+  'webhook_updated',
+  'webhook_deleted',
+  'webhook_secret_rotated',
 ] as const;
 export const AuditActionSchema = z.enum(AUDIT_ACTIONS);
 export type AuditAction = z.infer<typeof AuditActionSchema>;

@@ -53,7 +53,9 @@ describe('visibleModules', () => {
   it('Viewer membuka semua kecuali modul instalasi, tanpa hak ubah', () => {
     const modules = visibleModules('viewer');
     expect(modules.map((m) => m.module)).toEqual(
-      ADMIN_MODULES.filter((m) => m !== 'users' && m !== 'license' && m !== 'system_health'),
+      ADMIN_MODULES.filter(
+        (m) => !['users', 'integrations', 'license', 'system_health'].includes(m),
+      ),
     );
     expect(modules.every((m) => m.access === 'read')).toBe(true);
   });
@@ -155,6 +157,7 @@ describe('licenseAllows (masa tenggang: Admin hanya-baca)', () => {
       'publish.publish',
       'publish.rollback',
       'settings.edit',
+      'integration.manage',
     ]);
   });
 
