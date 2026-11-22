@@ -140,7 +140,7 @@ backup gagal di Kesehatan sistem. Semua peristiwa tercatat di log audit.
 - [x] T-552 · Estimasi waktu — menit konsisten dengan jarak, ID/EN · TC-NVX-04 → `e2e/evidence/T-552/`
 - [x] T-553 · Fasilitas terdekat dan multi-tujuan — toilet terdekat, rute 3 tujuan · TC-NVX-05, 06 → `e2e/evidence/T-553/`
 - [x] T-554 · Konten multi-bahasa — EN tampil, kosong jatuh ke ID · TC-NVX-07 → `e2e/evidence/T-554/`
-- [ ] T-573 · Penguatan CMS — pustaka media, edit massal 100 lokasi + undo, dasbor · TC-PAR-08 s.d. 10, TC-SEC-78 → `e2e/evidence/T-573/`
+- [x] T-573 · Penguatan CMS — pustaka media, edit massal 100 lokasi + undo, dasbor · TC-PAR-08 s.d. 10, TC-SEC-78 → `e2e/evidence/T-573/`
 
 **Alur gabungan F2.3** (`admin/f2/F2.3-alur-gabungan.spec.ts`): Editor mengunggah denah, menekan
 Scan, mengimpor ruang, memberi ikon dari pustaka, dan menaruh satu objek 3D. Admin membuat event
@@ -150,7 +150,7 @@ QR-nya membuka rute yang sama.
 
 ### F2.4 · Enterprise dan integrasi
 
-- [ ] T-593 · API dan webhook — kunci per scope, upsert jam operasional, webhook HMAC dengan retry · TC-OPS-09 s.d. 11, TC-SEC-71 → `e2e/evidence/T-593/`
+- [x] T-593 · API dan webhook — kunci per scope, upsert jam operasional, webhook HMAC dengan retry · TC-OPS-09 s.d. 11, TC-SEC-71 → `e2e/evidence/T-593/`
 - [ ] T-594 · Export GeoJSON dan IMDF — validator lulus, geometri cocok · TC-OPS-12, 13 → `e2e/evidence/T-594/`
 - [ ] T-531 · Hak akses granular — "hanya lokasi" ditolak mengubah peta, izin tidak melebihi role · TC-ADM-01, 02, TC-SEC-71 → `e2e/evidence/T-531/`
 - [ ] T-532 · Audit log lengkap — diff per modul, retensi, export CSV · TC-ADM-03, 04 → `e2e/evidence/T-532/`

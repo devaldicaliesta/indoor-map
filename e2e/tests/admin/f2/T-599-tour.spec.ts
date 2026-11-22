@@ -48,7 +48,7 @@ test.describe('T-599 Tur halaman Admin (Lokasi)', () => {
 
     // TC-TUR-01: tur mulai sendiri pertama kali halaman dibuka.
     await expect(tour.title).toHaveText('Halaman Lokasi');
-    await expect(tour.progress).toHaveText('1 dari 7');
+    await expect(tour.progress).toHaveText('1 dari 8');
     await page.screenshot({ path: shot('01-admin-tur-mulai-sendiri') });
 
     // TC-TUR-09: keyboard (panah, Tab, Esc) dan kontras AA.
@@ -89,7 +89,7 @@ test.describe('T-599 Tur halaman Admin (Lokasi)', () => {
 
     // TC-TUR-03: tombol "Tur halaman" mengulang dari langkah pertama, sampai "Selesai".
     await other.page.getByRole('button', { name: 'Tur halaman' }).click();
-    await expect(other.tour.progress).toHaveText('1 dari 7');
+    await expect(other.tour.progress).toHaveText('1 dari 8');
     const titles = await other.tour.walkTitles();
     expect(titles).toEqual([
       'Halaman Lokasi',
@@ -97,6 +97,7 @@ test.describe('T-599 Tur halaman Admin (Lokasi)', () => {
       'Cari dan saring',
       'Tambah lokasi',
       'Import',
+      'Edit massal',
       'Halaman tabel',
       'Ulangi tur',
     ]);
@@ -115,6 +116,7 @@ test.describe('T-599 Tur halaman Admin (Lokasi)', () => {
     const titles = await viewer.tour.walkTitles();
     expect(titles).not.toContain('Tambah lokasi');
     expect(titles).not.toContain('Import');
+    expect(titles).not.toContain('Edit massal');
     expect(titles).toContain('Halaman tabel');
     await viewer.page.getByRole('button', { name: 'Tur halaman' }).click();
     await viewer.tour.next.click();

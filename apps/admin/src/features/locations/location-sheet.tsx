@@ -288,7 +288,12 @@ export function LocationSheet({
             onChange={setSelection}
             onPickOnMap={() => setPicking(true)}
           />
-          <LocationImagesField value={images} disabled={readOnly || busy} onChange={setImages} />
+          <LocationImagesField
+            venueId={venueId}
+            value={images}
+            disabled={readOnly || busy}
+            onChange={setImages}
+          />
           {save.error ? <FormNotice tone="error">{save.error.message}</FormNotice> : null}
           <SheetFooter className="flex flex-row justify-end gap-2">
             <Button type="button" onClick={onClose}>

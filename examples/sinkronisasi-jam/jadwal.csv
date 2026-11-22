@@ -1,0 +1,16 @@
+kode,hari,jam
+# Satu baris per rentang jam. Hari yang tidak disebut berarti tutup.
+POLI-ANAK,senin,08:00-12:00
+POLI-ANAK,senin,13:00-16:00
+POLI-ANAK,selasa,08:00-16:00
+POLI-ANAK,rabu,08:00-16:00
+POLI-ANAK,kamis,08:00-16:00
+POLI-ANAK,jumat,08:00-11:30
+POLI-ANAK,2026-12-24,tutup
+RAD-01,senin,07:00-21:00
+RAD-01,selasa,07:00-21:00
+RAD-01,rabu,07:00-21:00
+RAD-01,kamis,07:00-21:00
+RAD-01,jumat,07:00-21:00
+RAD-01,sabtu,07:00-14:00
+RAD-01,2026-12-31,07:00-12:00

@@ -76,7 +76,7 @@ test.describe('T-116 Lokasi dasar, kategori, tautan unit', () => {
     await loginAs('editor');
     await new AdminShell(page).selectVenue(fullVenue.name);
     await page.goto('/locations');
-    await expect(page.getByRole('cell', { name: /Radiologi/ })).toBeVisible();
+    await expect(page.getByRole('cell', { name: /^Radiologi/ })).toBeVisible();
     // Nama sangat panjang membungkus; kolom Aksi tetap terlihat tanpa gulir mendatar.
     const overflow = await page
       .locator('[data-slot="table-container"]')

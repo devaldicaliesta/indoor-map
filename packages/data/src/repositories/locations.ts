@@ -202,7 +202,9 @@ export function toSaveLocationArgs(
 export interface LocationImages {
   /** Logo baru; `null` menghapus logo; tanpa nilai = logo tidak berubah. */
   logo?: Blob | null;
-  /** Foto lama yang dipertahankan, lalu foto baru yang diunggah. */
+  /** Logo dari pustaka media (path berkas yang sudah ada); dipakai bila `logo` tidak diisi. */
+  logoPath?: string;
+  /** Foto lama atau dari pustaka media yang dipertahankan, lalu foto baru yang diunggah. */
   keepPhotoPaths: string[];
   newPhotos: Blob[];
 }
@@ -248,6 +250,19 @@ export interface LocationPageFilters {
   unlinkedOnly: boolean;
 }
 
+function searchArgs(venueId: VenueId, q: string, filters: LocationPageFilters) {
+  return {
+    p_venue_id: venueId,
+    p_query: q,
+    ...(filters.statuses.length ? { p_statuses: [...filters.statuses] } : {}),
+    ...(filters.categoryId ? { p_category_id: filters.categoryId } : {}),
+    ...(filters.typeId ? { p_type_id: filters.typeId } : {}),
+    ...(filters.building ? { p_building: filters.building } : {}),
+    ...(filters.floorId ? { p_floor_id: filters.floorId } : {}),
+    p_unlinked_only: filters.unlinkedOnly,
+  };
+}
+
 export interface LocationsRepository {
   /** Semua lokasi venue dengan kategori dan unitnya (gedung/lantai ikut untuk filter). */
   list(venueId: VenueId): Promise<Location[]>;
@@ -258,6 +273,8 @@ export interface LocationsRepository {
   listPage(venueId: VenueId, query: PageQuery<LocationPageFilters>): Promise<Page<Location>>;
   /** Satu lokasi lengkap (tautan langsung `?location=`); `null` bila tidak ada atau tidak boleh dibaca. */
   get(id: LocationId): Promise<Location | null>;
+  /** Id semua lokasi yang cocok dengan cari dan filter tabel ("pilih semua hasil"), urut nama. */
+  ids(venueId: VenueId, q: string, filters: LocationPageFilters): Promise<LocationId[]>;
   /** Kode dan nama semua lokasi venue saja, untuk memeriksa kode ganda di formulir. */
   codes(venueId: VenueId): Promise<{ id: string; code: string | null; name: string }[]>;
   /**
@@ -272,7 +289,10 @@ export interface LocationsRepository {
     input: LocationInput,
     images: LocationImages,
   ): Promise<LocationId>;
-  /** Tautan kategori dan unit ikut terhapus (cascade), begitu juga berkas gambarnya. */
+  /**
+   * Tautan kategori dan unit ikut terhapus (cascade), begitu juga berkas gambar yang diunggah
+   * khusus untuk lokasi ini. Aset pustaka media yang dipakai ulang tetap tersimpan.
+   */
   remove(id: LocationId): Promise<void>;
   /** Semua unit venue beserta lokasi aktif yang memakainya (pemilih unit). */
   venueUnits(venueId: VenueId): Promise<VenueUnit[]>;
@@ -316,6 +336,10 @@ export function createLocationsRepository(db: Db): LocationsRepository {
     return path;
   }
 
+  /** Berkas yang dibuat formulir untuk satu lokasi: `locations/{venue}/{id}-…`. */
+  const ownFiles = (venueId: string, id: string, paths: readonly (string | null)[]) =>
+    paths.filter((p): p is string => Boolean(p?.startsWith(`locations/${venueId}/${id}-`)));
+
   async function removeFiles(paths: readonly (string | null)[]) {
     const list = paths.filter((p): p is string => Boolean(p));
     // Kegagalan membersihkan berkas tidak membatalkan perubahan data.
@@ -344,21 +368,23 @@ export function createLocationsRepository(db: Db): LocationsRepository {
       return (rows as unknown as LocationRow[]).map(mapLocationRow);
     },
 
+    async ids(venueId, q, filters) {
+      const rows = await fetchAllPages((from, to) =>
+        db
+          .rpc('search_locations', searchArgs(venueId, q, filters))
+          .select('id, name')
+          .order('name')
+          .order('id')
+          .range(from, to),
+      );
+      return (rows as { id: string }[]).map((row) => LocationIdSchema.parse(row.id));
+    },
+
     listPage(venueId, { q, filters, page, size }) {
-      const args = {
-        p_venue_id: venueId,
-        p_query: q,
-        ...(filters.statuses.length ? { p_statuses: [...filters.statuses] } : {}),
-        ...(filters.categoryId ? { p_category_id: filters.categoryId } : {}),
-        ...(filters.typeId ? { p_type_id: filters.typeId } : {}),
-        ...(filters.building ? { p_building: filters.building } : {}),
-        ...(filters.floorId ? { p_floor_id: filters.floorId } : {}),
-        p_unlinked_only: filters.unlinkedOnly,
-      };
       return listPage(
         (from, to) =>
           db
-            .rpc('search_locations', args, { count: 'exact' })
+            .rpc('search_locations', searchArgs(venueId, q, filters), { count: 'exact' })
             .select(COLUMNS)
             .order('name')
             .order('id')
@@ -398,7 +424,7 @@ export function createLocationsRepository(db: Db): LocationsRepository {
       const stamp = Date.now();
       const uploaded: string[] = [];
       try {
-        let logoPath = images.logo === null ? null : before.logo_path;
+        let logoPath = images.logo === null ? null : (images.logoPath ?? before.logo_path);
         if (images.logo) {
           logoPath = await upload(venueId, `${locationId}-logo-${stamp}`, images.logo);
           uploaded.push(logoPath);
@@ -422,7 +448,11 @@ export function createLocationsRepository(db: Db): LocationsRepository {
           if (translated.error) throw saveError(translated.error);
         }
         const kept = new Set([logoPath, ...photoPaths]);
-        await removeFiles([before.logo_path, ...before.photo_paths].filter((p) => !kept.has(p)));
+        await removeFiles(
+          ownFiles(venueId, locationId, [before.logo_path, ...before.photo_paths]).filter(
+            (p) => !kept.has(p),
+          ),
+        );
         return locationId;
       } catch (error) {
         await removeFiles(uploaded);
@@ -458,11 +488,11 @@ export function createLocationsRepository(db: Db): LocationsRepository {
         .from('locations')
         .delete()
         .eq('id', id)
-        .select('logo_path, photo_paths');
+        .select('venue_id, logo_path, photo_paths');
       if (error) throw toDataError(error);
       const row = data[0];
       if (!row) throw await zeroRowsError(() => isVisible(id));
-      await removeFiles([row.logo_path, ...row.photo_paths]);
+      await removeFiles(ownFiles(row.venue_id, id, [row.logo_path, ...row.photo_paths]));
     },
 
     async venueUnits(venueId) {

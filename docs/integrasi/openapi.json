@@ -1,0 +1,777 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PanduArah API Integrasi",
+    "version": "1.0.0",
+    "description": "API untuk sistem klien (SIMRS, sistem akademik, HR) yang mengubah data lokasi dan penutupan.\n\nAutentikasi: header `Authorization: Bearer <kunci>` (kunci dibuat Super Admin di Admin → Integrasi).\nSetiap kunci punya izin per modul dan bisa dibatasi ke venue tertentu. Batas 120 permintaan per menit per kunci.\n\nPerubahan lokasi, kategori, status, dan jam masuk ke draft dan tampil di Visitor setelah publish dari Admin.\nPenutupan berlaku langsung tanpa publish.\n\nDeep link Visitor: `{URL Visitor}/v/{venueId}?loc={locationId}` membuka lokasi; parameter lain:\n`b` (gedung), `f` (lantai), `from`/`to` (id lokasi atau `lng,lat,floorId`), `o` (kode QR titik asal),\n`a11y=1` (rute aksesibel), `lang=id|en`, `ev` (id event). Setiap lokasi di API membawa `visitorPath`."
+  },
+  "servers": [
+    {
+      "url": "/functions/v1/api"
+    }
+  ],
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Kunci API `pa_…`."
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Galat: 400/422 isian salah, 401 kunci tidak berlaku, 403 izin kurang, 404 tidak ada, 409 bentrok, 429 terlalu banyak permintaan.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Location": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": ["string", "null"]
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "coming_soon", "inactive_temporary", "inactive_permanent"]
+          },
+          "openingDate": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hours": {
+            "type": "object",
+            "properties": {
+              "weekly": {
+                "type": "object",
+                "description": "Jam per hari (Senin = mon). Bila dikirim, seluruh jam mingguan diganti; hari yang tidak disebut berarti tutup.",
+                "properties": {
+                  "mon": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "tue": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "wed": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "thu": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "fri": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "sat": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "sun": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  }
+                }
+              },
+              "special": {
+                "type": "array",
+                "description": "Tanggal khusus (libur, jam pendek). Bila dikirim, seluruh tanggal khusus diganti; spans kosong = tutup.",
+                "items": {
+                  "type": "object",
+                  "required": ["date"],
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "spans": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                        "example": "08:00-16:00"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "visitorPath": {
+            "type": "string",
+            "example": "/v/{venueId}?loc={locationId}"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LocationUpsert": {
+        "type": "object",
+        "required": ["code"],
+        "description": "Lokasi dicocokkan dengan kode (tanpa membedakan huruf besar). Kolom yang tidak dikirim tidak diubah. Lokasi baru wajib name dan type.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "type": {
+            "type": "string",
+            "description": "Nama tipe lokasi yang sudah ada."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "coming_soon", "inactive_temporary", "inactive_permanent"]
+          },
+          "openingDate": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "Wajib untuk coming_soon."
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Nama kategori milik tipe lokasinya; daftar ini mengganti kategori lama."
+          },
+          "hours": {
+            "type": "object",
+            "properties": {
+              "weekly": {
+                "type": "object",
+                "description": "Jam per hari (Senin = mon). Bila dikirim, seluruh jam mingguan diganti; hari yang tidak disebut berarti tutup.",
+                "properties": {
+                  "mon": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "tue": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "wed": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "thu": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "fri": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "sat": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  },
+                  "sun": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                      "example": "08:00-16:00"
+                    }
+                  }
+                }
+              },
+              "special": {
+                "type": "array",
+                "description": "Tanggal khusus (libur, jam pendek). Bila dikirim, seluruh tanggal khusus diganti; spans kosong = tutup.",
+                "items": {
+                  "type": "object",
+                  "required": ["date"],
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "spans": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                        "example": "08:00-16:00"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Closure": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "target": {
+            "type": "string",
+            "enum": ["unit", "path", "connector"]
+          },
+          "unitCode": {
+            "type": ["string", "null"]
+          },
+          "locationCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/openapi.json": {
+      "get": {
+        "summary": "Dokumen ini",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.1"
+          }
+        }
+      }
+    },
+    "/v1/venues": {
+      "get": {
+        "summary": "Venue yang bisa dijangkau kunci ini",
+        "responses": {
+          "200": {
+            "description": "Daftar venue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "venues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "timezone": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/venues/{venueId}/locations": {
+      "get": {
+        "summary": "Lokasi venue (izin locations:read)",
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Id venue (lihat `GET /v1/venues`)."
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Satu kode lokasi."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lokasi beserta kategori, unit, dan jam",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "locations": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Location"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Upsert massal berdasarkan kode lokasi (izin locations:write)",
+        "description": "Maks. 1000 lokasi. Semua baris diterapkan atau tidak sama sekali. Hasil per baris: created, updated, atau unchanged.",
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Id venue (lihat `GET /v1/venues`)."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["locations"],
+                "properties": {
+                  "locations": {
+                    "type": "array",
+                    "maxItems": 1000,
+                    "items": {
+                      "$ref": "#/components/schemas/LocationUpsert"
+                    }
+                  }
+                }
+              },
+              "example": {
+                "locations": [
+                  {
+                    "code": "POLI-01",
+                    "status": "active",
+                    "hours": {
+                      "weekly": {
+                        "mon": ["08:00-12:00", "13:00-16:00"],
+                        "tue": ["08:00-16:00"],
+                        "wed": ["08:00-16:00"],
+                        "thu": ["08:00-16:00"],
+                        "fri": ["08:00-11:30"]
+                      },
+                      "special": [
+                        {
+                          "date": "2026-12-25",
+                          "spans": []
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hasil per lokasi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "locations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": ["created", "updated", "unchanged"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/venues/{venueId}/categories": {
+      "get": {
+        "summary": "Tipe lokasi dan kategorinya (izin locations:read)",
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Id venue (lihat `GET /v1/venues`)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tipe dan kategori"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/venues/{venueId}/closures": {
+      "get": {
+        "summary": "Penutupan yang berjalan dan terjadwal (izin closures:read)",
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Id venue (lihat `GET /v1/venues`)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Penutupan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "closures": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Closure"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Tutup lokasi (semua unitnya) atau satu unit (izin closures:write)",
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Id venue (lihat `GET /v1/venues`)."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["reason"],
+                "properties": {
+                  "locationCode": {
+                    "type": "string"
+                  },
+                  "unitCode": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "startsAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Bawaan: sekarang."
+                  },
+                  "endsAt": {
+                    "type": ["string", "null"],
+                    "format": "date-time"
+                  }
+                }
+              },
+              "example": {
+                "locationCode": "RAD-01",
+                "reason": "Perawatan alat",
+                "endsAt": "2026-12-01T15:00:00+07:00"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Penutupan yang dibuat (satu per unit)"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/v1/venues/{venueId}/closures/{closureId}": {
+      "delete": {
+        "summary": "Akhiri penutupan sekarang; yang belum mulai dibatalkan (izin closures:write)",
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Id venue (lihat `GET /v1/venues`)."
+          },
+          {
+            "name": "closureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Diakhiri"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {
+    "event": {
+      "post": {
+        "summary": "Peristiwa webhook",
+        "description": "Dikirim ke alamat yang didaftarkan Super Admin. Header Standard Webhooks:\n`webhook-id`, `webhook-timestamp` (detik), `webhook-signature` = `v1,` + base64(HMAC-SHA256(\nkunci = base64-decode(rahasia tanpa `whsec_`), isi = `{id}.{timestamp}.{body}`)).\nBalas 2xx dalam 10 detik. Selain itu dicoba ulang setelah 1 menit, 5 menit, 30 menit, 2 jam, dan 6 jam.\nJenis: publish.completed, publish.rollback, closure.created, closure.updated, closure.deleted,\nlocation.changed (perubahan dalam satu transaksi digabung), ping.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "venueId": {
+                    "type": ["string", "null"],
+                    "format": "uuid"
+                  },
+                  "data": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Diterima"
+          }
+        }
+      }
+    }
+  }
+}

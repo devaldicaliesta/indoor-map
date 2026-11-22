@@ -175,6 +175,63 @@ export type Database = {
           },
         ];
       };
+      api_keys: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          key_hash: string;
+          last_used_at: string | null;
+          name: string;
+          prefix: string;
+          revoked_at: string | null;
+          revoked_by: string | null;
+          scopes: string[];
+          venue_ids: string[] | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          key_hash: string;
+          last_used_at?: string | null;
+          name: string;
+          prefix: string;
+          revoked_at?: string | null;
+          revoked_by?: string | null;
+          scopes: string[];
+          venue_ids?: string[] | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          key_hash?: string;
+          last_used_at?: string | null;
+          name?: string;
+          prefix?: string;
+          revoked_at?: string | null;
+          revoked_by?: string | null;
+          scopes?: string[];
+          venue_ids?: string[] | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'api_keys_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+          {
+            foreignKeyName: 'api_keys_revoked_by_fkey';
+            columns: ['revoked_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
       audit_events: {
         Row: {
           action: string;
@@ -1166,6 +1223,67 @@ export type Database = {
         };
         Relationships: [];
       };
+      location_bulk_edits: {
+        Row: {
+          change: NonNullable<Json>;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          location_count: number;
+          previous: NonNullable<Json>;
+          seq: number;
+          undone_at: string | null;
+          undone_by: string | null;
+          venue_id: string;
+        };
+        Insert: {
+          change: NonNullable<Json>;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          location_count: number;
+          previous: NonNullable<Json>;
+          seq?: never;
+          undone_at?: string | null;
+          undone_by?: string | null;
+          venue_id: string;
+        };
+        Update: {
+          change?: NonNullable<Json>;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          location_count?: number;
+          previous?: NonNullable<Json>;
+          seq?: never;
+          undone_at?: string | null;
+          undone_by?: string | null;
+          venue_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'location_bulk_edits_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+          {
+            foreignKeyName: 'location_bulk_edits_undone_by_fkey';
+            columns: ['undone_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+          {
+            foreignKeyName: 'location_bulk_edits_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       location_categories: {
         Row: {
           category_id: string;
@@ -1899,6 +2017,119 @@ export type Database = {
           },
         ];
       };
+      webhook_deliveries: {
+        Row: {
+          attempts: number;
+          created_at: string;
+          delivered_at: string | null;
+          error: string | null;
+          event: string;
+          id: string;
+          last_attempt_at: string | null;
+          next_attempt_at: string;
+          payload: NonNullable<Json>;
+          response_ms: number | null;
+          response_status: number | null;
+          status: string;
+          venue_id: string | null;
+          webhook_id: string;
+        };
+        Insert: {
+          attempts?: number;
+          created_at?: string;
+          delivered_at?: string | null;
+          error?: string | null;
+          event: string;
+          id?: string;
+          last_attempt_at?: string | null;
+          next_attempt_at?: string;
+          payload: NonNullable<Json>;
+          response_ms?: number | null;
+          response_status?: number | null;
+          status?: string;
+          venue_id?: string | null;
+          webhook_id: string;
+        };
+        Update: {
+          attempts?: number;
+          created_at?: string;
+          delivered_at?: string | null;
+          error?: string | null;
+          event?: string;
+          id?: string;
+          last_attempt_at?: string | null;
+          next_attempt_at?: string;
+          payload?: NonNullable<Json>;
+          response_ms?: number | null;
+          response_status?: number | null;
+          status?: string;
+          venue_id?: string | null;
+          webhook_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'webhook_deliveries_venue_id_fkey';
+            columns: ['venue_id'];
+            isOneToOne: false;
+            referencedRelation: 'venues';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'webhook_deliveries_webhook_id_fkey';
+            columns: ['webhook_id'];
+            isOneToOne: false;
+            referencedRelation: 'webhooks';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      webhooks: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          created_by: string | null;
+          events: string[];
+          id: string;
+          name: string;
+          secret: string;
+          updated_at: string;
+          url: string;
+          venue_ids: string[] | null;
+        };
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          events: string[];
+          id?: string;
+          name: string;
+          secret: string;
+          updated_at?: string;
+          url: string;
+          venue_ids?: string[] | null;
+        };
+        Update: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          events?: string[];
+          id?: string;
+          name?: string;
+          secret?: string;
+          updated_at?: string;
+          url?: string;
+          venue_ids?: string[] | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'webhooks_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1924,6 +2155,26 @@ export type Database = {
         }[];
       };
       analytics_ingest: { Args: { p_events: Json; p_venue: string }; Returns: number };
+      api_authenticate: { Args: { p_key: string }; Returns: Json };
+      api_categories: { Args: { p_key_id: string; p_venue_id: string }; Returns: Json };
+      api_closures: { Args: { p_key_id: string; p_venue_id: string }; Returns: Json };
+      api_create_closures: {
+        Args: { p_input: Json; p_key_id: string; p_venue_id: string };
+        Returns: Json;
+      };
+      api_end_closure: {
+        Args: { p_closure_id: string; p_key_id: string; p_venue_id: string };
+        Returns: Json;
+      };
+      api_locations: {
+        Args: { p_code?: string; p_key_id: string; p_venue_id: string };
+        Returns: Json;
+      };
+      api_upsert_locations: {
+        Args: { p_key_id: string; p_rows: Json; p_venue_id: string };
+        Returns: Json;
+      };
+      api_venues: { Args: { p_key_id: string }; Returns: Json };
       apply_template: {
         Args: {
           p_template: Json;
@@ -1932,7 +2183,20 @@ export type Database = {
         };
         Returns: undefined;
       };
+      bulk_edit_locations: {
+        Args: { p_change: Json; p_location_ids: string[]; p_venue_id: string };
+        Returns: string;
+      };
+      create_api_key: {
+        Args: { p_name: string; p_scopes: string[]; p_venue_ids?: string[] };
+        Returns: Json;
+      };
+      create_webhook: {
+        Args: { p_events: string[]; p_name: string; p_url: string; p_venue_ids?: string[] };
+        Returns: Json;
+      };
       delete_connector: { Args: { p_id: string }; Returns: undefined };
+      delete_webhook: { Args: { p_id: string }; Returns: undefined };
       eula_status: { Args: Record<PropertyKey, never>; Returns: string };
       hosting_lifecycle_authorized: { Args: { p_secret: string }; Returns: boolean };
       hosting_lifecycle_expired: {
@@ -2082,6 +2346,17 @@ export type Database = {
         }[];
       };
       license_valid_until: { Args: Record<PropertyKey, never>; Returns: string };
+      media_assets: {
+        Args: { p_venue_id: string };
+        Returns: {
+          bucket: string;
+          created_at: string;
+          mime_type: string;
+          path: string;
+          size_bytes: number;
+          usages: Json;
+        }[];
+      };
       mfa_recover: { Args: { p_code: string }; Returns: boolean };
       mfa_recovery_codes_generate: { Args: Record<PropertyKey, never>; Returns: string[] };
       mfa_recovery_codes_left: { Args: Record<PropertyKey, never>; Returns: number };
@@ -2096,6 +2371,7 @@ export type Database = {
         }[];
       };
       notification_unsubscribe: { Args: { p_apply: boolean; p_token: string }; Returns: string };
+      ping_webhook: { Args: { p_id: string }; Returns: string };
       public_visitor_url: { Args: Record<PropertyKey, never>; Returns: string };
       publish_abort: { Args: { p_publication_id: string }; Returns: undefined };
       publish_begin: {
@@ -2107,8 +2383,11 @@ export type Database = {
         }[];
       };
       publish_commit: { Args: { p_publication_id: string }; Returns: undefined };
+      redeliver_webhook: { Args: { p_delivery_id: string }; Returns: undefined };
       release_edit_lock: { Args: { p_floor_id: string }; Returns: undefined };
       remove_field_definition: { Args: { p_id: string }; Returns: undefined };
+      revoke_api_key: { Args: { p_id: string }; Returns: undefined };
+      rotate_webhook_secret: { Args: { p_id: string }; Returns: string };
       save_connector: {
         Args: {
           p_direction?: Database['public']['Enums']['escalator_direction'];
@@ -2282,6 +2561,18 @@ export type Database = {
           locked: boolean;
           venue_id: string;
         }[];
+      };
+      undo_location_bulk_edit: { Args: { p_id: string }; Returns: number };
+      update_webhook: {
+        Args: {
+          p_active: boolean;
+          p_events: string[];
+          p_id: string;
+          p_name: string;
+          p_url: string;
+          p_venue_ids: string[];
+        };
+        Returns: undefined;
       };
       user_data_delete: { Args: { p_user_id: string }; Returns: undefined };
       user_data_export: { Args: { p_user_id: string }; Returns: Json };
@@ -2542,6 +2833,14 @@ export type Database = {
         Returns: string;
       };
       vendor_unblock: { Args: { p_value: string }; Returns: undefined };
+      venue_dashboard: { Args: { p_venue_id: string }; Returns: Json };
+      webhook_claim: { Args: { p_limit?: number }; Returns: Json };
+      webhook_dispatch_authorized: { Args: { p_secret: string }; Returns: boolean };
+      webhook_record: {
+        Args: { p_error: string; p_id: string; p_ms: number; p_status: number };
+        Returns: undefined;
+      };
+      webhook_tick: { Args: Record<PropertyKey, never>; Returns: undefined };
     };
     Enums: {
       analytics_device: 'mobile' | 'tablet' | 'desktop' | 'kiosk';

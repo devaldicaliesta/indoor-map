@@ -1,0 +1,105 @@
+[
+  {
+    "headers": {
+      "webhook-id": "46c6d9e5-7910-40a9-9270-33e0057314cb",
+      "webhook-timestamp": "1795351011",
+      "webhook-signature": "v1,jIj3i6t3LkOQw5JPzNHzG2MkriZTZnd/srYyNPFlxm0=",
+      "signature-valid": true
+    },
+    "body": {
+      "id": "46c6d9e5-7910-40a9-9270-33e0057314cb",
+      "data": {
+        "closure": {
+          "id": "7a6489a0-c9ec-4636-9557-f3d2a3f84b47",
+          "endsAt": null,
+          "reason": "Perawatan alat rontgen",
+          "target": "unit",
+          "startsAt": "2026-11-22T12:36:50.982129+00:00",
+          "unitCode": "UJI-GF-001",
+          "locationCodes": [
+            "RAD-01"
+          ]
+        }
+      },
+      "type": "closure.created",
+      "venueId": "f99bd6cc-cf83-4779-8c13-e3e81f697210",
+      "createdAt": "2026-11-22T12:36:50.982129+00:00"
+    }
+  },
+  {
+    "headers": {
+      "webhook-id": "46c6d9e5-7910-40a9-9270-33e0057314cb",
+      "webhook-timestamp": "1795351013",
+      "webhook-signature": "v1,gIQUzyKVSyi7BHW+9RpQHFVM5YPlH6MRCaEmvcturTU=",
+      "signature-valid": true
+    },
+    "body": {
+      "id": "46c6d9e5-7910-40a9-9270-33e0057314cb",
+      "data": {
+        "closure": {
+          "id": "7a6489a0-c9ec-4636-9557-f3d2a3f84b47",
+          "endsAt": null,
+          "reason": "Perawatan alat rontgen",
+          "target": "unit",
+          "startsAt": "2026-11-22T12:36:50.982129+00:00",
+          "unitCode": "UJI-GF-001",
+          "locationCodes": [
+            "RAD-01"
+          ]
+        }
+      },
+      "type": "closure.created",
+      "venueId": "f99bd6cc-cf83-4779-8c13-e3e81f697210",
+      "createdAt": "2026-11-22T12:36:50.982129+00:00"
+    }
+  },
+  {
+    "headers": {
+      "webhook-id": "e2315401-fdb2-44f3-82c8-d246e847a5e5",
+      "webhook-timestamp": "1795351013",
+      "webhook-signature": "v1,kwmpxu9C+F/gGifYWGbaPeWyjJgJ7LQpHufGWxeXhCg=",
+      "signature-valid": true
+    },
+    "body": {
+      "id": "e2315401-fdb2-44f3-82c8-d246e847a5e5",
+      "data": {
+        "notes": null,
+        "origin": "publish",
+        "version": 2,
+        "publishedAt": "2026-11-22T12:36:53.641467+00:00",
+        "sourceVersion": null
+      },
+      "type": "publish.completed",
+      "venueId": "f99bd6cc-cf83-4779-8c13-e3e81f697210",
+      "createdAt": "2026-11-22T12:36:53.641467+00:00"
+    }
+  },
+  {
+    "headers": {
+      "webhook-id": "b044c211-b3ec-4d9e-ac2d-16c6d734d0f9",
+      "webhook-timestamp": "1795351014",
+      "webhook-signature": "v1,XqbT5Fpr5tkyhauqwWAZ5YNw2TWo0YaVEDN3Qq9A3jQ=",
+      "signature-valid": true
+    },
+    "body": {
+      "id": "b044c211-b3ec-4d9e-ac2d-16c6d734d0f9",
+      "data": {
+        "count": 1,
+        "source": "api",
+        "locations": [
+          {
+            "id": "033926de-9513-4b2a-9c9c-dee81c0fd413",
+            "code": "RAD-01",
+            "name": "Radiologi",
+            "action": "update",
+            "status": "inactive_temporary"
+          }
+        ],
+        "truncated": false
+      },
+      "type": "location.changed",
+      "venueId": "f99bd6cc-cf83-4779-8c13-e3e81f697210",
+      "createdAt": "2026-11-22T12:36:54.004087+00:00"
+    }
+  }
+]

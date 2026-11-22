@@ -20,7 +20,7 @@ export const LOCATION_FILTER = {
   link: 'tautan',
 } as const;
 
-const UNLINKED = 'belum';
+export const UNLINKED_FILTER = 'belum';
 
 /** Filter tabel Lokasi; pilihan yang masih dimuat bernilai `undefined`. */
 export function locationFilters(options: {
@@ -75,7 +75,7 @@ export function locationFilters(options: {
       key: LOCATION_FILTER.link,
       label: 'Tautan unit',
       allLabel: 'Semua tautan unit',
-      options: [{ value: UNLINKED, label: 'Belum tertaut unit' }],
+      options: [{ value: UNLINKED_FILTER, label: 'Belum tertaut unit' }],
     },
   ];
 }
@@ -92,6 +92,6 @@ export function toLocationPageFilters(state: TableState): LocationPageFilters {
     typeId: first(state, LOCATION_FILTER.type),
     building: first(state, LOCATION_FILTER.building),
     floorId: first(state, LOCATION_FILTER.floor),
-    unlinkedOnly: first(state, LOCATION_FILTER.link) === UNLINKED,
+    unlinkedOnly: first(state, LOCATION_FILTER.link) === UNLINKED_FILTER,
   };
 }

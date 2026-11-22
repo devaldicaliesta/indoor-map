@@ -133,7 +133,7 @@ export function DataTable<Row>({
           {rows.map((row) => (
             <TableRow key={rowKey(row)} {...rowProps?.(row)}>
               {columns.map((column) => (
-                <TableCell key={column.id} className={column.className}>
+                <TableCell key={column.id} className={column.className} data-column={column.id}>
                   {column.cell(row)}
                 </TableCell>
               ))}

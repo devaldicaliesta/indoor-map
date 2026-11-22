@@ -1,9 +1,10 @@
 import type { LocationImages } from '@indoor/data';
-import { checkImageFile, LOCATION_PHOTOS_MAX } from '@indoor/domain';
+import { checkImageFile, LOCATION_PHOTOS_MAX, type VenueId } from '@indoor/domain';
 import { Button, Input } from '@indoor/ui';
 import { XIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Field } from '../../app/components/field';
+import { MediaPickerDialog } from '../media/media-picker-dialog';
 import { IMAGE_MESSAGES } from './labels';
 import { locationImageUrl } from './queries';
 
@@ -21,13 +22,17 @@ export function initialImages(logoPath: string | null, photoPaths: readonly stri
   };
 }
 
-/** Perubahan untuk repository: logo tetap/hapus/ganti, foto lama yang dipertahankan dan foto baru. */
+/**
+ * Perubahan untuk repository: logo tetap/hapus/ganti/dari pustaka, foto lama atau dari pustaka
+ * yang dipertahankan, dan foto baru.
+ */
 export function toLocationImages(draft: ImagesDraft, savedLogo: string | null): LocationImages {
   const images: LocationImages = {
     keepPhotoPaths: draft.photos.flatMap((p) => (p.kind === 'saved' ? [p.path] : [])),
     newPhotos: draft.photos.flatMap((p) => (p.kind === 'new' ? [p.file] : [])),
   };
   if (draft.logo?.kind === 'new') images.logo = draft.logo.file;
+  else if (draft.logo && draft.logo.path !== savedLogo) images.logoPath = draft.logo.path;
   else if (!draft.logo && savedLogo) images.logo = null;
   return images;
 }
@@ -64,17 +69,28 @@ function Thumbnail({
   );
 }
 
-/** Logo dan foto lokasi: PNG, JPG, atau WebP maksimal 5 MB, diunggah saat formulir disimpan. */
+type Picking = 'logo' | 'photos' | null;
+
+/**
+ * Logo dan foto lokasi: PNG, JPG, atau WebP maksimal 5 MB, diunggah saat formulir disimpan, atau
+ * dipilih dari pustaka media venue.
+ */
 export function LocationImagesField({
+  venueId,
   value,
   disabled,
   onChange,
 }: {
+  venueId: VenueId;
   value: ImagesDraft;
   disabled: boolean;
   onChange: (value: ImagesDraft) => void;
 }) {
   const [error, setError] = useState<string>();
+  const [picking, setPicking] = useState<Picking>(null);
+  const savedPaths = [value.logo, ...value.photos].flatMap((item) =>
+    item?.kind === 'saved' ? [item.path] : [],
+  );
   const created = useRef<string[]>([]);
   useEffect(
     () => () => {
@@ -122,6 +138,11 @@ export function LocationImagesField({
               }}
             />
           )}
+          {disabled ? null : (
+            <Button type="button" size="sm" onClick={() => setPicking('logo')}>
+              Pilih dari pustaka
+            </Button>
+          )}
         </div>
       </Field>
       <Field
@@ -158,8 +179,36 @@ export function LocationImagesField({
               }}
             />
           )}
+          {disabled || room <= 0 ? null : (
+            <Button
+              type="button"
+              size="sm"
+              className="justify-self-start"
+              onClick={() => setPicking('photos')}
+            >
+              Pilih foto dari pustaka
+            </Button>
+          )}
         </div>
       </Field>
+      {picking ? (
+        <MediaPickerDialog
+          venueId={venueId}
+          title={picking === 'logo' ? 'Pilih logo dari pustaka' : 'Pilih foto dari pustaka'}
+          max={picking === 'logo' ? 1 : room}
+          exclude={savedPaths}
+          onClose={() => setPicking(null)}
+          onPick={(paths) => {
+            const items = paths.map((path) => ({ kind: 'saved' as const, path }));
+            if (picking === 'logo') onChange({ ...value, logo: items[0] ?? value.logo });
+            else
+              onChange({
+                ...value,
+                photos: [...value.photos, ...items].slice(0, LOCATION_PHOTOS_MAX),
+              });
+          }}
+        />
+      ) : null}
     </div>
   );
 }
