@@ -127,7 +127,7 @@ test.describe('T-503 Tabel Lokasi 2.000 baris (disaring di server)', () => {
       await table.goToPage(20);
       await expect(table.position).toHaveText('1.901–2.000 dari 2.000');
       await expect(table.rows).toHaveCount(100);
-      const lastPage = await table.rows.locator('td:first-child').allInnerTexts();
+      const lastPage = await table.rows.locator('td[data-column="code"]').allInnerTexts();
       expect(new Set(lastPage).size).toBe(100);
       await capture(page, '05-halaman-terakhir-100');
 
@@ -192,7 +192,7 @@ test.describe('T-503 Tabel Lokasi 2.000 baris (disaring di server)', () => {
       await table.goToPage(2);
       await expect(table.rows).toHaveCount(1);
       const last = table.rows.first();
-      const lastName = (await last.locator('td:nth-child(2) .font-bold').innerText()).trim();
+      const lastName = (await last.locator('td[data-column="name"] .font-bold').innerText()).trim();
       await last.getByRole('button', { name: 'Hapus' }).click();
       await page.getByRole('dialog').getByRole('button', { name: /Hapus/ }).last().click();
       await table.expectTotal(10);

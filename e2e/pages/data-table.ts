@@ -93,9 +93,15 @@ export class DataTablePage {
     await this.ready();
   }
 
-  /** Isi kolom pertama setiap baris halaman ini (biasanya kode atau nama). */
+  /** Isi kolom data pertama setiap baris halaman ini (biasanya kode atau nama), tanpa kotak pilih. */
   async firstColumn(): Promise<string[]> {
     await this.ready();
-    return this.rows.locator('td:first-child').allInnerTexts();
+    return this.rows.evaluateAll((rows) =>
+      rows.map(
+        (row) =>
+          (row.querySelector('td:not([data-column="select"])') as HTMLElement | null)?.innerText ??
+          '',
+      ),
+    );
   }
 }
