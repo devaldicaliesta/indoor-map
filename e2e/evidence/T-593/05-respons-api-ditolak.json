@@ -1,0 +1,14 @@
+{
+  "PUT dengan kunci baca-saja": {
+    "status": 403,
+    "body": {
+      "message": "Kunci API ini tidak punya izin locations:write."
+    }
+  },
+  "GET dengan kunci dicabut": {
+    "status": 401,
+    "body": {
+      "message": "Kunci API tidak berlaku atau sudah dicabut."
+    }
+  }
+}

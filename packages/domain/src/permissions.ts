@@ -5,9 +5,11 @@ import { APP_ROLES, type AppRole, type Profile } from './profile';
  * Satu sumber untuk UI; server menegakkan aturan yang sama lewat RLS dan fungsi `app.*`.
  */
 export const ADMIN_MODULES = [
+  'dashboard',
   'venues',
   'map_editor',
   'locations',
+  'media',
   'closures',
   'events',
   'origin_points',
@@ -15,6 +17,7 @@ export const ADMIN_MODULES = [
   'analytics',
   'settings',
   'users',
+  'integrations',
   'license',
   'system_health',
 ] as const;
@@ -24,6 +27,7 @@ export type AdminModule = (typeof ADMIN_MODULES)[number];
 export type ModuleAccess = 'edit' | 'read';
 
 const MODULE_ACCESS: Record<AdminModule, Partial<Record<AppRole, ModuleAccess>>> = {
+  dashboard: { super_admin: 'read', admin: 'read', editor: 'read', viewer: 'read' },
   venues: { super_admin: 'edit', admin: 'edit', editor: 'read', viewer: 'read' },
   map_editor: {
     super_admin: 'edit',
@@ -33,6 +37,7 @@ const MODULE_ACCESS: Record<AdminModule, Partial<Record<AppRole, ModuleAccess>>>
     viewer: 'read',
   },
   locations: { super_admin: 'edit', admin: 'edit', editor: 'edit', viewer: 'read' },
+  media: { super_admin: 'edit', admin: 'edit', editor: 'edit', viewer: 'read' },
   closures: {
     super_admin: 'edit',
     admin: 'edit',
@@ -47,6 +52,7 @@ const MODULE_ACCESS: Record<AdminModule, Partial<Record<AppRole, ModuleAccess>>>
   analytics: { super_admin: 'edit', admin: 'edit', viewer: 'read' },
   settings: { super_admin: 'edit', admin: 'edit', editor: 'read', viewer: 'read' },
   users: { super_admin: 'edit' },
+  integrations: { super_admin: 'edit' },
   license: { super_admin: 'edit' },
   system_health: { super_admin: 'edit' },
 };
@@ -67,6 +73,7 @@ export const ADMIN_ACTIONS = [
   'venue.edit',
   'map.edit',
   'location.edit',
+  'media.edit',
   'closure.manage',
   'event.edit',
   'origin_point.edit',
@@ -76,6 +83,7 @@ export const ADMIN_ACTIONS = [
   'settings.edit',
   'settings.system',
   'user.manage',
+  'integration.manage',
   'license.manage',
 ] as const;
 export type AdminAction = (typeof ADMIN_ACTIONS)[number];
@@ -84,6 +92,7 @@ const ACTION_ROLES: Record<AdminAction, readonly AppRole[]> = {
   'venue.edit': ['super_admin', 'admin'],
   'map.edit': ['super_admin', 'admin', 'editor'],
   'location.edit': ['super_admin', 'admin', 'editor'],
+  'media.edit': ['super_admin', 'admin', 'editor'],
   'closure.manage': ['super_admin', 'admin', 'operator'],
   'event.edit': ['super_admin', 'admin', 'editor'],
   'origin_point.edit': ['super_admin', 'admin', 'editor'],
@@ -93,6 +102,7 @@ const ACTION_ROLES: Record<AdminAction, readonly AppRole[]> = {
   'settings.edit': ['super_admin', 'admin'],
   'settings.system': ['super_admin'],
   'user.manage': ['super_admin'],
+  'integration.manage': ['super_admin'],
   'license.manage': ['super_admin'],
 };
 
@@ -110,12 +120,14 @@ const LICENSE_GATED_ACTIONS: ReadonlySet<AdminAction> = new Set<AdminAction>([
   'venue.edit',
   'map.edit',
   'location.edit',
+  'media.edit',
   'closure.manage',
   'event.edit',
   'origin_point.edit',
   'publish.publish',
   'publish.rollback',
   'settings.edit',
+  'integration.manage',
 ]);
 
 /** `false` bila aksi ini dikunci karena lisensi tidak berlaku (Admin hanya-baca). */

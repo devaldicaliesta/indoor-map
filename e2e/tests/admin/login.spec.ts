@@ -11,7 +11,7 @@ const HOME: Record<AppRole, string> = {
   admin: '/venues',
   editor: '/map-editor',
   operator: '/closures',
-  viewer: '/venues',
+  viewer: '/dashboard',
 };
 
 test.describe('Login Admin', () => {

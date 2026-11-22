@@ -3,11 +3,14 @@ import {
   ActivityIcon,
   BarChart3Icon,
   BuildingIcon,
+  ImagesIcon,
+  LayoutDashboardIcon,
   type LucideIcon,
   MapIcon,
   MapPinIcon,
   MegaphoneIcon,
   OctagonXIcon,
+  PlugIcon,
   QrCodeIcon,
   SendIcon,
   SettingsIcon,
@@ -20,13 +23,21 @@ export interface ModuleNav {
   label: string;
   icon: LucideIcon;
   feature?: PaidFeature;
+  readOnlyByDesign?: boolean;
 }
 
 // Urutan dan nama menu sesuai docs/spec/05-user-flow.md "Struktur menu Admin".
 export const MODULE_NAV: Record<AdminModule, ModuleNav> = {
+  dashboard: {
+    path: '/dashboard',
+    label: 'Dasbor',
+    icon: LayoutDashboardIcon,
+    readOnlyByDesign: true,
+  },
   venues: { path: '/venues', label: 'Venue', icon: BuildingIcon },
   map_editor: { path: '/map-editor', label: 'Editor Peta', icon: MapIcon },
   locations: { path: '/locations', label: 'Lokasi', icon: MapPinIcon },
+  media: { path: '/media', label: 'Media', icon: ImagesIcon },
   closures: { path: '/closures', label: 'Penutupan', icon: OctagonXIcon },
   events: { path: '/events', label: 'Event & Promo', icon: MegaphoneIcon, feature: 'events' },
   origin_points: { path: '/origin-points', label: 'Titik Asal', icon: QrCodeIcon },
@@ -34,6 +45,7 @@ export const MODULE_NAV: Record<AdminModule, ModuleNav> = {
   analytics: { path: '/analytics', label: 'Analitik', icon: BarChart3Icon },
   settings: { path: '/settings', label: 'Pengaturan', icon: SettingsIcon },
   users: { path: '/users', label: 'Pengguna', icon: UsersIcon },
+  integrations: { path: '/integrations', label: 'Integrasi', icon: PlugIcon },
   license: { path: '/license', label: 'Lisensi', icon: ShieldCheckIcon },
   system_health: { path: '/system-health', label: 'Kesehatan sistem', icon: ActivityIcon },
 };

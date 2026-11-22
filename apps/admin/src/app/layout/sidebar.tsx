@@ -71,7 +71,8 @@ function ModuleItem({
   access: ModuleAccess;
   collapsed: boolean;
 }) {
-  const { path, label, icon: Icon, feature } = MODULE_NAV[module];
+  const { path, label, icon: Icon, feature, readOnlyByDesign } = MODULE_NAV[module];
+  const readOnly = access === 'read' && !readOnlyByDesign;
   return feature ? (
     <FeatureItem feature={feature}>
       {(locked) => (
@@ -80,7 +81,7 @@ function ModuleItem({
           label={label}
           Icon={Icon}
           collapsed={collapsed}
-          readOnly={access === 'read'}
+          readOnly={readOnly}
           locked={locked ? lockedFeatureMessage(feature) : null}
         />
       )}
@@ -91,7 +92,7 @@ function ModuleItem({
       label={label}
       Icon={Icon}
       collapsed={collapsed}
-      readOnly={access === 'read'}
+      readOnly={readOnly}
       locked={null}
     />
   );

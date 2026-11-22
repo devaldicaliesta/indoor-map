@@ -77,7 +77,7 @@ select is(
   (select count(*)::int from pg_policies
    where schemaname = 'storage' and tablename = 'objects'
      and policyname in ('floor_plans_delete', 'snapshots_delete')
-     and qual like '%accessible_venue_keys%'),
+     and (qual like '%accessible_venue_keys%' or qual like '%writable_venue_keys%')),
   2, 'Kebijakan hapus denah dan snapshot memuat syarat venue');
 
 select * from finish();
