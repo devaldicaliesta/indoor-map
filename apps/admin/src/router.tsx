@@ -11,6 +11,7 @@ import { DashboardPage } from './features/dashboard/dashboard-page';
 import { EditorPage } from './features/editor/editor-page';
 import { EventsPage } from './features/events/events-page';
 import { GeoreferencePage } from './features/floor-plans/georeference';
+import { IntegrationsPage } from './features/integrations/integrations-page';
 import { ActivationPage } from './features/license/activation-page';
 import { LicenseGate } from './features/license/license-gate';
 import { LicensePage } from './features/license/license-page';
@@ -91,6 +92,7 @@ export const router = createBrowserRouter([
       { path: 'publish', element: <PublishPage /> },
       { path: 'settings', element: <SettingsPage /> },
       { path: 'users', element: <UsersPage /> },
+      { path: 'integrations', element: <IntegrationsPage /> },
       { path: 'license', element: <LicensePage /> },
       { path: 'system-health', element: <SystemHealthPage /> },
       { path: '*', element: <NotFoundPage /> },

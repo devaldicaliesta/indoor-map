@@ -10,6 +10,7 @@ import {
   MapPinIcon,
   MegaphoneIcon,
   OctagonXIcon,
+  PlugIcon,
   QrCodeIcon,
   SendIcon,
   SettingsIcon,
@@ -44,6 +45,7 @@ export const MODULE_NAV: Record<AdminModule, ModuleNav> = {
   analytics: { path: '/analytics', label: 'Analitik', icon: BarChart3Icon },
   settings: { path: '/settings', label: 'Pengaturan', icon: SettingsIcon },
   users: { path: '/users', label: 'Pengguna', icon: UsersIcon },
+  integrations: { path: '/integrations', label: 'Integrasi', icon: PlugIcon },
   license: { path: '/license', label: 'Lisensi', icon: ShieldCheckIcon },
   system_health: { path: '/system-health', label: 'Kesehatan sistem', icon: ActivityIcon },
 };

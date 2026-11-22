@@ -453,6 +453,14 @@ verify_jwt = false
 [functions.license-service]
 verify_jwt = false
 
+# API integrasi (T-593): sistem klien memakai kunci API sendiri, bukan JWT Supabase.
+[functions.api]
+verify_jwt = false
+
+# Dipanggil database lewat pg_net dengan rahasia Vault webhook_dispatch_secret (T-593).
+[functions.webhook-dispatch]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

@@ -30,6 +30,10 @@ import {
   createInstructionTemplatesRepository,
   type InstructionTemplatesRepository,
 } from './repositories/instruction-templates';
+import {
+  createIntegrationsRepository,
+  type IntegrationsRepository,
+} from './repositories/integrations';
 import { createLicenseRepository, type LicenseRepository } from './repositories/license';
 import {
   createLocationBulkEditsRepository,
@@ -127,6 +131,7 @@ export interface DataClient {
   systemSettings: SystemSettingsRepository;
   /** Tur panduan Admin yang sudah dilihat pengguna ini. */
   tours: TourProgressRepository;
+  integrations: IntegrationsRepository;
   trial: TrialRepository;
   users: UsersRepository;
   /** Dasbor vendor trial ter-hosting; hanya staf vendor ber-aal2 yang dilayani server. */
@@ -177,6 +182,7 @@ export function createRepositories(db: Db, endpoint?: DataClientConfig): DataCli
     systemHealth: createSystemHealthRepository(db),
     systemSettings: createSystemSettingsRepository(db),
     tours: createTourProgressRepository(db),
+    integrations: createIntegrationsRepository(db),
     users: createUsersRepository(db),
     vendor: createVendorRepository(db),
     venues: createVenuesRepository(db),
