@@ -13,7 +13,7 @@ onlyBuiltDependencies:
 catalog:
   '@biomejs/biome': 2.5.14
   # Sama dengan versi browser Playwright di lingkungan cloud (chromium-1194); naikkan bersama browsernya.
-  '@playwright/test': 1.56.1
+  '@playwright/test': 1.65.1
   # Tur panduan (T-599): MIT; intro.js ditolak karena AGPL-3.0. Dimuat lazy saat tur dimulai.
   driver.js: 1.9.0
   # Objek 3D (T-571): MIT, disetujui pemilik 2026-10-06; hanya dimuat lazy saat mode 3D dibuka.
