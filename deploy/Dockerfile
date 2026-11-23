@@ -24,7 +24,7 @@ RUN pnpm --filter @indoor/domain deploy --legacy --prod /out/domain \
   && node --experimental-strip-types tools/third-party-notices/src/cli.ts \
     'PanduArah Edge Function (paket domain)' /out/domain/node_modules > /out/domain/THIRD-PARTY-NOTICES.txt
 
-FROM caddy:2.11.6-alpine AS web
+FROM caddy:2.11.9-alpine AS web
 # Pembaruan keamanan paket Alpine di atas image dasar; dipindai Trivy di CI (T-603).
 RUN apk upgrade --no-cache
 COPY --from=build /repo/apps/admin/dist /opt/panduarah/www/admin
@@ -34,7 +34,7 @@ COPY deploy/web-entrypoint.sh /usr/local/bin/web-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/web-entrypoint.sh"]
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 
-FROM supabase/edge-runtime:v1.76.2 AS functions
+FROM supabase/edge-runtime:v1.79.1 AS functions
 # Pembaruan keamanan paket Debian di atas image dasar (T-603). Error-Mode=any: build gagal bila
 # repositori tidak terjangkau, alih-alih diam-diam memakai indeks lama tanpa pembaruan.
 RUN apt-get update -o APT::Update::Error-Mode=any \
@@ -46,7 +46,7 @@ COPY deploy/functions/main /srv/main
 CMD ["start", "--main-service", "/srv/main"]
 
 # Sama dengan services/cad-converter/Dockerfile, ditambah CA proxy dari deploy/ca untuk pip.
-FROM python:3.12-slim AS cad
+FROM python:3.15-slim AS cad
 # Pembaruan keamanan paket Debian di atas image dasar, sama dengan image `functions`.
 RUN apt-get update -o APT::Update::Error-Mode=any \
   && apt-get upgrade -y --no-install-recommends \

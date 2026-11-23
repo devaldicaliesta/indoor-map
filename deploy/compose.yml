@@ -6,7 +6,7 @@ name: indoor-map
 
 services:
   db:
-    image: supabase/postgres:17.6.1.171
+    image: supabase/postgres:17.12.0.000
     restart: unless-stopped
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf", "-c", "hba_file=/etc/indoor/pg_hba.conf"]
     environment:
@@ -25,7 +25,7 @@ services:
       retries: 20
 
   auth:
-    image: supabase/gotrue:v2.197.0
+    image: supabase/gotrue:v2.198.0
     restart: unless-stopped
     depends_on:
       db: { condition: service_healthy }
@@ -68,7 +68,7 @@ services:
       retries: 30
 
   rest:
-    image: postgrest/postgrest:v16.3
+    image: postgrest/postgrest:v16.5
     restart: unless-stopped
     depends_on:
       db: { condition: service_healthy }
@@ -82,7 +82,7 @@ services:
       PGRST_DB_USE_LEGACY_GUCS: "false"
 
   storage:
-    image: supabase/storage-api:v1.77.0
+    image: supabase/storage-api:v1.96.0
     restart: unless-stopped
     depends_on:
       db: { condition: service_healthy }
@@ -160,7 +160,7 @@ services:
 
   # Dijalankan oleh install.sh/upgrade.sh: `docker compose run --rm migrate`.
   migrate:
-    image: supabase/postgres:17.6.1.171
+    image: supabase/postgres:17.12.0.000
     profiles: ["tools"]
     depends_on:
       db: { condition: service_healthy }

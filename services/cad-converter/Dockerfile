@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.15-slim
 # Pembaruan keamanan paket Debian di atas image dasar (lihat deploy/Dockerfile).
 RUN apt-get update -o APT::Update::Error-Mode=any \
   && apt-get upgrade -y --no-install-recommends \
