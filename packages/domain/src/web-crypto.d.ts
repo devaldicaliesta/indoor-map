@@ -1,4 +1,4 @@
-// Bagian kecil WebCrypto dan pengodean teks yang dipakai `license.ts`. Domain sengaja tanpa
+// Bagian kecil WebCrypto dan pengodean teks yang dipakai `license.ts` dan export IMDF. Domain sengaja tanpa
 // lib DOM; API ini tersedia sama di browser, Deno (Edge Function), dan Node.
 interface CryptoKey {
   readonly algorithm: { name: string };
@@ -15,6 +15,7 @@ interface CryptoKeyPair {
 type KeyUsage = 'sign' | 'verify';
 
 interface SubtleCrypto {
+  digest(algorithm: 'SHA-1', data: Uint8Array<ArrayBuffer>): Promise<ArrayBuffer>;
   importKey(
     format: 'raw' | 'pkcs8' | 'spki',
     keyData: Uint8Array<ArrayBuffer>,
