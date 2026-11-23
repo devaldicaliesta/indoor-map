@@ -10,6 +10,7 @@ import { ModulePage, ModuleRoute } from '../../app/module-route';
 import { useSelectedVenue } from '../../app/venue-store';
 import { usePublicVisitorUrl } from '../origin-points/queries';
 import { ChangeSummary } from './change-summary';
+import { ExportButton } from './export-dialog';
 import { Preview } from './preview';
 import {
   useActivePublication,
@@ -99,7 +100,16 @@ function ActiveVersion({ venueId }: { venueId: VenueId }) {
           {publisherName ? ` · ${publisherName}` : ''}
         </span>
       </p>
-      <StatusDot tone="ok">Dibaca Visitor dan Info Point</StatusDot>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <StatusDot tone="ok">Dibaca Visitor dan Info Point</StatusDot>
+        <Can action="publish.export">
+          <ExportButton
+            venueId={venueId}
+            version={version}
+            venueAddress={venue.data?.address ?? null}
+          />
+        </Can>
+      </div>
     </section>
   );
 }

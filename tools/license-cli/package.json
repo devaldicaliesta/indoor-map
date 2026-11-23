@@ -1,6 +1,7 @@
 {
   "name": "@indoor/license-cli",
   "private": true,
+  "license": "UNLICENSED",
   "version": "0.0.0",
   "type": "module",
   "bin": {

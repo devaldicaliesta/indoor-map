@@ -1002,7 +1002,7 @@ Gerbang setiap rilis (rincian di `22-F2-verifikasi-e2e.md` §7):
   3. Tombol export di halaman Publish (Admin/Super Admin).
 - **Verifikasi:** TC-OPS-12, 13; bukti `e2e/evidence/T-594/` (`22-F2-verifikasi-e2e.md`)
 - **Selesai jika:**
-  - [ ] Paket IMDF venue contoh lolos validasi tanpa error
+  - [x] Paket IMDF venue contoh lolos validasi tanpa error
 
 ### T-595 · Vendor Portal minimal
 

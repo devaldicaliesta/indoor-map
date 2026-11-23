@@ -1,10 +1,12 @@
 {
   "name": "@indoor/domain",
   "private": true,
+  "license": "UNLICENSED",
   "version": "0.0.0",
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./export": "./src/export/index.ts",
     "./license": "./src/license.ts",
     "./license-issue": "./src/license-issue.ts",
     "./license-key": "./src/license-key.ts",

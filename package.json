@@ -1,10 +1,11 @@
 {
   "name": "indoor-nav",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@10.34.9",
   "engines": {
-    "node": ">=22"
+    "node": ">=26"
   },
   "scripts": {
     "dev": "turbo run dev --filter=!@indoor/landing --filter=!@indoor/vendor",
@@ -20,7 +21,7 @@
     "db:reset": "node scripts/db-reset.mjs",
     "db:seed-demo": "pnpm --filter @indoor/data seed:demo",
     "db:seed-demo:hosted": "pnpm --filter @indoor/data seed:demo:hosted",
-    "db:types": "supabase gen types typescript --local > packages/data/src/database.types.ts && biome format --write packages/data/src/database.types.ts"
+    "db:types": "supabase gen types typescript > packages/data/src/database.types.ts && biome format --write packages/data/src/database.types.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

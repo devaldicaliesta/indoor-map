@@ -1,13 +1,14 @@
 # Image rilis, dibangun vendor lewat deploy/build-release.sh (bukan di server klien). Target
 # `web`: Caddy (HTTPS + gateway) dengan build statis Admin dan Visitor. Target `functions`: Edge
 # Runtime berisi Edge Function dan paket domain yang diimpornya. Target `cad`: cad-converter.
-FROM node:22-slim AS build
+FROM node:26-slim AS build
 WORKDIR /repo
-RUN corepack enable
 COPY . .
 # CA proxy perusahaan (deploy/ca/*.crt, opsional) agar unduhan dependensi lolos pemeriksaan TLS.
 RUN cat deploy/ca/*.crt > /build-ca.pem 2>/dev/null || : > /build-ca.pem
 ENV NODE_EXTRA_CA_CERTS=/build-ca.pem
+# Node 25+ tidak lagi membawa corepack; dipasang dari npm agar pnpm mengikuti `packageManager`.
+RUN npm install -g corepack && corepack enable
 # Skrip install tidak dibutuhkan untuk build (satu-satunya, CLI supabase, tidak dipakai di sini).
 RUN pnpm install --frozen-lockfile --ignore-scripts
 # Alamat API dan kunci anon baru diketahui di server klien (install.sh membangkitkannya), jadi
@@ -24,7 +25,7 @@ RUN pnpm --filter @indoor/domain deploy --legacy --prod /out/domain \
   && node --experimental-strip-types tools/third-party-notices/src/cli.ts \
     'PanduArah Edge Function (paket domain)' /out/domain/node_modules > /out/domain/THIRD-PARTY-NOTICES.txt
 
-FROM caddy:2.11.6-alpine AS web
+FROM caddy:2.11.9-alpine AS web
 # Pembaruan keamanan paket Alpine di atas image dasar; dipindai Trivy di CI (T-603).
 RUN apk upgrade --no-cache
 COPY --from=build /repo/apps/admin/dist /opt/panduarah/www/admin
@@ -34,7 +35,7 @@ COPY deploy/web-entrypoint.sh /usr/local/bin/web-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/web-entrypoint.sh"]
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 
-FROM supabase/edge-runtime:v1.76.2 AS functions
+FROM supabase/edge-runtime:v1.79.1 AS functions
 # Pembaruan keamanan paket Debian di atas image dasar (T-603). Error-Mode=any: build gagal bila
 # repositori tidak terjangkau, alih-alih diam-diam memakai indeks lama tanpa pembaruan.
 RUN apt-get update -o APT::Update::Error-Mode=any \
@@ -46,7 +47,7 @@ COPY deploy/functions/main /srv/main
 CMD ["start", "--main-service", "/srv/main"]
 
 # Sama dengan services/cad-converter/Dockerfile, ditambah CA proxy dari deploy/ca untuk pip.
-FROM python:3.12-slim AS cad
+FROM python:3.15-slim AS cad
 # Pembaruan keamanan paket Debian di atas image dasar, sama dengan image `functions`.
 RUN apt-get update -o APT::Update::Error-Mode=any \
   && apt-get upgrade -y --no-install-recommends \
@@ -55,7 +56,9 @@ WORKDIR /srv
 COPY deploy/ca /tmp/ca
 RUN cat /etc/ssl/certs/ca-certificates.crt /tmp/ca/*.crt > /tmp/build-ca.pem 2>/dev/null || true
 COPY services/cad-converter/requirements.txt .
-RUN PIP_CERT=/tmp/build-ca.pem pip install --no-cache-dir -r requirements.txt && rm -rf /tmp/ca /tmp/build-ca.pem
+# pip hanya alat pasang; dihapus agar pustaka yang di-vendor-nya tidak ikut ke image layanan.
+RUN PIP_CERT=/tmp/build-ca.pem pip install --no-cache-dir -r requirements.txt \
+  && pip uninstall -y pip && rm -rf /tmp/ca /tmp/build-ca.pem
 COPY services/cad-converter/app ./app
 COPY services/cad-converter/notices.py /tmp/notices.py
 RUN python /tmp/notices.py > /srv/THIRD-PARTY-NOTICES.txt && rm /tmp/notices.py

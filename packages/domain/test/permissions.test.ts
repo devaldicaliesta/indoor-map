@@ -76,6 +76,7 @@ describe('can', () => {
     for (const action of [
       'publish.publish',
       'publish.rollback',
+      'publish.export',
       'user.manage',
       'license.manage',
     ] as const) {

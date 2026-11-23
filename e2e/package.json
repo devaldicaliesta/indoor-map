@@ -1,6 +1,7 @@
 {
   "name": "@indoor/e2e",
   "private": true,
+  "license": "UNLICENSED",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -14,6 +15,7 @@
     "@indoor/domain": "workspace:*",
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
+    "fflate": "^0.8.3",
     "pdfjs-dist": "catalog:",
     "typescript": "catalog:"
   }
