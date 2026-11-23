@@ -3,11 +3,12 @@
 # Runtime berisi Edge Function dan paket domain yang diimpornya. Target `cad`: cad-converter.
 FROM node:26-slim AS build
 WORKDIR /repo
-RUN corepack enable
 COPY . .
 # CA proxy perusahaan (deploy/ca/*.crt, opsional) agar unduhan dependensi lolos pemeriksaan TLS.
 RUN cat deploy/ca/*.crt > /build-ca.pem 2>/dev/null || : > /build-ca.pem
 ENV NODE_EXTRA_CA_CERTS=/build-ca.pem
+# Node 25+ tidak lagi membawa corepack; dipasang dari npm agar pnpm mengikuti `packageManager`.
+RUN npm install -g corepack && corepack enable
 # Skrip install tidak dibutuhkan untuk build (satu-satunya, CLI supabase, tidak dipakai di sini).
 RUN pnpm install --frozen-lockfile --ignore-scripts
 # Alamat API dan kunci anon baru diketahui di server klien (install.sh membangkitkannya), jadi
@@ -55,7 +56,9 @@ WORKDIR /srv
 COPY deploy/ca /tmp/ca
 RUN cat /etc/ssl/certs/ca-certificates.crt /tmp/ca/*.crt > /tmp/build-ca.pem 2>/dev/null || true
 COPY services/cad-converter/requirements.txt .
-RUN PIP_CERT=/tmp/build-ca.pem pip install --no-cache-dir -r requirements.txt && rm -rf /tmp/ca /tmp/build-ca.pem
+# pip hanya alat pasang; dihapus agar pustaka yang di-vendor-nya tidak ikut ke image layanan.
+RUN PIP_CERT=/tmp/build-ca.pem pip install --no-cache-dir -r requirements.txt \
+  && pip uninstall -y pip && rm -rf /tmp/ca /tmp/build-ca.pem
 COPY services/cad-converter/app ./app
 COPY services/cad-converter/notices.py /tmp/notices.py
 RUN python /tmp/notices.py > /srv/THIRD-PARTY-NOTICES.txt && rm /tmp/notices.py
