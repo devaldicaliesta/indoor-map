@@ -1,0 +1,13 @@
+Paket: e2e-lengkap-0-mwsnkhkv-v1-imdf.zip
+manifest.json: manifest
+address.geojson: 1 fitur
+venue.geojson: 1 fitur
+building.geojson: 2 fitur
+footprint.geojson: 2 fitur
+level.geojson: 5 fitur
+unit.geojson: 71 fitur
+opening.geojson: 49 fitur
+amenity.geojson: 3 fitur
+anchor.geojson: 2 fitur
+occupant.geojson: 2 fitur
+Temuan validator: 0

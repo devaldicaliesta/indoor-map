@@ -33,6 +33,16 @@ async function activeWriteControls(page: Page): Promise<string[]> {
   return labels.filter((label) => WRITE.test(label));
 }
 
+/**
+ * Halaman siap diperiksa: isi utama tampil tanpa kerangka memuat. Bukan `networkidle`: sejak
+ * MapLibre 6.19 skrip worker modulnya di server dev Vite tidak pernah tercatat selesai, sehingga
+ * Editor Peta tidak pernah "idle" walau peta sudah tampil.
+ */
+async function settled(page: Page) {
+  await expect(page.getByRole('main')).toBeVisible();
+  await expect(page.locator('[data-slot="skeleton"]')).toHaveCount(0);
+}
+
 test.describe('T-312 Role Viewer', () => {
   test('kontrol: Admin melihat kontrol ubah di menu yang sama', async ({
     page,
@@ -44,7 +54,7 @@ test.describe('T-312 Role Viewer', () => {
     const found: string[] = [];
     for (const path of ['/venues', '/locations', '/origin-points', '/publish']) {
       await page.goto(path);
-      await page.waitForLoadState('networkidle');
+      await settled(page);
       found.push(...(await activeWriteControls(page)));
     }
     expect(found).toEqual(expect.arrayContaining(['Tambah lokasi', 'Terbitkan']));
@@ -68,7 +78,7 @@ test.describe('T-312 Role Viewer', () => {
       if (!path) continue;
       await page.goto(path);
       await expect(page.getByRole('main')).toBeVisible();
-      await page.waitForLoadState('networkidle');
+      await settled(page);
       const tabs = page.getByRole('main').getByRole('tab');
       const tabCount = await tabs.count();
       if (tabCount === 0) {
@@ -78,7 +88,7 @@ test.describe('T-312 Role Viewer', () => {
           const tab = tabs.nth(i);
           const name = (await tab.textContent())?.trim() ?? String(i);
           await tab.click();
-          await page.waitForLoadState('networkidle');
+          await settled(page);
           found[`${module}/${name}`] = await activeWriteControls(page);
         }
       }

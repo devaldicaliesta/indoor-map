@@ -151,7 +151,7 @@ QR-nya membuka rute yang sama.
 ### F2.4 · Enterprise dan integrasi
 
 - [x] T-593 · API dan webhook — kunci per scope, upsert jam operasional, webhook HMAC dengan retry · TC-OPS-09 s.d. 11, TC-SEC-71 → `e2e/evidence/T-593/`
-- [ ] T-594 · Export GeoJSON dan IMDF — validator lulus, geometri cocok · TC-OPS-12, 13 → `e2e/evidence/T-594/`
+- [x] T-594 · Export GeoJSON dan IMDF — validator lulus, geometri cocok · TC-OPS-12, 13 → `e2e/evidence/T-594/`
 - [ ] T-531 · Hak akses granular — "hanya lokasi" ditolak mengubah peta, izin tidak melebihi role · TC-ADM-01, 02, TC-SEC-71 → `e2e/evidence/T-531/`
 - [ ] T-532 · Audit log lengkap — diff per modul, retensi, export CSV · TC-ADM-03, 04 → `e2e/evidence/T-532/`
 - [ ] T-522 · PostgreSQL milik klien — instal ke database terpisah, cek ekstensi, upgrade (M) · TC-INS-02 s.d. 04 → `e2e/evidence/T-522/`

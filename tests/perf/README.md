@@ -42,7 +42,7 @@ Matriks browser butuh Firefox dan WebKit; jalankan di image Playwright resmi:
 ```sh
 docker run --rm --network host --ipc=host -v "$PWD/../..:/repo" -w /repo/tests/perf \
   -e PERF_API_URL -e PERF_ANON_KEY -e PERF_ADMIN_URL -e PERF_VISITOR_URL -e PERF_EMAIL -e PERF_PASSWORD \
-  mcr.microsoft.com/playwright:v1.56.1-noble npx playwright test -c playwright.compat.config.ts
+  mcr.microsoft.com/playwright:v1.65.1-noble npx playwright test -c playwright.compat.config.ts
 ```
 
 Uji beban (k6 lewat Docker; `LOAD_VENUE_ID` dan `LOAD_LOCATION_ID` dari `results/venue.json`):

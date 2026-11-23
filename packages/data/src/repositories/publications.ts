@@ -1,5 +1,11 @@
-import type { PublishFinding, Snapshot, SnapshotDiff, VenueId } from '@indoor/domain';
-import { toDataError } from '../errors';
+import {
+  type PublishFinding,
+  parsePublishedSnapshot,
+  type Snapshot,
+  type SnapshotDiff,
+  type VenueId,
+} from '@indoor/domain';
+import { DataError, toDataError } from '../errors';
 import { fromFunctionError } from '../functions';
 import { listPage, type Page, type PageQuery } from '../pagination';
 import type { Db } from '../supabase';
@@ -84,6 +90,12 @@ export interface PublicationsRepository {
   changes(venueId: VenueId): Promise<SnapshotDiff>;
   /** Snapshot draft yang dibangun server di memori untuk preview; tidak disimpan. */
   preview(venueId: VenueId): Promise<Snapshot>;
+  /**
+   * Snapshot lengkap (beserta graf) versi aktif untuk export GeoJSON/IMDF; `null` bila venue
+   * belum pernah menerbitkan peta. Isinya sama dengan yang dibaca Visitor dari bucket publik,
+   * jadi tidak ada data rahasia yang perlu dijaga server di sini.
+   */
+  activeSnapshot(venueId: VenueId): Promise<Snapshot | null>;
 }
 
 async function release(db: Db, body: Record<string, unknown>): Promise<PublishResult> {
@@ -176,6 +188,23 @@ export function createPublicationsRepository(db: Db): PublicationsRepository {
       if (error) throw await fromFunctionError(error);
       if (!data) throw toDataError(new Error('Balasan preview kosong.'));
       return data.snapshot;
+    },
+
+    async activeSnapshot(venueId) {
+      const active = await this.active(venueId);
+      if (!active) return null;
+      const { data, error } = await db.storage
+        .from('snapshots')
+        .download(`${venueId}/v${active.version}.json`);
+      if (error) throw toDataError(error);
+      try {
+        return parsePublishedSnapshot(JSON.parse(await data.text()));
+      } catch (cause) {
+        throw new DataError('invalid', {
+          message: `Snapshot v${active.version} tidak bisa dibaca.`,
+          cause,
+        });
+      }
     },
   };
 }

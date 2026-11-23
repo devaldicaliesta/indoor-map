@@ -33,7 +33,7 @@ jobs:
       - run: pnpm audit --audit-level high
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: '3.15'
       - run: pip install pip-audit==2.10.1
       # pip-audit tidak punya tingkat keparahan: setiap kerentanan yang diketahui menggagalkan CI.
       - run: pip-audit --requirement services/cad-converter/requirements.txt

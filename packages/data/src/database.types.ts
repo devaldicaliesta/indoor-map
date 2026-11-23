@@ -32,6 +32,7 @@ export type Database = {
           sent_at: string | null;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           details?: NonNullable<Json>;
@@ -66,6 +67,7 @@ export type Database = {
           metric: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           count: number;
           day: string;
@@ -107,6 +109,7 @@ export type Database = {
           target_kind: string | null;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           device: Database['public']['Enums']['analytics_device'];
           id?: never;
@@ -155,6 +158,7 @@ export type Database = {
           rolled_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           day: string;
           rolled_at?: string;
@@ -189,6 +193,7 @@ export type Database = {
           scopes: string[];
           venue_ids: string[] | null;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           created_by?: string | null;
@@ -242,6 +247,7 @@ export type Database = {
           occurred_at: string;
           user_id: string | null;
         };
+        ComputedFields: never;
         Insert: {
           action: string;
           details?: NonNullable<Json>;
@@ -274,6 +280,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           code: string;
           created_at?: string;
@@ -323,6 +330,7 @@ export type Database = {
           name_en: string | null;
           sort_order: number;
         };
+        ComputedFields: never;
         Insert: {
           color?: string | null;
           icon?: string | null;
@@ -365,6 +373,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           connector_id?: string | null;
           created_at?: string;
@@ -435,6 +444,7 @@ export type Database = {
           floor_id: string;
           node_id: string;
         };
+        ComputedFields: never;
         Insert: {
           connector_id: string;
           floor_id: string;
@@ -480,6 +490,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           direction?: Database['public']['Enums']['escalator_direction'] | null;
@@ -520,6 +531,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           branding?: NonNullable<Json>;
           camera?: Json | null;
@@ -555,6 +567,7 @@ export type Database = {
           started_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           floor_id: string;
           last_activity_at?: string;
@@ -594,6 +607,7 @@ export type Database = {
           licensee: string;
           version: string;
         };
+        ComputedFields: never;
         Insert: {
           accepted_at?: string;
           accepted_by?: string | null;
@@ -627,6 +641,7 @@ export type Database = {
           event_id: string;
           location_id: string;
         };
+        ComputedFields: never;
         Insert: {
           event_id: string;
           location_id: string;
@@ -676,6 +691,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           description_en?: string | null;
@@ -750,6 +766,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           icon_path?: string | null;
@@ -800,6 +817,7 @@ export type Database = {
           updated_by: string | null;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           area_m2?: number | null;
           color?: string | null;
@@ -889,6 +907,7 @@ export type Database = {
           options: NonNullable<Json>;
           sort_order: number;
         };
+        ComputedFields: never;
         Insert: {
           field_type: Database['public']['Enums']['field_type'];
           id?: string;
@@ -939,6 +958,7 @@ export type Database = {
           source_path: string;
           uploaded_by: string | null;
         };
+        ComputedFields: never;
         Insert: {
           cad_layers?: string[];
           corners?: Json | null;
@@ -999,6 +1019,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           building_id?: string | null;
           created_at?: string;
@@ -1062,6 +1083,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           code: string;
           created_at?: string;
@@ -1139,6 +1161,7 @@ export type Database = {
           last_seen_at: string | null;
           service_suspended: boolean;
         };
+        ComputedFields: never;
         Insert: {
           checkin_error?: string | null;
           checkin_requested_at?: string | null;
@@ -1168,6 +1191,7 @@ export type Database = {
           text_id: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           action: Database['public']['Enums']['instruction_action'];
           text_en?: string;
@@ -1201,6 +1225,7 @@ export type Database = {
           source: Database['public']['Enums']['license_source'];
           status: Database['public']['Enums']['license_status'];
         };
+        ComputedFields: never;
         Insert: {
           activated_at?: string;
           id?: string;
@@ -1236,6 +1261,7 @@ export type Database = {
           undone_by: string | null;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           change: NonNullable<Json>;
           created_at?: string;
@@ -1289,6 +1315,7 @@ export type Database = {
           category_id: string;
           location_id: string;
         };
+        ComputedFields: never;
         Insert: {
           category_id: string;
           location_id: string;
@@ -1325,6 +1352,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           color?: string | null;
           created_at?: string;
@@ -1361,6 +1389,7 @@ export type Database = {
           is_primary: boolean;
           location_id: string;
         };
+        ComputedFields: never;
         Insert: {
           feature_id: string;
           is_primary?: boolean;
@@ -1405,6 +1434,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           code?: string | null;
           created_at?: string;
@@ -1466,6 +1496,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           floor_id: string;
@@ -1530,6 +1561,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           feature_id?: string | null;
@@ -1581,6 +1613,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           enabled: boolean;
           kind: string;
@@ -1613,6 +1646,7 @@ export type Database = {
           special_date: string | null;
           weekday: number | null;
         };
+        ComputedFields: never;
         Insert: {
           closes_at?: string | null;
           id?: string;
@@ -1654,6 +1688,7 @@ export type Database = {
           updated_at: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           floor_id: string;
@@ -1715,6 +1750,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           all_venues?: boolean;
           created_at?: string;
@@ -1754,6 +1790,7 @@ export type Database = {
           venue_id: string;
           version: number;
         };
+        ComputedFields: never;
         Insert: {
           id?: string;
           is_active?: boolean;
@@ -1804,6 +1841,7 @@ export type Database = {
           location_id: string | null;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           category_id?: string | null;
           facility_type_id?: string | null;
@@ -1870,6 +1908,7 @@ export type Database = {
           smtp_username: string | null;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           analytics_enabled?: boolean;
           analytics_notice_en?: string;
@@ -1914,6 +1953,7 @@ export type Database = {
           tour_key: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           seen_at?: string;
           tour_key: string;
@@ -1940,6 +1980,7 @@ export type Database = {
           user_id: string;
           venue_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           user_id: string;
@@ -1981,6 +2022,7 @@ export type Database = {
           updated_at: string;
           venue_type: Database['public']['Enums']['venue_type'];
         };
+        ComputedFields: never;
         Insert: {
           address?: string | null;
           center?: unknown;
@@ -2034,6 +2076,7 @@ export type Database = {
           venue_id: string | null;
           webhook_id: string;
         };
+        ComputedFields: never;
         Insert: {
           attempts?: number;
           created_at?: string;
@@ -2096,6 +2139,7 @@ export type Database = {
           url: string;
           venue_ids: string[] | null;
         };
+        ComputedFields: never;
         Insert: {
           active?: boolean;
           created_at?: string;

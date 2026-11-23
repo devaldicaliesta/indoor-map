@@ -85,7 +85,7 @@ test.describe('T-001 Monorepo dan tooling', () => {
         scripts.check === 'turbo run typecheck lint test',
     );
 
-    record('T001-07', '.nvmrc = 22', read('.nvmrc').trim() === '22');
+    record('T001-07', '.nvmrc = 26', read('.nvmrc').trim() === '26');
     const ignore = read('.gitignore');
     record(
       'T001-08',

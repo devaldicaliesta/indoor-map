@@ -2,7 +2,7 @@
 // Alat vendor untuk kunci dan berkas lisensi. Dijalankan langsung dengan Node 22 (type
 // stripping), memakai format dan verifikasi yang sama dengan aplikasi.
 import { execFileSync } from 'node:child_process';
-import { randomUUID, type webcrypto } from 'node:crypto';
+import { randomUUID, webcrypto } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -59,6 +59,13 @@ function existingParent(path: string): string {
   return current;
 }
 
+// Tipe `@types/node` memetakan Ed25519 ke overload `CryptoKey` tunggal; bentuknya diperiksa di sini.
+function isKeyPair(value: unknown): value is webcrypto.CryptoKeyPair {
+  return (
+    typeof value === 'object' && value !== null && 'privateKey' in value && 'publicKey' in value
+  );
+}
+
 async function keygen(outDir: string): Promise<string> {
   const target = resolve(outDir);
   // Kunci privat di dalam repo mudah ikut ter-commit dan membuka pembajakan lisensi.
@@ -69,10 +76,11 @@ async function keygen(outDir: string): Promise<string> {
     );
   }
   const privatePath = join(target, PRIVATE_KEY_FILE);
-  const keys = (await crypto.subtle.generateKey({ name: 'Ed25519' }, true, [
+  const keys: unknown = await webcrypto.subtle.generateKey({ name: 'Ed25519' }, true, [
     'sign',
     'verify',
-  ])) as webcrypto.CryptoKeyPair;
+  ]);
+  if (!isKeyPair(keys)) throw new CliError('Pasangan kunci Ed25519 tidak terbentuk.');
   const privateKey = toBase64(
     new Uint8Array(await crypto.subtle.exportKey('pkcs8', keys.privateKey)),
   );

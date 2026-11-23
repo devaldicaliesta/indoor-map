@@ -15,6 +15,7 @@
     "@indoor/domain": "workspace:*",
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
+    "fflate": "^0.8.3",
     "pdfjs-dist": "catalog:",
     "typescript": "catalog:"
   }

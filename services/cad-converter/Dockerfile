@@ -1,11 +1,12 @@
-FROM python:3.12-slim
+FROM python:3.15-slim
 # Pembaruan keamanan paket Debian di atas image dasar (lihat deploy/Dockerfile).
 RUN apt-get update -o APT::Update::Error-Mode=any \
   && apt-get upgrade -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 WORKDIR /srv
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# pip hanya alat pasang; dihapus agar pustaka yang di-vendor-nya tidak ikut ke image layanan.
+RUN pip install --no-cache-dir -r requirements.txt && pip uninstall -y pip
 COPY app ./app
 COPY notices.py /tmp/notices.py
 RUN python /tmp/notices.py > /srv/THIRD-PARTY-NOTICES.txt && rm /tmp/notices.py
