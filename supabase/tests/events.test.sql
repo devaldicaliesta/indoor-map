@@ -93,12 +93,12 @@ select throws_ok(
 select lives_ok(
   $$ insert into public.events (id, venue_id, title_id, status, starts_at, ends_at, repeat, repeat_until)
      select 'e5810000-0000-4000-8000-0000000000e2', venue_id, 'Senam Pagi', 'active',
-       '2026-11-02 06:00+07', '2026-11-02 07:00+07', 'weekly', '2026-11-29' from target $$,
+       '2037-11-02 06:00+07', '2037-11-02 07:00+07', 'weekly', '2037-11-29' from target $$,
   'Event mingguan disimpan'
 );
 select is(
   (select last_ends_at from public.events where id = 'e5810000-0000-4000-8000-0000000000e2'),
-  '2026-11-23 07:00+07'::timestamptz,
+  '2037-11-23 07:00+07'::timestamptz,
   'Kemunculan terakhir mingguan dihitung menurut jam dinding venue (Senin terakhir sebelum 29 Nov)'
 );
 select lives_ok(
