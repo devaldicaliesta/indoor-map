@@ -4,7 +4,7 @@
 set -u
 cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
 
-GRAPHIFY_SPEC='graphifyy[sql]==0.9.104'
+GRAPHIFY_SPEC='graphifyy[sql]==0.9.115'
 
 if ! command -v graphify >/dev/null 2>&1; then
   # Hanya pasang otomatis di sesi cloud; di mesin lokal pengembang memasang sendiri.

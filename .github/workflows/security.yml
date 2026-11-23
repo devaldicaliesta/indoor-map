@@ -46,7 +46,7 @@ jobs:
         with:
           fetch-depth: 0
       - run: >
-          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.28.0
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1
           git /repo --redact --no-banner --exit-code 1
 
   images:
@@ -61,6 +61,6 @@ jobs:
       - run: docker build -f deploy/Dockerfile --target ${{ matrix.target }} -t panduarah/${{ matrix.target }}:ci .
       - run: >
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src:ro"
-          aquasec/trivy:0.67.2 image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed
+          aquasec/trivy:0.76.2 image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed
           --ignorefile /src/.trivyignore.yaml --exit-code 1 --no-progress
           panduarah/${{ matrix.target }}:ci
