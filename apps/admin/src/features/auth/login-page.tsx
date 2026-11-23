@@ -1,6 +1,6 @@
 import { Button, Input, Label } from '@indoor/ui';
 import { useQueryClient } from '@tanstack/react-query';
-import { type FormEvent, useEffect, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { currentProfileKey, useCurrentProfile } from '../../app/auth/current-profile';
 import { data } from '../../app/data-client';
@@ -14,9 +14,10 @@ export function LoginPage() {
   const queryClient = useQueryClient();
   const profile = useCurrentProfile();
   const from = readFromPath(location.state);
-  // Dibaca sekali saat halaman dibuka, lalu dihapus agar tidak muncul lagi.
+  // Tidak dihapus saat dipasang: keluar karena idle memicu pengalihan beruntun (guard sesi, lalu
+  // LicenseGate memuat ulang setelah cache dikosongkan) yang bisa memasang halaman ini dua kali.
+  // Pesan dihapus begitu pengguna mencoba masuk.
   const [notice] = useState(peekLoginNotice);
-  useEffect(() => clearLoginNotice(), []);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -25,6 +26,7 @@ export function LoginPage() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    clearLoginNotice();
     setPending(true);
     setError(null);
     try {
