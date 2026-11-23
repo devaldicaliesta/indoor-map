@@ -1,7 +1,7 @@
 # license-cli
 
 Alat vendor untuk membuat kunci dan menerbitkan berkas lisensi (T-401). Format dan verifikasi
-memakai `packages/domain/src/license.ts`, sama dengan aplikasi. Butuh Node 22 (menjalankan
+memakai `packages/domain/src/license.ts`, sama dengan aplikasi. Butuh Node 26 LTS (lihat `.nvmrc`; menjalankan
 TypeScript langsung).
 
 ```

@@ -1,7 +1,7 @@
 # Image rilis, dibangun vendor lewat deploy/build-release.sh (bukan di server klien). Target
 # `web`: Caddy (HTTPS + gateway) dengan build statis Admin dan Visitor. Target `functions`: Edge
 # Runtime berisi Edge Function dan paket domain yang diimpornya. Target `cad`: cad-converter.
-FROM node:22-slim AS build
+FROM node:26-slim AS build
 WORKDIR /repo
 RUN corepack enable
 COPY . .

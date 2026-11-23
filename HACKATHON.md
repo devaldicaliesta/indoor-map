@@ -143,7 +143,7 @@ Penjaga kualitas di repo: 206 berkas Vitest, 43 berkas pgTAP untuk RLS dan fungs
 
 ## Memulai (lokal)
 
-Prasyarat: **Node 22** (lihat `.nvmrc`), **pnpm 10.33** (`corepack enable`), **Docker** (untuk Supabase lokal).
+Prasyarat: **Node 26 LTS** (lihat `.nvmrc`), **pnpm 10.33** (`corepack enable`), **Docker** (untuk Supabase lokal).
 
 ```bash
 git clone https://github.com/devaldicaliesta/indoor-map.git

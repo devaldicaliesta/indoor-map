@@ -25,7 +25,7 @@
   5. `turbo.json` dengan task `build`, `dev` (persistent), `typecheck`, `lint`, `test`.
   6. Skrip root: `dev`, `build`, `check` (= `turbo run typecheck lint test`), `test`, `format`, `db:types`.
   7. `.editorconfig`, `.nvmrc` (22), `.gitignore` (node_modules, dist, .turbo, .env*, supabase/.temp).
-  8. `.github/workflows/ci.yml`: checkout, setup pnpm + Node 22, `pnpm install --frozen-lockfile`, `pnpm check`, `pnpm build`.
+  8. `.github/workflows/ci.yml`: checkout, setup pnpm + Node dari `.nvmrc` (kini 26 LTS), `pnpm install --frozen-lockfile`, `pnpm check`, `pnpm build`.
   9. `.github/pull_request_template.md` sesuai `06-alur-kerja.md`.
 - **File:** root config, `.github/*`
 - **Selesai jika:**
