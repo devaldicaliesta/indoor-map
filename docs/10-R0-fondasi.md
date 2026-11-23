@@ -77,7 +77,7 @@
   2. Salin **apa adanya** blok SQL dari `docs/04-model-data.md` ke `supabase/migrations/<timestamp>_0001_core_schema.sql`.
   3. `supabase/seed.sql`: buat satu pengguna Super Admin lokal (email `admin@local.test`, password dari variabel `.env.local`), baris `profiles`-nya, dan satu venue contoh "Venue Contoh" dengan satu gedung dan dua lantai.
   4. `supabase db reset` harus sukses.
-  5. Skrip `pnpm db:types` → `supabase gen types typescript --local > packages/data/src/database.types.ts`.
+  5. Skrip `pnpm db:types` → `supabase gen types typescript > packages/data/src/database.types.ts` (CLI 3: target lokal bawaan; `--local` tidak lagi berpengaruh).
   6. `supabase/tests/rls.test.sql` (pgTAP): minimal uji bahwa `anon` tidak bisa membaca `venues`, `anon` bisa membaca penutupan aktif, Editor tidak bisa insert `venues`, Admin bisa.
   7. `.env.example` berisi variabel yang dibutuhkan (tanpa nilai rahasia).
 - **File:** `supabase/**`, `packages/data/src/database.types.ts`, `.env.example`
