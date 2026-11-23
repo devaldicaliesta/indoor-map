@@ -26,8 +26,8 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.13'
-      - run: pip install 'graphifyy[sql]==0.9.104'
+          python-version: '3.15'
+      - run: pip install 'graphifyy[sql]==0.9.115'
       # Bangun dari nol: build inkremental di atas graph.json ter-commit tidak deterministik
       # (komunitas dan sebagian edge berubah walau kode sama), sehingga selalu memicu commit.
       - run: rm -rf graphify-out
