@@ -34,7 +34,7 @@ docker build -f deploy/Dockerfile --target web -t panduarah/web:ci .
 ```
 
 ```bash
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src:ro" aquasec/trivy:0.67.2 image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --ignorefile /src/.trivyignore.yaml panduarah/web:ci
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src:ro" aquasec/trivy:0.76.2 image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --ignorefile /src/.trivyignore.yaml panduarah/web:ci
 ```
 
 Image dasar diperbarui saat build (`apk upgrade` untuk `web`, `apt-get upgrade` untuk
@@ -61,14 +61,9 @@ pakai `DOCKER_BUILD_FLAGS` di `deploy/build-release.sh`.
 
 | ID | Komponen | Tingkat | Alasan | Kedaluwarsa |
 | --- | --- | --- | --- | --- |
-| CVE-2026-116587 | go-jose 4.1.5 di biner Caddy 2.11.6 (`web`) | High | DoS lewat kunci RSA buatan. Hanya terjangkau lewat ACME ke Let's Encrypt, yang opsional. Caddy 2.11.7 belum memperbaikinya | 2026-11-30 |
-| CVE-2026-78669 | x/net 0.59.0 dan Go 1.26.8 di Caddy | High | DoS HTTP/2; menunggu Caddy yang dibangun dengan Go ≥ 1.26.9 | 2026-11-30 |
-| CVE-2026-78667 | Go 1.26.8 di Caddy | High | DoS header Range | 2026-11-30 |
-| CVE-2026-97031 | Go 1.26.8 di Caddy | High | DoS ECH; ECH tidak diaktifkan | 2026-11-30 |
-| CVE-2026-111943 | Go 1.26.8 di Caddy | High | crypto/x509; verifikasi rantai hanya pada ACME opsional | 2026-11-30 |
-| CVE-2026-78661 | x/net 0.59.0 di Caddy | High | DoS parser `x/net/html`; Caddyfile tidak memakai `templates`/`markdown`. Caddy 2.11.9 masih x/net 0.60.0, perbaikan di 0.62.0 | 2026-11-30 |
+| CVE-2026-78661 | x/net 0.60.0 di biner Caddy 2.11.9 (`web`) | High | DoS parser `x/net/html`; Caddyfile tidak memakai `templates`/`markdown`. Caddy 2.11.9 masih x/net 0.60.0, perbaikan di 0.62.0 | 2026-11-30 |
 
-Bila Caddy belum merilis versi dengan Go ≥ 1.26.10 sebelum tanggal kedaluwarsa, opsi
+Bila Caddy belum merilis versi dengan x/net ≥ 0.62.0 sebelum tanggal kedaluwarsa, opsi
 berikutnya adalah membangun Caddy sendiri dengan `xcaddy` dan Go terbaru di `deploy/Dockerfile`.
 
 ## Riwayat perbaikan
@@ -82,3 +77,4 @@ berikutnya adalah membangun Caddy sendiri dengan `xcaddy` dan Go terbaru di `dep
 | 2026-10-30 | Image `web` `caddy:2.10-alpine`: 34 CVE OS + 61 CVE biner Go high/critical | `caddy:2.11.6-alpine` + `apk upgrade` |
 | 2026-10-30 | Image `functions` `edge-runtime:v1.76.2`: 14 CVE paket Debian high/critical (perl, pcre2, …) | `apt-get upgrade` saat build |
 | 2026-11-09 | Image `cad` `python:3.12-slim`: zlib1g CVE-2026-76844, CVE-2026-85091 (high) | `apt-get upgrade` saat build |
+| 2026-11-23 | Image `web`: CVE-2026-116587 (go-jose 4.1.5), CVE-2026-78669, CVE-2026-78667, CVE-2026-97031, CVE-2026-111943 (Go 1.26.8) di biner Caddy | Sudah hilang di `caddy:2.11.9-alpine` (Go 1.27.3, go-jose 4.1.6; Trivy 0.76.2 tanpa pengecualian), pengecualiannya dihapus |
