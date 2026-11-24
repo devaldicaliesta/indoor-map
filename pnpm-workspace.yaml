@@ -5,9 +5,11 @@ packages:
   - tools/*
   - tests/*
 
-# pnpm 10 memblokir skrip install; supabase perlu postinstall untuk mengunduh binary CLI.
-onlyBuiltDependencies:
-  - supabase
+# Tolak versi paket yang terbit kurang dari 1 hari (menit), agar rilis jahat yang biasanya ditarik
+# dalam hitungan jam tidak sempat terpasang. Sama dengan bawaan pnpm 12, ditulis agar keputusan ini
+# terlihat. Skrip install dependency diblokir bawaan pnpm; tidak ada yang perlu diizinkan (supabase
+# 3.x membawa binary lewat paket opsional, tanpa postinstall).
+minimumReleaseAge: 1440
 
 # Versi bersama untuk semua paket; pakai `"nama": "catalog:"` di package.json.
 catalog:
