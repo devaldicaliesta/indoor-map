@@ -24,9 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      # graphifyy 0.9.115 mensyaratkan Python <3.15 (Requires-Python), jadi tidak ikut 3.15 di ci.yml.
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.15'
+          python-version: '3.14'
       - run: pip install 'graphifyy[sql]==0.9.115'
       # Bangun dari nol: build inkremental di atas graph.json ter-commit tidak deterministik
       # (komunitas dan sebagian edge berubah walau kode sama), sehingga selalu memicu commit.
