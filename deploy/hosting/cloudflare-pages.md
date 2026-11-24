@@ -36,7 +36,7 @@ Push ini memicu build otomatis semua project Pages yang terhubung.
 
 | Variabel | Nilai | Keterangan |
 | --- | --- | --- |
-| `NODE_VERSION` | `22` | Sama dengan `.nvmrc` |
+| `NODE_VERSION` | `26` | Sama dengan `.nvmrc` |
 | `PNPM_VERSION` | `12.18.0` | Sama dengan `packageManager` di `package.json` |
 | `VITE_SUPABASE_URL` | `https://<ref>.supabase.co` | Supabase → Settings → API |
 | `VITE_SUPABASE_ANON_KEY` | `sb_publishable_…` | Supabase → Settings → API Keys → *Publishable key*. Aman berada di browser; jangan pernah memakai kunci `sb_secret_…` |
@@ -146,7 +146,7 @@ dibangun dengan env produksi.
 | Gejala | Penyebab dan solusi |
 | --- | --- |
 | Situs tampil tetapi tidak bisa masuk / data kosong | Env `VITE_*` belum diisi saat build. Isi, lalu **Retry deployment** (env tidak berlaku tanpa build ulang) |
-| Build gagal `ERR_PNPM_…` / versi pnpm | Isi `PNPM_VERSION=12.18.0` dan `NODE_VERSION=22` |
+| Build gagal `ERR_PNPM_…` / versi pnpm | Isi `PNPM_VERSION=12.18.0` dan `NODE_VERSION=26` |
 | Build Visitor gagal "won't be precached" | Bundel melewati batas precache; sudah dinaikkan ke 3 MiB di `apps/visitor/vite.config.ts` — naikkan lagi bila bundel tumbuh |
 | Muat ulang halaman dalam → 404 | Ada `404.html` di output; Admin/Visitor tidak boleh punya berkas itu (fallback SPA Pages) |
 | Form trial: "Permintaan belum terkirim" | `VITE_SUPABASE_URL` landing salah, atau landing dibuka dari alamat selain `https://panduarah.my.id` (CORS `TRIAL_ALLOWED_ORIGIN`) |
