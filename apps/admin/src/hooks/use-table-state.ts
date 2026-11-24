@@ -41,9 +41,13 @@ export function useTableState(options: TableUrlOptions): TableController {
     [search, key, options.prefix, options.defaultSize],
   );
 
-  // `setSearchParams(fn)` memberi `fn` URL dari render terakhir, sehingga dua perubahan sebelum
-  // render berikutnya (dua centang cepat di menu filter) saling menimpa. URL yang sudah ditulis
-  // tetapi belum dirender menjadi dasar perubahan berikutnya.
+  // `setSearchParams(fn)` memberi `fn` URL dari render tempat `setSearchParams` itu dibuat, bukan
+  // URL terbaru. Dua perubahan sebelum render berikutnya (dua centang cepat di menu filter) saling
+  // menimpa, dan pemanggil yang memegang versi lama (timer kotak cari) menghapus filter yang
+  // dipilih sesudahnya. Dasar perubahan selalu URL yang sudah ditulis tetapi belum dirender, atau
+  // URL dari render terakhir.
+  const rendered = useRef(search);
+  rendered.current = search;
   const pending = useRef<string[]>([]);
   useEffect(() => {
     pending.current = pendingAfterRender(pending.current, search);
@@ -52,8 +56,8 @@ export function useTableState(options: TableUrlOptions): TableController {
   const update = useCallback(
     (change: TableChange) =>
       setParams(
-        (rendered) => {
-          const base = new URLSearchParams(pending.current.at(-1) ?? rendered);
+        () => {
+          const base = new URLSearchParams(pending.current.at(-1) ?? rendered.current);
           const next = writeTableState(
             base,
             change(readTableState(base, latest.current)),
