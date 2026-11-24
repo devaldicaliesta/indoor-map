@@ -21,10 +21,12 @@ export const eventsQuery = (venueId: VenueId) => ({
 
 export function useLiveEvents(snapshot: Snapshot) {
   const { store } = useExplore();
-  const mapReady = useExploreStore((s) => s.mapReady);
+  // Event dimuat setelah peta tampil agar tidak bersaing dengan muatan peta, kecuali tautan
+  // membuka satu event (`ev=`): event itulah isi yang diminta, jadi tidak menunggu peta.
+  const enabled = useExploreStore((s) => s.mapReady || s.eventId !== null);
   const events = useQuery({
     ...eventsQuery(snapshot.venue.id as VenueId),
-    enabled: mapReady,
+    enabled,
     refetchInterval: EVENT_REFRESH_MS,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
