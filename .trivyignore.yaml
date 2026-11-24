@@ -2,11 +2,6 @@
 # Hanya untuk temuan yang belum punya perbaikan di image dasar resmi. Setiap entri wajib punya
 # alasan dan `expired_at` paling lama 30 hari: setelah tanggal itu CI merah lagi sampai entri
 # ditinjau ulang. Daftar dan riwayatnya juga dicatat di docs/keamanan/README.md.
-vulnerabilities:
-  # Biner Caddy 2.11.9 (image `web`) dibangun upstream dengan Go 1.27.3, go-jose 4.1.6, dan
-  # x/net 0.60.0. Pengecualian go-jose dan Go 1.26.8 sudah dihapus karena tidak muncul lagi di
-  # pindaian; yang tersisa hanya x/net.
-  - id: CVE-2026-78661
-    purls: ['pkg:golang/golang.org/x/net']
-    statement: DoS x/net/html lewat HTML buatan; Caddyfile tidak memakai templates/markdown, hanya file_server dan reverse_proxy. Caddy 2.11.9 masih x/net 0.60.0 (perbaikan di 0.62.0)
-    expired_at: 2026-11-30
+# Tidak ada pengecualian yang berlaku. CVE-2026-78661 (x/net di biner Caddy) ditutup dengan
+# membangun ulang Caddy 2.11.9 memakai x/net 0.62.0 di deploy/Dockerfile.
+vulnerabilities: []
