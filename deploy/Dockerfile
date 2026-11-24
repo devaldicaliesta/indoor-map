@@ -25,9 +25,20 @@ RUN pnpm --filter @indoor/domain deploy --legacy --prod /out/domain \
   && node --experimental-strip-types tools/third-party-notices/src/cli.ts \
     'PanduArah Edge Function (paket domain)' /out/domain/node_modules > /out/domain/THIRD-PARTY-NOTICES.txt
 
+# Biner Caddy resmi 2.11.9 membawa golang.org/x/net 0.60.0 (CVE-2026-78661, diperbaiki di 0.62.0)
+# dan belum ada rilis Caddy yang lebih baru. Versi Caddy yang sama dibangun ulang dengan x/net yang
+# sudah diperbaiki. Kembali ke biner resmi begitu Caddy merilis versi dengan x/net >= 0.62.0.
+FROM caddy:2.11.9-builder-alpine AS caddy
+COPY deploy/ca /tmp/ca
+RUN cat /etc/ssl/certs/ca-certificates.crt /tmp/ca/*.crt > /tmp/build-ca.pem 2>/dev/null || true
+RUN SSL_CERT_FILE=/tmp/build-ca.pem xcaddy build v2.11.9 \
+    --replace golang.org/x/net=golang.org/x/net@v0.62.0 --output /out/caddy \
+  && /out/caddy version
+
 FROM caddy:2.11.9-alpine AS web
 # Pembaruan keamanan paket Alpine di atas image dasar; dipindai Trivy di CI (T-603).
 RUN apk upgrade --no-cache
+COPY --from=caddy /out/caddy /usr/bin/caddy
 COPY --from=build /repo/apps/admin/dist /opt/panduarah/www/admin
 COPY --from=build /repo/apps/visitor/dist /opt/panduarah/www/visitor
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
