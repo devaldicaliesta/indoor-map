@@ -38,8 +38,9 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/src:ro" a
 ```
 
 Image dasar diperbarui saat build (`apk upgrade` untuk `web`, `apt-get upgrade` untuk
-`functions`). Akibatnya build image butuh akses ke repositori Alpine dan Debian. Di balik proxy,
-pakai `DOCKER_BUILD_FLAGS` di `deploy/build-release.sh`.
+`functions`). Biner Caddy di image `web` juga dibangun ulang dari sumbernya dengan `xcaddy`
+(lihat bawah). Akibatnya build image butuh akses ke repositori Alpine dan Debian serta ke
+`proxy.golang.org`. Di balik proxy, pakai `DOCKER_BUILD_FLAGS` di `deploy/build-release.sh`.
 
 ## Menangani temuan
 
@@ -59,12 +60,13 @@ pakai `DOCKER_BUILD_FLAGS` di `deploy/build-release.sh`.
 
 ## Pengecualian yang berlaku
 
-| ID | Komponen | Tingkat | Alasan | Kedaluwarsa |
-| --- | --- | --- | --- | --- |
-| CVE-2026-78661 | x/net 0.60.0 di biner Caddy 2.11.9 (`web`) | High | DoS parser `x/net/html`; Caddyfile tidak memakai `templates`/`markdown`. Caddy 2.11.9 masih x/net 0.60.0, perbaikan di 0.62.0 | 2026-11-30 |
+Tidak ada.
 
-Bila Caddy belum merilis versi dengan x/net ≥ 0.62.0 sebelum tanggal kedaluwarsa, opsi
-berikutnya adalah membangun Caddy sendiri dengan `xcaddy` dan Go terbaru di `deploy/Dockerfile`.
+**Caddy dibangun ulang.** Biner Caddy resmi 2.11.9 membawa `golang.org/x/net` 0.60.0
+(CVE-2026-78661), dan belum ada rilis Caddy yang lebih baru. Tahap `caddy` di
+`deploy/Dockerfile` membangun Caddy 2.11.9 yang sama dengan `xcaddy` dan
+`--replace golang.org/x/net=golang.org/x/net@v0.62.0`, lalu image `web` memakai biner itu. Bila
+Caddy merilis versi dengan x/net ≥ 0.62.0, kembalikan ke biner resmi (hapus tahap `caddy`).
 
 ## Riwayat perbaikan
 
@@ -78,3 +80,4 @@ berikutnya adalah membangun Caddy sendiri dengan `xcaddy` dan Go terbaru di `dep
 | 2026-10-30 | Image `functions` `edge-runtime:v1.76.2`: 14 CVE paket Debian high/critical (perl, pcre2, …) | `apt-get upgrade` saat build |
 | 2026-11-09 | Image `cad` `python:3.12-slim`: zlib1g CVE-2026-76844, CVE-2026-85091 (high) | `apt-get upgrade` saat build |
 | 2026-11-23 | Image `web`: CVE-2026-116587 (go-jose 4.1.5), CVE-2026-78669, CVE-2026-78667, CVE-2026-97031, CVE-2026-111943 (Go 1.26.8) di biner Caddy | Sudah hilang di `caddy:2.11.9-alpine` (Go 1.27.3, go-jose 4.1.6; Trivy 0.76.2 tanpa pengecualian), pengecualiannya dihapus |
+| 2026-11-24 | Image `web`: CVE-2026-78661 (x/net 0.60.0 di biner Caddy 2.11.9, high) | Caddy 2.11.9 dibangun ulang dengan x/net 0.62.0 (`xcaddy`); Trivy 0.76.2 tanpa pengecualian: nol temuan high/critical; pengecualian dihapus |
