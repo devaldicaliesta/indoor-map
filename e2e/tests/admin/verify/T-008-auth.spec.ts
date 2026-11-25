@@ -179,12 +179,12 @@ test.describe('T-008 Login, logout, reset password', () => {
     await capture(page, '11-tautan-sudah-dipakai');
   });
 
-  test('TC-AUTH-04 60 menit tanpa aktivitas keluar otomatis', async ({ page, loginAs }) => {
+  test('TC-AUTH-04 30 menit tanpa aktivitas keluar otomatis', async ({ page, loginAs }) => {
     await page.clock.install();
     await loginAs('viewer');
     await expect(page).toHaveURL('/dashboard');
 
-    await page.clock.fastForward('59:00');
+    await page.clock.fastForward('29:00');
     // Beri timer pemeriksa kesempatan berjalan agar keluar yang terlambat tetap tertangkap.
     await page.clock.runFor(31_000);
     await expect(page.getByText(/Sesi berakhir/)).toHaveCount(0);
@@ -194,7 +194,7 @@ test.describe('T-008 Login, logout, reset password', () => {
     await page.clock.fastForward('01:00');
     await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByRole('status')).toHaveText(
-      'Sesi berakhir karena tidak ada aktivitas selama 60 menit. Silakan masuk lagi.',
+      'Sesi berakhir karena tidak ada aktivitas selama 30 menit. Silakan masuk lagi.',
     );
     await capture(page, '12-sesi-idle');
   });

@@ -176,7 +176,7 @@ describe.runIf(url && anonKey && serviceKey)('aktivasi lisensi', () => {
       .license.createFirstAdmin({
         fullName: 'Penyusup',
         email: `x-${suffix}@license.test`,
-        password: 'Rahasia-123',
+        password: PASSWORD,
       })
       .catch((e: unknown) => e);
     expect((again as DataError).kind).toBe('forbidden');
@@ -241,12 +241,21 @@ describe.runIf(url && anonKey && serviceKey)('aktivasi lisensi', () => {
     try {
       expect(await guest.license.status()).toMatchObject({ state: 'missing', needsAdmin: true });
       const early = await guest.license
-        .createFirstAdmin({ fullName: 'Pertama', email, password: 'Rahasia-123' })
+        .createFirstAdmin({ fullName: 'Pertama', email, password: PASSWORD })
         .catch((e: unknown) => e);
       expect((early as DataError).kind).toBe('conflict');
 
       await guest.license.activateManual(await signedLicense(instanceId));
-      await guest.license.createFirstAdmin({ fullName: 'Pertama', email, password: 'Rahasia-123' });
+      // Server menolak password umum walau lolos panjang minimal (ASVS 2.1.7).
+      const weak = await guest.license
+        .createFirstAdmin({ fullName: 'Pertama', email, password: 'Password2026!' })
+        .catch((e: unknown) => e);
+      expect((weak as DataError).kind).toBe('invalid');
+      await guest.license.createFirstAdmin({
+        fullName: 'Pertama',
+        email,
+        password: PASSWORD,
+      });
       const { data: created } = await service
         .from('profiles')
         .select('user_id, role')
@@ -260,7 +269,7 @@ describe.runIf(url && anonKey && serviceKey)('aktivasi lisensi', () => {
         .createFirstAdmin({
           fullName: 'Kedua',
           email: `kedua-${suffix}@license.test`,
-          password: 'Rahasia-123',
+          password: PASSWORD,
         })
         .catch((e: unknown) => e);
       expect((second as DataError).kind).toBe('forbidden');

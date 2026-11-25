@@ -186,6 +186,11 @@ aktivitas (ditangani langkah 7).
      Batas Gmail tetap ±500 email per hari (NFR-HT-05).
    - **Authentication → Multi-Factor → TOTP (App Authenticator)**: *Enabled* (gratis di paket
      Free; hanya MFA telepon yang berbayar). Dibutuhkan dasbor vendor dan 2FA Admin.
+   - **Authentication → Providers → Email → Minimum password length**: **12** (sama dengan
+     `minimum_password_length` lokal dan form Admin). *Leaked password protection* (HaveIBeenPwned)
+     dan **Authentication → Sessions** (*Inactivity timeout* 30 menit, *Time-box* 12 jam) hanya
+     tersedia di paket berbayar; di Free yang berlaku daftar password umum di form Admin dan timer
+     tidak aktif 30 menit di Admin.
 4. Setelah Admin terbuka: **Pengaturan → Sistem** → URL publik Visitor
    `https://app.panduarah.my.id`, dan SMTP Gmail yang sama (email akun: reset password, undangan).
 

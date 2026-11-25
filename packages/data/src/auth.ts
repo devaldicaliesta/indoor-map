@@ -1,5 +1,5 @@
 import type { Profile } from '@indoor/domain';
-import { UserIdSchema } from '@indoor/domain';
+import { PASSWORD_MIN_LENGTH, UserIdSchema } from '@indoor/domain';
 import { DataError, toDataError } from './errors';
 import type { ProfilesRepository } from './repositories/profiles';
 import type { Db } from './supabase';
@@ -76,7 +76,7 @@ export function toAuthError(error: AuthErrorLike): DataError {
     case 'weak_password':
       return authError(
         'weak_password',
-        'Password terlalu lemah. Gunakan minimal 8 karakter.',
+        `Password ditolak server: minimal ${PASSWORD_MIN_LENGTH} karakter dan tidak termasuk password yang pernah bocor.`,
         error,
       );
     case 'same_password':

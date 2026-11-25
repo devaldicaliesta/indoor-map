@@ -8,6 +8,8 @@ import { useCreateFirstAdmin } from './queries';
 
 const PASSWORD_PROBLEMS = {
   too_short: `Password minimal ${PASSWORD_MIN_LENGTH} karakter.`,
+  too_common:
+    'Password terlalu mudah ditebak. Hindari kata umum, deret angka, atau email dan nama Anda; gabungkan beberapa kata.',
   mismatch: 'Konfirmasi password tidak sama.',
 } as const;
 
@@ -21,13 +23,18 @@ export function FirstAdminForm({ onCreated }: { onCreated: () => void }) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const password = String(form.get('password') ?? '');
-    const check = checkNewPassword(password, String(form.get('confirmation') ?? ''));
+    const fullName = String(form.get('full-name') ?? '').trim();
+    const email = String(form.get('email') ?? '').trim();
+    const check = checkNewPassword(password, String(form.get('confirmation') ?? ''), {
+      email,
+      name: fullName,
+    });
     if (check) return setProblem(PASSWORD_PROBLEMS[check]);
     setProblem(null);
     create.mutate(
       {
-        fullName: String(form.get('full-name') ?? '').trim(),
-        email: String(form.get('email') ?? '').trim(),
+        fullName,
+        email,
         password,
       },
       {

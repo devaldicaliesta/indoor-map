@@ -10,6 +10,8 @@ import { parseAuthRedirectError } from './redirect-error';
 
 const PROBLEM_MESSAGES = {
   too_short: `Password minimal ${PASSWORD_MIN_LENGTH} karakter.`,
+  too_common:
+    'Password terlalu mudah ditebak. Hindari kata umum, deret angka, atau email dan nama Anda; gabungkan beberapa kata.',
   mismatch: 'Konfirmasi password tidak sama.',
 } as const;
 
