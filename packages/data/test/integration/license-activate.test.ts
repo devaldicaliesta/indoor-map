@@ -176,7 +176,7 @@ describe.runIf(url && anonKey && serviceKey)('aktivasi lisensi', () => {
       .license.createFirstAdmin({
         fullName: 'Penyusup',
         email: `x-${suffix}@license.test`,
-        password: 'Rahasia-Pertama-2026',
+        password: PASSWORD,
       })
       .catch((e: unknown) => e);
     expect((again as DataError).kind).toBe('forbidden');
@@ -241,7 +241,7 @@ describe.runIf(url && anonKey && serviceKey)('aktivasi lisensi', () => {
     try {
       expect(await guest.license.status()).toMatchObject({ state: 'missing', needsAdmin: true });
       const early = await guest.license
-        .createFirstAdmin({ fullName: 'Pertama', email, password: 'Rahasia-Pertama-2026' })
+        .createFirstAdmin({ fullName: 'Pertama', email, password: PASSWORD })
         .catch((e: unknown) => e);
       expect((early as DataError).kind).toBe('conflict');
 
@@ -254,7 +254,7 @@ describe.runIf(url && anonKey && serviceKey)('aktivasi lisensi', () => {
       await guest.license.createFirstAdmin({
         fullName: 'Pertama',
         email,
-        password: 'Rahasia-Pertama-2026',
+        password: PASSWORD,
       });
       const { data: created } = await service
         .from('profiles')
@@ -269,7 +269,7 @@ describe.runIf(url && anonKey && serviceKey)('aktivasi lisensi', () => {
         .createFirstAdmin({
           fullName: 'Kedua',
           email: `kedua-${suffix}@license.test`,
-          password: 'Rahasia-Pertama-2026',
+          password: PASSWORD,
         })
         .catch((e: unknown) => e);
       expect((second as DataError).kind).toBe('forbidden');
