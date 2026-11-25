@@ -1,6 +1,13 @@
 # Cloudflare Pages (hosting). CSP sama dengan snippet csp_app di deploy/Caddyfile (on-premise).
+# no-transform mencegah Cloudflare menyisipkan skrip ke HTML (JavaScript Detections dan beacon Web
+# Analytics) yang ditolak CSP ini. Aset hasil build tetap boleh dikompresi Cloudflare.
 # Tanpa frame-ancestors: embed peta di situs klien adalah fitur (T-556).
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; worker-src 'self' blob:; child-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/assets/*
+  ! Cache-Control
+  Cache-Control: public, max-age=14400, must-revalidate
