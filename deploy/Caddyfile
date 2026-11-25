@@ -15,6 +15,14 @@
 	}
 }
 
+# CSP Admin dan Visitor: hanya script dan worker dari asal sendiri, tanpa plugin, base, atau form ke
+# asal lain. Gambar, tile peta dasar, dan API boleh dari https mana pun karena alamat API dan peta
+# dasar diatur per instalasi; wss untuk realtime Supabase. Gaya inline dibutuhkan pustaka UI (toast,
+# tur) yang menyisipkan <style> saat berjalan. Nilai yang sama ada di apps/*/public/_headers.
+(csp_app) {
+	header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; worker-src 'self' blob:; child-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'{args[0]}"
+}
+
 (cors) {
 	# Peran Kong di Supabase self-host: CORS terbuka untuk API (otorisasi lewat JWT dan RLS).
 	# cad-converter tidak ikut karena membatasi origin sendiri.
@@ -67,7 +75,7 @@
 	# Aset bernama hash boleh disimpan lama; index.html dan service worker selalu diperiksa ulang.
 	@hashed path /assets/*
 	header @hashed Cache-Control "public, max-age=31536000, immutable"
-	@entry path / /index.html /sw.js /manifest.webmanifest
+	@entry path / /index.html /sw.js /manifest.webmanifest /prefetch.js
 	header @entry Cache-Control "no-cache"
 	try_files {path} /index.html
 	file_server
@@ -83,6 +91,11 @@
 {$ADMIN_DOMAIN} {
 	tls {$TLS_DIRECTIVE}
 	import security
+	# Admin tidak boleh dibingkai situs lain (clickjacking): tombol publish, hapus, dan undang
+	# pengguna tidak boleh bisa diklik lewat halaman jebakan.
+	# frame-src https: untuk pratinjau Visitor (iframe) yang alamatnya diatur di Pengaturan Sistem.
+	import csp_app "; frame-src 'self' https:; frame-ancestors 'none'"
+	header X-Frame-Options DENY
 	root * /srv/admin
 	import spa
 }
@@ -90,6 +103,8 @@
 {$VISITOR_DOMAIN} {
 	tls {$TLS_DIRECTIVE}
 	import security
+	# Tanpa frame-ancestors: embed peta di situs klien adalah fitur (T-556).
+	import csp_app ""
 	root * /srv/visitor
 	import spa
 }
