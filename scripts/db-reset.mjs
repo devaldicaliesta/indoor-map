@@ -4,7 +4,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 
-const MIN_PASSWORD_LENGTH = 8;
+const MIN_PASSWORD_LENGTH = 12;
 
 if (existsSync('.env.local')) {
   process.loadEnvFile('.env.local');

@@ -57,10 +57,17 @@ services:
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_MAILER_AUTOCONFIRM: "true"
       GOTRUE_MAILER_SECURE_EMAIL_CHANGE_ENABLED: "true"
-      GOTRUE_PASSWORD_MIN_LENGTH: 8
+      # ASVS L2: password minimal 12 karakter (2.1.1); sesi tidak aktif 30 menit dan paling lama
+      # 12 jam (3.3.2). Nilai yang sama ada di packages/domain/src/auth.ts dan supabase/config.toml.
+      GOTRUE_PASSWORD_MIN_LENGTH: 12
+      # Tolak password yang pernah bocor (2.1.7) lewat HaveIBeenPwned: hanya 5 karakter awal hash
+      # SHA-1 yang dikirim (k-anonymity). Server tanpa internet tetap bisa menyimpan password (fail
+      # open); daftar password umum di packages/domain tetap berlaku di form Admin dan aktivasi.
+      GOTRUE_PASSWORD_HIBP_ENABLED: "true"
       GOTRUE_SECURITY_REFRESH_TOKEN_ROTATION_ENABLED: "true"
       GOTRUE_SECURITY_REFRESH_TOKEN_REUSE_INTERVAL: 10
-      GOTRUE_SESSIONS_INACTIVITY_TIMEOUT: 1h
+      GOTRUE_SESSIONS_INACTIVITY_TIMEOUT: 30m
+      GOTRUE_SESSIONS_TIMEBOX: 12h
       # Verifikasi dua langkah Admin (T-592a); wajib per role diatur di Pengaturan → Sistem.
       GOTRUE_MFA_TOTP_ENROLL_ENABLED: "true"
       GOTRUE_MFA_TOTP_VERIFY_ENABLED: "true"

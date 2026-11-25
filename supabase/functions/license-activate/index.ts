@@ -10,6 +10,7 @@
 // disimpan; SQL lalu mempercayai baris `licenses`. Kunci lisensi hanya diteruskan ke vendor
 // dan tidak pernah disimpan.
 
+import { PASSWORD_MIN_LENGTH, passwordProblem } from '../../../packages/domain/src/auth.ts';
 import { EULA_VERSION, needsEulaAcceptance } from '../../../packages/domain/src/eula.ts';
 import { LICENSE_PUBLIC_KEY } from '../../../packages/domain/src/license.publicKey.ts';
 import {
@@ -183,11 +184,17 @@ async function createFirstAdmin(input: Record<string, unknown>) {
   const fullName = typeof input.fullName === 'string' ? input.fullName.trim() : '';
   const email = typeof input.email === 'string' ? input.email.trim().toLowerCase() : '';
   const password = typeof input.password === 'string' ? input.password : '';
-  if (!fullName || !EMAIL.test(email) || password.length < 8) {
+  if (!fullName || !EMAIL.test(email)) {
+    throw new ActivationError(400, 'invalid', 'Nama, email, dan password wajib diisi.');
+  }
+  const weak = passwordProblem(password, { email, name: fullName });
+  if (weak) {
     throw new ActivationError(
       400,
       'invalid',
-      'Nama, email, dan password (minimal 8 karakter) wajib diisi.',
+      weak === 'too_short'
+        ? `Password minimal ${PASSWORD_MIN_LENGTH} karakter.`
+        : 'Password terlalu mudah ditebak. Hindari kata umum, deret angka, atau email dan nama Anda.',
     );
   }
   const created = await fetch(`${url}/auth/v1/admin/users`, {

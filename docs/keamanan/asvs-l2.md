@@ -13,13 +13,13 @@ Area: **A** = Admin, **V** = Visitor dan Info Point, **E** = Edge Function dan d
 | Bab | Butir kunci | A | V | E | P | Bukti / catatan |
 | --- | --- | --- | --- | --- | --- | --- |
 | V1 Arsitektur | Batas kepercayaan, otorisasi di server, komponen terdokumentasi | ✅ | ✅ | ✅ | ✅ | Klien tidak pernah memanggil Supabase langsung (`packages/data`); otorisasi di RLS/fungsi SQL (CLAUDE.md, `docs/02`); inventaris data `docs/legal/inventaris-data.md` |
-| V2 Autentikasi | 2.1.1 password ≥ 12 karakter | ⚠️ | — | ⚠️ | ⚠️ | Minimum 8 (`GOTRUE_PASSWORD_MIN_LENGTH`, `license-activate`) → **F-01** |
-| | 2.1.7 tolak password yang pernah bocor | ❌ | — | ❌ | — | Belum ada → **F-02** |
+| V2 Autentikasi | 2.1.1 password ≥ 12 karakter | ✅ | — | ✅ | ✅ | Minimum 12 (`GOTRUE_PASSWORD_MIN_LENGTH`, domain, `license-activate`) (F-01, selesai) |
+| | 2.1.7 tolak password yang pernah bocor | ✅ | — | ✅ | — | HaveIBeenPwned GoTrue (bila ada internet) + daftar password umum lokal (F-02, selesai) |
 | | 2.2.1 anti-otomasi / brute force | ✅ | — | ✅ | — | Kunci 15 menit setelah 5 gagal (0002), pesan generik tanpa membocorkan akun (0021), pemberitahuan ke pemilik akun |
 | | 2.2.x autentikasi multifaktor untuk akun berhak tinggi | ⚠️ | — | ⚠️ | — | TOTP wajib untuk staf vendor (T-617); Admin klien: TOTP bisa diwajibkan per role (T-592a), ditegakkan di `app.user_role()` dan Edge Function Super Admin → **F-03** |
 | | 2.5 pemulihan akun | ✅ | — | ✅ | — | Reset lewat tautan email sekali pakai (GoTrue); ganti password hanya lewat alur itu |
 | V3 Sesi | Token acak, rotasi refresh, cabut saat dinonaktifkan | ✅ | — | ✅ | ✅ | JWT 1 jam, rotasi refresh token, sesi dicabut saat akun dinonaktifkan atau dihapus (T-009, 0057) |
-| | 3.3.2 batas tidak aktif L2 (≤ 30 menit) / absolut (≤ 12 jam) | ⚠️ | — | — | ⚠️ | Tidak aktif 1 jam, tanpa batas absolut → **F-04** |
+| | 3.3.2 batas tidak aktif L2 (≤ 30 menit) / absolut (≤ 12 jam) | ✅ | — | — | ✅ | Tidak aktif 30 menit, absolut 12 jam (F-04, selesai) |
 | | 3.4 cookie | — | — | — | — | Token di storage klien dan dikirim lewat header `Authorization`, tanpa cookie sesi |
 | V4 Kontrol akses | Default menolak, per role dan per venue, di server | ✅ | ✅ | ✅ | — | RLS di semua tabel `public` (diperiksa: 0 tabel tanpa RLS); pgTAP per role dan per venue (`venue_isolation`, `rls`, `permissions-matrix`); semua fungsi `security definer` memakai `search_path` (0 pengecualian) |
 | | 4.3 antarmuka administrasi | ✅ | — | ✅ | — | Tindakan sistem/lisensi/pengguna khusus Super Admin di server (`user_data_*`, `license_*`, `system_settings` RLS) |
@@ -32,7 +32,7 @@ Area: **A** = Admin, **V** = Visitor dan Info Point, **E** = Edge Function dan d
 | V11 Logika bisnis | Batas laju dan kuota di server | ✅ | — | ✅ | — | Kuota lisensi/trial di SQL (`app.enforce_quota`), batas laju form trial per IP, publish per hari |
 | V12 Berkas | Batas ukuran dan tipe, tidak dieksekusi, disimpan di luar web root | ✅ | — | ✅ | ✅ | Bucket dengan `file_size_limit` dan `allowed_mime_types` (0005, 0007, 0020), tanpa SVG; cad-converter maks 50 MB, cek origin dan lisensi `cad_import` (T-514); DWG ditolak |
 | V13 API | Metode dibatasi, CORS, tanpa CSRF berbasis cookie | ✅ | ✅ | ✅ | ✅ | Edge Function hanya POST (11/11); CORS `*` aman karena autentikasi lewat header bearer, bukan cookie; cad-converter membatasi origin |
-| V14 Konfigurasi | Header keamanan, image diperbarui, tanpa info debug | ⚠️ | ⚠️ | ✅ | ⚠️ | HSTS, `nosniff`, `Referrer-Policy`, header `Server` dihapus; **CSP dan `frame-ancestors` belum ada** → **F-07**; image dasar diperbarui saat build (T-603a) |
+| V14 Konfigurasi | Header keamanan, image diperbarui, tanpa info debug | ✅ | ⚠️ | ✅ | ✅ | HSTS, `nosniff`, `Referrer-Policy`, header `Server` dihapus; CSP ketat dan `frame-ancestors 'none'` Admin (F-07, selesai, T-603c); image dasar diperbarui saat build (T-603a) |
 
 ## 2. Temuan
 
@@ -40,13 +40,13 @@ Tingkat mengikuti dampak pada instalasi klien biasa (jaringan gedung, Admin dipa
 
 | ID | Temuan | Tingkat | Rekomendasi | Tindak lanjut |
 | --- | --- | --- | --- | --- |
-| F-01 | Password minimum 8 karakter (ASVS 2.1.1 meminta ≥ 12) | Sedang | `GOTRUE_PASSWORD_MIN_LENGTH=12` di `deploy/compose.yml` dan `supabase/config.toml`, form Admin, dan `license-activate` (Super Admin pertama) | Pertanyaan terbuka T-603a (mengubah perilaku untuk pengguna) |
-| F-02 | Password yang pernah bocor tidak ditolak (2.1.7) | Rendah | GoTrue `password_hibp_enabled` butuh internet. Untuk server tertutup, daftar lokal password umum di hook | Bersama F-01 |
+| F-01 | Password minimum 8 karakter (ASVS 2.1.1 meminta ≥ 12) | Sedang | `GOTRUE_PASSWORD_MIN_LENGTH=12` di `deploy/compose.yml` dan `supabase/config.toml`, form Admin, dan `license-activate` (Super Admin pertama) | **Selesai** 2026-11-25: minimal 12 di GoTrue (`deploy/compose.yml`, `supabase/config.toml`), `PASSWORD_MIN_LENGTH` domain (form Admin), dan `license-activate`. Pengguna lama tetap bisa masuk; aturan berlaku saat password baru dibuat |
+| F-02 | Password yang pernah bocor tidak ditolak (2.1.7) | Rendah | GoTrue `password_hibp_enabled` butuh internet. Untuk server tertutup, daftar lokal password umum di hook | **Selesai** 2026-11-25: `GOTRUE_PASSWORD_HIBP_ENABLED` (fail open bila server tanpa internet) ditambah daftar password umum, deret, dan email/nama pengguna di `passwordProblem` (domain) yang dijalankan form Admin dan `license-activate` di server |
 | F-03 | Super Admin klien tanpa 2FA | Sedang | 2FA TOTP untuk Admin | **T-592a** (review): Super Admin mewajibkannya per role di Pengaturan → Sistem; SSO menyusul T-592b |
-| F-04 | Batas sesi tidak aktif 1 jam dan tanpa batas absolut (3.3.2 L2: 30 menit / 12 jam) | Rendah | `GOTRUE_SESSIONS_INACTIVITY_TIMEOUT=30m`, `GOTRUE_SESSIONS_TIMEBOX=12h` | Bersama F-01 |
+| F-04 | Batas sesi tidak aktif 1 jam dan tanpa batas absolut (3.3.2 L2: 30 menit / 12 jam) | Rendah | `GOTRUE_SESSIONS_INACTIVITY_TIMEOUT=30m`, `GOTRUE_SESSIONS_TIMEBOX=12h` | **Selesai** 2026-11-25: `GOTRUE_SESSIONS_INACTIVITY_TIMEOUT=30m`, `GOTRUE_SESSIONS_TIMEBOX=12h`; timer klien Admin 30 menit (`SESSION_IDLE_TIMEOUT_MS`) |
 | F-05 | Log kontainer Docker tanpa rotasi; bisa memuat IP/email | Rendah | `logging` json-file `max-size`/`max-file` di `deploy/compose.yml` | **Selesai** 2026-11-25: `x-logging` (json-file, 10 MB × 3) untuk semua layanan |
 | F-06 | HSTS tanpa `includeSubDomains` | Rendah | Tambahkan bila klien memakai subdomain khusus untuk PanduArah. Dapat mengganggu subdomain lain milik klien, jadi dibuat opsi | Bersama F-07 |
-| F-07 | Tanpa Content-Security-Policy dan `frame-ancestors`/`X-Frame-Options`; Admin bisa dibingkai situs lain (clickjacking) | Sedang | Admin: `frame-ancestors 'none'` + CSP ketat (`script-src 'self'`, `worker-src blob:` untuk MapLibre). Visitor: `frame-ancestors` dari pengaturan embed (T-556). Diuji E2E karena MapLibre, tile, dan service worker sensitif terhadap CSP | Task lanjutan (diusulkan T-603c), sebelum pentest agar tidak menjadi temuan berulang |
+| F-07 | Tanpa Content-Security-Policy dan `frame-ancestors`/`X-Frame-Options`; Admin bisa dibingkai situs lain (clickjacking) | Sedang | Admin: `frame-ancestors 'none'` + CSP ketat (`script-src 'self'`, `worker-src blob:` untuk MapLibre). Visitor: `frame-ancestors` dari pengaturan embed (T-556). Diuji E2E karena MapLibre, tile, dan service worker sensitif terhadap CSP | **Selesai** 2026-11-25 (T-603c): CSP `script-src 'self'` tanpa `unsafe-inline`/`unsafe-eval` untuk Admin dan Visitor di `deploy/Caddyfile` (`csp_app`) dan `apps/*/public/_headers`; Admin `frame-ancestors 'none'` + `X-Frame-Options: DENY`; Visitor tetap boleh dibingkai (embed T-556) |
 
 Tidak ditemukan celah tingkat tinggi atau kritis di kode PanduArah pada tinjauan ini. Kerentanan
 tinggi di dependency dan image yang ditemukan pemindaian sudah diperbaiki (riwayat di
