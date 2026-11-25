@@ -1,3 +1,5 @@
+import { SESSION_IDLE_TIMEOUT_MS } from '@indoor/domain';
+
 /** `from` dibawa ke /login lewat state router. */
 export function readFromPath(state: unknown): string | undefined {
   if (typeof state !== 'object' || state === null) return undefined;
@@ -5,8 +7,10 @@ export function readFromPath(state: unknown): string | undefined {
   return typeof from === 'string' ? from : undefined;
 }
 
+const IDLE_MINUTES = SESSION_IDLE_TIMEOUT_MS / 60_000;
+
 export const NOTICES = {
-  idle: 'Sesi berakhir karena tidak ada aktivitas selama 60 menit. Silakan masuk lagi.',
+  idle: `Sesi berakhir karena tidak ada aktivitas selama ${IDLE_MINUTES} menit. Silakan masuk lagi.`,
   passwordChanged: 'Password berhasil diubah. Masuk dengan password baru.',
 } as const;
 
