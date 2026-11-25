@@ -25,7 +25,7 @@ Area: **A** = Admin, **V** = Visitor dan Info Point, **E** = Edge Function dan d
 | | 4.3 antarmuka administrasi | ✅ | — | ✅ | — | Tindakan sistem/lisensi/pengguna khusus Super Admin di server (`user_data_*`, `license_*`, `system_settings` RLS) |
 | V5 Validasi | Validasi di server, query berparameter, encoding keluaran | ✅ | ✅ | ✅ | — | Skema zod di `packages/domain` + CHECK SQL; PostgREST/RPC berparameter; React meng-escape; tanpa `dangerouslySetInnerHTML` (diperiksa: 0); atribusi peta dasar di-escape (T-307) |
 | V6 Kriptografi | Algoritme kuat, kunci tidak di kode | ✅ | — | ✅ | ✅ | Lisensi Ed25519; kunci publik vendor ditanam saat rilis dan kunci DEV ditolak (T-511/T-618); password SMTP di Vault (0004); token trial di-hash SHA-256 |
-| V7 Log | Peristiwa keamanan dicatat, tanpa rahasia, retensi | ✅ | — | ✅ | ⚠️ | `audit_events` (masuk, gagal masuk, role, publish, lisensi, pengaturan, export/hapus data, EULA); masa simpan diatur (0057); log kontainer belum dirotasi → **F-05** |
+| V7 Log | Peristiwa keamanan dicatat, tanpa rahasia, retensi | ✅ | — | ✅ | ✅ | `audit_events` (masuk, gagal masuk, role, publish, lisensi, pengaturan, export/hapus data, EULA); masa simpan diatur (0057); log kontainer dirotasi 3 × 10 MB per layanan (F-05, selesai) |
 | V8 Perlindungan data | Data sensitif tidak di-cache publik, minimalisasi | ✅ | ✅ | ✅ | — | Snapshot publik hanya berisi data yang dipublish; export/hapus data akun (T-601a); Visitor tanpa data pribadi |
 | V9 Komunikasi | TLS untuk semua koneksi luar, HSTS | ✅ | ✅ | — | ⚠️ | Caddy TLS (Let's Encrypt/sertifikat klien/CA internal); HSTS 1 tahun tanpa `includeSubDomains` → **F-06** |
 | V10 Kode berbahaya | Integritas dependency, pemindaian | ✅ | ✅ | ✅ | ✅ | Lockfile beku di CI; `pnpm audit`, `pip-audit`, Trivy, gitleaks (T-603a); pemeriksaan lisensi pihak ketiga (T-511) |
@@ -44,7 +44,7 @@ Tingkat mengikuti dampak pada instalasi klien biasa (jaringan gedung, Admin dipa
 | F-02 | Password yang pernah bocor tidak ditolak (2.1.7) | Rendah | GoTrue `password_hibp_enabled` butuh internet. Untuk server tertutup, daftar lokal password umum di hook | Bersama F-01 |
 | F-03 | Super Admin klien tanpa 2FA | Sedang | 2FA TOTP untuk Admin | **T-592a** (review): Super Admin mewajibkannya per role di Pengaturan → Sistem; SSO menyusul T-592b |
 | F-04 | Batas sesi tidak aktif 1 jam dan tanpa batas absolut (3.3.2 L2: 30 menit / 12 jam) | Rendah | `GOTRUE_SESSIONS_INACTIVITY_TIMEOUT=30m`, `GOTRUE_SESSIONS_TIMEBOX=12h` | Bersama F-01 |
-| F-05 | Log kontainer Docker tanpa rotasi; bisa memuat IP/email | Rendah | `logging` json-file `max-size`/`max-file` di `deploy/compose.yml` | Pertanyaan terbuka T-601a |
+| F-05 | Log kontainer Docker tanpa rotasi; bisa memuat IP/email | Rendah | `logging` json-file `max-size`/`max-file` di `deploy/compose.yml` | **Selesai** 2026-11-25: `x-logging` (json-file, 10 MB × 3) untuk semua layanan |
 | F-06 | HSTS tanpa `includeSubDomains` | Rendah | Tambahkan bila klien memakai subdomain khusus untuk PanduArah. Dapat mengganggu subdomain lain milik klien, jadi dibuat opsi | Bersama F-07 |
 | F-07 | Tanpa Content-Security-Policy dan `frame-ancestors`/`X-Frame-Options`; Admin bisa dibingkai situs lain (clickjacking) | Sedang | Admin: `frame-ancestors 'none'` + CSP ketat (`script-src 'self'`, `worker-src blob:` untuk MapLibre). Visitor: `frame-ancestors` dari pengaturan embed (T-556). Diuji E2E karena MapLibre, tile, dan service worker sensitif terhadap CSP | Task lanjutan (diusulkan T-603c), sebelum pentest agar tidak menjadi temuan berulang |
 

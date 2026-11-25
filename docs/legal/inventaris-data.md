@@ -24,7 +24,7 @@ Semua data di bagian ini disimpan di server klien (database PostgreSQL dan Stora
 | A8 | Email sistem (SMTP klien) | Email dan nama penerima, isi undangan/reset password/pemberitahuan kunci | Mengelola akun | Kontrak | Mengikuti server email klien (di luar aplikasi) | Kebijakan email klien |
 | A9 | Pengunjung Visitor dan Info Point | **Tidak ada akun dan tidak ada data pribadi di server.** Peramban pengunjung menyimpan pilihan bahasa dan status tur (`localStorage`) serta cache peta (service worker) | Bahasa, tur, peta offline | Tidak diperlukan, karena data hanya tersimpan di perangkat pengunjung | Sampai pengunjung menghapus data peramban | Pengunjung sendiri |
 | A10 | Analitik penggunaan (T-591) | Dirancang **anonim** tanpa ID perangkat; belum dibuat | Statistik pemakaian | Kepentingan yang sah | Diatur klien (T-601b) | T-601b |
-| A11 | Log kontainer (Docker) | Log GoTrue/PostgREST dapat memuat IP dan email saat masuk | Diagnosis gangguan | Kepentingan yang sah | **Belum dibatasi otomatis.** Klien disarankan mengatur rotasi log Docker (`max-size`, `max-file`) | Rotasi log |
+| A11 | Log kontainer (Docker) | Log GoTrue/PostgREST dapat memuat IP dan email saat masuk | Diagnosis gangguan | Kepentingan yang sah | Dirotasi otomatis: paling banyak 3 berkas x 10 MB per layanan (`x-logging` di `deploy/compose.yml`), berkas lama terhapus sendiri | Rotasi log |
 | A12 | Cadangan (`deploy/backup.sh`) | Salinan seluruh database dan Storage | Pemulihan bencana | Kepentingan yang sah | `RETENTION_DAYS`, bawaan 14 hari | Data yang dihapus di aplikasi masih ada di cadangan sampai cadangan itu dihapus otomatis. Hal ini perlu disebut saat menjawab permintaan hapus |
 | A13 | Lisensi dan check-in | ID lisensi dan ID instalasi (bukan data pribadi), nama organisasi klien | Validasi lisensi | Kontrak | Selama lisensi | — |
 
@@ -51,6 +51,5 @@ Disimpan di project Supabase vendor dan Cloudflare Pages (`docs/23-trial-hosting
 
 | Celah | Rencana |
 | --- | --- |
-| Log kontainer belum dirotasi otomatis (A11) | Tambahkan opsi `logging` di `deploy/compose.yml`. Dicatat sebagai pertanyaan terbuka T-601a |
 | Pemberitahuan privasi analitik di Visitor (A10) | T-601b |
 | `account_notices` tanpa batas waktu selama akun ada (A5) | Volume kecil (paling banyak satu per jam per akun). Ditinjau ulang bersama T-532 (audit log lengkap) |
