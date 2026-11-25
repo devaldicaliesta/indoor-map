@@ -1,0 +1,6 @@
+# Cloudflare Pages (hosting). CSP sama dengan snippet csp_app di deploy/Caddyfile (on-premise).
+# Tanpa frame-ancestors: embed peta di situs klien adalah fitur (T-556).
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; worker-src 'self' blob:; child-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

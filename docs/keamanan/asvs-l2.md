@@ -32,7 +32,7 @@ Area: **A** = Admin, **V** = Visitor dan Info Point, **E** = Edge Function dan d
 | V11 Logika bisnis | Batas laju dan kuota di server | ✅ | — | ✅ | — | Kuota lisensi/trial di SQL (`app.enforce_quota`), batas laju form trial per IP, publish per hari |
 | V12 Berkas | Batas ukuran dan tipe, tidak dieksekusi, disimpan di luar web root | ✅ | — | ✅ | ✅ | Bucket dengan `file_size_limit` dan `allowed_mime_types` (0005, 0007, 0020), tanpa SVG; cad-converter maks 50 MB, cek origin dan lisensi `cad_import` (T-514); DWG ditolak |
 | V13 API | Metode dibatasi, CORS, tanpa CSRF berbasis cookie | ✅ | ✅ | ✅ | ✅ | Edge Function hanya POST (11/11); CORS `*` aman karena autentikasi lewat header bearer, bukan cookie; cad-converter membatasi origin |
-| V14 Konfigurasi | Header keamanan, image diperbarui, tanpa info debug | ⚠️ | ⚠️ | ✅ | ⚠️ | HSTS, `nosniff`, `Referrer-Policy`, header `Server` dihapus; **CSP dan `frame-ancestors` belum ada** → **F-07**; image dasar diperbarui saat build (T-603a) |
+| V14 Konfigurasi | Header keamanan, image diperbarui, tanpa info debug | ✅ | ⚠️ | ✅ | ✅ | HSTS, `nosniff`, `Referrer-Policy`, header `Server` dihapus; CSP ketat dan `frame-ancestors 'none'` Admin (F-07, selesai, T-603c); image dasar diperbarui saat build (T-603a) |
 
 ## 2. Temuan
 
@@ -46,7 +46,7 @@ Tingkat mengikuti dampak pada instalasi klien biasa (jaringan gedung, Admin dipa
 | F-04 | Batas sesi tidak aktif 1 jam dan tanpa batas absolut (3.3.2 L2: 30 menit / 12 jam) | Rendah | `GOTRUE_SESSIONS_INACTIVITY_TIMEOUT=30m`, `GOTRUE_SESSIONS_TIMEBOX=12h` | **Selesai** 2026-11-25: `GOTRUE_SESSIONS_INACTIVITY_TIMEOUT=30m`, `GOTRUE_SESSIONS_TIMEBOX=12h`; timer klien Admin 30 menit (`SESSION_IDLE_TIMEOUT_MS`) |
 | F-05 | Log kontainer Docker tanpa rotasi; bisa memuat IP/email | Rendah | `logging` json-file `max-size`/`max-file` di `deploy/compose.yml` | **Selesai** 2026-11-25: `x-logging` (json-file, 10 MB × 3) untuk semua layanan |
 | F-06 | HSTS tanpa `includeSubDomains` | Rendah | Tambahkan bila klien memakai subdomain khusus untuk PanduArah. Dapat mengganggu subdomain lain milik klien, jadi dibuat opsi | Bersama F-07 |
-| F-07 | Tanpa Content-Security-Policy dan `frame-ancestors`/`X-Frame-Options`; Admin bisa dibingkai situs lain (clickjacking) | Sedang | Admin: `frame-ancestors 'none'` + CSP ketat (`script-src 'self'`, `worker-src blob:` untuk MapLibre). Visitor: `frame-ancestors` dari pengaturan embed (T-556). Diuji E2E karena MapLibre, tile, dan service worker sensitif terhadap CSP | Task lanjutan (diusulkan T-603c), sebelum pentest agar tidak menjadi temuan berulang |
+| F-07 | Tanpa Content-Security-Policy dan `frame-ancestors`/`X-Frame-Options`; Admin bisa dibingkai situs lain (clickjacking) | Sedang | Admin: `frame-ancestors 'none'` + CSP ketat (`script-src 'self'`, `worker-src blob:` untuk MapLibre). Visitor: `frame-ancestors` dari pengaturan embed (T-556). Diuji E2E karena MapLibre, tile, dan service worker sensitif terhadap CSP | **Selesai** 2026-11-25 (T-603c): CSP `script-src 'self'` tanpa `unsafe-inline`/`unsafe-eval` untuk Admin dan Visitor di `deploy/Caddyfile` (`csp_app`) dan `apps/*/public/_headers`; Admin `frame-ancestors 'none'` + `X-Frame-Options: DENY`; Visitor tetap boleh dibingkai (embed T-556) |
 
 Tidak ditemukan celah tingkat tinggi atau kritis di kode PanduArah pada tinjauan ini. Kerentanan
 tinggi di dependency dan image yang ditemukan pemindaian sudah diperbaiki (riwayat di

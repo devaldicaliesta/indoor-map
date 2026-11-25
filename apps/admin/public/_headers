@@ -1,8 +1,8 @@
-# Cloudflare Pages (hosting): Admin tidak boleh dibingkai situs lain, agar tombol publish, hapus,
-# atau undang pengguna tidak bisa diklik lewat halaman jebakan (clickjacking, TC-SEC-57).
-# Visitor sengaja tidak memakai aturan ini: embed iframe adalah fitur (T-556).
+# Cloudflare Pages (hosting). CSP sama dengan snippet csp_app di deploy/Caddyfile (on-premise).
+# Admin tidak boleh dibingkai situs lain, agar tombol publish, hapus, atau undang pengguna tidak bisa
+# diklik lewat halaman jebakan (clickjacking, TC-SEC-57). frame-src https: untuk pratinjau Visitor.
 /*
   X-Frame-Options: DENY
-  Content-Security-Policy: frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; worker-src 'self' blob:; child-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'self' https:; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
